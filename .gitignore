@@ -3,6 +3,7 @@ config.json
 *.key
 local_tests/
 coverage_report/
+certs/
 environment.env
 
 .idea

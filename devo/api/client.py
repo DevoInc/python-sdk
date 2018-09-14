@@ -241,6 +241,12 @@ class Client(object):
                    "query": query, "queryId": query_id,
                    "mode": {"type": opts['response']}}
 
+        if query:
+            payload['query'] = query
+
+        if query_id:
+            payload['queryId'] = query_id
+
         if opts['limit']:
             payload['limit'] = opts['limit']
 

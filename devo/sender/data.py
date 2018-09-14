@@ -357,7 +357,7 @@ class Sender:
         Send function when bytes, sure py3x. Can be zipped
         """
         msg = COMPOSE_BYTES % (self.compose_mem(tag, bytes=True, **kwargs), msg)
-        if kwargs.get('zipped', False):
+        if kwargs.get('zip', False):
             self.fill_buffer(msg)
         else:
             self.send_raw(msg, multiline=kwargs.get('multiline', False))

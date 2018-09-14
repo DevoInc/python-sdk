@@ -18,6 +18,7 @@ class TestSender(unittest.TestCase):
         self.cert = os.getenv('DEVO_SENDER_CERT', None)
         self.chain = os.getenv('DEVO_SENDER_CHAIN', None)
 
+        self.test_tcp = os.getenv('DEVO_TEST_TCP', False)
         self.my_app = 'test.drop.devosender'
         self.my_date = 'my.date.test.sender'
 
@@ -25,10 +26,13 @@ class TestSender(unittest.TestCase):
         self.testfile_multiline = "%s%stestfile_multiline.txt" % (os.path.dirname(os.path.abspath(__file__)), os.sep)
 
     def test_tcp_rt_send(self):
-        engine_config = SenderConfigTCP(address=self.tcp_server, port=self.tcp_port)
-        con = Sender(engine_config)
-        for i in range(0, 100):
-            con.send(tag=self.my_app, msg='Test TCP msg')
+        if self.test_tcp == "True":
+            engine_config = SenderConfigTCP(address=self.tcp_server, port=self.tcp_port)
+            con = Sender(engine_config)
+            for i in range(0, 100):
+                con.send(tag=self.my_app, msg='Test TCP msg')
+        else:
+            return True
 
     def test_ssl_rt_send(self):
         engine_config = SenderConfigSSL(address=self.server, port=self.port,
@@ -48,12 +52,15 @@ class TestSender(unittest.TestCase):
         con.send(tag=self.my_app, msg=content, multiline=True)
 
     def test_rt_send_no_certs(self):
-        engine_config = SenderConfigSSL(address=self.tcp_server,
-                                        port=self.tcp_port,
-                                        certs_req=False)
-        con = Sender(engine_config)
-        for i in range(0, 100):
-            con.send(tag=self.my_app, msg='Test RT msg')
+        if self.test_tcp == "True":
+            engine_config = SenderConfigSSL(address=self.tcp_server,
+                                            port=self.tcp_port,
+                                            certs_req=False)
+            con = Sender(engine_config)
+            for i in range(0, 100):
+                con.send(tag=self.my_app, msg='Test RT msg')
+        else:
+            return True
 
 
 if __name__ == '__main__':

@@ -25,11 +25,11 @@ class TestApi(unittest.TestCase):
 
     def test_query_id(self):
         api = Client(self.key, self.secret, self.uri)
-        result = api.query(query_id=self.query_id, dates={'from': 'now()-1*minute()', 'to': 'now()'},
+        result = api.query(query_id=self.query_id,
                               stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertNotEquals(result, {})
-        self.assertEqual(len(json.loads(result)['object']), 1)
+        self.assertEqual(type(len(json.loads(result)['object'])), type(1))
         api.close()
 
     def test_query_yesterday_to_today(self):
