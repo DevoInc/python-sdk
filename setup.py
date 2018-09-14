@@ -64,7 +64,7 @@ setup(
     description="Devo Software Development Kit for Python.",
     license=find_meta("license"),
     name="devo-sdk",
-    url="http://github.com/devo/devo-sdk-python",
+    url="https://github.com/DevoInc/python-sdk",
     version=find_meta("version"),
     classifiers=CLASSIFIERS,
     packages=PACKAGES,
