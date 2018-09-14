@@ -1,0 +1,62 @@
+"74.125.82.53|mail-mail-mail.google.com|mail-mail-mail.google.com|42213|ESMTP|devo.net||emaildepruebas|emaildepruebas@devo.net|5928D1600040B|emaildepruebas@devo.net||||emaildealguien@gmail.com|1811|emaildepruebas"|Return-Path: <emaildealguien@gmail.com>
+Received: from mail-mail-mail.google.com (mail-mail-mail.google.com [74.125.82.53])
+\tby smtp.net (Postfix) with ESMTPS id 5928D1600040B
+\tfor <emaildepruebas@devo.net>; Thu, 11 Dec 2014 00:43:42 +0000 (UTC)
+Received: by mail-mail-mail.google.com with SMTP id l18so5058104wgh.40
+        for <emaildepruebas@devo.net>; Wed, 10 Dec 2014 16:45:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=uBlGt1/db4sGJTl4tZi1v2ZGszuDvzGFrMve2NRssR8=;
+        b=Y2cLTYuDYjefje+DRqM37hZfTpCuG4c+EHFrbjCOJuI8pG1esWOxmTn9oCQUV6nt9l
+         tn1H1HsesNPFvkRIUd9sNhOiFfceRLIN/4yLNvBvAKFblSPsJGA/k97ULokhozEDobSW
+         ZyBETlMksMaf5dK3rqG7lB2vo8TXyduq44d904tT6ywQimMxC+jUccKjQBEz0tzUqwRs
+         ZjwRc0Dgor0Opjnkn1kUuNJzZ4vNVYnTCiQ9ktY4HhA+t46WG7nbWJgwQm0fnvCBkBEh
+         MREPyhSV61XKa1tRqCXWEQYUk92bJYRJ48rG4Yd9zj9Ohj8pK60gY5TcMgB0/1OM7E6L
+         ok/g==
+MIME-Version: 1.0
+X-Received: by 10.180.89.133 with SMTP id bo5mr10609291wib.78.1418258712404;
+ Wed, 10 Dec 2014 16:45:12 -0800 (PST)
+Received: by 10.194.163.234 with HTTP; Wed, 10 Dec 2014 16:45:12 -0800 (PST)
+Date: Thu, 11 Dec 2014 01:45:12 +0100
+Message-ID: <CAAKjwerg9J+yN-+oxBZwO06nqY7orjekkX3UvQoQAFeb7aciow@mail.gmail.com>
+Subject: test1
+From: Mister Alguien <emaildealguien@gmail.com>
+To: emaildepruebas@devo.net
+Content-Type: multipart/alternative; boundary=e89a8f3ba109c0aa280509e616a1
+
+--e89a8f3ba109c0aa280509e616a1
+Content-Type: text/plain; charset=UTF-8
+
+prueba de correo1
+
+Salu2
+
+--e89a8f3ba109c0aa280509e616a1
+Content-Type: text/html; charset=UTF-8
+
+<div dir="ltr">prueba de correo1<div><br></div><div>Salu2</div><div><br></div></div>
+
+--e89a8f3ba109c0aa280509e616a1--
+##&&##devo_headers_separator##&&##received:['from mail-mail-mail.google.com (mail-mail-mail.google.com [74.125.82.53])
+\tby smtp.net (Postfix) with ESMTPS id 5928D1600040B
+\tfor <emaildepruebas@devo.net>; Thu, 11 Dec 2014 00:43:42 +0000 (UTC)', 'by mail-mail-mail.google.com with SMTP id l18so5058104wgh.40
+        for <emaildepruebas@devo.net>; Wed, 10 Dec 2014 16:45:12 -0800 (PST)', 'by 10.10.10.10 with HTTP; Wed, 10 Dec 2014 16:45:12 -0800 (PST)']&lt_head&from:['Mister Alguien <emaildealguien@gmail.com>']&lt_head&return-path:['<emaildealguien@gmail.com>']&lt_head&x-received:['by 10.10.10.10 with SMTP id bo5mr10609291wib.78.1418258712404;
+ Wed, 10 Dec 2014 16:45:12 -0800 (PST)']&lt_head&subject:['test1']&lt_head&lt-received-dict:['mail-mail-mail.google.com - 20.20.20.20', ' - ', ' - ']&lt_head&to:['emaildepruebas@devo.net']&lt_head&dkim-signature:['v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=uBlGt1/db4sGJTl4tZi1v2ZGszuDvzGFrMve2NRssR8=;
+        b=Y2cLTYuDYjefje+DRqM37hZfTpCuG4c+EHFrbjCOJuI8pG1esWOxmTn9oCQUV6nt9l
+         tn1H1HsesNPFvkRIUd9sNhOiFfceRLIN/4yLNvBvAKFblSPsJGA/k97ULokhozEDobSW
+         ZyBETlMksMaf5dK3rqG7lB2vo8TXyduq44d904tT6ywQimMxC+jUccKjQBEz0tzUqwRs
+         ZjwRc0Dgor0Opjnkn1kUuNJzZ4vNVYnTCiQ9ktY4HhA+t46WG7nbWJgwQm0fnvCBkBEh
+         MREPyhSV61XKa1tRqCXWEQYUk92bJYRJ48rG4Yd9zj9Ohj8pK60gY5TcMgB0/1OM7E6L
+         ok/g==']&lt_head&date:['Thu, 11 Dec 2014 01:45:12 +0100']&lt_head&message-id:['<CAAKjwerg9J+yN-+oxBZwO06nqY7orjekkX3UvQoQAFeb7aciow@mail.gmail.com>']&lt_head&content-type:['multipart/alternative; boundary=e89a8f3ba109c0aa280509e616a1']&lt_head&mime-version:['1.0']&lt_head&##&&##devo_body_separator##&&##prueba de correo1
+
+Salu2
+
+#-&LT-MAIL-SEPARATOR&-#
+<div dir="ltr">prueba de correo1<div><br></div><div>Salu2</div><div><br></div></div>
+
+#-&LT-MAIL-SEPARATOR&-#
+##&&##devo_attach_names_separator##&&####&&##devo_attach_hash_separator##&&####&&##devo_attach_content_separator##&&##"
