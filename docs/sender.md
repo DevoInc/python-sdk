@@ -21,7 +21,7 @@ Before sending the lookup information it is necessary to initialize the collecto
 
 #### Initializing the collector
 
-There are differents ways to initialize the collector configuration
+There are differents ways and types to initialize the collector configuration
 
 Variable descriptions
 
@@ -35,30 +35,43 @@ Variable descriptions
 - With certificates:
 	
 	```python
-	engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
+    engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
+    con = Sender(engine_config)
 	```
 	
 - Without certificates SSL
 
 	```python
-	engine_config = SenderConfigSSL(address=SERVER, port=PORT, certs_req=False)
+    engine_config = SenderConfigSSL(address=SERVER, port=PORT, certs_req=False)
+    con = Sender(engine_config)
 	```
 	
 - Without certificates TCP
 	
 	```python
-	engine_config = SenderConfigTCP(address=SERVER, port=PORT)
+    engine_config = SenderConfigTCP(address=SERVER, port=PORT)
+    con = Sender(engine_config)
 	```
 	
+
+- From config function - TCP example
+  ```python
+    con = Sender.from_config({"address": "relayurl", "port": 443, "type": "TCP"})
+  ```
+
+- From config function - SSL example
+  ```python
+    con = Sender.from_config({"address": "relayurl", "port": 443, "key": "/tmp/key.key", "cert": "/tmp/cert.cert", "chain": "/tmp/chain.crt"})
+  ```
+
 - From a file
 
 The file must contain a json format structure with the values into _sender_ variable. The variables will depend of certificate type.
 
-This is a full example:
+This is a example:
 
 ```
 {   
-    ...
     "sender": {
 	        "address":"devo-relay",
 	        "port": 443,
@@ -66,7 +79,6 @@ This is a full example:
 	        "cert": "/devo/certs/cert.crt",
 	        "chain": "/devo/certs/chain.crt"
 	    },
-	    ...
 }
 ```
 
@@ -152,13 +164,11 @@ Example:
 
 ```
 {   
-    ...
     "lookup": {
         "name": "Test_Lookup_of_180306_02",
         "file": "test_lookup.csv",
         "lkey": "KEY"
     }
-    ...
 }
 ```
 
@@ -342,16 +352,11 @@ the common values: url, port, certificates. And then send with the call the tag,
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
  
-**Config file example part:**
+**Config file example:** 
+
 
 ```json
   {
-    ...
-    },
-    "api": {
-      "key": "mysuperkey",
-      "secret": "mysecretidentityofagent"
-    },
     "sender": {
       "address":"devo-relay",
       "port": 443,
@@ -362,16 +367,12 @@ arguments of the call over the configuration file
     "lookup": {
       "name": "Test lookup",
       "file": "/lookups/lookup.csv",
-      "lkey": "KEY",
-      ...
-    },
-    "nothing": {
-      "nonexistence": True,
-    ...
+      "lkey": "KEY"
+    }
   }
-
 ```
 
+You can see another example in docs/common/config.example.json
 
 #### devo-sender data
 `data` command is used to send logs to devo

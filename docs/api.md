@@ -126,20 +126,14 @@ the common values: url, port, certificates. And then send with the call the tag,
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
 
-**Config file key:** The CLI uses the "api" key to search for information.
+**Config file key:** The CLI uses the "api" key to search for information. You can see one example in docs/common/config.example.json
 
 ```json
   {
-    ...
-      "other": "things"
-    },
     "api": {
       "key": "MyAPIkeytoaccessdevo",
       "secret": "MyAPIsecrettoaccessdevo"
-    },
-    "nothing": {
-      "imexists": False,
-    ...
+    }
   }
 ```
 

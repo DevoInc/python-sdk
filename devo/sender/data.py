@@ -407,21 +407,18 @@ class Sender:
         return con
 
     @staticmethod
-    def from_config(config, con_type="SSL", logger=None):
+    def from_config(config, con_type=None, logger=None):
         """ Function for create Sender object from config file
         :param config: config Devo file
         :param con_type: type of connection
         :param logger: logger handler, default None
         :return: Sender object
         """
-        if "type" in config:
-            con_type = config['type'].upper()
+        con_type = config['type'].upper() if "type" in config and con_type is not None else "SSL"
+        certs_req = config['certs_req'] if "certs_req" in config else True
 
         if con_type == "SSL":
-            if "certreq" not in config:
-                config['certreq'] = True
-
-            if config['certreq']:
+            if certs_req:
                 return Sender(
                     SenderConfigSSL(
                         address=config['address'],

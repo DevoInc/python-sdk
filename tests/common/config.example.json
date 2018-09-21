@@ -1,0 +1,19 @@
+{
+  "sender": {
+    "address":"devo-relay",
+    "port": 443,
+    "key": "/devo/certs/key.key",
+    "cert": "/devo/certs/cert.crt",
+    "chain": "/devo/certs/chain.crt"
+    },
+  "lookup": {
+    "name": "Test lookup",
+    "file": "/lookups/lookup.csv",
+    "lkey": "KEY"
+  },
+  "api": {
+      "key": "MyAPIkeytoaccessdevo",
+      "secret": "MyAPIsecrettoaccessdevo",
+      "url": "https://api-us.logtrust.com/search/query"
+  } 
+}
