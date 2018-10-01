@@ -14,7 +14,9 @@ class TestLookup(unittest.TestCase):
         self.chain = os.getenv('DEVO_SENDER_CHAIN', None)
 
         self.lookup_name = 'Test_Lookup_of_today'
-        self.lookup_file = "%s%stestfile_lookup.csv" % (os.path.dirname(os.path.abspath(__file__)), os.sep)
+        self.lookup_file = "".join((os.path.dirname(os.path.abspath(__file__)),
+                                    os.sep, "testfile_lookup.csv"))
+
         self.lookup_key = 'KEY'
 
     def test_ssl_lookup_csv_send(self):

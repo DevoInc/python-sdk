@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased] - xxxx-xx-xx
+#### Changed
+ * Strings joins for test files in Sender and Lookup tests
+ * Name of internal vars in sender tests
+
 ## [1.0.3] - 2018-10-01
 #### Added
  * Documentation of .devo.json file

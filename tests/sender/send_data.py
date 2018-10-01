@@ -22,9 +22,8 @@ class TestSender(unittest.TestCase):
         self.my_app = 'test.drop.devosender'
         self.my_date = 'my.date.test.sender'
 
-        self.testfile_lookup = "%s%stestfile_lookup.csv" % (os.path.dirname(os.path.abspath(__file__)), os.sep)
-        self.testfile_multiline = "%s%stestfile_multiline.txt" % (os.path.dirname(os.path.abspath(__file__)), os.sep)
-
+        self.test_file = "".join((os.path.dirname(os.path.abspath(__file__)),
+                                  os.sep, "testfile_multiline.txt"))
     def test_tcp_rt_send(self):
         if self.test_tcp == "True":
             engine_config = SenderConfigTCP(address=self.tcp_server, port=self.tcp_port)
@@ -47,7 +46,7 @@ class TestSender(unittest.TestCase):
                                           key=self.key, cert=self.cert,
                                           chain=self.chain)
         con = Sender(engine_config)
-        with open(self.testfile_multiline, 'r') as file:
+        with open(self.test_file, 'r') as file:
             content = file.read()
         con.send(tag=self.my_app, msg=content, multiline=True)
 
