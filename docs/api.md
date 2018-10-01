@@ -10,7 +10,7 @@ This library performs queries to the Client API (Search rest api) of Devo.
 - secret: The secret of the domain
 - url(optional): The url of the service. A static constants are provided with
 the commons clouds: can take several values, for example:
-    - Client.URL_AWS_EU: https://api.devo.com
+    - Client.URL_AWS_EU: https://api-eu.devo.com
     - Client.URL_AWS_USA: https://api-us.devo.com
     - Client.URL_VDC: https://spainapi.devo.com
     - Client.URL_QUERY_COMPLEMENT = '/search/query'
@@ -22,7 +22,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api.devo.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 ```    
     
 #### query() params
@@ -132,7 +132,8 @@ arguments of the call over the configuration file
   {
     "api": {
       "key": "MyAPIkeytoaccessdevo",
-      "secret": "MyAPIsecrettoaccessdevo"
+      "secret": "MyAPIsecrettoaccessdevo",
+      "url": "https://api-us.logtrust.com/search/query"
     }
   }
 ```
@@ -143,7 +144,7 @@ Priority order:
 1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
 2. params in CLI call: He can complete values not in configuration file, but not override it
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
-4. ~/.devo/config.json: if you send key, secrey or token in other way, this option not be called
+4. ~/.devo.json: if you send key, secrey or token in other way, this option not be called
 
 Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY` and `DEVO_API_SECRET`
 

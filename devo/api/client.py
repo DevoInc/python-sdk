@@ -29,7 +29,7 @@ class Client(object):
     """
     The Devo SERach REst Api main class
     """
-    URL_AWS_EU = 'https://api.devo.com'
+    URL_AWS_EU = 'https://api-eu.devo.com'
     URL_VDC = 'https://spainapi.devo.com'
     URL_AWS_USA = 'https://api-us.devo.com'
     URL_QUERY_COMPLEMENT = '/search/query'
@@ -200,7 +200,8 @@ class Client(object):
             if response:
                 if response.status_code != 200 or\
                         "error" in response.text[0:15].lower():
-                    return response.text
+                    return {"status": response.status_code,
+                            "error": response.text}
                 else:
                     if processor is not None:
                         return processor(response.text)

@@ -351,6 +351,12 @@ the common values: url, port, certificates. And then send with the call the tag,
 
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
+
+Priority order:
+1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
+2. params in CLI call: He can complete values not in configuration file, but not override it
+3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
+4. ~/.devo.json: if you send key, secrey or token in other way, this option not be called
  
 **Config file example:** 
 

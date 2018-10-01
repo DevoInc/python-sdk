@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [1.0.3] - 2018-10-01
+#### Added
+ * Documentation of .devo.json file
+ * Contributors lists
+ 
+#### Changed
+ * API response when code are not 404 or 200 give more info now
+ 
+#### Fixed
+ * Fixed API EU default url in code and documentation
+
+
 ## [1.0.2] - 2018-09-24
 #### Added
  * Dockerfile now rm some folders for to avoid problems when there are several builds
