@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Added
  * Documentation of .devo.json file
  * Contributors lists
+ * test function for setup.py
  
 #### Changed
  * API response when code are not 404 or 200 give more info now

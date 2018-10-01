@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import codecs
 import os
+import sys
 import re
 from setuptools import setup, find_packages
-
+from run_tests import TestCommand
 
 META_PATH = os.path.join("devo", "__version__.py")
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -57,7 +58,6 @@ def find_meta(meta):
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
 
-
 setup(
     author="Devo, Inc.",
     author_email="support@devo.com",
@@ -69,6 +69,7 @@ setup(
     classifiers=CLASSIFIERS,
     packages=PACKAGES,
     install_requires=INSTALL_REQUIRES,
+    cmdclass={'test': TestCommand().run()},
     entry_points={
             'console_scripts': CLI
         }

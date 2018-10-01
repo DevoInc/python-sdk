@@ -82,6 +82,10 @@ To launch this script, you need either the environment variables loaded in the s
 Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
 
 ```bash
+~/projects/devo-python-sdk > python setup.py test 
+```
+
+```bash
 ~/projects/devo-python-sdk > python run_tests.py
 ```
 
