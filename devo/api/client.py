@@ -29,9 +29,9 @@ class Client(object):
     """
     The Devo SERach REst Api main class
     """
-    URL_AWS_EU = 'https://api-eu.devo.com'
-    URL_VDC = 'https://spainapi.devo.com'
-    URL_AWS_USA = 'https://api-us.devo.com'
+    URL_AWS_EU = 'https://api-eu.logtrust.com'
+    URL_VDC = 'https://spainapi.logtrust.com'
+    URL_AWS_USA = 'https://api-us.logtrust.com'
     URL_QUERY_COMPLEMENT = '/search/query'
 
     def __init__(self, key=None, secret=None, url=None, buffer=None, **kwargs):
@@ -217,11 +217,12 @@ class Client(object):
         :param payload: The payload
         """
         self.socket.send(self._get_stream_headers(payload))
-        if self.buffer.proccess_first_line(self.socket.recv(5000)):
+        result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
+        if result:
             while True:
                 self.buffer.proccess_recv(self.socket.recv(5000))
         else:
-            raise DevoClientException("Devo-Client|Not OK 200 reply from API.")
+            raise DevoClientException("Devo-Client|%s" % str(data))
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):

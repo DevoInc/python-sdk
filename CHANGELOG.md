@@ -5,11 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased] - xxxx-xx-xx
+## [1.0.4] - 2018-10-03
+#### Added
+ * More error prevention in API
+ * More debug information when exceptions occur in API
+ 
 #### Changed
  * Strings joins for test files in Sender and Lookup tests
  * Name of internal vars in sender tests
-
+ * API docs examples
+ 
+#### Fixed
+ * API urls in docs, examples and code
+ 
 ## [1.0.3] - 2018-10-01
 #### Added
  * Documentation of .devo.json file

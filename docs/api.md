@@ -10,9 +10,9 @@ This library performs queries to the Client API (Search rest api) of Devo.
 - secret: The secret of the domain
 - url(optional): The url of the service. A static constants are provided with
 the commons clouds: can take several values, for example:
-    - Client.URL_AWS_EU: https://api-eu.devo.com
-    - Client.URL_AWS_USA: https://api-us.devo.com
-    - Client.URL_VDC: https://spainapi.devo.com
+    - Client.URL_AWS_EU: https://api-eu.logtrust.com
+    - Client.URL_AWS_USA: https://api-us.logtrust.com
+    - Client.URL_VDC: https://spainapi.logtrust.com
     - Client.URL_QUERY_COMPLEMENT = '/search/query'
 - buffer: Buffer object if you modify the Devo Buffer class
 
@@ -22,7 +22,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.devo.com/search/query")
+              url="https://api-eu.logtrust.com/search/query")
 ```    
     
 #### query() params
@@ -41,20 +41,17 @@ api = Client(key="myapikey",
 return: Result of the query or Buffer object
 
 ```python
+
 buffer = api.query(query="from my.app.web.activityAll select * limit 10",
                      dates= {'from': "2018-02-06 12:42:00"},
                      response="json/simple/compact")
-
+sleep(3)
 try:
-    with open("/tmp/log.txt", "wb+") as file:
-        while True:
-            
-            data = buffer.queue.get(block=True)
-            file.write(data+b"\n")
-            file.flush()
-        file.close()
+    while True:
+        data = buffer.get()
+        print(data)
 except Exception:
-    print("Im empty of lines, my child")
+    print("If have a error, my child")
 
 ```
 
