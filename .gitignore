@@ -5,6 +5,8 @@ local_tests/
 coverage_report/
 certs/
 environment.env
+test_results/*
+!test_results/.gitkeep
 
 .idea
 # Byte-compiled / optimized / DLL files
