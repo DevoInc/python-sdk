@@ -1,12 +1,11 @@
 config.json
-*.crt
-*.key
 local_tests/
 coverage_report/
 certs/
 environment.env
-test_results/*
-!test_results/.gitkeep
+tests_results/*
+!tests_results/.gitkeep
+!local_server_files/*
 
 .idea
 # Byte-compiled / optimized / DLL files

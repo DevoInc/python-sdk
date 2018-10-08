@@ -57,8 +57,8 @@ You has more info in [Relays article](https://docs.devo.com/confluence/docs/syst
 
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	https://api-us.logtrust.com/search
- * **EU:**   	https://api-eu.logtrust.com/search
+ * **USA:** 	https://api-us.logtrust.com/search/query
+ * **EU:**   	https://api-eu.logtrust.com/search/query
 
 You has more info in [REST API article](https://docs.devo.com/confluence/docs/api/rest-api-v2) .
 

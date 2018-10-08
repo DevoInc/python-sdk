@@ -69,6 +69,7 @@ setup(
     classifiers=CLASSIFIERS,
     packages=PACKAGES,
     install_requires=INSTALL_REQUIRES,
+    cmdclass={'test': TestCommand().run()},
     entry_points={
             'console_scripts': CLI
         }
