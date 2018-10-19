@@ -27,7 +27,7 @@ Variable descriptions
 
 + address **(_string_)**: host name to send data
 + port **(_int_)**: port
-+ certs_req **(_boolean__)**: indicates if certificate is required
++ cert_reqs **(_boolean__)**: indicates if certificate is required
 + key **(_string_)**: key file path
 + cert **(_string_)**: cert file path
 + chain **(_string_)**: chain file path
@@ -42,7 +42,7 @@ Variable descriptions
 - Without certificates SSL
 
 	```python
-    engine_config = SenderConfigSSL(address=SERVER, port=PORT, certs_req=False)
+    engine_config = SenderConfigSSL(address=SERVER, port=PORT, cert_reqs=False)
     con = Sender(engine_config)
 	```
 	
@@ -135,6 +135,8 @@ con.flush_buffer()
 ```
 
 The compressed delivery will store the messages in a buffer that, when it is filled, will compress and send, so you have to take into account that you have to execute the _flush_buffer_ function at the end of the data transfer loop, to empty the possible data that have been left uncompressed and send.
+
+**Its important flush ever the buffer at finish.**
 
 The default buffer length its _19500_ and you can change with:
 
@@ -395,8 +397,8 @@ Options:
   --key TEXT          Devo user key cert file.
   --cert TEXT         Devo user cert file.
   --chain TEXT        Devo chain.crt file.
-  --certreq/
-  --no-certreq BOOL   Boolean to indicate if the shipment is done using security certificates or not.
+  --cert_reqs/
+  --no-cert_reqs BOOL   Boolean to indicate if the shipment is done using security certificates or not.
   --multiline/
   --no-multiline BOOL Flag for multiline (With break-line in msg). Default False.
   --type TEXT         Connection type: SSL or TCP
@@ -446,8 +448,8 @@ Options:
   --key TEXT             Devo user key cert file.
   --cert TEXT            Devo user cert file.
   --chain TEXT           Devo chain.crt file.
-  --certreq TEXT         Boolean to indicate if the shipment is done using
-                         security certificates or not.
+  --cert_reqs/
+  --no-cert_reqs BOOL   Boolean to indicate if the shipment is done using security certificates or not.
   --type TEXT            Connection type: SSL or TCP
   -n, --name TEXT        Name for Lookup.
   -f, --file TEXT        The file that you want to send to Devo, which

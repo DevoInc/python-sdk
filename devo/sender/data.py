@@ -224,6 +224,9 @@ class Sender:
         """
         Forces socket closure
         """
+        if len(self.zip_buffer):
+            self.flush_buffer()
+
         if self.socket is not None:
             self.socket.close()
             self.socket = None

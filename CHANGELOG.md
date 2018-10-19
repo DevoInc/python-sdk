@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [1.1.1] - 2018-10-19
+#### Added
+ * Added flush buffer in send data when socket is closed
+
+#### Changed
+ * Modified documentation for new cert_reqs flag changed
+
 ## [1.1.0] - 2018-10-19
 #### Changed
  * Tests and requirements for Sender
