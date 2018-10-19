@@ -38,7 +38,7 @@ SEVERITY_NOTICE = 5  # Events that are unusual, but not error conditions.
 SEVERITY_INFO = 6  # Normal operational messages that require no action.
 SEVERITY_DEBUG = 7  # Information useful to developers for debugging
 # the application.
-COMPOSE = '%s%s\n'
-COMPOSE_BYTES = b'%s%s\n'
+COMPOSE = '%s%s'
+COMPOSE_BYTES = b'%s%s'
 FORMAT_MY = '<%d>%s %s %s: '  # Not \000
 FORMAT_MY_BYTES = b'<%d>%s %s %s: '  # Not \000

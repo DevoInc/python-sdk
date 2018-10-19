@@ -34,10 +34,10 @@ class SenderConfigSSL:
     :param cert:  (str) cert src file
     :param chain:  (str) chain src file
     :param timeout: (int) Time in seconds to restart connection
-    :param certs_req: (bool) Use certs in SSL connection
+    :param cert_reqs: (bool) Use certs in SSL connection
 
     >>>sender_config = SenderConfigSSL(address=SERVER, port=PORT,
-    ...                                  certs_req=True, key=KEY,
+    ...                                  cert_reqs=True, key=KEY,
     ...                                  cert=CERT, chain=CHAIN)
 
     See Also:
@@ -45,13 +45,13 @@ class SenderConfigSSL:
 
     """
     def __init__(self, address=None, port=None, key=None, debug=False,
-                 cert=None, chain=None, timeout=300, certs_req=True):
+                 cert=None, chain=None, timeout=300, cert_reqs=True):
         try:
             self.timeout = timeout * 1000
             self.address = (address, port)
-            self.certs_req = certs_req
+            self.cert_reqs = cert_reqs
             self.debug = debug
-            if certs_req:
+            if cert_reqs:
                 self.key = key
                 self.cert = cert
                 self.chain = chain
@@ -184,7 +184,7 @@ class Sender:
 
         try:
             try:
-                if self._sender_config.certs_req:
+                if self._sender_config.cert_reqs:
                     self.socket = ssl.wrap_socket(
                         self.socket,
                         keyfile=self._sender_config.key,
@@ -415,15 +415,15 @@ class Sender:
         :return: Sender object
         """
         con_type = config['type'].upper() if "type" in config and con_type is not None else "SSL"
-        certs_req = config['certs_req'] if "certs_req" in config else True
+        cert_reqs = config['cert_reqs'] if "cert_reqs" in config else True
 
         if con_type == "SSL":
-            if certs_req:
+            if cert_reqs:
                 return Sender(
                     SenderConfigSSL(
                         address=config['address'],
                         port=int(config['port']),
-                        certs_req=True,
+                        cert_reqs=True,
                         key=config['key'],
                         cert=config['cert'],
                         chain=config['chain']
@@ -433,7 +433,7 @@ class Sender:
                 SenderConfigSSL(
                     address=config['address'],
                     port=int(config['port']),
-                    certs_req=False
+                    cert_reqs=False
                 ), logger=logger
             )
 

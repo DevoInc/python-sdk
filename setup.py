@@ -24,11 +24,12 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-INSTALL_REQUIRES = ['requests>=2.17,<3', 'click']
+INSTALL_REQUIRES = ['requests>=2.17,<3', 'click>=7']
 CLI = ['devo-sender=devo.sender.scripts.sender_cli:cli',
        'devo-api=devo.api.scripts.client_cli:cli']
 
@@ -69,7 +70,6 @@ setup(
     classifiers=CLASSIFIERS,
     packages=PACKAGES,
     install_requires=INSTALL_REQUIRES,
-    cmdclass={'test': TestCommand().run()},
     entry_points={
             'console_scripts': CLI
         }

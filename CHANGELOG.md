@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [1.1.0] - 2018-10-19
+#### Changed
+ * Tests and requirements for Sender
+
+#### Fixed
+ * Problems with double "\n" in messages
+ * Sender CLI problems when no certs required
+ 
 ## [1.0.4] - 2018-10-03
 #### Added
  * More error prevention in API

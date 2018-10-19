@@ -34,7 +34,7 @@ def cli():
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
-@click.option('--certreq/--no-certreq', help='Boolean to indicate if the '
+@click.option('--cert_reqs/--no-cert_reqs', help='Boolean to indicate if the '
                                              'shipment is done using security '
                                              'certificates or not. Default True'
               , default=True)
@@ -95,9 +95,10 @@ def data(**kwargs):
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
-@click.option('--certreq', help='Boolean to indicate if the shipment is done '
-                                'using security certificates or not.',
-              default=True)
+@click.option('--cert_reqs/--no-cert_reqs', help='Boolean to indicate if the '
+                                             'shipment is done using security '
+                                             'certificates or not. Default True'
+              , default=True)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--name', '-n', help='Name for Lookup.')
 @click.option('--file', '-f', help='The file that you want to send to Devo,'
@@ -137,26 +138,29 @@ def init_conf(args):
         config.load_json(args.get('config'), 'sender')
     config.mix(dict(args))
 
+
+
     if "address" not in args.keys() and "url" in args.keys():
         config.set('address', args['url'])
 
-    if "config" not in args.keys() and "key" not in args.keys() \
-            and "cert" not in args.keys() and "chain" not in args.keys():
-        config.set("key", os.environ.get('DEVO_SENDER_KEY', None))
-        config.set("cert", os.environ.get('DEVO_SENDER_CERT', None))
-        config.set("chain", os.environ.get('DEVO_SENDER_CHAIN', None))
+    if "address" not in args.keys():
+        address = os.environ.get('DEVO_SENDER_ADDRESS', None)
+        if not address:
+            address = os.environ.get('DEVO_SENDER_URL', None)
 
-        if "address" not in args.keys():
-            address = os.environ.get('DEVO_SENDER_ADDRESS', None)
-            if not address:
-                address = os.environ.get('DEVO_SENDER_URL', None)
+        config.set("address", address)
+        config.set("port", os.environ.get('DEVO_SENDER_PORT', None))
 
-            config.set("address", address)
-            config.set("port", os.environ.get('DEVO_SENDER_PORT', None))
+    if config.get()['cert_reqs']:
+        if "config" not in args.keys() and "key" not in args.keys() \
+                and "cert" not in args.keys() and "chain" not in args.keys():
+            config.set("key", os.environ.get('DEVO_SENDER_KEY', None))
+            config.set("cert", os.environ.get('DEVO_SENDER_CERT', None))
+            config.set("chain", os.environ.get('DEVO_SENDER_CHAIN', None))
 
-    if not config.keys("key") and not config.keys("cert") and not \
-            config.keys("chain") and os.path.exists("~/.devo.json"):
-        config.load_default_json('api')
+        if not config.keys("key") and not config.keys("cert") and not \
+                config.keys("chain") and os.path.exists("~/.devo.json"):
+            config.load_default_json('api')
 
     config.keys('from')
     config.keys('to')
