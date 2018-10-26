@@ -58,11 +58,15 @@ def find_meta(meta):
         return meta_match.group(1)
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
 
 setup(
     author="Devo, Inc.",
     author_email="support@devo.com",
     description="Devo Software Development Kit for Python.",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license=find_meta("license"),
     name="devo-sdk",
     url="https://github.com/DevoInc/python-sdk",

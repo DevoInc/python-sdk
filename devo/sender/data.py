@@ -371,6 +371,9 @@ class Sender:
         :param msg: bytes
         :return: None
         """
+        if msg[-1:] != b"\n":
+            msg += b"\n"
+
         self.zip_buffer += msg
         if len(self.zip_buffer) > self.max_zip_buffer:
             self.flush_buffer()

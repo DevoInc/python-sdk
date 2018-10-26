@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [1.1.2] - 2018-10-26
+#### Added
+ * Long description value in setup for pypi
+ 
+#### Fixed
+ * Fixed problems when zip msgs dont have "\n" in each line msg
+
 ## [1.1.1] - 2018-10-19
 #### Added
  * Added flush buffer in send data when socket is closed
