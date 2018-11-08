@@ -8,9 +8,8 @@ import sys
 import time
 import zlib
 
-
-from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES,\
-    FACILITY_USER, SEVERITY_INFO, COMPOSE,\
+from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
+    FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, SEVERITY_DEBUG, priority_map
 
 PY3 = sys.version_info[0] > 2
@@ -44,6 +43,7 @@ class SenderConfigSSL:
         Sender
 
     """
+
     def __init__(self, address=None, port=None, key=None, debug=False,
                  cert=None, chain=None, timeout=300, cert_reqs=True):
         try:
@@ -77,6 +77,7 @@ class SenderConfigTCP:
         Sender
 
     """
+
     def __init__(self, address=None, port=None, debug=False, timeout=300):
 
         try:
@@ -103,6 +104,7 @@ class Sender(logging.Handler):
     >>>con = Sender(sender_config)
 
     """
+
     def __init__(self, config, verbose_level='INFO', sockettimeout=5,
                  logger=None, facility=FACILITY_USER, tag=None):
         logging.Handler.__init__(self)
@@ -134,8 +136,6 @@ class Sender(logging.Handler):
 
         if self._sender_config.type == 'TCP':
             self.__connect_tcpsocket()
-
-
 
     def __connect(self):
         if self._sender_config.type == 'SSL':
