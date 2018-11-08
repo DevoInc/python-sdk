@@ -42,3 +42,42 @@ COMPOSE = '%s%s'
 COMPOSE_BYTES = b'%s%s'
 FORMAT_MY = '<%d>%s %s %s: '  # Not \000
 FORMAT_MY_BYTES = b'<%d>%s %s %s: '  # Not \000
+
+# logging.handler translator to Sender codes
+facility_names = {
+    "auth": FACILITY_AUTH,
+    "authpriv": FACILITY_AUTHPRIV,
+    "cron": FACILITY_CRON,
+    "daemon": FACILITY_DAEMON,
+    "ftp": FACILITY_FTP,
+    "kern": FACILITY_KERN,
+    "lpr": FACILITY_LPR,
+    "mail": FACILITY_MAIL,
+    "news": FACILITY_NEWS,
+    "security": FACILITY_AUTH,  # DEPRECATED
+    "syslog": FACILITY_SYSLOG,
+    "user": FACILITY_USER,
+    "uucp": FACILITY_UUCP,
+    "local0": FACILITY_LOCAL0,
+    "local1": FACILITY_LOCAL1,
+    "local2": FACILITY_LOCAL2,
+    "local3": FACILITY_LOCAL3,
+    "local4": FACILITY_LOCAL4,
+    "local5": FACILITY_LOCAL5,
+    "local6": FACILITY_LOCAL6,
+    "local7": FACILITY_LOCAL7,
+}
+
+priority_map = {
+    "EMERG": SEVERITY_EMERG,
+    "ALERT": SEVERITY_ALERT,
+    "CRITICAL": SEVERITY_CRIT,
+    "CRIT": SEVERITY_CRIT,
+    "ERROR": SEVERITY_ERROR,
+    "ERR": SEVERITY_ERROR,
+    "WARNING": SEVERITY_WARN,
+    "WARN": SEVERITY_WARN,  # DEPRECATED
+    "NOTICE": SEVERITY_NOTICE,
+    "INFO": SEVERITY_INFO,
+    "DEBUG": SEVERITY_DEBUG
+}
