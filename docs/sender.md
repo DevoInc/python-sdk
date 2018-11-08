@@ -4,13 +4,13 @@
 This library allows you to send logs or lookups to the Devo platform.
 
 ## Features
-- Unification in the way of sending data and lookups
+- Data and lookups sending merged in one procedure
 - Allows to send real time data
-- Logger integration
+- Logger integration and logging handler capacity for Sender
 
 ## Compatibility 
 - Tested compatibility between python 2.x and 3.x series
-- Unit tests for use in python 2.x and 3.x
+- Unit tests for both python 2.x and 3.x
 
 ## Usage in script
 
@@ -18,10 +18,9 @@ This library allows you to send logs or lookups to the Devo platform.
 
 Before sending the lookup information it is necessary to initialize the collector configuration
 
-
 #### Initializing the collector
 
-There are differents ways and types to initialize the collector configuration
+There are different ways (and types) to initialize the collector configuration
 
 Variable descriptions
 
@@ -31,6 +30,7 @@ Variable descriptions
 + key **(_string_)**: key file path
 + cert **(_string_)**: cert file path
 + chain **(_string_)**: chain file path
++ tag **(_string_)**: remote table name
 
 - With certificates:
 	
@@ -93,6 +93,47 @@ config = conf.get()
 engine_config = Sender.from_config(config)
 ```
 
+In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
+
+The regular use of the handler can be observed in this 3 examples:
+
+######Setting up configuration variables.
+```python
+tag = 'test.dump.free'
+engine_config = SenderConfigSSL(address=server, port=port,
+                                        key=key, cert=cert,
+                                        chain=chain)
+                    
+```
+######First example: Setting up tag after Sender is created
+
+```python
+logger = logging.getLogger('DEVO_logger')
+# tag added after Sender is created
+con = Sender(engine_config)
+con.set_logger_tag(tag)
+logger.addHandler(con)
+```
+######Second example: Setting up a Sender with tag
+```python
+logger = logging.getLogger('DEVO_logger')
+#Sender created ready to be used
+con = Sender(engine_config, tag)
+logger.addHandler(con)
+```
+######Third example: Setting up a static Sender
+
+```python
+engine_config = {"address": server, "port": port,
+                             "key": key, "cert": cert,
+                             "chain": chain, "type": "SSL", "cert_regs": True}
+logger = logging.getLogger('DEVO_logger')
+#Static Sender
+con = Sender.for_logging(engine_config, "SSL", tag)
+logger.addHandler(con)
+```
+
+
 #### Sending data 
 
 - After we use the configuration class, we will now be able to send events to the collector
@@ -136,9 +177,9 @@ con.flush_buffer()
 
 The compressed delivery will store the messages in a buffer that, when it is filled, will compress and send, so you have to take into account that you have to execute the _flush_buffer_ function at the end of the data transfer loop, to empty the possible data that have been left uncompressed and send.
 
-**Its important flush ever the buffer at finish.**
+**Its important flush the buffer when you're done using it.**
 
-The default buffer length its _19500_ and you can change with:
+The default buffer length its _19500_ and you can change it with:
 
 ```python
 con.max_zip_buffer = 19500
@@ -150,13 +191,13 @@ You can change the default compression level with:
 con.compression_level = 6
 ```
 
-compression_level is an integer from 0 to 9 or -1 controlling the level of compression; 1 (Z_BEST_SPEED) is fastest and produces the least compression, 9 (Z_BEST_COMPRESSION) is slowest and produces the most. 0 (Z_NO_COMPRESSION) is no compression. The default value is -1 (Z_DEFAULT_COMPRESSION). Z_DEFAULT_COMPRESSION represents a default compromise between speed and compression (currently equivalent to level 6).
+compression_level is an integer from 0 to 9 or -1 controlling the level of compression; 1 (Z_BEST_SPEED) is the fastest and produces the lower compression, 9 (Z_BEST_COMPRESSION) is the slowest and produces the highest compression. 0 (Z_NO_COMPRESSION) has no compression. The default value is -1 (Z_DEFAULT_COMPRESSION). Z_DEFAULT_COMPRESSION represents a default compromise between speed and compression (currently equivalent to level 6).
 
 ###Lookup
 
-As with to send events, to create a new lookup or send data to existents lookup table we need to initializate the collector configuration (as you show previously).
+Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).
 
-In case to initializate the collector configuration from a json file, you must include a new object into _lookup_ variable with the next parameters:
+In case to initialize the collector configuration from a json file, you must include a new object into the _lookup_ variable with the next parameters:
 
 + **name**: lookup table name
 + **file**: CSV file path
@@ -174,7 +215,7 @@ Example:
 }
 ```
 
-After initializing the colletor, you must initializate the lookup class.
+After initializing the colletor, you must initialize the lookup class.
 
 + name **(_string_)**: lookup table name
 + historic_tag **(_boolean_)**: save historical
@@ -184,7 +225,7 @@ After initializing the colletor, you must initializate the lookup class.
     lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 ```
 
-##### Send lookup from CSV file
+##### Send lookups from CSV file
 
 After initializing the lookup, you can upload a CSV file with the lookup data by _send_csv_ method from _LtLookup_ class.
 
@@ -221,11 +262,11 @@ lookup.send_csv(config['file'], headers=line.rstrip().split(","), key=config['lk
 con.socket.shutdown(0)
 ````
 
-##### Sending data line to lookup
+##### Sending data lines to lookup
 
-After initializing the lookup, you can send data to the lookup. There are two options to do this. 
+After initializing the lookup, you can send data to the lookup. There are two ways to do this. 
 
-The first option is to generate a string with the headers structure and then send a control instruction to indicate start or end of operation over the lookup. Between those control instructions must be the operations over every row of the lookup.
+The first option is to generate a string with the headers structure and then send a control instruction to indicate the start or the end of operation over the lookup. Between those control instructions must be the operations over every row of the lookup.
 
 The header structure is an object list with values and data types of the lookup data.
 
@@ -235,7 +276,7 @@ Example:
 [{"KEY":{"type":"str","key":true}},{"HEX":{"type":"str"}},{"COLOR":{"type":"str"}}]
 ```
 
-To facility the creation of this string we can call _list_to_headers_ method of _Lookup_ class.
+To facilitate the creation of this string we can call _list_to_headers_ method of _Lookup_ class.
 
 Params
 
@@ -249,7 +290,7 @@ Example:
 pHeaders = Lookup.list_to_headers(['KEY','HEX', 'COLOR'], 'KEY')
 ```
 
-With this string, now we can call _send_control_ method of _Sender_ class to send the control instruction.
+With this string we can call _send_control_ method of _Sender_ class to send the control instruction.
 
 Params
 
@@ -269,7 +310,7 @@ lookup.send_control('START', p_headers, 'INC')
 
 The other option is basically the same operations but with less instructions. With _send_headers_ method of _LtLookup_ class we can unify two instructions. 
 
-The relevant diference is that we lost control over data types of lookup data. The data type will be a string.
+The relevant difference is that we louse control over data types of lookup data. The data type will be a string.
 
 Params
 
@@ -302,7 +343,7 @@ Example:
 lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
 ````
 
-A complete example to send a row of lookup is:
+A complete example to send a lookup row is:
 
 ````python
 conf = Configuration()
@@ -344,21 +385,21 @@ con.socket.shutdown(0)
 ## CLI use
 You can use one optional configuration file in the client commands
 
-For send info uses the "sender" key, with information to send to Devo.
-If you want add lookup info, you need use the "lookup" key.
+To send info us the "sender" key, with information to send to Devo.
+If you want to add lookup info, you need use the "lookup" key.
 
-A configuration file does not have to have all the necessary keys, you can have 
-the common values: url, port, certificates. And then send with the call the tag,
- file to upload, etc.
+A configuration file does not require all the keys, you can pass
+the common values: url, port, certificates. After that you can send the tag, the upload file, and
+so on, along with the function call.
 
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
 
 Priority order:
 1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
-2. params in CLI call: He can complete values not in configuration file, but not override it
-3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
-4. ~/.devo.json: if you send key, secrey or token in other way, this option not be called
+2. params in CLI call: He can complete values not in configuration file, but does not overrides it
+3. Environment vars: if you send the key, secrkey or token in config file or params cli, this option will not be called
+4. ~/.devo.json: if you send the key, secrey or token in other ways, this option will not be called
  
 **Config file example:** 
 
@@ -383,7 +424,7 @@ Priority order:
 You can see another example in docs/common/config.example.json
 
 #### devo-sender data
-`data` command is used to send logs to devo
+`data` command is used to send logs to Devo
 
 ```
 Usage: devo-sender data [OPTIONS]
@@ -400,7 +441,7 @@ Options:
   --cert_reqs/
   --no-cert_reqs BOOL   Boolean to indicate if the shipment is done using security certificates or not.
   --multiline/
-  --no-multiline BOOL Flag for multiline (With break-line in msg). Default False.
+  --no-multiline BOOL Flag for multiline (With break-line in msg). Default is False.
   --type TEXT         Connection type: SSL or TCP
   -t, --tag TEXT      Tag / Table to which the data will be sent in Devo.
   -l, --line TEXT     For shipments of only one line, the text you want to
@@ -408,8 +449,8 @@ Options:
   -f, --file TEXT     The file that you want to send to Devo, which will
                       be sent line by line.
   -h, --header TEXT   This option is used to indicate if the file has headers
-                      or not, not to send them.
-  --help              Show this message and exit.
+                      or not, they will not be send.
+  --help              Show help message and exit.
 ```
 
 Examples
@@ -428,13 +469,12 @@ devo-sender data -a app.devo.com -p 10000 --key ~/certs/key.key --cert ~/certs/c
 
 ```
 
-You has example file in "tests" folder of devo.sender project for see one simple 
-(And most useful example).
-All the values are in the same level and without "-"
+You have example file in the "tests" folder of the project for a simple, and most useful example).
+All the values must be at the same level and without "-"
 
 
 #### devo-sender lookup
-`lookup` command is used to send lookups to devo
+`lookup` command is used to send lookups to Devo
 
 ```
 Usage: devo-sender lookup [OPTIONS]

@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [1.1.3] - 2018-11-08
+#### Added
+ * Sender class inherits from logging.handlers
+
 ## [1.1.2] - 2018-10-26
 #### Added
  * Long description value in setup for pypi

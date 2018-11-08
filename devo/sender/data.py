@@ -8,10 +8,9 @@ import sys
 import time
 import zlib
 
-
-from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES,\
-    FACILITY_USER, SEVERITY_INFO, COMPOSE,\
-    COMPOSE_BYTES, SEVERITY_DEBUG
+from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
+    FACILITY_USER, SEVERITY_INFO, COMPOSE, \
+    COMPOSE_BYTES, SEVERITY_DEBUG, priority_map
 
 PY3 = sys.version_info[0] > 2
 PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
@@ -44,6 +43,7 @@ class SenderConfigSSL:
         Sender
 
     """
+
     def __init__(self, address=None, port=None, key=None, debug=False,
                  cert=None, chain=None, timeout=300, cert_reqs=True):
         try:
@@ -77,6 +77,7 @@ class SenderConfigTCP:
         Sender
 
     """
+
     def __init__(self, address=None, port=None, debug=False, timeout=300):
 
         try:
@@ -91,7 +92,7 @@ class SenderConfigTCP:
                 "%s" % str(error))
 
 
-class Sender:
+class Sender(logging.Handler):
     """
     Class that manages the connection to the data collector
 
@@ -103,9 +104,10 @@ class Sender:
     >>>con = Sender(sender_config)
 
     """
-    def __init__(self, config, verbose_level='INFO', sockettimeout=5,
-                 logger=None):
 
+    def __init__(self, config, verbose_level='INFO', sockettimeout=5,
+                 logger=None, facility=FACILITY_USER, tag=None):
+        logging.Handler.__init__(self)
         if logger is None:
             self.logger = logging.getLogger('DevoSender')
             self.logger.setLevel(verbose_level.upper())
@@ -118,7 +120,7 @@ class Sender:
                 self.logger.addHandler(sender_logger)
         else:
             self.logger = logger
-        self._logger_tag = None
+        self._logger_tag = tag
         self.socket = None
         self._sender_config = config
         self.reconection = 0
@@ -127,6 +129,7 @@ class Sender:
         self.compression_level = -1
         self.zip_buffer = b''
         self.composed_msg = b''
+        self.facility = facility
 
         if self._sender_config.type == 'SSL':
             self.__connect_ssl()
@@ -451,3 +454,22 @@ class Sender:
                 ), logger=logger
             )
         raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
+
+    def emit(self, record):
+        """
+        If used as an handler it will redirect the logs to the send function.
+
+        In order to be a proper logger handler it requieres to override the emit function.
+        :param record -> String that contains the message to be send and it's characteristics such as severity etc.
+        :return: raw message header
+
+        See Also:
+            send
+        """
+        try:
+            msg = self.format(record)
+            msg += '\000'
+            self.send(self._logger_tag, msg, facility=self.facility,
+                      severity=priority_map.get(record.levelname, "info"))
+        except Exception as error:
+            self.handleError(record)

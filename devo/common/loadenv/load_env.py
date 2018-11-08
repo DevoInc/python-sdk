@@ -26,21 +26,22 @@ def _proc_env(path):
     """
     Gets each line from the file and parse it.
     """
-    for line in open(path):
-        line = line.strip()
-        if line.startswith('#') or '=' not in line:
-            continue
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if line.startswith('#') or '=' not in line:
+                continue
 
-        key, value = line.split('=', 1)
-        key = key.strip().upper()
-        value = value.strip()
+            key, value = line.split('=', 1)
+            key = key.strip().upper()
+            value = value.strip()
 
-        if not (key and value):
-            continue
+            if not (key and value):
+                continue
 
-        try:
-            value = ast.literal_eval(value)
-        except (ValueError, SyntaxError):
-            pass
+            try:
+                value = ast.literal_eval(value)
+            except (ValueError, SyntaxError):
+                pass
 
-        yield (key, value)
+            yield (key, value)
