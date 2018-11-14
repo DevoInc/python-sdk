@@ -130,6 +130,7 @@ class Sender(logging.Handler):
         self.zip_buffer = b''
         self.composed_msg = b''
         self.facility = facility
+        self._name = "DevoHandler"
 
         if self._sender_config.type == 'SSL':
             self.__connect_ssl()
@@ -458,12 +459,10 @@ class Sender(logging.Handler):
     def emit(self, record):
         """
         If used as an handler it will redirect the logs to the send function.
-
-        In order to be a proper logger handler it requieres to override the emit function.
+         In order to be a proper logger handler it requieres to override the emit function.
         :param record -> String that contains the message to be send and it's characteristics such as severity etc.
         :return: raw message header
-
-        See Also:
+         See Also:
             send
         """
         try:
@@ -473,3 +472,75 @@ class Sender(logging.Handler):
                       severity=priority_map.get(record.levelname, "info"))
         except Exception as error:
             self.handleError(record)
+
+
+
+class SenderHandler(Sender):
+    """
+    Class that wraps Devo Sender so that it acts as a handler for cases where kwargs init can't be used
+    (Eg. Django settings)
+
+    :param address: Server url
+    :param port: Server port number
+    :param cert_reqs: True/False if SSL connection is required
+    :param key: User key certificate path
+    :param cert: User crt certificate path
+    :param chain: Server certificate path
+    :param facility: Facility level
+    :param type: connection type (SSL/TCP..)
+    :param tag: Remote table
+    """
+    def __init__(self, address=None, port=None, cert_reqs=True, key=None,
+                 cert=None, chain=None, facility=FACILITY_USER, type=None, tag=None):
+        export_config = {"address": address, "port": port,
+                         "key": key, "cert": cert,
+                         "chain": chain, "type": type, "cert_regs": cert_reqs}
+
+        """There are three scenarios possible scenarios:
+            1. ssl connection with certificates
+            2. ssl connection without certificates
+            3. tcp connection 
+            Any other case will rise an error. 
+        """
+        if None not in export_config.values() and type in "SSL":
+            handler_config = SenderConfigSSL(address=address, port=port,
+                                             key=key, cert=cert,
+                                             chain=chain)
+
+        elif address is not None and port is not None and tag is not None and cert_reqs is False and type not in "TCP":
+            handler_config = SenderConfigSSL(address=address, port=port, cert_reqs=True)
+
+        elif address is not None and port is not None and tag is not None:
+            handler_config = SenderConfigTCP(address=address,
+                                             port=port)
+        else:
+            raise DevoSenderException(
+                "Devo-Sender|Error during Sender Handler instantiation: "
+                "%s" % str("Only SSL connection is supported. Missing arguments... "
+                           "Required: address(url), port, cert_reqs (true), "
+                           "key(cert key), cert (certificate), chain(auth cert), tag(remote table)"))
+        if PY3:
+            super().__init__(config=handler_config, facility=facility, tag=tag)
+        else:
+            super(SenderHandler, self).__init__(config=handler_config, facility=facility, tag=tag)
+        self.name = "devoHandler"
+
+    def emit(self, record):
+        """
+        If used as an handler it will redirect the logs to the send function.
+         In order to be a proper logger handler it requieres to override the emit function.
+        :param record -> String that contains the message to be send and it's characteristics such as severity etc.
+        :return: raw message header
+         See Also:
+            Sender.send
+        """
+        try:
+            if PY3:
+                super().emit(record)
+            else:
+                super(SenderHandler, self).emit(record)
+        except Exception as error:
+            if PY3:
+                super().handleError(record)
+            else:
+                super(SenderHandler, self).emit(record)

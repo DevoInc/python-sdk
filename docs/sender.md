@@ -133,7 +133,82 @@ con = Sender.for_logging(engine_config, "SSL", tag)
 logger.addHandler(con)
 ```
 
+####Sender wrapper use cases
 
+######Setting up configuration variables.
+######There are three scenarios possible scenarios:
+            1. ssl connection with certificates
+            2. ssl connection without certificates
+            3. tcp connection 
+###### Any other case will rise an error. 
+      
+###### Using SSL certificates
+```python
+tag = 'test.dump.free'
+con = SenderHandler(address=server, port=port, cert_reqs=cert_reqs, key=key, 
+                             cert=cert, chain=chain, facility=FACILITY_USER, type="SSL",
+                             tag=table)
+```
+
+###### Using SSL without certificates
+```python
+tag = 'test.dump.free'
+con = SenderHandler(address=server, port=port, cert_reqs=True, type="SSL", tag=table)
+```
+
+###### Using TCP
+```python
+tag = 'test.dump.free'
+con = SenderHandler(address=server, port=port, type="TCP", tag=table)
+```
+
+- Tag argument it's optional and it can be set later.
+- Once this is done you can use this just as in the Sender raw case.
+
+#####Django settings use example
+#use debug level
+LOGLEVEL = "DEBUG"
+```python
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            #this is the minimum information
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+        'devo': {
+            #this is the minimum information
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+        # Add Devo Handler (Sender) 
+        'devoHandler': {
+            'formatter': 'devo',
+            'level': 'DEBUG',
+            'class': 'devo.sender.SenderHandler',
+            'address': 'remote_server_address',
+            'port': 'remote_server_port_number',
+            'key': 'key/cert/path',
+            'cert': 'cert/cert/path',
+            'chain': 'chain/cert/path',
+            'tag': 'test.dump.free',
+        },
+    },
+    'loggers': {
+    # root logger
+        '': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'devoHandler'],
+        },
+    },
+})
+```
 #### Sending data 
 
 - After we use the configuration class, we will now be able to send events to the collector

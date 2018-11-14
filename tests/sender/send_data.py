@@ -1,7 +1,6 @@
 import unittest
 import os
-from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
-from devo.common import loadenv
+from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, SenderHandler
 import logging
 
 
@@ -38,7 +37,7 @@ class TestSender(unittest.TestCase):
                                )
 
         self.test_tcp = os.getenv('DEVO_TEST_TCP', "True")
-        self.my_app = 'test.drop.free'
+        self.my_app = 'test.keep.free'
         self.my_date = 'my.date.test.sender'
         self.test_file = "".join((file_path, "testfile_multiline.txt"))
 
@@ -195,6 +194,142 @@ class TestSender(unittest.TestCase):
         except Exception as error:
             self.fail("Problems with test: %s" % error)
 
+    def test_Sender_as_handler_wrapper_SSL_OK(self):
+        """
+        Test that tries to check that it is possible to instantiate the Sender class (SSL connection) so that it can
+        be used as a Handler for a django instance (settings.py configuration) and related logs
+        are send to remote server
+        """
+        try:
+            con = SenderHandler(address=self.server, port=self.port, key=self.key, cert=self.cert,
+                                chain=self.chain, cert_reqs=True, type="SSL", tag=self.my_app)
+
+            logger = logging.getLogger('DEVO_logger')
+            logger.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
+            con.setFormatter(formatter)
+            con.setLevel(logging.DEBUG)
+            logger.addHandler(con)
+
+            # logger.addHandler(con.logger.handlers[0])
+            for i in range(0, self.default_numbers_sendings):
+                logger.info("Testing Sender Wrapper handler, SSL, functionality... INFO - log")
+                logger.error("Testing Sender Wrapper handler, SSL, functionality... ERROR - log")
+                logger.warning("Testing Sender Wrapper handler, SSL, functionality... WARNING - log")
+                logger.debug("Testing Sender Wrapper handler, SSL, functionality... DEBUG - log")
+                logger.critical("Testing Sender Wrapper handler, SSL, functionality... CRITICAL - log")
+
+            con.close()
+        except Exception as error:
+            self.fail("Problems with test: %s" % error)
+
+    def test_Sender_as_handler_wrapper_SSL_NOK(self):
+        """
+        Test that tries to check that it is possible to instantiate the Sender class (SSL connection) so that it can
+        be used as a Handler for a django instance (settings.py configuration) and related logs
+        are send to remote server
+        """
+        try:
+            con = SenderHandler(address=self.server, key=self.key,cert=self.cert,
+                                chain=self.chain, cert_reqs=True, type="SSL", tag=self.my_app)
+
+            con.close()
+            self.fail("Problems with test: an exception should be raised pointing to the missing args")
+        except Exception as error:
+            print(error)
+            self.assertIs(True, True)
+
+    def test_Sender_as_handler_wrapper_SSL_false_OK(self):
+        """
+        Test that tries to check that it is possible to instantiate the Sender class (SSL connection without
+        certificates) so that it can be used as a Handler for a  instance (settings.py configuration) and related logs
+        are send to remote server
+        """
+        try:
+            con = SenderHandler(address=self.server, port=self.port, cert_reqs=False, tag=self.my_app)
+
+            logger = logging.getLogger('DEVO_logger')
+            logger.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
+            con.setFormatter(formatter)
+            con.setLevel(logging.DEBUG)
+            logger.addHandler(con)
+
+            # logger.addHandler(con.logger.handlers[0])
+            for i in range(0, self.default_numbers_sendings):
+                logger.info("Testing Sender Wrapper handler, SSL no certificate, functionality... INFO - log")
+                logger.error("Testing Sender Wrapper handler, SSL no certificate, functionality... ERROR - log")
+                logger.warning("Testing Sender Wrapper handler, SSL no certificate, functionality... WARNING - log")
+                logger.debug("Testing Sender Wrapper handler, SSL no certificate, functionality... DEBUG - log")
+                logger.critical("Testing Sender Wrapper handler, SSL no certificate, functionality... CRITICAL - log")
+
+            con.close()
+        except Exception as error:
+            self.fail("Problems with test: %s" % error)
+
+    def test_Sender_as_handler_wrapper_SSL_false_NOK(self):
+        """
+        Test that tries to check that it is possible to instantiate the Sender class (SSL connection without
+        certificates) so that it can  be used as a Handler for a django instance (settings.py configuration)
+        and related logs are send to remote server
+        """
+        try:
+            con = SenderHandler(address=self.server, cert_reqs=True, tag=self.my_app)
+
+            con.close()
+            self.fail("Problems with test: an exception should be raised pointing to the missing args")
+        except Exception as error:
+            print(error)
+            self.assertIs(True, True)
+
+    def test_Sender_as_handler_wrapper_TCP_OK(self):
+        """
+        Test that tries to check that it is possible to instantiate the Sender class (TCP connection) so that it can
+        be used as a Handler for a django instance (settings.py configuration) and related logs
+        are send to remote server
+        """
+        try:
+            con = SenderHandler(address=self.server, port=self.port, tag=self.my_app)
+
+            logger = logging.getLogger('DEVO_logger')
+            logger.setLevel(logging.DEBUG)
+            formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
+            con.setFormatter(formatter)
+            con.setLevel(logging.DEBUG)
+            logger.addHandler(con)
+
+            # logger.addHandler(con.logger.handlers[0])
+            for i in range(0, self.default_numbers_sendings):
+                logger.info("Testing Sender Wrapper handler, TCP, functionality... INFO - log")
+                logger.error("Testing Sender Wrapper handler, TCP, functionality...  ERROR - log")
+                logger.warning("Testing Sender Wrapper handler, TCP, functionality...  WARNING - log")
+                logger.debug("Testing Sender Wrapper handler, TCP, functionality...  DEBUG - log")
+                logger.critical("Testing Sender Wrapper handler, TCP, functionality...  CRITICAL - log")
+
+            con.close()
+        except Exception as error:
+            self.fail("Problems with test: %s" % error)
+
+    def test_Sender_as_handler_wrapper_TCP_NOK(self):
+        """
+        Test that tries to check that it is possible to instantiate the Sender class (TCP connection) so that it can
+        be used as a Handler for a django instance (settings.py configuration) and related logs
+        are send to remote server
+        """
+        try:
+            con = SenderHandler(address=self.server, tag=self.my_app)
+
+            con.close()
+            self.fail("Problems with test: an exception should be raised pointing to the missing args")
+        except Exception as error:
+            print(error)
+            self.assertIs(True, True)
+    """There are three scenarios possible scenarios:
+                1. ssl connection with certificates
+                2. ssl connection without certificates
+                3. tcp connection 
+                Any other case will rise an error. 
+            """
 
 if __name__ == '__main__':
     unittest.main()

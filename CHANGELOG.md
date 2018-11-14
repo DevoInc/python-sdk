@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] - 2018-11-08
+#### Added
+ * Wrapper for Sender class so that it can be used throught settings files e.g. django
+
 
 ## [1.1.3] - 2018-11-08
 #### Added
