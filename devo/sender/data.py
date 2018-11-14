@@ -474,7 +474,6 @@ class Sender(logging.Handler):
             self.handleError(record)
 
 
-
 class SenderHandler(Sender):
     """
     Class that wraps Devo Sender so that it acts as a handler for cases where kwargs init can't be used
@@ -490,6 +489,7 @@ class SenderHandler(Sender):
     :param type: connection type (SSL/TCP..)
     :param tag: Remote table
     """
+
     def __init__(self, address=None, port=None, cert_reqs=True, key=None,
                  cert=None, chain=None, facility=FACILITY_USER, type=None, tag=None):
         export_config = {"address": address, "port": port,
