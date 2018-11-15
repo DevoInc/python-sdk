@@ -22,6 +22,9 @@ class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
     pass
 
+class Props:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 class SenderConfigSSL:
     """
@@ -45,7 +48,8 @@ class SenderConfigSSL:
     """
 
     def __init__(self, address=None, port=None, key=None, debug=False,
-                 cert=None, chain=None, timeout=300, cert_reqs=True):
+                 cert=None, chain=None, timeout=300, cert_reqs=True,
+                 **kwargs):
         try:
             self.timeout = timeout * 1000
             self.address = (address, port)
@@ -78,7 +82,8 @@ class SenderConfigTCP:
 
     """
 
-    def __init__(self, address=None, port=None, debug=False, timeout=300):
+    def __init__(self, address=None, port=None, debug=False, timeout=300,
+                 **kwargs):
 
         try:
             self.timeout = timeout * 1000
@@ -96,7 +101,7 @@ class Sender(logging.Handler):
     """
     Class that manages the connection to the data collector
 
-    :param config: Config class
+    :param config: Config class, you can send params in kwargs
     :param verbose_level: Logger verbose level. Default level INFO
     :param sockettimeout: Socket timeout in minutes
     :param logger: logger. Default sys.console
@@ -104,9 +109,22 @@ class Sender(logging.Handler):
     >>>con = Sender(sender_config)
 
     """
+    def __init__(self, config=None, **kwargs):
+        if not config:
+            config = SenderConfigTCP(**kwargs) if kwargs.get('type') is "TCP" \
+                else SenderConfigSSL(**kwargs) if kwargs.get('type') is "SSL" \
+                else None
 
-    def __init__(self, config, verbose_level='INFO', sockettimeout=5,
-                 logger=None, facility=FACILITY_USER, tag=None):
+        if not config:
+            raise DevoSenderException("Problems with args passed to Sender")
+
+        facility = kwargs.get('facility', FACILITY_USER)
+        verbose_level = kwargs.get('verbose_level', "INFO")
+        sockettimeout = kwargs.get('sockettimeout', 5)
+        logger = kwargs.get('logger', None)
+        tag = kwargs.get('tag', None)
+
+
         logging.Handler.__init__(self)
         if logger is None:
             self.logger = logging.getLogger('DevoSender')
