@@ -96,7 +96,7 @@ class Sender(logging.Handler):
     """
     Class that manages the connection to the data collector
 
-    :param config: Config class
+    :param config: Config class, you can send params in kwargs
     :param verbose_level: Logger verbose level. Default level INFO
     :param sockettimeout: Socket timeout in minutes
     :param logger: logger. Default sys.console
@@ -104,9 +104,24 @@ class Sender(logging.Handler):
     >>>con = Sender(sender_config)
 
     """
+    def __init__(self, config=None, **kwargs):
+        if not config:
+            config = {
+                "address": kwargs.get('address'),
+                "port": kwargs.get('port'),
+                "key": kwargs.get('key'),
+                "cert": kwargs.get('cert'),
+                "chain": kwargs.get('chain'),
+                "cert_reqs": kwargs.get('cert_reqs')
+            }
 
-    def __init__(self, config, verbose_level='INFO', sockettimeout=5,
-                 logger=None, facility=FACILITY_USER, tag=None):
+        facility = kwargs.get('facility', FACILITY_USER)
+        verbose_level = kwargs.get('verbose_level', "INFO")
+        sockettimeout = kwargs.get('sockettimeout', 5)
+        logger = kwargs.get('logger', None)
+        tag = kwargs.get('tag', None)
+
+
         logging.Handler.__init__(self)
         if logger is None:
             self.logger = logging.getLogger('DevoSender')
