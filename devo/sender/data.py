@@ -52,7 +52,7 @@ class SenderConfigSSL:
                  **kwargs):
         try:
             self.timeout = timeout * 1000
-            self.address = (address, port)
+            self.address = (address, int(port))
             self.cert_reqs = cert_reqs
             self.debug = debug
             if cert_reqs:
@@ -87,7 +87,7 @@ class SenderConfigTCP:
 
         try:
             self.timeout = timeout * 1000
-            self.address = (address, port)
+            self.address = (address, int(port))
             self.hostname = socket.gethostname()
             self.type = 'TCP'
             self.debug = debug
