@@ -22,6 +22,9 @@ class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
     pass
 
+class Props:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 class SenderConfigSSL:
     """
@@ -45,7 +48,8 @@ class SenderConfigSSL:
     """
 
     def __init__(self, address=None, port=None, key=None, debug=False,
-                 cert=None, chain=None, timeout=300, cert_reqs=True):
+                 cert=None, chain=None, timeout=300, cert_reqs=True,
+                 **kwargs):
         try:
             self.timeout = timeout * 1000
             self.address = (address, port)
@@ -78,7 +82,8 @@ class SenderConfigTCP:
 
     """
 
-    def __init__(self, address=None, port=None, debug=False, timeout=300):
+    def __init__(self, address=None, port=None, debug=False, timeout=300,
+                 **kwargs):
 
         try:
             self.timeout = timeout * 1000
@@ -106,14 +111,12 @@ class Sender(logging.Handler):
     """
     def __init__(self, config=None, **kwargs):
         if not config:
-            config = {
-                "address": kwargs.get('address'),
-                "port": kwargs.get('port'),
-                "key": kwargs.get('key'),
-                "cert": kwargs.get('cert'),
-                "chain": kwargs.get('chain'),
-                "cert_reqs": kwargs.get('cert_reqs')
-            }
+            config = SenderConfigTCP(**kwargs) if kwargs.get('type') is "TCP" \
+                else SenderConfigSSL(**kwargs) if kwargs.get('type') is "SSL" \
+                else None
+
+        if not config:
+            raise DevoSenderException("Problems with args passed to Sender")
 
         facility = kwargs.get('facility', FACILITY_USER)
         verbose_level = kwargs.get('verbose_level', "INFO")
