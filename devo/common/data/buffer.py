@@ -24,6 +24,9 @@ class Buffer(object):
     def is_alive(self):
         return self.thread.isAlive()
 
+    def is_empty(self):
+        return True if self.size() > 0 else False
+
     def create_thread(self, target, kwargs):
         """ Function for create one separate thread for Queue"""
         self.thread = Thread(target=target, kwargs=kwargs)
