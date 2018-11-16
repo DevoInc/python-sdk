@@ -5,9 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [xxx] - Unreleased
+## [1.2.0] - 2018-11-16
 #### Added
  * Int conversion for SenderSSL and SenderTCP classes in port value
+ * is_empty, set_timeout and close functions for Buffer class
+ 
+#### Changed
+ * Modified how API flow work
+ * Modified Buffer class to avoid failures by timeouts and emptys that block the threads
+ * Updated documentation
  
 ## [1.1.4] - 2018-11-15
 #### Changed
