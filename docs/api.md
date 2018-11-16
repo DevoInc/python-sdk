@@ -45,19 +45,32 @@ return: Result of the query or Buffer object
 buffer = api.query(query="from my.app.web.activityAll select * limit 10",
                      dates= {'from': "2018-02-06 12:42:00"},
                      response="json/simple/compact")
+
+buffer.set_timeout(3) #Max wait for data, 0 is no timeout/wait forever
 sleep(3)
 try:
-    while True:
-        data = buffer.get()
+    while not buffer.is_empty():
+        data = buffer.get(timeout=10) #You can send timeout for buffer or per query, if some queries need more timeout
         print(data)
-except Exception:
-    print("If have a error, my child")
+except Exception as error:
+    print(error)
 
 ```
 
 
 Query by id has the same parameters as query (), changing the field "query" 
-to "query_id", which is the ID of the query in Devo
+to "query_id", which is the ID of the query in Devo.
+
+You need to verify that `data` has data, in addition, you can not use `is_empty()` when you are verifying queries in real time, when there is the possibility of spaces without data, you would have to use an infinite loop, for example.
+
+
+#### close()
+
+The Queue works on a secondary thread (Son) of the main program, so it will die when the program ends, but it is recommended to close the thread / queue if it is not used, to avoid problems.
+
+
+The thread should close when using `buffer.close ()`
+
 
 
 ## The "from" and "to", formats and other stuff...

@@ -20,9 +20,17 @@ class Buffer(object):
         self.thread = None
         self.temp = None
         self.error = None
+        self.close = False
+        self.timeout = 0
 
     def is_alive(self):
         return self.thread.isAlive()
+
+    def set_timeout(self, timeout):
+        self.timeout = timeout
+
+    def is_empty(self):
+        return True if self.size() > 0 else False
 
     def create_thread(self, target, kwargs):
         """ Function for create one separate thread for Queue"""
@@ -35,11 +43,18 @@ class Buffer(object):
 
     def get(self, proccessor=None, block=True, timeout=None):
         """ Get one proccessed item from the queue """
+        if timeout is None:
+            timeout = self.timeout
+
         if not self.error:
-            return proccessor(self.queue.get(block=block, timeout=timeout)) \
-                if proccessor is not None \
-                else self.queue.get(block=block, timeout=timeout)
-        raise DevoBufferException("Devo-Buffer|%s" % str(self.error))
+            try:
+                return proccessor(self.queue.get(block=block, timeout=timeout)) \
+                    if proccessor is not None \
+                    else self.queue.get(block=block, timeout=timeout)
+            except Queue.Empty:
+                self.close = True
+        else:
+            raise DevoBufferException("Devo-Buffer|%s" % str(self.error))
 
     def proccess_first_line(self, data):
         """ Proccess first line of the Query call (For delete headers) """
@@ -77,3 +92,8 @@ class Buffer(object):
             self.temp = None
         else:
             self.temp = data[data_len-1][:-2].strip()
+
+        return not self.close
+
+    def close(self):
+        self.close = True

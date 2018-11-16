@@ -156,6 +156,8 @@ class Client(object):
         else:
             if self.socket is None:
                 self.connect()
+            elif not self.status():
+                self.connect()
 
             if self.buffer is None:
                 self.buffer = Buffer()
@@ -168,6 +170,18 @@ class Client(object):
 
             self.buffer.start()
             return self.buffer
+
+    def status(self):
+        """
+        View Socket status, check if it's open
+        """
+        timeit = int(round(time.time() * 1000)) - self.time_start
+        if self.socket is None:
+            return False
+        elif self.timeout < timeit:
+            self.close()
+            return False
+        return True
 
     @staticmethod
     def stream_available(resp):
@@ -219,8 +233,12 @@ class Client(object):
         self.socket.send(self._get_stream_headers(payload))
         result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
         if result:
-            while True:
-                self.buffer.proccess_recv(self.socket.recv(5000))
+            try:
+                while self.buffer.proccess_recv(self.socket.recv(5000)):
+                    pass
+            except socket.timeout:
+                while not self.buffer.is_empty() or self.buffer.close:
+                    time.sleep(1)
         else:
             raise DevoClientException("Devo-Client|%s" % str(data))
 
