@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Changed
  * Removed the octec count for performance, and verify if "\n" at the end of each msg, if applicable.
  * Modify classes to privates
+ * Update documentation of Sender
 
 #### Removed
  * Unused class "Props" on Sender, included in past versions

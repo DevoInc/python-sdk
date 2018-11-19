@@ -34,35 +34,40 @@ Variable descriptions
 
 - With certificates:
 	
-	```python
-    engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
-    con = Sender(engine_config)
-	```
+```python
+from devo.sender import SenderConfigSSL, Sender
+engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
+con = Sender(engine_config)
+```
 	
 - Without certificates SSL
 
-	```python
-    engine_config = SenderConfigSSL(address=SERVER, port=PORT, cert_reqs=False)
-    con = Sender(engine_config)
-	```
+```python
+from devo.sender import SenderConfigSSL, Sender
+engine_config = SenderConfigSSL(address=SERVER, port=PORT, cert_reqs=False)
+con = Sender(engine_config)
+```
 	
 - Without certificates TCP
 	
-	```python
-    engine_config = SenderConfigTCP(address=SERVER, port=PORT)
-    con = Sender(engine_config)
-	```
+```python
+from devo.sender import SenderConfigTCP, Sender
+engine_config = SenderConfigTCP(address=SERVER, port=PORT)
+con = Sender(engine_config)
+```
 	
 
 - From config function - TCP example
-  ```python
-    con = Sender.from_config({"address": "relayurl", "port": 443, "type": "TCP"})
-  ```
+```python
+from devo.sender import Sender
+con = Sender.from_config({"address": "relayurl", "port": 443, "type": "TCP"})
+```
 
 - From config function - SSL example
-  ```python
-    con = Sender.from_config({"address": "relayurl", "port": 443, "key": "/tmp/key.key", "cert": "/tmp/cert.cert", "chain": "/tmp/chain.crt"})
-  ```
+```python
+from devo.sender import Sender
+con = Sender.from_config({"address": "relayurl", "port": 443, "key": "/tmp/key.key", "cert": "/tmp/cert.cert", "chain": "/tmp/chain.crt"})
+```
 
 - From a file
 
@@ -99,6 +104,7 @@ The regular use of the handler can be observed in this 3 examples:
 
 ######Setting up configuration variables.
 ```python
+from devo.sender import SenderConfigSSL
 tag = 'test.dump.free'
 engine_config = SenderConfigSSL(address=server, port=port,
                                         key=key, cert=cert,
@@ -139,6 +145,7 @@ logger.addHandler(con)
 - After we use the configuration class, we will now be able to send events to the collector
 
 ```python
+from devo.sender import SenderConfigSSL
 con = Sender(engine_config)   
 ```
 
