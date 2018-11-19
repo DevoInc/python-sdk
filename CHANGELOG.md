@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased] - xxxx-xx-xx
+#### Changed
+ * Removed the octec count for performance, and verify if "\n" at the end of each msg, if applicable.
+ * Modify classes to privates
+
+#### Removed
+ * Unused class "Props" on Sender, included in past versions
+ * Bad class info and debug for Sender, unused too
+ 
 ## [1.2.0] - 2018-11-16
 #### Added
  * Int conversion for SenderSSL and SenderTCP classes in port value
