@@ -95,7 +95,7 @@ from devo.common import Configuration
 conf = Configuration()
 conf.load_json("./config.json.example", 'sender')
 config = conf.get()
-engine_config = Sender.from_config(config)
+con = Sender.from_config(config)
 ```
 
 In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
@@ -109,6 +109,7 @@ tag = 'test.dump.free'
 engine_config = SenderConfigSSL(address=server, port=port,
                                         key=key, cert=cert,
                                         chain=chain)
+con = Sender(engine_config)
                     
 ```
 ######First example: Setting up tag after Sender is created
