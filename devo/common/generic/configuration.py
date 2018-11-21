@@ -18,6 +18,7 @@ class Configuration(object):
         """Load Configuration
 
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
         if section is not None:
             if section in cfg.keys():
@@ -31,6 +32,7 @@ class Configuration(object):
 
         :param path: Path to the json file
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
         with open(path, 'r') as file_content:
             cfg = json.load(file_content)
@@ -42,6 +44,7 @@ class Configuration(object):
 
         :param path: Path to the json file
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
         try:
             import yaml
@@ -59,6 +62,7 @@ class Configuration(object):
 
         :param path: Path to the json file
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
         if path.endswith('.json'):
             return self.load_json(path, section)
@@ -71,6 +75,7 @@ class Configuration(object):
         """Load Json Configuration in ~/.devo.json
 
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
         return self.load_json("~/.devo.json", section)
 
