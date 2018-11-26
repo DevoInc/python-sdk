@@ -9,6 +9,48 @@ This library add utilities for other packages.
 - Logging functions
 - Custom memoize def
 
+
+#### Config files
+
+You can use config files in JSON and YAML to create Sender and Api objects, loading files with:
+
+```python
+from devo.common import Configuration
+
+config = Configuration()
+
+#:param path: Path to the json file
+#:param section: Section of the file if it have one
+#    :return: Returns a reference to the instance object
+config.load_config("path_to_file.[yml|yaml|json]")
+config_dict = config.get()
+```
+
+You has extra param `section` in `load_config` function for load only one subsection of file
+
+Here has two examples of config files:
+
+```yaml
+api:
+  key: "MyAPIkeytoaccessdevo"
+  secret: "MyAPIsecrettoaccessdevo"
+  url: "https://api-us.logtrust.com/search/query"
+```
+
+
+```json
+{   
+    "sender": {
+            "address":"devo-relay",
+            "port": 443,
+            "key": "/devo/certs/key.key",
+            "cert": "/devo/certs/cert.crt",
+            "chain": "/devo/certs/chain.crt"
+        },
+}
+```
+
+
 #### Date Formats
 - Fixed format: As described on [Official Python Docs](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior). Accepted formats are:
     - '%Y-%m-%d %H:%M:%S'
@@ -31,15 +73,11 @@ This library add utilities for other packages.
 #### Standard Devo configuration file
 
 Devo Common contains the [`Configuration`](common/generic/configuration.py) 
-class to read JSON configuration files 
+class to read JSON or YAML configuration files 
 and automix an array with the file.
 
 You can see in several Devo libraries that the CLI allows the reading of a 
-config.json file, they all use this class to load them, and in each of the 
+config.json/config.yaml file, they all use this class to load them, and in each of the 
 libraries you can find the format they use, in addition to examples of use in 
 this class tests.
 
-#### Memoize
-Decorator. Caches a function's return value each time it is called.
-If called later with the same arguments, the cached value is returned 
-(not reevaluated)
