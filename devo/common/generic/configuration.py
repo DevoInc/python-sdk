@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 """ Util for load generic config file in devo standars"""
 import json
+import sys
 
+class ConfigurationException(Exception):
+    """ Default Configuration Exception """
+    pass
 
 class Configuration(object):
     """
@@ -10,15 +14,12 @@ class Configuration(object):
     def __init__(self):
         self.cfg = dict()
 
-    def load_json(self, path, section=None):
-        """Load Json Configuration
+    def __load_cfg(self, cfg, section=None):
+        """Load Configuration
 
-        :param path: Path to the json file
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
-        with open(path, 'r') as file_content:
-            cfg = json.load(file_content)
-
         if section is not None:
             if section in cfg.keys():
                 self.mix(cfg[section])
@@ -26,20 +27,57 @@ class Configuration(object):
             self.mix(cfg)
         return self
 
+    def load_json(self, path, section=None):
+        """Load Json Configuration
+
+        :param path: Path to the json file
+        :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
+        """
+        with open(path, 'r') as file_content:
+            cfg = json.load(file_content)
+
+        return self.__load_cfg(cfg, section)
+
+    def load_yaml(self, path, section=None):
+        """Load Yaml Configuration
+
+        :param path: Path to the json file
+        :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
+        """
+        try:
+            import yaml
+        except ImportError as import_error:
+            print(str(import_error), "- Use 'pip install pyyaml' or install this "
+                                     "package with [click] option")
+            sys.exit(1)
+        with open(path, 'r') as stream:
+            cfg = yaml.load(stream, Loader=yaml.Loader)
+
+        return self.__load_cfg(cfg, section)
+
+    def load_config(self, path, section=None):
+        """Load Configuration
+
+        :param path: Path to the json file
+        :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
+        """
+        if path.endswith('.json'):
+            return self.load_json(path, section)
+        elif path.endswith('.yaml') or path.endswith('.yml'):
+            return self.load_yaml(path, section)
+
+        raise ConfigurationException("Configuration file type unknown or not supportted: %s" %path)
+
     def load_default_json(self, section=None):
         """Load Json Configuration in ~/.devo.json
 
         :param section: Section of the file if it have one
+        :return: Returns a reference to the instance object
         """
-        with open("~/.devo.json", 'r') as file_content:
-            cfg = json.load(file_content)
-
-        if section is not None:
-            if section in cfg.keys():
-                self.secure_mix(cfg[section])
-        else:
-            self.secure_mix(cfg)
-        return self
+        return self.load_json("~/.devo.json", section)
 
     @staticmethod
     def clean_cfg(cfg):
