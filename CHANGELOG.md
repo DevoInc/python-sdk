@@ -22,8 +22,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Return of "info" function in Sender class, this fix use and tests
 
 #### Removed
- * Unused class "Props" on Sender, included in past versions.
- * Bad class info and debug for Sender, unused too.
+ * Unused class "Props" on Sender, included in past versions
+ * Bad class info and debug for Sender, unused too
+ * Memoize class from Common namespase
  * Memoize references in Common readme.
  
 ## [1.2.0] - 2018-11-16

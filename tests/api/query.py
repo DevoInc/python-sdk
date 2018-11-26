@@ -16,6 +16,11 @@ class TestApi(unittest.TestCase):
         self.token = os.getenv('DEVO_API_TOKEN', None)
         self.query_id = os.getenv('DEVO_API_QUERYID', None)
 
+    def test_from_config(self):
+        api = Client.from_config({'key': self.key, 'secret': self.secret, 'uri': self.uri})
+        self.assertTrue(isinstance(api, Client))
+        api.close()
+
     def test_query(self):
         api = Client(self.key, self.secret, self.uri)
         result = api.query(query=self.query, stream=False, response="json")
