@@ -38,8 +38,3 @@ You can see in several Devo libraries that the CLI allows the reading of a
 config.json file, they all use this class to load them, and in each of the 
 libraries you can find the format they use, in addition to examples of use in 
 this class tests.
-
-#### Memoize
-Decorator. Caches a function's return value each time it is called.
-If called later with the same arguments, the cached value is returned 
-(not reevaluated)

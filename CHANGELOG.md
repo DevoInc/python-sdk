@@ -5,7 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased] - xxxx-xx-xx
+## [1.2.1] - 2018-11-26
+#### Added
+ * YAML configuration files, like JSON files.
+ * YAML configuration file information in all docs.
+ * EXTRA_REQUIRES option for YAML support
+ * Default Yaml file load in Common
+ 
 #### Changed
  * Removed the octec count for performance, and verify if "\n" at the end of each msg, if applicable.
  * Modify classes to privates
@@ -15,6 +21,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Removed
  * Unused class "Props" on Sender, included in past versions
  * Bad class info and debug for Sender, unused too
+ * Memoize class from Common namespase
+ * Memoize references in Common readme.
  
 ## [1.2.0] - 2018-11-16
 #### Added
