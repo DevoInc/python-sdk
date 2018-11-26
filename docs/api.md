@@ -30,7 +30,7 @@ api = Client(key="myapikey",
 `def query(self, **kwargs)`
 - query: Query to perform
 - query_id: if not query, you can send the query id
-- dates: {'from': string, 'to': string} -> Date from and date to
+- dates: {'from': string, 'to': string} -> Date from and date to, if not "to", in object, to = now()
 - format: Type of response from Client API
 - limit: Limits of rows returned
 - offset: Row number by which to start returning data
@@ -40,6 +40,16 @@ api = Client(key="myapikey",
 
 return: Result of the query or Buffer object
 
+Normal response:
+```python
+
+response = api.query(query="from my.app.web.activityAll select * limit 10",
+                     dates= {'from': "2018-02-06 12:42:00"},
+                     response="json",
+                     stream=False)
+```
+
+Real time/stream query:
 ```python
 
 buffer = api.query(query="from my.app.web.activityAll select * limit 10",
