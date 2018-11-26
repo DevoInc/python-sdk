@@ -120,7 +120,7 @@ Usage: `devo-api query [OPTIONS]`
 
 ```
 Options:
-  --config PATH           JSON File with configuration, you can put all
+  --config PATH           JSON/YAML File with configuration, you can put all
                           options here
   -u, --url TEXT          Endpoint for the api.
   --apiKey TEXT           Key for the api.
@@ -146,7 +146,9 @@ the common values: url, port, certificates. And then send with the call the tag,
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
 
-**Config file key:** The CLI uses the "api" key to search for information. You can see one example in docs/common/config.example.json
+**Config file key:** The CLI uses the "api" key to search for information. You can see one example in tests folder
+
+config.json example:
 
 ```json
   {
@@ -157,6 +159,17 @@ arguments of the call over the configuration file
     }
   }
 ```
+
+config.yml exampple:
+
+
+```yaml
+api:
+  key: "MyAPIkeytoaccessdevo"
+  secret: "MyAPIsecrettoaccessdevo"
+  url: "https://api-us.logtrust.com/search/query"
+```
+
 
 You can use environment variables or a global configuration file for the KEY, SECRET and URL values
 

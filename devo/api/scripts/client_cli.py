@@ -23,7 +23,7 @@ def cli():
 
 @cli.command()
 @click.option('--config', '-c', type=click.Path(),
-              help='JSON File with configuration, you can put all options here',
+              help='JSON/Yaml File with configuration, you can put all options here',
               default="~/.devo.json")
 @click.option('--url', '-u', help='Endpoint for the api.')
 @click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
@@ -127,7 +127,7 @@ def configure(args):
     """
     config = Configuration()
     if args.get('config') != "~/.devo.json":
-        config.load_json(args.get('config'), 'api')
+        config.load_config(args.get('config'), 'api')
 
     config.mix(dict(args))
 
