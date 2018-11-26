@@ -176,6 +176,15 @@ class Sender(logging.Handler):
             logger.addHandler(sender_logger)
         return logger
 
+    def info(self, msg):
+        """
+        When Sender its a logger handler, this function its used to send
+        "info" log
+        :param msg: the msg to log
+        :return:
+        """
+        self.send(tag=self._logger_tag, msg=msg)
+
     def __connect_ssl(self):
         """
         Connect to SSL socket.

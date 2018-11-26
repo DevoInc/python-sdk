@@ -50,7 +50,7 @@ class Configuration(object):
             import yaml
         except ImportError as import_error:
             print(str(import_error), "- Use 'pip install pyyaml' or install this "
-                                     "package with [click] option")
+                                     "package with [pyyaml] option")
             sys.exit(1)
         with open(path, 'r') as stream:
             cfg = yaml.load(stream, Loader=yaml.Loader)

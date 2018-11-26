@@ -2,12 +2,7 @@
 """CLI for use Devo Sender from shell command line."""
 
 import sys
-try:
-    import click
-except ImportError as import_error:
-    print(str(import_error), "- Use 'pip install click' or install this "
-                             "package with [click] option")
-    sys.exit(1)
+import click
 
 import logging
 import os
