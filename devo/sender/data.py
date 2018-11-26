@@ -17,14 +17,9 @@ PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
 PY34 = sys.version_info[0] == 3 and sys.version_info[1] == 4
 PYPY = hasattr(sys, 'pypy_version_info')
 
-
 class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
     pass
-
-class Props:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
 
 class SenderConfigSSL:
     """
@@ -126,18 +121,9 @@ class Sender(logging.Handler):
 
 
         logging.Handler.__init__(self)
-        if logger is None:
-            self.logger = logging.getLogger('DevoSender')
-            self.logger.setLevel(verbose_level.upper())
-            if len(self.logger.handlers) is 0:
-                sender_logger = logging.StreamHandler(sys.stdout)
-                sender_logger.setLevel(logging.DEBUG)
-                formatter = logging.Formatter(
-                    '%(asctime)s|%(levelname)s|%(message)s')
-                sender_logger.setFormatter(formatter)
-                self.logger.addHandler(sender_logger)
-        else:
-            self.logger = logger
+        self.logger = self.__set_logger(verbose_level) if logger is None \
+            else logger
+
         self._logger_tag = tag
         self.socket = None
         self._sender_config = config
@@ -177,6 +163,19 @@ class Sender(logging.Handler):
 
         self.timestart = int(round(time.time() * 1000))
 
+    @staticmethod
+    def __set_logger(verbose_level):
+        logger = logging.getLogger('DevoSender')
+        logger.setLevel(verbose_level.upper())
+        if len(logger.handlers) is 0:
+            sender_logger = logging.StreamHandler(sys.stdout)
+            sender_logger.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                '%(asctime)s|%(levelname)s|%(message)s')
+            sender_logger.setFormatter(formatter)
+            logger.addHandler(sender_logger)
+        return logger
+
     def info(self, msg):
         """
         When Sender its a logger handler, this function its used to send
@@ -185,15 +184,6 @@ class Sender(logging.Handler):
         :return:
         """
         self.send(tag=self._logger_tag, msg=msg)
-
-    def debug(self, msg):
-        """
-        When Sender its a logger handler, this function its used to send
-        "debug" log
-        :param msg: the msg to log
-        :return:
-        """
-        self.send(tag=self._logger_tag, msg=msg, severity=SEVERITY_DEBUG)
 
     def __connect_ssl(self):
         """
@@ -229,7 +219,7 @@ class Sender(logging.Handler):
             raise DevoSenderException(
                 "Devo-Sender|SSL conn establishment socket error: %s" % str(error))
 
-    def status(self):
+    def __status(self):
         """
         View Socket status, check if it's open
         """
@@ -261,14 +251,12 @@ class Sender(logging.Handler):
         """
         if PY3:
             if not isinstance(record, bytes):
-                record = record.encode('utf-8')
-            return b'%d %s' % (len(record), record)
+                return record.encode('utf-8')
+        else:
+            if not isinstance(record, str):
+                return bytes(record.encode("utf-8"))
 
-        if not isinstance(record, str):
-            return bytes('%d %s') % (len(bytes(record.encode("utf-8"))),
-                                     record.encode("utf-8"))
-
-        return bytes('%d %s') % (len(bytes(record)), record)
+        return record
 
     def send_raw(self, record, multiline=False, zip=False):
         """
@@ -279,16 +267,17 @@ class Sender(logging.Handler):
 
         """
         try:
-            if not self.status():
+            if not self.__status():
                 self.__connect()
 
             if self.socket:
                 try:
-                    if not zip:
-                        record = self.__encode_record(record)
                     if not multiline and not zip:
-                        sent = self.socket.send(record)
+                        sent = self.socket.send(self.__encode_record(record))
                     else:
+                        if multiline:
+                            record = self.__encode_record(record)
+
                         msg_size = len(record)
                         sent = 0
                         total = int(msg_size / 4096)
@@ -373,6 +362,9 @@ class Sender(logging.Handler):
         """
         Send function when str, sure py 27. Cant be zipped
         """
+        if msg[-1:] != "\n":
+            msg += "\n"
+
         msg = COMPOSE % (self.compose_mem(tag, **kwargs), msg)
         self.send_raw(msg, multiline=kwargs.get('multiline', False))
 
@@ -384,6 +376,9 @@ class Sender(logging.Handler):
         if kwargs.get('zip', False):
             self.fill_buffer(msg)
         else:
+            if msg[-1:] != b"\n":
+                msg += b"\n"
+
             self.send_raw(msg, multiline=kwargs.get('multiline', False))
 
     def fill_buffer(self, msg):

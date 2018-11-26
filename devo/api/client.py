@@ -62,7 +62,7 @@ class Client(object):
             raise DevoClientException("Devo-Client|No secret passed.")
 
         self.response = "json/simple/compact"
-        self.url, self.query_url = self.set_url_query(url)
+        self.url, self.query_url = self.__set_url_query(url)
         self.socket = None
         self.socket_timeout = 30
         self.buffer = buffer
@@ -70,7 +70,7 @@ class Client(object):
         self.timeout = 30
         self.sleep = 5
 
-    def set_url_query(self, url):
+    def __set_url_query(self, url):
         """
         Set URL to ask
         :param url: string, full or only one part
@@ -78,20 +78,20 @@ class Client(object):
         """
         if url is None:
             return self.URL_AWS_EU, self.URL_QUERY_COMPLEMENT
-        return self.get_url_parts(url)
+        return self.__get_url_parts(url)
 
-    def get_url_parts(self, url):
+    def __get_url_parts(self, url):
         """
         Split the two parts of the api url
         :param url: Url of the api
         """
-        return self.verify_url_complement(url.split("//")[-1]
+        return self.__verify_url_complement(url.split("//")[-1]
                                           .split("/", maxsplit=1)
                                           if PY3
                                           else url.split("//")[-1]
                                           .split("/", 1))
 
-    def verify_url_complement(self, url_list):
+    def __verify_url_complement(self, url_list):
         """
         Verify if only has main domain or full url
         :param url_list: One or two part of the url

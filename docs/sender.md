@@ -34,41 +34,46 @@ Variable descriptions
 
 - With certificates:
 	
-	```python
-    engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
-    con = Sender(engine_config)
-	```
+```python
+from devo.sender import SenderConfigSSL, Sender
+engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
+con = Sender(engine_config)
+```
 	
 - Without certificates SSL
 
-	```python
-    engine_config = SenderConfigSSL(address=SERVER, port=PORT, cert_reqs=False)
-    con = Sender(engine_config)
-	```
+```python
+from devo.sender import SenderConfigSSL, Sender
+engine_config = SenderConfigSSL(address=SERVER, port=PORT, cert_reqs=False)
+con = Sender(engine_config)
+```
 	
 - Without certificates TCP
 	
-	```python
-    engine_config = SenderConfigTCP(address=SERVER, port=PORT)
-    con = Sender(engine_config)
-	```
+```python
+from devo.sender import SenderConfigTCP, Sender
+engine_config = SenderConfigTCP(address=SERVER, port=PORT)
+con = Sender(engine_config)
+```
 	
 
 - From config function - TCP example
-  ```python
-    con = Sender.from_config({"address": "relayurl", "port": 443, "type": "TCP"})
-  ```
+```python
+from devo.sender import Sender
+con = Sender.from_config({"address": "relayurl", "port": 443, "type": "TCP"})
+```
 
 - From config function - SSL example
-  ```python
-    con = Sender.from_config({"address": "relayurl", "port": 443, "key": "/tmp/key.key", "cert": "/tmp/cert.cert", "chain": "/tmp/chain.crt"})
-  ```
+```python
+from devo.sender import Sender
+con = Sender.from_config({"address": "relayurl", "port": 443, "key": "/tmp/key.key", "cert": "/tmp/cert.cert", "chain": "/tmp/chain.crt"})
+```
 
 - From a file
 
-The file must contain a json format structure with the values into _sender_ variable. The variables will depend of certificate type.
+The file must contain a json or yaml/yml format structure with the values into _sender_ variable. The variables will depend of certificate type.
 
-This is a example:
+config.json example:
 
 ```
 {   
@@ -82,15 +87,31 @@ This is a example:
 }
 ```
 
+config.yml example:
+```yml
+sender:
+  address":"devo-relay"
+  port: 443
+  key: "/devo/certs/key.key"
+  cert: "/devo/certs/cert.crt"
+  chain: "/devo/certs/chain.crt"
+```
+
 To initialize the collector configuration from a file we need to import **Configuration** class
 
 ```python
 from devo.common import Configuration
 
 conf = Configuration()
-conf.load_json("./config.json.example", 'sender')
+
+#Load config file with load_config, dont care about file format:
+conf.load_config("./config.json", 'sender')
+#OR
+conf.load_config("./config.yml", 'sender')
+
+
 config = conf.get()
-engine_config = Sender.from_config(config)
+con = Sender.from_config(config)
 ```
 
 In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
@@ -99,10 +120,12 @@ The regular use of the handler can be observed in this 3 examples:
 
 ######Setting up configuration variables.
 ```python
+from devo.sender import SenderConfigSSL
 tag = 'test.dump.free'
 engine_config = SenderConfigSSL(address=server, port=port,
                                         key=key, cert=cert,
                                         chain=chain)
+con = Sender(engine_config)
                     
 ```
 ######First example: Setting up tag after Sender is created
@@ -139,6 +162,7 @@ logger.addHandler(con)
 - After we use the configuration class, we will now be able to send events to the collector
 
 ```python
+from devo.sender import SenderConfigSSL
 con = Sender(engine_config)   
 ```
 
@@ -197,13 +221,13 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
 
 Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).
 
-In case to initialize the collector configuration from a json file, you must include a new object into the _lookup_ variable with the next parameters:
+In case to initialize the collector configuration from a json or yaml file, you must include a new object into the _lookup_ variable with the next parameters:
 
 + **name**: lookup table name
 + **file**: CSV file path
 + **lkey**: lookup column key
 
-Example:
+Example config.json:
 
 ```
 {   
@@ -213,6 +237,15 @@ Example:
         "lkey": "KEY"
     }
 }
+```
+
+Example config.yaml:
+
+```
+lookup:
+  name: "Test_Lookup_of_180306_02"
+  file: "test_lookup.csv"
+  lkey: "KEY"
 ```
 
 After initializing the colletor, you must initialize the lookup class.
@@ -249,8 +282,8 @@ Complete example
 
 ````python
 conf = Configuration()
-conf.load_json("./config.json.example", 'sender')
-conf.load_json("./config.json.example", 'lookup')
+conf.load_config("./config.json", 'sender')
+conf.load_config("./config.json", 'lookup')
 config = conf.get()
 con = Sender.from_config(config)
 lookup = Lookup(name=config['name'], historic_tag=None, con=con)
@@ -347,8 +380,8 @@ A complete example to send a lookup row is:
 
 ````python
 conf = Configuration()
-conf.load_json("./config.json.example", 'sender')
-conf.load_json("./config.json.example", 'lookup')
+conf.load_config("./config.json", 'sender')
+conf.load_config("./config.json", 'lookup')
 config = conf.get()
 con = Sender.from_config(config)
 lookup = Lookup(name=config['name'], historic_tag=None, con=con)
@@ -365,8 +398,8 @@ A simplify complete example to send a row of lookup is:
 
 ````python
 conf = Configuration()
-conf.load_json("./config.json.example", 'sender')
-conf.load_json("./config.json.example", 'lookup')
+conf.load_config("./config.json", 'sender')
+conf.load_config("./config.json", 'lookup')
 config = conf.get()
 con = Sender.from_config(config)
 lookup = Lookup(name=config['name'], historic_tag=None, con=con)

@@ -50,7 +50,7 @@ class Configuration(object):
             import yaml
         except ImportError as import_error:
             print(str(import_error), "- Use 'pip install pyyaml' or install this "
-                                     "package with [click] option")
+                                     "package with [pyyaml] option")
             sys.exit(1)
         with open(path, 'r') as stream:
             cfg = yaml.load(stream, Loader=yaml.Loader)
@@ -71,13 +71,34 @@ class Configuration(object):
 
         raise ConfigurationException("Configuration file type unknown or not supportted: %s" %path)
 
-    def load_default_json(self, section=None):
+    def load_default(self, section=None, ext="json"):
+        if ext is "json":
+            return self.load_default_json("~/.devo.json", section=section)
+        elif ext is "yaml" or ext is "yml":
+            return self.load_yaml("~/.devo.%s" % ext, section=section)
+
+
+    def load_default_json(self, section=None, path="~/.devo.json"):
         """Load Json Configuration in ~/.devo.json
 
+        #Selected for deprecate
+
         :param section: Section of the file if it have one
+        :param path: Path to default file, setter in default route for Devo
         :return: Returns a reference to the instance object
         """
-        return self.load_json("~/.devo.json", section)
+        return self.load_json(path, section)
+
+    def load_default_yaml(self, section=None, path="~/.devo.yml"):
+        """Load Yaml Configuration in ~/.devo.yaml
+
+        #Selected for deprecate
+
+        :param section: Section of the file if it have one
+        :param path: Path to default file, setter in default route for Devo
+        :return: Returns a reference to the instance object
+        """
+        return self.load_yaml(path, section)
 
     @staticmethod
     def clean_cfg(cfg):
