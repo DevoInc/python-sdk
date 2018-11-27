@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 #### Removed
  * Unused class "Props" on Sender, included in past versions
- * Bad class info and debug for Sender, unused too
+ * Bad class debug for Sender, unused too
  * Memoize class from Common namespase
  * Memoize references in Common readme.
  
