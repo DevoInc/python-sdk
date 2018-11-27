@@ -210,6 +210,16 @@ class Sender(logging.Handler):
             raise DevoSenderException(
                 "Devo-Sender|SSL conn establishment socket error: %s" % str(error))
 
+
+    def info(self, msg):
+        """
+        When Sender its a logger handler, this function its used to send
+        "info" log
+        :param msg: the msg to log
+        :return:
+        """
+        self.send(tag=self._logger_tag, msg=msg)
+
     def __status(self):
         """
         View Socket status, check if it's open
