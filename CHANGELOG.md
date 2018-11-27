@@ -14,12 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  
 #### Changed
  * Removed the octec count for performance, and verify if "\n" at the end of each msg, if applicable.
- * Modify classes to privates.
- * Public functions to private in API.
- * Update documentation of Sender and API.
- 
-### Fixed
- * Return of "info" function in Sender class, this fix use and tests
+ * Modify classes to privates
+ * Public functions to private in API
+ * Update documentation of Sender and API
 
 #### Removed
  * Unused class "Props" on Sender, included in past versions

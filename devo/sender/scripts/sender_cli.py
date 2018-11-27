@@ -2,7 +2,12 @@
 """CLI for use Devo Sender from shell command line."""
 
 import sys
-import click
+try:
+    import click
+except ImportError as import_error:
+    print(str(import_error), "- Use 'pip install click' or install this "
+                             "package with [click] option")
+    sys.exit(1)
 
 import logging
 import os
@@ -23,7 +28,7 @@ def cli():
 # ------------------------------------------------------------------------------
 @cli.command()
 @click.option('--config', '-c', type=click.Path(exists=True),
-              help='Optional JSON/Yaml File with configuration info.')
+              help='Optional JSON File with configuration info.')
 @click.option('--address', '-a', help='Devo relay address')
 @click.option('--port', '-p', help='Devo relay address port')
 @click.option('--key', help='Devo user key cert file.')
@@ -84,7 +89,7 @@ def data(**kwargs):
 
 @cli.command()
 @click.option('--config', '-c', type=click.Path(exists=True),
-              help='Optional JSON/Yaml File with configuration info.')
+              help='Optional JSON File with configuration info.')
 @click.option('--url', '--address', '-a', help='Devo relay address')
 @click.option('--port', '-p', help='Devo relay address port')
 @click.option('--key', help='Devo user key cert file.')
@@ -130,7 +135,7 @@ def init_conf(args):
     """ Generic configuration of CLI, from config file and cli arguments """
     config = Configuration()
     if args.get('config'):
-        config.load_config(args.get('config'), 'sender')
+        config.load_json(args.get('config'), 'sender')
     config.mix(dict(args))
 
 
@@ -166,7 +171,7 @@ def init_conf(args):
 def configure_lookup(args):
     """ Configuration of Lookup for CLI """
     config = init_conf(args)
-    config.load_config(args.get('config'), 'lookup')
+    config.load_json(args.get('config'), 'lookup')
     config.mix(dict(args))
 
     return config.get()
