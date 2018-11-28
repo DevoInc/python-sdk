@@ -8,6 +8,8 @@ This library performs queries to the Client API (Search rest api) of Devo.
 
 - key: The key of the domain
 - secret: The secret of the domain
+- token: Auth token
+- jwt: JWT token
 - url(optional): The url of the service. A static constants are provided with
 the commons clouds: can take several values, for example:
     - Client.URL_AWS_EU: https://api-eu.logtrust.com
@@ -22,6 +24,13 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
+              url="https://api-eu.logtrust.com/search/query")
+
+
+api = Client(token="myauthtoken,
+              url="https://api-eu.logtrust.com/search/query")
+
+api = Client(jwt="myauthtoken,
               url="https://api-eu.logtrust.com/search/query")
 ```    
     
@@ -120,23 +129,20 @@ Usage: `devo-api query [OPTIONS]`
 
 ```
 Options:
-  --config PATH           JSON File with configuration, you can put all
-                          options here
-  -u, --url TEXT          Endpoint for the api.
-  --apiKey TEXT           Key for the api.
-  --apiSecret TEXT        Secret for the api.
-  --query TEXT            Query.
-  --stream / --no-stream  Flag for make streaming query or full query with
-                          start and end. Default is true
-  --proc                  if flag exists, dont return raw query reply. In
-                          compact replies you receive proccessed lines.
-  --output TEXT           File path to store query response if not want stdout
-  -f, --format TEXT       The output format. Default is json/simple/compact
-  --from TEXT             From date, and time for the query (YYYY-MM-DD
-                          hh:mm:ss). For valid formats see devo.common README
-  --to TEXT               To date, and time for the query (YYYY-MM-DD
-                          hh:mm:ss). For valid formats see devo.common README
-  --help                  Show this message and exit.
+  -c, --config PATH                            JSON File with configuration, you can put all options here
+  -u, --url TEXT                               Endpoint for the api.
+  --api_key, --apiKey, --key TEXT              Key for the api.
+  --api_secret, --apiSecret, --secret TEXT     Secret for the api.
+  --auth_token, --authToken, --token TEXT      Token auth for query.
+  --jwt TEXT                                   jwt auth for query.
+  -q, --query TEXT                             Query.
+  --stream / --no-stream                       Flag for make streaming query or full query with start and end. Default is true
+  --proc                                       if flag exists, dont return raw query reply. In compact replies you receive proccessed lines.
+  --output TEXT                                File path to store query response if not want stdout
+  -f, --format TEXT                            The output format. Default is json/simple/compact
+  --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
+  --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
+  --help                                       Show this message and exit.
 ```
 
 A configuration file does not have to have all the necessary keys, you can have 

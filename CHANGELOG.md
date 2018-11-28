@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [x.x.x] - xxxx-xx-xx
+#### Added
+ * Use of Token auth and JWT in API, added docs and tests
+ 
+#### Changed
+ * Modify Client init class
+
+
 ## [1.2.1] - 2018-11-26
 #### Added
  * YAML configuration files, like JSON files.

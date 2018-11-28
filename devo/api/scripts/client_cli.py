@@ -28,7 +28,8 @@ def cli():
 @click.option('--url', '-u', help='Endpoint for the api.')
 @click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
 @click.option('--api_secret', '--apiSecret', '--secret', help='Secret for the api.')
-@click.option('--api_token', '--apiToken', '--token', help='Secret for the api.')
+@click.option('--auth_token', '--authToken', '--token', help='Token auth for query.')
+@click.option('--jwt', help='jwt auth for query.')
 @click.option('--query', '-q', help='Query.')
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with start and '
@@ -50,11 +51,16 @@ def query(**kwargs):
     """Perform query by query string"""
     api, config = configure(kwargs)
 
-    if config['query'] is None:
+    try:
+        if config['query'] is None:
+            print_error("Error: Not query provided.", show_help=True)
+    except KeyError:
         print_error("Error: Not query provided.", show_help=True)
 
+
     buffer = api.query(query=config['query'],
-                       dates={"from": config['from'],
+                       dates={"from": config['from'] if "from" in config.keys()
+                                    else None,
                               "to": config['to'] if "to" in config.keys()
                                     else None},
                        format=config['format'],

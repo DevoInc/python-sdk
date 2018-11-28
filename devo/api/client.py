@@ -34,38 +34,48 @@ class Client(object):
     URL_AWS_USA = 'https://api-us.logtrust.com'
     URL_QUERY_COMPLEMENT = '/search/query'
 
-    def __init__(self, key=None, secret=None, url=None, buffer=None, **kwargs):
+    def __init__(self, *args, **kwargs):
         """
-        Initialize the API
+        Initialize the API with this params, all optionals
         :param key: Key string
         :param secret: Secret string
+        :param token: Auth Token
         :param url: URL for the service
-        :param buffer: URL for the service
+        :param buffer: Buffer object, if want another diferent queue
         """
         self.time_start = int(round(time.time() * 1000))
-        if key:
-            self.key = str(key)
-        elif "api_key" in kwargs.keys():
-            self.key = str(kwargs['api_key'])
-        elif "apiKey" in kwargs.keys():
-            self.key = str(kwargs['apiKey'])
-        else:
-            raise DevoClientException("Devo-Client|No key passed")
+        if len(args) is 3:
+            self.key = args[0]
+            self.secret = args[1]
+            url = args[2]
+        elif len(args) is 0:
+            self.key = kwargs.get("key",
+                                  kwargs.get("api_key",
+                                             kwargs.get("apiKey", None)))
 
-        if secret:
-            self.secret = str(secret)
-        elif "api_secret" in kwargs.keys():
-            self.secret = str(kwargs['api_secret'])
-        elif "apiSecret" in kwargs.keys():
-            self.secret = str(kwargs['apiSecret'])
+            self.secret = kwargs.get("secret",
+                                     kwargs.get("api_secret",
+                                                kwargs.get("apiSecret", None)))
+
+            url = kwargs.get("url", None)
         else:
-            raise DevoClientException("Devo-Client|No secret passed.")
+            raise DevoClientException("Devo-Client|Position arguments are "
+                                      "deprecated, It is only enabled as "
+                                      "compatibility, being able to pass only "
+                                      "3 arguments: key, secret and url, "
+                                      "in that order. ")
+
+        self.token = kwargs.get("token",
+                                     kwargs.get("auth_token",
+                                                kwargs.get("authToken", None)))
+
+        self.jwt = kwargs.get("jwt", None)
 
         self.response = "json/simple/compact"
         self.url, self.query_url = self.__set_url_query(url)
         self.socket = None
         self.socket_timeout = 30
-        self.buffer = buffer
+        self.buffer = kwargs.get("buffer", None)
         self.retries = 3
         self.timeout = 30
         self.sleep = 5
@@ -161,7 +171,7 @@ class Client(object):
 
             if self.buffer is None:
                 self.buffer = Buffer()
-
+            print(self.buffer)
             self.buffer.create_thread(
                 target=self._call_stream,
                 kwargs=({'payload': self._get_payload(query, query_id,
@@ -231,16 +241,17 @@ class Client(object):
         :param payload: The payload
         """
         self.socket.send(self._get_stream_headers(payload))
-        result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
-        if result:
-            try:
-                while self.buffer.proccess_recv(self.socket.recv(5000)):
-                    pass
-            except socket.timeout:
-                while not self.buffer.is_empty() or self.buffer.close:
-                    time.sleep(1)
-        else:
-            raise DevoClientException("Devo-Client|%s" % str(data))
+        if not self.buffer.close and not self.buffer.error:
+            result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
+            if result:
+                try:
+                    while self.buffer.proccess_recv(self.socket.recv(5000)):
+                        pass
+                except socket.timeout:
+                    while not self.buffer.is_empty() or self.buffer.close:
+                        time.sleep(1)
+            else:
+                raise DevoClientException("Devo-Client|%s" % str(data))
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -284,14 +295,31 @@ class Client(object):
         :param data: returned value from _get_payload()
         :return: Return the formed http headers
         """
+
         tstamp = str(int(time.time()) * 1000)
-        sign = self._get_sign(data, tstamp)
-        return {
-            'Content-Type': 'application/json',
-            'x-logtrust-apikey': self.key,
-            'x-logtrust-timestamp': tstamp,
-            'x-logtrust-sign': sign
-        }
+        if self.key and self.secret:
+            sign = self._get_sign(data, tstamp)
+            return {
+                'Content-Type': 'application/json',
+                'x-logtrust-apikey': self.key,
+                'x-logtrust-timestamp': tstamp,
+                'x-logtrust-sign': sign
+            }
+        elif self.token:
+            return {
+                'Content-Type': 'application/json',
+                'x-logtrust-timestamp': tstamp,
+                'Authorization': "Bearer %s" % self.token
+            }
+        elif self.jwt:
+            return {
+                'Content-Type': 'application/json',
+                'x-logtrust-timestamp': tstamp,
+                'Authorization': "jwt %s" % self.jwt
+            }
+
+        raise DevoClientException("Devo-Client|Client dont have key&secret or auth token/jwt")
+
 
     def _get_stream_headers(self, payload):
         """
@@ -300,19 +328,35 @@ class Client(object):
         :return: Return the formed headers
         """
         tstamp = str(int(time.time()) * 1000)
-        return ("POST /%s HTTP/1.1\r\n"
-                "Host: %s\r\n"
-                "Content-Type: application/json\r\n"
-                "Content-Length: %s \r\n"
-                "x-logtrust-apikey: %s\r\n"
-                "x-logtrust-timestamp: %s\r\n"
-                "x-logtrust-sign: %s\r\n"
-                "Cache-Control: no-cache\r\n"
-                "\r\n"
-                "%s\r\n"
-                % (self.query_url, self.url, str(len(payload)),
-                   self.key, tstamp, self._get_sign(payload, tstamp),
-                   payload)).encode("utf-8")
+
+        headers = ("POST /%s HTTP/1.1\r\n"
+                    "Host: %s\r\n"
+                    "Content-Type: application/json\r\n"
+                    "Content-Length: %s \r\n"
+                    "Cache-Control: no-cache\r\n"
+                    "x-logtrust-timestamp: %s\r\n"
+                   % (self.query_url, self.url, str(len(payload)), tstamp))
+
+        if self.key and self.secret:
+            return ("%s"
+                    "x-logtrust-apikey: %s\r\n"
+                    "x-logtrust-sign: %s\r\n"
+                    "\r\n%s\r\n"
+                    % (headers, self.key,  self._get_sign(payload, tstamp),
+                       payload)).encode("utf-8")
+        elif self.token:
+            return ("%s"
+                    "Authorization: Bearer %s\r\n"
+                    "\r\n%s\r\n"
+                    % (headers, self.token, payload)).encode("utf-8")
+        elif self.jwt:
+            return ("%s"
+                    "Authorization: jwt %s\r\n"
+                    "\r\n%s\r\n"
+                    % (headers, self.jwt, payload)).encode("utf-8")
+
+        self.buffer.error = "Client dont have key&secret or auth token/jwt"
+        raise DevoClientException("Devo-Client|Client dont have key&secret or auth token/jwt")
 
     def _get_sign(self, data, tstamp):
         """
@@ -354,3 +398,6 @@ class Client(object):
         if self.socket is not None:
             self.socket.close()
             self.socket = None
+
+        if self.buffer is not None:
+            self.buffer.close = True
