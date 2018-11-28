@@ -1,4 +1,8 @@
-import logging,threading,os,ssl,socket,time,socket,ssl
+import logging,threading,os,ssl,socket,time,socket,ssl,sys
+PY3 = sys.version_info[0] > 2
+
+if not PY3:
+        import SocketServer
 
 logging.basicConfig(level=logging.DEBUG,format='(%(threadName)-10s) %(message)s', )
 logger = logging.getLogger('DEVO_logger')
@@ -43,17 +47,31 @@ def mockup_ssl_server():
         finally:
             stream.close()
 
-def mockup_tcp_server():
-    '''
-    Implement the TCP SERVER
-    '''    
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind((tcp_server,tcp_port))
-    s.listen(5)    
-    conn, addr = s.accept()    
-    while True:
-        data = conn.recv(1024).decode()
+if  PY3:
+        def mockup_tcp_server():
+                '''
+                Implement the TCP SERVER
+                '''    
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.bind((tcp_server,tcp_port))
+                s.listen(5)    
+                conn, addr = s.accept()    
+                while True:
+                        data = conn.recv(1024).decode()
+else:
+        class CustomTCPHandler(SocketServer.StreamRequestHandler):
+                def handle(self):
+                        self.data = self.rfile.readline().strip()
+                        self.wfile.write(self.data.upper())
+
+        def mockup_tcp_server():
+                '''
+                Implement the TCP SERVER
+                '''    
+                server = SocketServer.TCPServer((tcp_server, tcp_port), CustomTCPHandler)
+                server.serve_forever()
+
 
 thread_ssl_server = threading.Thread(target=mockup_ssl_server)
 thread_tcp_server = threading.Thread(target=mockup_tcp_server)
