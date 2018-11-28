@@ -171,7 +171,6 @@ class Client(object):
 
             if self.buffer is None:
                 self.buffer = Buffer()
-            print(self.buffer)
             self.buffer.create_thread(
                 target=self._call_stream,
                 kwargs=({'payload': self._get_payload(query, query_id,
