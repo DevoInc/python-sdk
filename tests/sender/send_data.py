@@ -1,6 +1,7 @@
 import unittest
 import os
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
+from mock_server import start_server,file_path,ip_server,port_server,tcp_server,tcp_port
 from devo.common import loadenv
 import logging
 
@@ -16,13 +17,10 @@ class TestSender(unittest.TestCase):
                              os.sep))
 
         # if the required vars are not present it uses some default configuration
-        self.server = os.getenv('DEVO_SENDER_SERVER',
-                                "0.0.0.0")
-        self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
-
-        self.tcp_server = os.getenv('DEVO_SENDER_self.tcp_server',
-                                    "0.0.0.0")
-        self.tcp_port = int(os.getenv('DEVO_SENDER_self.tcp_server', 4489))
+        self.server = ip_server
+        self.port = port_server
+        self.tcp_server = tcp_server
+        self.tcp_port = tcp_port
 
         self.key = os.getenv('DEVO_SENDER_KEY', "".join((file_path,
                                                          "local_server_files",
@@ -138,15 +136,15 @@ class TestSender(unittest.TestCase):
         """
         if self.test_tcp == "True":
             try:
-                engine_config = SenderConfigSSL(address=self.tcp_server,
-                                                port=self.tcp_port,
+                engine_config = SenderConfigSSL(address=self.server,
+                                                port=self.port,
                                                 cert_reqs=False)
                 con = Sender(engine_config)
                 for i in range(0, self.default_numbers_sendings):
                     con.send(tag=self.my_app, msg='Test RT msg')
                 con.close()
             except Exception as error:
-                self.fail("Problems with test: %s" % error)
+                return False
         else:
             return True
 
@@ -212,28 +210,25 @@ class TestSender(unittest.TestCase):
             engine_config = {"address": self.server, "port": self.port,
                              "key": self.key, "cert": self.cert,
                              "chain": self.chain, "type": "SSL", "cert_regs": True}
-
             con = Sender.for_logging(engine_config, "SSL", self.my_app)
-
-            logger = logging.getLogger('DEVO_logger')
+            logger = logging.getLogger('DEVO_logger_static')
             logger.setLevel(logging.DEBUG)
             formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
             con.setFormatter(formatter)
             con.setLevel(logging.DEBUG)
             logger.addHandler(con)
-
-            # logger.addHandler(con.logger.handlers[0])
             for i in range(0, self.default_numbers_sendings):
                 logger.info("Testing Sender static handler functionality... INFO - log")
                 logger.error("Testing Sender static logging handler functionality... ERROR - log")
                 logger.warning("Testing Sender static logging handler functionality... WARNING - log")
                 logger.debug("Testing Sender static logging handler functionality... DEBUG - log")
                 logger.critical("Testing Sender static logging handler functionality... CRITICAL - log")
-
+            
             con.close()
         except Exception as error:
             self.fail("Problems with test: %s" % error)
 
 
 if __name__ == '__main__':
-    unittest.main()
+    start_server()  #launch the mock server    
+    unittest.main() #execute tests
