@@ -59,6 +59,7 @@ if  PY3:
                 conn, addr = s.accept()    
                 while True:
                         data = conn.recv(1024).decode()
+
 else:
         class CustomTCPHandler(SocketServer.StreamRequestHandler):
                 def handle(self):

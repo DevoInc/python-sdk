@@ -1,12 +1,20 @@
-import unittest,threading,os,time
+import unittest
+import os
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
-from devo.common import loadenv
 from mock_server import start_server,file_path,ip_server,port_server,tcp_server,tcp_port
+from devo.common import loadenv
 import logging
 
 
 class TestSender(unittest.TestCase):
     def setUp(self):
+        """
+        Set up the test environment vars.
+        If you have an environment.env file (main directory) it will use it to set it else the vars will need to be set
+        up in any other way.
+        """
+        file_path = "".join((os.path.dirname(os.path.abspath(__file__)),
+                             os.sep))
 
         # if the required vars are not present it uses some default configuration
         self.server = ip_server
@@ -29,11 +37,33 @@ class TestSender(unittest.TestCase):
 
         self.test_tcp = os.getenv('DEVO_TEST_TCP', "True")
         self.my_app = 'test.drop.free'
+        self.my_bapp = b'test.drop.free'
         self.my_date = 'my.date.test.sender'
         self.test_file = "".join((file_path, "testfile_multiline.txt"))
 
         # change this value if you want to send another number of test string
         self.default_numbers_sendings = 100
+
+    def test_compose_mem(self):
+        self.assertEqual(Sender.compose_mem("test.tag"),
+                         '<14>Jan  1 00:00:00 2017-EMEA-0312 test.tag: ')
+
+        self.assertEqual(Sender.compose_mem("test.tag", hostname="my-pc"),
+                         '<14>Jan  1 00:00:00 my-pc test.tag: ')
+
+        self.assertEqual(Sender.compose_mem("test.tag", date="1991-02-20 12:00:00"),
+                         '<14>1991-02-20 12:00:00 2017-EMEA-0312 test.tag: ')
+
+        self.assertEqual(Sender.compose_mem(b"test.tag", bytes=True),
+                         b'<14>Jan  1 00:00:00 2017-EMEA-0312 test.tag: ')
+
+        self.assertEqual(Sender.compose_mem(b"test.tag", hostname=b"my-pc", bytes=True),
+                         b'<14>Jan  1 00:00:00 my-pc test.tag: ')
+
+        self.assertEqual(Sender.compose_mem(b"test.tag", date=b"1991-02-20 12:00:00", bytes=True),
+                         b'<14>1991-02-20 12:00:00 2017-EMEA-0312 test.tag: ')
+
+
 
     def test_tcp_rt_send(self):
         """
@@ -44,7 +74,8 @@ class TestSender(unittest.TestCase):
                 engine_config = SenderConfigTCP(address=self.tcp_server,
                                                 port=self.tcp_port)
                 con = Sender(engine_config)
-                con.send(tag=self.my_app, msg='Test TCP msg')
+                for i in range(0, 1):
+                    con.send(tag=self.my_app, msg='Test TCP msg')
                 con.close()
             except Exception as error:
                 self.fail("Problems with test: %s" % error)
@@ -60,8 +91,25 @@ class TestSender(unittest.TestCase):
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
             con = Sender(engine_config)
-            #for i in range(0, self.default_numbers_sendings):
-            con.send(tag=self.my_app, msg='Test SSL msg_ python_sdk_ fork')
+            for i in range(0, self.default_numbers_sendings):
+                con.send(tag=self.my_app, msg='Test SSL msg_ python_sdk_ fork')
+            con.close()
+        except Exception as error:
+            self.fail("Problems with test: %s" % error)
+
+    def test_ssl_zip_send(self):
+        """
+        Test that tries to send a message through a ssl connection
+        """
+        try:
+            engine_config = SenderConfigSSL(address=self.server, port=self.port,
+                                            key=self.key, cert=self.cert,
+                                            chain=self.chain)
+            con = Sender(engine_config)
+            for i in range(0, self.default_numbers_sendings):
+                con.send(tag=self.my_bapp, msg=b'Test SSL msg_ python_sdk_ fork'
+                         , zip=True)
+            con.flush_buffer()
             con.close()
         except Exception as error:
             self.fail("Problems with test: %s" % error)
@@ -86,16 +134,18 @@ class TestSender(unittest.TestCase):
         """
         Test that tries to send a message without using certificates
         """
-        try:
-            engine_config = SenderConfigSSL(address=self.server,
-                                            port=self.port,
-                                            cert_reqs=False)
-            con = Sender(engine_config)
-            for i in range(0, self.default_numbers_sendings):
-                con.send(tag=self.my_app, msg='Test RT msg')
-            con.close()
-            self.fail("Problems with test. Its possible send data without using certificates")
-        except Exception as error:
+        if self.test_tcp == "True":
+            try:
+                engine_config = SenderConfigSSL(address=self.server,
+                                                port=self.port,
+                                                cert_reqs=False)
+                con = Sender(engine_config)
+                for i in range(0, self.default_numbers_sendings):
+                    con.send(tag=self.my_app, msg='Test RT msg')
+                con.close()
+            except Exception as error:
+                return False
+        else:
             return True
 
     def test_Sender_as_handler(self):
@@ -116,11 +166,15 @@ class TestSender(unittest.TestCase):
             logger.addHandler(con)
 
             for i in range(0, self.default_numbers_sendings):
+                # con.debug("DEVO LOGGING HANDLER TEST at: test_Sender_as_handler" )
+
+                # logger.addHandler(con.logger.handlers[0])
                 logger.info("Testing Sender inherit logging handler functionality... INFO - log")
                 logger.error("Testing Sender inherit logging handler functionality... ERROR - log")
                 logger.warning("Testing Sender inherit logging handler functionality... WARNING - log")
                 logger.debug("Testing Sender inherit logging handler functionality... DEBUG - log")
                 logger.critical("Testing Sender inherit logging handler functionality... CRITICAL - log")
+
             con.close()
         except Exception as error:
             self.fail("Problems with test: %s" % error)
@@ -140,7 +194,7 @@ class TestSender(unittest.TestCase):
             for i in range(0, self.default_numbers_sendings):
                 # NOTE: this logger logging traces will be visible in console
                 con.logger.info("Testing Sender default handler functionality in local console... INFO - log")
-                # NOTE: this logger logging traces will be visible in the remote table 
+                # NOTE: this logger logging traces will be visible in the remote table
                 con.info("Testing Sender default handler functionality in remote table... INFO - log")
 
             con.close()
@@ -173,6 +227,7 @@ class TestSender(unittest.TestCase):
             con.close()
         except Exception as error:
             self.fail("Problems with test: %s" % error)
+
 
 if __name__ == '__main__':
     start_server()  #launch the mock server    
