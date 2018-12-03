@@ -239,7 +239,8 @@ class Client(object):
         Make the call
         :param payload: The payload
         """
-        self.socket.send(self._get_stream_headers(payload))
+        if self.socket is not None:
+            self.socket.send(self._get_stream_headers(payload))
         if not self.buffer.close and not self.buffer.error and self.socket is not None:
             result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
             if result:
@@ -394,9 +395,11 @@ class Client(object):
         """
         Forces socket closure
         """
+        if self.buffer is not None:
+            self.buffer.close = True
+            self.buffer.thread.join()
+
         if self.socket is not None:
             self.socket.close()
             self.socket = None
 
-        if self.buffer is not None:
-            self.buffer.close = True

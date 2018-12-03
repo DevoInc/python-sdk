@@ -119,6 +119,7 @@ class TestSender(unittest.TestCase):
             con = Sender(engine_config)
             with open(self.test_file, 'r') as file:
                 content = file.read()
+
             con.send(tag=self.my_app, msg=content, multiline=True)
             con.flush_buffer()
 

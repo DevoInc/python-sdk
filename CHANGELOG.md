@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Modify Client init class
  * Fixes in tests of Sender
  * License file
+ * Close order of API/Buffer
  
 #### Removed
  * Dockerfile
