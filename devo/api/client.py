@@ -18,7 +18,7 @@ class DevoClientException(Exception):
     pass
 
 
-if PY3:
+if not PY3:
     class ConnectionError(OSError):
         """ Connection error. """
         def __init__(self, *args, **kwargs):  # real signature unknown

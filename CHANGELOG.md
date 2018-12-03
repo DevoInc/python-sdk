@@ -11,11 +11,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Local servers for tests
  * YAML file for Travis CI tests
  
+#### Fixed
+ * ConnectionError in python 2
+ * tests of Sender
+ * Close order of API/Buffer
+ 
 #### Changed
  * Modify Client init class
- * Fixes in tests of Sender
  * License file
- * Close order of API/Buffer
  
 #### Removed
  * Dockerfile
