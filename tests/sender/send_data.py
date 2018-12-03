@@ -1,7 +1,7 @@
 import unittest
 import logging
-import time
-from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, COMPOSE
+import socket
+from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
 from .load_certs import *
 
 
@@ -29,28 +29,28 @@ class TestSender(unittest.TestCase):
                                   os.sep, "testfile_multiline.txt"))
 
         self.test_msg = 'Test send msg\n'
-
+        self.localhost = socket.gethostname()
         # change this value if you want to send another number of test string
         self.default_numbers_sendings = 10
 
     def test_compose_mem(self):
         self.assertEqual(Sender.compose_mem("test.tag"),
-                         '<14>Jan  1 00:00:00 2017-EMEA-0312 test.tag: ')
+                         '<14>Jan  1 00:00:00 %s test.tag: ' % self.localhost)
 
         self.assertEqual(Sender.compose_mem("test.tag", hostname="my-pc"),
                          '<14>Jan  1 00:00:00 my-pc test.tag: ')
 
         self.assertEqual(Sender.compose_mem("test.tag", date="1991-02-20 12:00:00"),
-                         '<14>1991-02-20 12:00:00 2017-EMEA-0312 test.tag: ')
+                         '<14>1991-02-20 12:00:00 %s test.tag: ' % self.localhost)
 
         self.assertEqual(Sender.compose_mem(b"test.tag", bytes=True),
-                         b'<14>Jan  1 00:00:00 2017-EMEA-0312 test.tag: ')
+                         b'<14>Jan  1 00:00:00 %s test.tag: ' % self.localhost.encode("utf-8"))
 
         self.assertEqual(Sender.compose_mem(b"test.tag", hostname=b"my-pc", bytes=True),
                          b'<14>Jan  1 00:00:00 my-pc test.tag: ')
 
         self.assertEqual(Sender.compose_mem(b"test.tag", date=b"1991-02-20 12:00:00", bytes=True),
-                         b'<14>1991-02-20 12:00:00 2017-EMEA-0312 test.tag: ')
+                         b'<14>1991-02-20 12:00:00 %s test.tag: ' % self.localhost.encode("utf-8"))
 
     def test_tcp_rt_send(self):
         """
@@ -100,10 +100,9 @@ class TestSender(unittest.TestCase):
             for i in range(0, self.default_numbers_sendings):
                 con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8")
                          ,zip=True)
-            con.flush_buffer()
-
-            if len(con.socket.recv(5000)) == 0:
-                raise Exception('Not msg sended!')
+                con.flush_buffer()
+                if len(con.socket.recv(5000)) == 0:
+                    raise Exception('Not msg sended!')
 
             con.close()
         except Exception as error:
@@ -141,7 +140,6 @@ class TestSender(unittest.TestCase):
                 con = Sender(engine_config)
                 for i in range(0, self.default_numbers_sendings):
                     con.send(tag=self.my_app, msg=self.test_msg)
-
                 con.close()
             except Exception as error:
                 return False
@@ -252,4 +250,3 @@ class TestSender(unittest.TestCase):
             con.close()
         except Exception as error:
             self.fail("Problems with test: %s" % error)
-
