@@ -1,5 +1,3 @@
-[![Build Status](https://api.travis-ci.com/DevoInc/devo-python-sdk.svg)](http://travis-ci.com/DevoInc/devo-python-sdk)
-
 # Devo Python SDK
 
 This is the SDK to access Devo directly from Python. It can be used to:
