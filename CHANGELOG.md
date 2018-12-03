@@ -5,6 +5,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [1.3.0] - 2018-12-03
+#### Added
+ * Use of Token auth and JWT in API, added docs and tests
+ * Local servers for tests
+ * YAML file for Travis CI tests
+ 
+#### Fixed
+ * ConnectionError in python 2
+ * tests of Sender
+ * Close order of API/Buffer
+ 
+#### Changed
+ * Modify Client init class
+ * License file
+ 
+#### Removed
+ * Dockerfile
+
 ## [1.2.1] - 2018-11-26
 #### Added
  * YAML configuration files, like JSON files.
@@ -20,7 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 #### Removed
  * Unused class "Props" on Sender, included in past versions
- * Bad class info and debug for Sender, unused too
+ * Bad class debug for Sender, unused too
  * Memoize class from Common namespase
  * Memoize references in Common readme.
  
