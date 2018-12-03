@@ -240,7 +240,7 @@ class Client(object):
         :param payload: The payload
         """
         self.socket.send(self._get_stream_headers(payload))
-        if not self.buffer.close and not self.buffer.error:
+        if not self.buffer.close and not self.buffer.error and self.socket is not None:
             result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
             if result:
                 try:
