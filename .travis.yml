@@ -4,6 +4,7 @@ python:
   - "3.6"
 install:
   - pip install .
+  - pip install pyyaml
 # command to run tests
 script:
   - python run_tests.py
