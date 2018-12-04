@@ -129,7 +129,7 @@ Usage: `devo-api query [OPTIONS]`
 
 ```
 Options:
-  -c, --config PATH                            JSON File with configuration, you can put all options here
+  -c, --config PATH                            JSON/YAML File with configuration, you can put all options here
   -u, --url TEXT                               Endpoint for the api.
   --api_key, --apiKey, --key TEXT              Key for the api.
   --api_secret, --apiSecret, --secret TEXT     Secret for the api.
@@ -152,8 +152,10 @@ the common values: url, port, certificates. And then send with the call the tag,
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
 
-**Config file key:** The CLI uses the "api" key to search for information. You can see one example in docs/common/config.example.json
+**Config file key:** The CLI uses the "api" key to search for information. 
+You can see one examples in tests folders
 
+json example:
 ```json
   {
     "api": {
@@ -162,6 +164,15 @@ arguments of the call over the configuration file
       "url": "https://api-us.logtrust.com/search/query"
     }
   }
+  
+```
+
+yaml example:
+```yaml
+  api:
+    key: "MyAPIkeytoaccessdevo"
+    secret: "MyAPIsecrettoaccessdevo"
+    url: "https://api-us.logtrust.com/search/query"
 ```
 
 You can use environment variables or a global configuration file for the KEY, SECRET and URL values
@@ -170,7 +181,7 @@ Priority order:
 1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
 2. params in CLI call: He can complete values not in configuration file, but not override it
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
-4. ~/.devo.json: if you send key, secrey or token in other way, this option not be called
+4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
 Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY` and `DEVO_API_SECRET`
 
