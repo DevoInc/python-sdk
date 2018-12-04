@@ -23,13 +23,12 @@ def cli():
 
 @cli.command()
 @click.option('--config', '-c', type=click.Path(),
-              help='JSON File with configuration, you can put all options here',
+              help='JSON/Yaml File with configuration, you can put all options here',
               default="~/.devo.json")
 @click.option('--url', '-u', help='Endpoint for the api.')
 @click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
 @click.option('--api_secret', '--apiSecret', '--secret', help='Secret for the api.')
-@click.option('--auth_token', '--authToken', '--token', help='Token auth for query.')
-@click.option('--jwt', help='jwt auth for query.')
+@click.option('--api_token', '--apiToken', '--token', help='Secret for the api.')
 @click.option('--query', '-q', help='Query.')
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with start and '
@@ -51,16 +50,11 @@ def query(**kwargs):
     """Perform query by query string"""
     api, config = configure(kwargs)
 
-    try:
-        if config['query'] is None:
-            print_error("Error: Not query provided.", show_help=True)
-    except KeyError:
+    if config['query'] is None:
         print_error("Error: Not query provided.", show_help=True)
 
-
     buffer = api.query(query=config['query'],
-                       dates={"from": config['from'] if "from" in config.keys()
-                                    else None,
+                       dates={"from": config['from'],
                               "to": config['to'] if "to" in config.keys()
                                     else None},
                        format=config['format'],
@@ -133,7 +127,7 @@ def configure(args):
     """
     config = Configuration()
     if args.get('config') != "~/.devo.json":
-        config.load_json(args.get('config'), 'api')
+        config.load_config(args.get('config'), 'api')
 
     config.mix(dict(args))
 
