@@ -101,7 +101,7 @@ class TestSender(unittest.TestCase):
                 con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8")
                          ,zip=True)
                 con.flush_buffer()
-                if len(con.socket.recv(5000)) == 0:
+                if len(con.socket.recv(1000)) == 0:
                     raise Exception('Not msg sended!')
 
             con.close()
@@ -123,7 +123,7 @@ class TestSender(unittest.TestCase):
             con.send(tag=self.my_app, msg=content, multiline=True)
             con.flush_buffer()
 
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
             con.close()
         except Exception as error:
@@ -165,23 +165,23 @@ class TestSender(unittest.TestCase):
             logger.addHandler(con)
 
             logger.info("Testing Sender inherit logging handler functionality... INFO - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.error("Testing Sender inherit logging handler functionality... ERROR - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.warning("Testing Sender inherit logging handler functionality... WARNING - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.debug("Testing Sender inherit logging handler functionality... DEBUG - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.critical("Testing Sender inherit logging handler functionality... CRITICAL - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             con.close()
@@ -204,7 +204,7 @@ class TestSender(unittest.TestCase):
             con.logger.info("Testing Sender default handler functionality in local console... INFO - log")
             # NOTE: this logger logging traces will be visible in the remote table
             con.info("Testing Sender default handler functionality in remote table... INFO - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             con.close()
@@ -229,23 +229,23 @@ class TestSender(unittest.TestCase):
             logger.addHandler(con)
 
             logger.info("Testing Sender static handler functionality... INFO - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.error("Testing Sender static logging handler functionality... ERROR - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.warning("Testing Sender static logging handler functionality... WARNING - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.debug("Testing Sender static logging handler functionality... DEBUG - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             logger.critical("Testing Sender static logging handler functionality... CRITICAL - log")
-            if len(con.socket.recv(5000)) == 0:
+            if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
             con.close()
