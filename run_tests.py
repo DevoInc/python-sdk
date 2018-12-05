@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 from devo.common import load_env_file
+from tests.sender.local_servers import SSL_Server, TCP_Server
 
 failed = False
 
@@ -69,7 +70,12 @@ if __name__ == '__main__':
     parser.add_argument("--coverage", type=bool, const=True,
                         default=False, nargs='?', help="Generate coverage.")
     args = parser.parse_args()
+    local_ssl_server = SSL_Server()
+    local_tcp_server = TCP_Server()
     if args.coverage:
         CoverageCommand().run()
     else:
         TestCommand().run()
+
+    local_ssl_server.close_server()
+    local_tcp_server.close_server()

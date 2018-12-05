@@ -23,22 +23,22 @@ def cli():
 
 @cli.command()
 @click.option('--config', '-c', type=click.Path(),
-              help='JSON File with configuration,'
-                   'you can put all options here',
+              help='JSON/Yaml File with configuration,'
+              ' you can put all options here',
               default="~/.devo.json")
 @click.option('--url', '-u', help='Endpoint for the api.')
+@click.option('--user', '-user', help='User for the api.')
+@click.option('--app_name', '-app_name', help='Application name for the api.')
+@click.option('--comment', '-comment', help='Comment for the queries.')
 @click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
 @click.option('--api_secret', '--apiSecret', '--secret',
               help='Secret for the api.')
 @click.option('--api_token', '--apiToken', '--token',
               help='Secret for the api.')
-@click.option('--user', '-user', help='User for the api.')
-@click.option('--app_name', '-app_name', help='Application name for the api.')
-@click.option('--comment', '-comment', help='Comment for the queries.')
 @click.option('--query', '-q', help='Query.')
 @click.option('--stream/--no-stream',
-              help='Flag for make streaming query or full query'
-                   ' with start and end. Default is true', default=True)
+              help='Flag for make streaming query or full query with '
+              'start and end. Default is true', default=True)
 @click.option('--proc', help='if flag exists, dont return raw query reply. In '
                              'compact replies you receive proccessed lines.',
               is_flag=True)
@@ -133,9 +133,10 @@ def configure(args):
     """
     config = Configuration()
     if args.get('config') != "~/.devo.json":
-        config.load_json(args.get('config'), 'api')
+        config.load_config(args.get('config'), 'api')
 
     config.mix(dict(args))
+
     if "key" not in args.keys() and "api" not in args.keys() \
             and "token" not in args.keys():
         config.set("key", os.environ.get('DEVO_API_KEY', None))
@@ -145,8 +146,6 @@ def configure(args):
 
     if "user" not in args.keys():
         config.set("user", os.environ.get('DEVO_API_USER', None))    
-    if "app_name" not in args.keys():
-        config.set("app_name", os.environ.get('DEVO_API_APPNAME', None))
     if "comment" not in args.keys():
         config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
 

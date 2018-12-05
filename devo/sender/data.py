@@ -17,9 +17,11 @@ PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
 PY34 = sys.version_info[0] == 3 and sys.version_info[1] == 4
 PYPY = hasattr(sys, 'pypy_version_info')
 
+
 class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
     pass
+
 
 class SenderConfigSSL:
     """

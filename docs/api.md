@@ -8,7 +8,9 @@ This library performs queries to the Client API (Search rest api) of Devo.
 
 - key: The key of the domain
 - secret: The secret of the domain
-- url (optional): The url of the service. A static constants are provided with
+- token: Auth token
+- jwt: JWT token
+- url(optional): The url of the service. A static constants are provided with
 the commons clouds: can take several values, for example:
     - Client.URL_AWS_EU: https://api-eu.logtrust.com
     - Client.URL_AWS_USA: https://api-us.logtrust.com
@@ -22,8 +24,15 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
+              url="https://api-eu.logtrust.com/search/query",
               user="user@devo.com",
-              app_name="testing app",
+              app_name="testing app")
+
+
+api = Client(token="myauthtoken,
+              url="https://api-eu.logtrust.com/search/query")
+
+api = Client(jwt="myauthtoken,
               url="https://api-eu.logtrust.com/search/query")
 ```    
     
@@ -123,26 +132,22 @@ Usage: `devo-api query [OPTIONS]`
 
 ```
 Options:
-  --config PATH           JSON File with configuration, you can put all
-                          options here
-  -u, --url TEXT          Endpoint for the api.
-  --apiKey TEXT           Key for the api.
-  --apiSecret TEXT        Secret for the api.
-  --query TEXT            Query.
-  --stream / --no-stream  Flag for make streaming query or full query with
-                          start and end. Default is true
-  --proc                  if flag exists, dont return raw query reply. In
-                          compact replies you receive proccessed lines.
-  --output TEXT           File path to store query response if not want stdout
-  -f, --format TEXT       The output format. Default is json/simple/compact
-  --from TEXT             From date, and time for the query (YYYY-MM-DD
-                          hh:mm:ss). For valid formats see devo.common README
-  --to TEXT               To date, and time for the query (YYYY-MM-DD
-                          hh:mm:ss). For valid formats see devo.common README
-  -user, --user           User for the api.
-  -app_name, --ap_name    App Name for the api.
-  -comment, --comment     Comment free for the queries.
-  --help                  Show this message and exit.
+  -c, --config PATH                            JSON/YAML File with configuration, you can put all options here
+  -u, --url TEXT                               Endpoint for the api.
+  --api_key, --apiKey, --key TEXT              Key for the api.
+  --api_secret, --apiSecret, --secret TEXT     Secret for the api.
+  --auth_token, --authToken, --token TEXT      Token auth for query.
+  --jwt TEXT                                   jwt auth for query.
+  -q, --query TEXT                             Query.
+  --stream / --no-stream                       Flag for make streaming query or full query with start and end. Default is true
+  --proc                                       if flag exists, dont return raw query reply. In compact replies you receive proccessed lines.
+  --output TEXT                                File path to store query response if not want stdout
+  -f, --format TEXT                            The output format. Default is json/simple/compact
+  --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
+  --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
+  --help                                       Show this message and exit.
+  -user                                        User for the api.
+  -app_name                                    App Name for the api.
 ```
 
 A configuration file does not have to have all the necessary keys, you can have 
@@ -152,8 +157,10 @@ the common values: url, port, certificates. And then send with the call the tag,
 Both things are combined at runtime, prevailing the values that are sent as 
 arguments of the call over the configuration file
 
-**Config file key:** The CLI uses the "api" key to search for information. You can see one example in docs/common/config.example.json
+**Config file key:** The CLI uses the "api" key to search for information. 
+You can see one examples in tests folders
 
+json example:
 ```json
   {
     "api": {
@@ -162,6 +169,15 @@ arguments of the call over the configuration file
       "url": "https://api-us.logtrust.com/search/query"
     }
   }
+  
+```
+
+yaml example:
+```yaml
+  api:
+    key: "MyAPIkeytoaccessdevo"
+    secret: "MyAPIsecrettoaccessdevo"
+    url: "https://api-us.logtrust.com/search/query"
 ```
 
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values
@@ -170,9 +186,9 @@ Priority order:
 1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
 2. params in CLI call: He can complete values not in configuration file, but not override it
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
-4. ~/.devo.json: if you send key, secrey or token in other way, this option not be called
+4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
-Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`, `DEVO_API_APPNAME` and `DEVO_API_COMMENT`.
+Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER` and `DEVO_API_COMMENT`.
 
 ## Choosing Fomat
 The default response format (`format`) is `json`, to change the default value set for example:

@@ -14,7 +14,7 @@ class TestApi(unittest.TestCase):
                              'https://api-us.logtrust.com/search/query')
         self.key = os.getenv('DEVO_API_KEY', None)
         self.secret = os.getenv('DEVO_API_SECRET', None)
-        self.token = os.getenv('DEVO_API_TOKEN', None)
+        self.token = os.getenv('DEVO_AUTH_TOKEN', None)
         self.query_id = os.getenv('DEVO_API_QUERYID', None)
         self.app_name = os.getenv('DEVO_API_APPNAME', "python-sdk-app_name")
         self.user = os.getenv('DEVO_API_USER', "python-sdk-user")
@@ -30,62 +30,65 @@ class TestApi(unittest.TestCase):
         api.close()
 
     def test_query(self):
-        api = Client(self.key, self.secret, self.uri)
+        api = Client(key=self.key, secret=self.secret, url=self.uri)
+        result = api.query(query=self.query, stream=False, response="json")
+        self.assertIsNotNone(result)
+        self.assertTrue(len(json.loads(result)['object']) > 0)
+        api.close()
+
+    def test_token(self):
+        api = Client(token=self.token, url=self.uri)
         result = api.query(query=self.query, stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
         api.close()
 
     def test_query_id(self):
-        api = Client(self.key, self.secret, self.uri)
-        result = api.query(
-            query_id=self.query_id,
-            stream=False,
-            response="json")
+        api = Client(key=self.key, secret=self.secret, url=self.uri)
+        result = api.query(query_id=self.query_id,
+                           stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertNotEqual(result, {})
         self.assertEqual(type(len(json.loads(result)['object'])), type(1))
         api.close()
 
     def test_query_yesterday_to_today(self):
-        api = Client(self.key, self.secret, self.uri)
-        result = api.query(
-            query=self.query,
-            dates={'from': 'yesterday()', 'to': 'today()'},
-            stream=False, response="json")
+        api = Client(key=self.key, secret=self.secret, url=self.uri)
+        result = api.query(query=self.query,
+                           dates={'from': 'yesterday()', 'to': 'today()'},
+                           stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
 
     def test_query_from_seven_days(self):
-        api = Client(self.key, self.secret, self.uri)
-        result = api.query(
-            query=self.query,
-            dates={'from': 'now()-7*day()', 'to': 'now()'},
-            stream=False, response="json")
+        api = Client(key=self.key, secret=self.secret, url=self.uri)
+        result = api.query(query=self.query,
+                           dates={'from': 'now()-7*day()', 'to': 'now()'},
+                           stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
 
     def test_query_from_fixed_dates(self):
-        api = Client(self.key, self.secret, self.uri)
-        result = api.query(
-            query=self.query,
-            dates={
-                'from': strftime("%Y-%m-%d", gmtime()),
-                'to': strftime("%Y-%m-%d %H:%M:%S", gmtime())},
-            stream=False, response="json")
+        api = Client(key=self.key, secret=self.secret, url=self.uri)
+        result = api.query(query=self.query,
+                           dates={'from': strftime("%Y-%m-%d", gmtime()),
+                                  'to': strftime(
+                                      "%Y-%m-%d %H:%M:%S",
+                                      gmtime())},
+                           stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
 
     def test_stream_query(self):
-        api = Client(self.key, self.secret, self.uri)
+        api = Client(key=self.key, secret=self.secret, url=self.uri)
         result = api.query(query=self.query, response="json/simple")
         self.assertTrue(isinstance(result, Buffer))
         api.close()
 
     def test_pragmas(self):
         """Test the api when the pragma comment.free is used"""
-        api = Client(self.key, self.secret, self.uri,
-                     self.user, self.app_name)
+        api = Client(key=self.key, secret=self.secret, url=self.uri,
+                     user=self.user, app_name=self.app_name)
         result = api.query(
             query=self.query,
             response="json",
@@ -96,8 +99,8 @@ class TestApi(unittest.TestCase):
 
     def test_pragmas_not_comment_free(self):
         """Test the api when the pragma comment.free is not used"""
-        api = Client(self.key, self.secret, self.uri,
-                     self.user, self.app_name)
+        api = Client(key=self.key, secret=self.secret, url=self.uri,
+                     user=self.user, app_name=self.app_name)
         result = api.query(
             query=self.query,
             response="json")
