@@ -67,6 +67,8 @@ class Client(object):
                                       "3 arguments: key, secret and url, "
                                       "in that order. ")
 
+        self.user = kwargs.get('user', self.CLIENT_DEFAULT_USER),
+        self.app_name = kwargs.get('app_name', self.CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token",
                                 kwargs.get(
                                     "auth_token",
@@ -112,7 +114,7 @@ class Client(object):
         Generate pragmas to add to query
         :comment: Pragma comment free
         :user: Pragma comment user
-        :app_name: Pragma comment id
+        :app_name: Pragma comment id. App name.
         """
         str_pragmas = ' pragma comment.id:"{}" pragma comment.user:"{}"\n' \
             .format(app_name, user)
@@ -174,8 +176,8 @@ class Client(object):
         if query is not None:
             query += self.__generate_pragmas(
                 kwargs.get('comment', None),
-                kwargs.get('user', self.CLIENT_DEFAULT_USER),
-                kwargs.get('app_name', self.CLIENT_DEFAULT_USER))
+                self.user,
+                self.app_name)
 
         opts = {'limit': kwargs.get('limit', None),
                 'response': kwargs.get('response', self.response),
