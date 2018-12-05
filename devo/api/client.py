@@ -6,8 +6,8 @@ import time
 import json
 import socket
 import ssl
-import requests
 import sys
+import requests
 from devo.common import DateParser, Buffer
 
 PY3 = sys.version_info[0] > 2
@@ -29,18 +29,23 @@ class Client(object):
     """
     The Devo SERach REst Api main class
     """
+    app_name = 'python-sdk-app'
+    user = 'python-sdk-user'
     URL_AWS_EU = 'https://api-eu.logtrust.com'
     URL_VDC = 'https://spainapi.logtrust.com'
     URL_AWS_USA = 'https://api-us.logtrust.com'
     URL_QUERY_COMPLEMENT = '/search/query'
 
-    def __init__(self, key=None, secret=None, url=None, buffer=None, **kwargs):
+    def __init__(self, key=None, secret=None, url=None,
+                 buffer=None, user=None, app_name=None, **kwargs):
         """
         Initialize the API
         :param key: Key string
         :param secret: Secret string
         :param url: URL for the service
         :param buffer: URL for the service
+        :param user: User for the service
+        :param app_name: Name of the application for the service
         """
         self.time_start = int(round(time.time() * 1000))
         if key:
@@ -60,6 +65,12 @@ class Client(object):
             self.secret = str(kwargs['apiSecret'])
         else:
             raise DevoClientException("Devo-Client|No secret passed.")
+
+        if user:
+            self.user = user
+
+        if app_name:
+            self.app_name = app_name
 
         self.response = "json/simple/compact"
         self.url, self.query_url = self.__set_url_query(url)
@@ -85,11 +96,27 @@ class Client(object):
         Split the two parts of the api url
         :param url: Url of the api
         """
-        return self.__verify_url_complement(url.split("//")[-1]
-                                          .split("/", maxsplit=1)
-                                          if PY3
-                                          else url.split("//")[-1]
-                                          .split("/", 1))
+        return self.__verify_url_complement(url.split("//")[-1].split(
+            "/",
+            maxsplit=1
+            )
+            if PY3
+            else url.split("//")[-1]
+            .split("/", 1))
+
+    @classmethod
+    def __generate_pragmas(cls, p_c_free, p_c_user, p_c_id):
+        """
+        Generate pragmas to add to query
+        :p_c_free: Pragma comment free
+        :p_c_user: Pragma comment user
+        :p_c_id: Pragma comment id
+        """
+        str_pragmas = ' pragma comment.id:"{}" pragma comment.user:"{}"\n' \
+            .format(p_c_id, p_c_user)
+        if p_c_free:
+            str_pragmas += 'pragma comment.free:"{}"'.format(p_c_free)
+        return str_pragmas
 
     def __verify_url_complement(self, url_list):
         """
@@ -142,11 +169,17 @@ class Client(object):
         dates = self.generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
         processor = kwargs.get('processor', None)
+        if query is not None:
+            query += self.__generate_pragmas(
+                kwargs.get('comment', None),
+                self.user,
+                self.app_name)
 
         opts = {'limit': kwargs.get('limit', None),
                 'response': kwargs.get('response', self.response),
                 'offset': kwargs.get('offset', None),
-                'destination': kwargs.get('destination', None)}
+                'destination': kwargs.get('destination', None)
+                }
 
         if self.stream_available(opts['response']) or not stream:
             return self._call(
@@ -190,7 +223,7 @@ class Client(object):
         :param resp: str
         :return: bool
         """
-        return resp == "json" or resp == "json/compact"
+        return resp in ["json", "json/compact"]
 
     # API Call
     def _call(self, payload, processor):
@@ -203,11 +236,11 @@ class Client(object):
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("https://%s/%s" %
-                                         (self.url, self.query_url),
-                                         data=payload,
-                                         headers=self._get_no_stream_headers(payload),
-                                         verify=True, timeout=self.timeout)
+                response = requests.post(
+                    "https://%s/%s" % (self.url, self.query_url),
+                    data=payload,
+                    headers=self._get_no_stream_headers(payload),
+                    verify=True, timeout=self.timeout)
             except ConnectionError as error:
                 return {"status": 404, "error": error}
 
@@ -257,7 +290,7 @@ class Client(object):
         """
         payload = {"from": int(DateParser.default_from(dates['from']) / 1000),
                    "to": int(DateParser.default_to(dates['to']) / 1000)
-                         if dates['to'] is not None else None,
+                   if dates['to'] is not None else None,
                    "query": query, "queryId": query_id,
                    "mode": {"type": opts['response']}}
 
