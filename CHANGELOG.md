@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [1.3.1] - 2018-12-04
+#### Added
+ * Allow the parameters user, application name and comment to queries
+
 #### Fixed
  * Somes revert changes in pull request error are back again
 
