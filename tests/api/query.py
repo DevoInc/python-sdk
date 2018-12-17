@@ -46,7 +46,7 @@ class TestApi(unittest.TestCase):
     def test_query_id(self):
         api = Client(key=self.key, secret=self.secret, url=self.uri)
         result = api.query(query_id=self.query_id,
-                           stream=False, response="json")
+                           stream=False, response="json/compact")
         self.assertIsNotNone(result)
         self.assertNotEqual(result, {})
         self.assertEqual(type(len(json.loads(result)['object'])), type(1))

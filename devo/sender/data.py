@@ -10,7 +10,7 @@ import zlib
 
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
-    COMPOSE_BYTES, SEVERITY_DEBUG, priority_map
+    COMPOSE_BYTES, priority_map
 
 PY3 = sys.version_info[0] > 2
 PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
@@ -36,8 +36,8 @@ class SenderConfigSSL:
     :param cert_reqs: (bool) Use certs in SSL connection
 
     >>>sender_config = SenderConfigSSL(address=SERVER, port=PORT,
-    ...                                  cert_reqs=True, key=KEY,
-    ...                                  cert=CERT, chain=CHAIN)
+    ...                                cert_reqs=True, key=KEY,
+    ...                                cert=CERT, chain=CHAIN)
 
     See Also:
         Sender
@@ -108,8 +108,8 @@ class Sender(logging.Handler):
     """
     def __init__(self, config=None, **kwargs):
         if not config:
-            config = SenderConfigTCP(**kwargs) if kwargs.get('type') is "TCP" \
-                else SenderConfigSSL(**kwargs) if kwargs.get('type') is "SSL" \
+            config = SenderConfigTCP(**kwargs) if kwargs.get('type') == "TCP" \
+                else SenderConfigSSL(**kwargs) if kwargs.get('type') == "SSL" \
                 else None
 
         if not config:
@@ -169,7 +169,7 @@ class Sender(logging.Handler):
     def __set_logger(verbose_level):
         logger = logging.getLogger('DevoSender')
         logger.setLevel(verbose_level.upper())
-        if len(logger.handlers) is 0:
+        if not logger.handlers:
             sender_logger = logging.StreamHandler(sys.stdout)
             sender_logger.setLevel(logging.DEBUG)
             formatter = logging.Formatter(
@@ -229,7 +229,7 @@ class Sender(logging.Handler):
         timeit = int(round(time.time() * 1000)) - self.timestart
         if self.socket is None:
             return False
-        elif self._sender_config.timeout < timeit:
+        if self._sender_config.timeout < timeit:
             self.close()
             return False
         return True
@@ -238,7 +238,7 @@ class Sender(logging.Handler):
         """
         Forces socket closure
         """
-        if len(self.zip_buffer):
+        if self.zip_buffer:
             self.flush_buffer()
 
         if self.socket is not None:
@@ -462,7 +462,7 @@ class Sender(logging.Handler):
                 ), logger=logger
             )
 
-        elif con_type == "TCP":
+        if con_type == "TCP":
             return Sender(
                 SenderConfigTCP(
                     address=config['address'],
@@ -475,8 +475,10 @@ class Sender(logging.Handler):
         """
         If used as an handler it will redirect the logs to the send function.
 
-        In order to be a proper logger handler it requieres to override the emit function.
-        :param record -> String that contains the message to be send and it's characteristics such as severity etc.
+        In order to be a proper logger handler it required to override the
+        emit function.
+        :param record -> String that contains the message to be send and it's
+        characteristics such as severity etc.
         :return: raw message header
 
         See Also:
@@ -487,5 +489,5 @@ class Sender(logging.Handler):
             msg += '\000'
             self.send(self._logger_tag, msg, facility=self.facility,
                       severity=priority_map.get(record.levelname, "info"))
-        except Exception as error:
+        except Exception:
             self.handleError(record)
