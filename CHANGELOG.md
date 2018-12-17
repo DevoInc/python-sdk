@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  
 #### Fixed
  * ConnectionError in python 2
- * tests of Sender
+ * tests of Sender  
  * Close order of API/Buffer
  
 #### Changed

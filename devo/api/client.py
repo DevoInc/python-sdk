@@ -15,7 +15,6 @@ PY3 = sys.version_info[0] > 2
 
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
-    pass
 
 
 if not PY3:
@@ -25,7 +24,7 @@ if not PY3:
             pass
 
 
-class Client(object):
+class Client:
     """
     The Devo SERach REst Api main class
     """
@@ -46,11 +45,11 @@ class Client(object):
         :param buffer: Buffer object, if want another diferent queue
         """
         self.time_start = int(round(time.time() * 1000))
-        if len(args) is 3:
+        if len(args) == 3:
             self.key = args[0]
             self.secret = args[1]
             url = args[2]
-        elif len(args) is 0:
+        elif not args:
             self.key = kwargs.get("key",
                                   kwargs.get("api_key",
                                              kwargs.get("apiKey", None)))
@@ -67,7 +66,7 @@ class Client(object):
                                       "3 arguments: key, secret and url, "
                                       "in that order. ")
 
-        self.user = kwargs.get('user', self.CLIENT_DEFAULT_USER),
+        self.user = kwargs.get('user', self.CLIENT_DEFAULT_USER)
         self.app_name = kwargs.get('app_name', self.CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token",
                                 kwargs.get(
@@ -100,13 +99,9 @@ class Client(object):
         Split the two parts of the api url
         :param url: Url of the api
         """
-        return self.__verify_url_complement(url.split("//")[-1].split(
-            "/",
-            maxsplit=1
-            )
-            if PY3
-            else url.split("//")[-1]
-            .split("/", 1))
+        return self.__verify_url_complement(
+            url.split("//")[-1].split("/", maxsplit=1) if PY3
+            else url.split("//")[-1].split("/", 1))
 
     @classmethod
     def __generate_pragmas(cls, comment, user, app_name):
@@ -190,22 +185,22 @@ class Client(object):
                 self._get_payload(query, query_id, dates, opts),
                 processor
             )
-        else:
-            if self.socket is None:
-                self.connect()
-            elif not self.status():
-                self.connect()
 
-            if self.buffer is None:
-                self.buffer = Buffer()
-            self.buffer.create_thread(
-                target=self._call_stream,
-                kwargs=({'payload': self._get_payload(query, query_id,
-                                                      dates, opts)})
-            )
+        if self.socket is None:
+            self.connect()
+        elif not self.status():
+            self.connect()
 
-            self.buffer.start()
-            return self.buffer
+        if self.buffer is None:
+            self.buffer = Buffer()
+        self.buffer.create_thread(
+            target=self._call_stream,
+            kwargs=({'payload': self._get_payload(query, query_id,
+                                                  dates, opts)})
+        )
+
+        self.buffer.start()
+        return self.buffer
 
     def status(self):
         """
@@ -214,9 +209,11 @@ class Client(object):
         timeit = int(round(time.time() * 1000)) - self.time_start
         if self.socket is None:
             return False
-        elif self.timeout < timeit:
+
+        if self.timeout < timeit:
             self.close()
             return False
+
         return True
 
     @staticmethod
@@ -252,13 +249,12 @@ class Client(object):
                         "error" in response.text[0:15].lower():
                     return {"status": response.status_code,
                             "error": response.text}
-                else:
-                    if processor is not None:
-                        return processor(response.text)
-                    return response.text
-            else:
-                tries += 1
-                time.sleep(self.sleep)
+
+                if processor is not None:
+                    return processor(response.text)
+                return response.text
+            tries += 1
+            time.sleep(self.sleep)
         return {}
 
     def _call_stream(self, payload=None):
@@ -271,7 +267,7 @@ class Client(object):
         if not self.buffer.close and not self.buffer.error\
            and self.socket is not None:
             result, data = self.buffer.proccess_first_line(
-                                                        self.socket.recv(5000))
+                self.socket.recv(5000))
             if result:
                 try:
                     while self.buffer.proccess_recv(self.socket.recv(5000)):
@@ -296,8 +292,8 @@ class Client(object):
         :return: Return the formed payload
         """
         payload = {"from": int(DateParser.default_from(dates['from']) / 1000),
-                   "to": int(DateParser.default_to(dates['to']) / 1000)
-                   if dates['to'] is not None else None,
+                   "to": int(DateParser.default_to(dates['to']) / 1000) if
+                         dates['to'] is not None else None,
                    "query": query, "queryId": query_id,
                    "mode": {"type": opts['response']}}
 
@@ -334,13 +330,15 @@ class Client(object):
                 'x-logtrust-timestamp': tstamp,
                 'x-logtrust-sign': sign
             }
-        elif self.token:
+
+        if self.token:
             return {
                 'Content-Type': 'application/json',
                 'x-logtrust-timestamp': tstamp,
                 'Authorization': "Bearer %s" % self.token
             }
-        elif self.jwt:
+
+        if self.jwt:
             return {
                 'Content-Type': 'application/json',
                 'x-logtrust-timestamp': tstamp,
@@ -371,14 +369,14 @@ class Client(object):
                     "x-logtrust-apikey: %s\r\n"
                     "x-logtrust-sign: %s\r\n"
                     "\r\n%s\r\n"
-                    % (headers, self.key,  self._get_sign(payload, tstamp),
+                    % (headers, self.key, self._get_sign(payload, tstamp),
                        payload)).encode("utf-8")
-        elif self.token:
+        if self.token:
             return ("%s"
                     "Authorization: Bearer %s\r\n"
                     "\r\n%s\r\n"
                     % (headers, self.token, payload)).encode("utf-8")
-        elif self.jwt:
+        if self.jwt:
             return ("%s"
                     "Authorization: jwt %s\r\n"
                     "\r\n%s\r\n"
@@ -432,4 +430,3 @@ class Client(object):
         if self.socket is not None:
             self.socket.close()
             self.socket = None
-
