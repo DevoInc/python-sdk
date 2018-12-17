@@ -6,6 +6,7 @@ environment.env
 tests_results/*
 !tests_results/.gitkeep
 !local_server_files/*
+check_list.txt
 
 .idea
 # Byte-compiled / optimized / DLL files
