@@ -6,8 +6,8 @@ import time
 import json
 import socket
 import ssl
-import requests
 import sys
+import requests
 from devo.common import DateParser, Buffer
 
 PY3 = sys.version_info[0] > 2
@@ -29,6 +29,8 @@ class Client(object):
     """
     The Devo SERach REst Api main class
     """
+    CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
+    CLIENT_DEFAULT_USER = 'python-sdk-user'
     URL_AWS_EU = 'https://api-eu.logtrust.com'
     URL_VDC = 'https://spainapi.logtrust.com'
     URL_AWS_USA = 'https://api-us.logtrust.com'
@@ -65,9 +67,12 @@ class Client(object):
                                       "3 arguments: key, secret and url, "
                                       "in that order. ")
 
+        self.user = kwargs.get('user', self.CLIENT_DEFAULT_USER),
+        self.app_name = kwargs.get('app_name', self.CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token",
-                                     kwargs.get("auth_token",
-                                                kwargs.get("authToken", None)))
+                                kwargs.get(
+                                    "auth_token",
+                                    kwargs.get("authToken", None)))
 
         self.jwt = kwargs.get("jwt", None)
 
@@ -95,11 +100,27 @@ class Client(object):
         Split the two parts of the api url
         :param url: Url of the api
         """
-        return self.__verify_url_complement(url.split("//")[-1]
-                                          .split("/", maxsplit=1)
-                                          if PY3
-                                          else url.split("//")[-1]
-                                          .split("/", 1))
+        return self.__verify_url_complement(url.split("//")[-1].split(
+            "/",
+            maxsplit=1
+            )
+            if PY3
+            else url.split("//")[-1]
+            .split("/", 1))
+
+    @classmethod
+    def __generate_pragmas(cls, comment, user, app_name):
+        """
+        Generate pragmas to add to query
+        :comment: Pragma comment free
+        :user: Pragma comment user
+        :app_name: Pragma comment id. App name.
+        """
+        str_pragmas = ' pragma comment.id:"{}" pragma comment.user:"{}"\n' \
+            .format(app_name, user)
+        if comment:
+            str_pragmas += 'pragma comment.free:"{}"'.format(comment)
+        return str_pragmas
 
     def __verify_url_complement(self, url_list):
         """
@@ -152,11 +173,17 @@ class Client(object):
         dates = self.generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
         processor = kwargs.get('processor', None)
+        if query is not None:
+            query += self.__generate_pragmas(
+                kwargs.get('comment', None),
+                self.user,
+                self.app_name)
 
         opts = {'limit': kwargs.get('limit', None),
                 'response': kwargs.get('response', self.response),
                 'offset': kwargs.get('offset', None),
-                'destination': kwargs.get('destination', None)}
+                'destination': kwargs.get('destination', None)
+                }
 
         if self.stream_available(opts['response']) or not stream:
             return self._call(
@@ -199,7 +226,7 @@ class Client(object):
         :param resp: str
         :return: bool
         """
-        return resp == "json" or resp == "json/compact"
+        return resp in ["json", "json/compact"]
 
     # API Call
     def _call(self, payload, processor):
@@ -212,11 +239,11 @@ class Client(object):
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("https://%s/%s" %
-                                         (self.url, self.query_url),
-                                         data=payload,
-                                         headers=self._get_no_stream_headers(payload),
-                                         verify=True, timeout=self.timeout)
+                response = requests.post(
+                    "https://%s/%s" % (self.url, self.query_url),
+                    data=payload,
+                    headers=self._get_no_stream_headers(payload),
+                    verify=True, timeout=self.timeout)
             except ConnectionError as error:
                 return {"status": 404, "error": error}
 
@@ -241,8 +268,10 @@ class Client(object):
         """
         if self.socket is not None:
             self.socket.send(self._get_stream_headers(payload))
-        if not self.buffer.close and not self.buffer.error and self.socket is not None:
-            result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
+        if not self.buffer.close and not self.buffer.error\
+           and self.socket is not None:
+            result, data = self.buffer.proccess_first_line(
+                                                        self.socket.recv(5000))
             if result:
                 try:
                     while self.buffer.proccess_recv(self.socket.recv(5000)):
@@ -268,7 +297,7 @@ class Client(object):
         """
         payload = {"from": int(DateParser.default_from(dates['from']) / 1000),
                    "to": int(DateParser.default_to(dates['to']) / 1000)
-                         if dates['to'] is not None else None,
+                   if dates['to'] is not None else None,
                    "query": query, "queryId": query_id,
                    "mode": {"type": opts['response']}}
 
@@ -318,8 +347,8 @@ class Client(object):
                 'Authorization': "jwt %s" % self.jwt
             }
 
-        raise DevoClientException("Devo-Client|Client dont have key&secret or auth token/jwt")
-
+        raise DevoClientException("Devo-Client|Client dont have key&secret"
+                                  " or auth token/jwt")
 
     def _get_stream_headers(self, payload):
         """
@@ -330,11 +359,11 @@ class Client(object):
         tstamp = str(int(time.time()) * 1000)
 
         headers = ("POST /%s HTTP/1.1\r\n"
-                    "Host: %s\r\n"
-                    "Content-Type: application/json\r\n"
-                    "Content-Length: %s \r\n"
-                    "Cache-Control: no-cache\r\n"
-                    "x-logtrust-timestamp: %s\r\n"
+                   "Host: %s\r\n"
+                   "Content-Type: application/json\r\n"
+                   "Content-Length: %s \r\n"
+                   "Cache-Control: no-cache\r\n"
+                   "x-logtrust-timestamp: %s\r\n"
                    % (self.query_url, self.url, str(len(payload)), tstamp))
 
         if self.key and self.secret:
@@ -356,7 +385,8 @@ class Client(object):
                     % (headers, self.jwt, payload)).encode("utf-8")
 
         self.buffer.error = "Client dont have key&secret or auth token/jwt"
-        raise DevoClientException("Devo-Client|Client dont have key&secret or auth token/jwt")
+        raise DevoClientException("Devo-Client|Client dont have key&secret"
+                                  " or auth token/jwt")
 
     def _get_sign(self, data, tstamp):
         """
