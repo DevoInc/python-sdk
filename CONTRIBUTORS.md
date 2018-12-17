@@ -5,3 +5,5 @@
   - Javier López
   - Juan Manuel Cristóbal
   - Daniel Alonso
+  - Jorge Garcia
+  - Ovidiu Mircea

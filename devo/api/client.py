@@ -6,8 +6,8 @@ import time
 import json
 import socket
 import ssl
-import requests
 import sys
+import requests
 from devo.common import DateParser, Buffer
 
 PY3 = sys.version_info[0] > 2
@@ -15,7 +15,6 @@ PY3 = sys.version_info[0] > 2
 
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
-    pass
 
 
 if not PY3:
@@ -25,10 +24,12 @@ if not PY3:
             pass
 
 
-class Client(object):
+class Client:
     """
     The Devo SERach REst Api main class
     """
+    CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
+    CLIENT_DEFAULT_USER = 'python-sdk-user'
     URL_AWS_EU = 'https://api-eu.logtrust.com'
     URL_VDC = 'https://spainapi.logtrust.com'
     URL_AWS_USA = 'https://api-us.logtrust.com'
@@ -44,11 +45,11 @@ class Client(object):
         :param buffer: Buffer object, if want another diferent queue
         """
         self.time_start = int(round(time.time() * 1000))
-        if len(args) is 3:
+        if len(args) == 3:
             self.key = args[0]
             self.secret = args[1]
             url = args[2]
-        elif len(args) is 0:
+        elif not args:
             self.key = kwargs.get("key",
                                   kwargs.get("api_key",
                                              kwargs.get("apiKey", None)))
@@ -65,9 +66,12 @@ class Client(object):
                                       "3 arguments: key, secret and url, "
                                       "in that order. ")
 
+        self.user = kwargs.get('user', self.CLIENT_DEFAULT_USER)
+        self.app_name = kwargs.get('app_name', self.CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token",
-                                     kwargs.get("auth_token",
-                                                kwargs.get("authToken", None)))
+                                kwargs.get(
+                                    "auth_token",
+                                    kwargs.get("authToken", None)))
 
         self.jwt = kwargs.get("jwt", None)
 
@@ -95,11 +99,25 @@ class Client(object):
         Split the two parts of the api url
         :param url: Url of the api
         """
-        return self.__verify_url_complement(url.split("//")[-1]
-                                          .split("/", maxsplit=1)
-                                          if PY3
-                                          else url.split("//")[-1]
-                                          .split("/", 1))
+        return self.__verify_url_complement(
+            url.split("//")[-1].split("/", maxsplit=1) if PY3
+            else url.split("//")[-1].split("/", 1))
+
+    def __generate_pragmas(self, comment=None):
+        """
+        Generate pragmas to add to query
+        :comment: Pragma comment free
+        :user: Pragma comment user
+        :app_name: Pragma comment id. App name.
+        """
+        str_pragmas = ' pragma comment.id:"{}" ' \
+                      'pragma comment.user:"{}"'\
+            .format(self.app_name, self.user)
+
+        if comment:
+            return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
+
+        return str_pragmas
 
     def __verify_url_complement(self, url_list):
         """
@@ -118,7 +136,7 @@ class Client(object):
         return Client(**config)
 
     @staticmethod
-    def generate_dates(dates):
+    def __generate_dates(dates):
         """
         Generate and merge dates object
         :param dates: object with optios for query, see doc
@@ -149,36 +167,42 @@ class Client(object):
 
         query = kwargs.get('query', None)
         query_id = kwargs.get('query_id', None)
-        dates = self.generate_dates(kwargs.get('dates', None))
+        dates = self.__generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
         processor = kwargs.get('processor', None)
+        if query is not None:
+            query += self.__generate_pragmas(comment=kwargs.get('comment', None))
 
         opts = {'limit': kwargs.get('limit', None),
                 'response': kwargs.get('response', self.response),
                 'offset': kwargs.get('offset', None),
-                'destination': kwargs.get('destination', None)}
+                'destination': kwargs.get('destination', None)
+                }
 
-        if self.stream_available(opts['response']) or not stream:
+        if not self.__stream_available(opts['response']) or not stream:
+            if not dates['to']:
+                dates['to'] = "now()"
+
             return self._call(
                 self._get_payload(query, query_id, dates, opts),
                 processor
             )
-        else:
-            if self.socket is None:
-                self.connect()
-            elif not self.status():
-                self.connect()
 
-            if self.buffer is None:
-                self.buffer = Buffer()
-            self.buffer.create_thread(
-                target=self._call_stream,
-                kwargs=({'payload': self._get_payload(query, query_id,
-                                                      dates, opts)})
-            )
+        if self.socket is None:
+            self.connect()
+        elif not self.status():
+            self.connect()
 
-            self.buffer.start()
-            return self.buffer
+        if self.buffer is None:
+            self.buffer = Buffer()
+        self.buffer.create_thread(
+            target=self._call_stream,
+            kwargs=({'payload': self._get_payload(query, query_id,
+                                                  dates, opts)})
+        )
+
+        self.buffer.start()
+        return self.buffer
 
     def status(self):
         """
@@ -187,19 +211,21 @@ class Client(object):
         timeit = int(round(time.time() * 1000)) - self.time_start
         if self.socket is None:
             return False
-        elif self.timeout < timeit:
+
+        if self.timeout < timeit:
             self.close()
             return False
+
         return True
 
     @staticmethod
-    def stream_available(resp):
+    def __stream_available(resp):
         """
         Verify if can stream resp from API by type of resp in opts
         :param resp: str
         :return: bool
         """
-        return resp == "json" or resp == "json/compact"
+        return resp not in ["json", "json/compact"]
 
     # API Call
     def _call(self, payload, processor):
@@ -212,11 +238,11 @@ class Client(object):
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("https://%s/%s" %
-                                         (self.url, self.query_url),
-                                         data=payload,
-                                         headers=self._get_no_stream_headers(payload),
-                                         verify=True, timeout=self.timeout)
+                response = requests.post(
+                    "https://%s/%s" % (self.url, self.query_url),
+                    data=payload,
+                    headers=self._get_no_stream_headers(payload),
+                    verify=True, timeout=self.timeout)
             except ConnectionError as error:
                 return {"status": 404, "error": error}
 
@@ -225,13 +251,12 @@ class Client(object):
                         "error" in response.text[0:15].lower():
                     return {"status": response.status_code,
                             "error": response.text}
-                else:
-                    if processor is not None:
-                        return processor(response.text)
-                    return response.text
-            else:
-                tries += 1
-                time.sleep(self.sleep)
+
+                if processor is not None:
+                    return processor(response.text)
+                return response.text
+            tries += 1
+            time.sleep(self.sleep)
         return {}
 
     def _call_stream(self, payload=None):
@@ -241,8 +266,10 @@ class Client(object):
         """
         if self.socket is not None:
             self.socket.send(self._get_stream_headers(payload))
-        if not self.buffer.close and not self.buffer.error and self.socket is not None:
-            result, data = self.buffer.proccess_first_line(self.socket.recv(5000))
+        if not self.buffer.close and not self.buffer.error\
+           and self.socket is not None:
+            result, data = self.buffer.proccess_first_line(
+                self.socket.recv(5000))
             if result:
                 try:
                     while self.buffer.proccess_recv(self.socket.recv(5000)):
@@ -267,9 +294,8 @@ class Client(object):
         :return: Return the formed payload
         """
         payload = {"from": int(DateParser.default_from(dates['from']) / 1000),
-                   "to": int(DateParser.default_to(dates['to']) / 1000)
-                         if dates['to'] is not None else None,
-                   "query": query, "queryId": query_id,
+                   "to": int(DateParser.default_to(dates['to']) / 1000) if
+                         dates['to'] is not None else None,
                    "mode": {"type": opts['response']}}
 
         if query:
@@ -305,21 +331,23 @@ class Client(object):
                 'x-logtrust-timestamp': tstamp,
                 'x-logtrust-sign': sign
             }
-        elif self.token:
+
+        if self.token:
             return {
                 'Content-Type': 'application/json',
                 'x-logtrust-timestamp': tstamp,
                 'Authorization': "Bearer %s" % self.token
             }
-        elif self.jwt:
+
+        if self.jwt:
             return {
                 'Content-Type': 'application/json',
                 'x-logtrust-timestamp': tstamp,
                 'Authorization': "jwt %s" % self.jwt
             }
 
-        raise DevoClientException("Devo-Client|Client dont have key&secret or auth token/jwt")
-
+        raise DevoClientException("Devo-Client|Client dont have key&secret"
+                                  " or auth token/jwt")
 
     def _get_stream_headers(self, payload):
         """
@@ -330,11 +358,11 @@ class Client(object):
         tstamp = str(int(time.time()) * 1000)
 
         headers = ("POST /%s HTTP/1.1\r\n"
-                    "Host: %s\r\n"
-                    "Content-Type: application/json\r\n"
-                    "Content-Length: %s \r\n"
-                    "Cache-Control: no-cache\r\n"
-                    "x-logtrust-timestamp: %s\r\n"
+                   "Host: %s\r\n"
+                   "Content-Type: application/json\r\n"
+                   "Content-Length: %s \r\n"
+                   "Cache-Control: no-cache\r\n"
+                   "x-logtrust-timestamp: %s\r\n"
                    % (self.query_url, self.url, str(len(payload)), tstamp))
 
         if self.key and self.secret:
@@ -342,21 +370,22 @@ class Client(object):
                     "x-logtrust-apikey: %s\r\n"
                     "x-logtrust-sign: %s\r\n"
                     "\r\n%s\r\n"
-                    % (headers, self.key,  self._get_sign(payload, tstamp),
+                    % (headers, self.key, self._get_sign(payload, tstamp),
                        payload)).encode("utf-8")
-        elif self.token:
+        if self.token:
             return ("%s"
                     "Authorization: Bearer %s\r\n"
                     "\r\n%s\r\n"
                     % (headers, self.token, payload)).encode("utf-8")
-        elif self.jwt:
+        if self.jwt:
             return ("%s"
                     "Authorization: jwt %s\r\n"
                     "\r\n%s\r\n"
                     % (headers, self.jwt, payload)).encode("utf-8")
 
         self.buffer.error = "Client dont have key&secret or auth token/jwt"
-        raise DevoClientException("Devo-Client|Client dont have key&secret or auth token/jwt")
+        raise DevoClientException("Devo-Client|Client dont have key&secret"
+                                  " or auth token/jwt")
 
     def _get_sign(self, data, tstamp):
         """
@@ -402,4 +431,3 @@ class Client(object):
         if self.socket is not None:
             self.socket.close()
             self.socket = None
-

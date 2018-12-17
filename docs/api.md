@@ -16,7 +16,7 @@ the commons clouds: can take several values, for example:
     - Client.URL_AWS_USA: https://api-us.logtrust.com
     - Client.URL_VDC: https://spainapi.logtrust.com
     - Client.URL_QUERY_COMPLEMENT = '/search/query'
-- buffer: Buffer object if you modify the Devo Buffer class
+- buffer (optional): Buffer object if you modify the Devo Buffer class
 
     
 ```python
@@ -24,7 +24,9 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.logtrust.com/search/query",
+              user="user@devo.com",
+              app_name="testing app")
 
 
 api = Client(token="myauthtoken,
@@ -46,6 +48,7 @@ api = Client(jwt="myauthtoken,
 - proccessor: Callback for process returned object/s
 - stream: Not wait for all response for return lines - real time mode if not "to" in dates
 - response: response type
+- comment: Comment for the query
 
 return: Result of the query or Buffer object
 
@@ -143,6 +146,8 @@ Options:
   --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --help                                       Show this message and exit.
+  -user                                        User for the api.
+  -app_name                                    App Name for the api.
 ```
 
 A configuration file does not have to have all the necessary keys, you can have 
@@ -175,7 +180,7 @@ yaml example:
     url: "https://api-us.logtrust.com/search/query"
 ```
 
-You can use environment variables or a global configuration file for the KEY, SECRET and URL values
+You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values
 
 Priority order:
 1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
@@ -183,7 +188,7 @@ Priority order:
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
 4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
-Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY` and `DEVO_API_SECRET`
+Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
 
 ## Choosing Fomat
 The default response format (`format`) is `json`, to change the default value set for example:

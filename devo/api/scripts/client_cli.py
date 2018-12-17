@@ -23,16 +23,22 @@ def cli():
 
 @cli.command()
 @click.option('--config', '-c', type=click.Path(),
-              help='JSON/Yaml File with configuration, you can put all options here',
+              help='JSON/Yaml File with configuration,'
+              ' you can put all options here',
               default="~/.devo.json")
 @click.option('--url', '-u', help='Endpoint for the api.')
+@click.option('--user', '-user', help='User for the api.')
+@click.option('--app_name', '-app_name', help='Application name for the api.')
+@click.option('--comment', '-comment', help='Comment for the queries.')
 @click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
-@click.option('--api_secret', '--apiSecret', '--secret', help='Secret for the api.')
-@click.option('--api_token', '--apiToken', '--token', help='Secret for the api.')
+@click.option('--api_secret', '--apiSecret', '--secret',
+              help='Secret for the api.')
+@click.option('--api_token', '--apiToken', '--token',
+              help='Secret for the api.')
 @click.option('--query', '-q', help='Query.')
 @click.option('--stream/--no-stream',
-              help='Flag for make streaming query or full query with start and '
-                   'end. Default is true', default=True)
+              help='Flag for make streaming query or full query with '
+              'start and end. Default is true', default=True)
 @click.option('--proc', help='if flag exists, dont return raw query reply. In '
                              'compact replies you receive proccessed lines.',
               is_flag=True)
@@ -56,7 +62,7 @@ def query(**kwargs):
     buffer = api.query(query=config['query'],
                        dates={"from": config['from'],
                               "to": config['to'] if "to" in config.keys()
-                                    else None},
+                                                    else None},
                        format=config['format'],
                        stream=config['stream'])
 
@@ -92,8 +98,8 @@ def process_response(response, config):
         response = identify_response(response, config)
 
     try:
-        file_printer = open(config['output'], 'w') if 'output' in config.keys()\
-            else None
+        file_printer = open(config['output'], 'w')\
+         if 'output' in config.keys() else None
     except (OSError, IOError) as error:
         print_error("Error: (%s)" % error)
 
@@ -137,6 +143,11 @@ def configure(args):
         config.set("secret", os.environ.get('DEVO_API_SECRET', None))
         if "url" not in args.keys():
             config.set("url", os.environ.get('DEVO_API_URL', None))
+
+    if "user" not in args.keys():
+        config.set("user", os.environ.get('DEVO_API_USER', None))    
+    if "comment" not in args.keys():
+        config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
 
     if not config.keys("key") and not config.keys("api") \
             and not config.keys("token") \
