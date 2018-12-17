@@ -103,18 +103,20 @@ class Client:
             url.split("//")[-1].split("/", maxsplit=1) if PY3
             else url.split("//")[-1].split("/", 1))
 
-    @classmethod
-    def __generate_pragmas(cls, comment, user, app_name):
+    def __generate_pragmas(self, comment=None):
         """
         Generate pragmas to add to query
         :comment: Pragma comment free
         :user: Pragma comment user
         :app_name: Pragma comment id. App name.
         """
-        str_pragmas = ' pragma comment.id:"{}" pragma comment.user:"{}"\n' \
-            .format(app_name, user)
+        str_pragmas = ' pragma comment.id:"{}" ' \
+                      'pragma comment.user:"{}"'\
+            .format(self.app_name, self.user)
+
         if comment:
-            str_pragmas += 'pragma comment.free:"{}"'.format(comment)
+            return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
+
         return str_pragmas
 
     def __verify_url_complement(self, url_list):
@@ -169,10 +171,7 @@ class Client:
         stream = kwargs.get('stream', True)
         processor = kwargs.get('processor', None)
         if query is not None:
-            query += self.__generate_pragmas(
-                kwargs.get('comment', None),
-                self.user,
-                self.app_name)
+            query += self.__generate_pragmas(comment=kwargs.get('comment', None))
 
         opts = {'limit': kwargs.get('limit', None),
                 'response': kwargs.get('response', self.response),
