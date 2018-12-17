@@ -136,7 +136,7 @@ class Client:
         return Client(**config)
 
     @staticmethod
-    def generate_dates(dates):
+    def __generate_dates(dates):
         """
         Generate and merge dates object
         :param dates: object with optios for query, see doc
@@ -167,7 +167,7 @@ class Client:
 
         query = kwargs.get('query', None)
         query_id = kwargs.get('query_id', None)
-        dates = self.generate_dates(kwargs.get('dates', None))
+        dates = self.__generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
         processor = kwargs.get('processor', None)
         if query is not None:
@@ -179,7 +179,10 @@ class Client:
                 'destination': kwargs.get('destination', None)
                 }
 
-        if self.stream_available(opts['response']) or not stream:
+        if not self.__stream_available(opts['response']) or not stream:
+            if not dates['to']:
+                dates['to'] = "now()"
+
             return self._call(
                 self._get_payload(query, query_id, dates, opts),
                 processor
@@ -216,13 +219,13 @@ class Client:
         return True
 
     @staticmethod
-    def stream_available(resp):
+    def __stream_available(resp):
         """
         Verify if can stream resp from API by type of resp in opts
         :param resp: str
         :return: bool
         """
-        return resp in ["json", "json/compact"]
+        return resp not in ["json", "json/compact"]
 
     # API Call
     def _call(self, payload, processor):
@@ -293,7 +296,6 @@ class Client:
         payload = {"from": int(DateParser.default_from(dates['from']) / 1000),
                    "to": int(DateParser.default_to(dates['to']) / 1000) if
                          dates['to'] is not None else None,
-                   "query": query, "queryId": query_id,
                    "mode": {"type": opts['response']}}
 
         if query:
