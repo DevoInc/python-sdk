@@ -22,10 +22,12 @@ def cli():
 
 
 @cli.command()
-@click.option('--config', '-c', type=click.Path(),
-              help='JSON/Yaml File with configuration,'
-              ' you can put all options here',
-              default="~/.devo.json")
+@click.option('--config', '-c', type=click.Path(exists=True),
+              help='Optional JSON/Yaml File with configuration info.')
+@click.option('--env', '-e', help='Use env vars for configuration',
+              default=False)
+@click.option('--default', '-d', help='Use default file for configuration',
+              default=False)
 @click.option('--url', '-u', help='Endpoint for the api.')
 @click.option('--user', '-user', help='User for the api.')
 @click.option('--app_name', '-app_name', help='Application name for the api.')
@@ -46,10 +48,10 @@ def cli():
                                'stdout')
 @click.option('--format', '-f', default="json/simple/compact",
               help='The output format. Default is json/simple/compact')
-@click.option('--from',
+@click.option('--from', default=None,
               help='From date, and time for the query (YYYY-MM-DD hh:mm:ss). '
                    'For valid formats see lt-common README')
-@click.option('--to',
+@click.option('--to', default=None,
               help='To date, and time for the query (YYYY-MM-DD hh:mm:ss). '
                    'For valid formats see lt-common README')
 def query(**kwargs):
@@ -132,38 +134,30 @@ def configure(args):
     :return: Client API Object and Config values in array
     """
     config = Configuration()
-    if args.get('config') != "~/.devo.json":
-        config.load_config(args.get('config'), 'api')
+    try:
+        if args.get('config'):
+            config.load_config(args.get('config'), 'api')
 
-    config.mix(dict(args))
-
-    if "key" not in args.keys() and "api" not in args.keys() \
-            and "token" not in args.keys():
-        config.set("key", os.environ.get('DEVO_API_KEY', None))
-        config.set("secret", os.environ.get('DEVO_API_SECRET', None))
-        if "url" not in args.keys():
+        if args.get('env'):
+            config.set("key", os.environ.get('DEVO_API_KEY', None))
+            config.set("secret", os.environ.get('DEVO_API_SECRET', None))
             config.set("url", os.environ.get('DEVO_API_URL', None))
+            config.set("user", os.environ.get('DEVO_API_USER', None))
+            config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
 
-    if "user" not in args.keys():
-        config.set("user", os.environ.get('DEVO_API_USER', None))    
-    if "comment" not in args.keys():
-        config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
-
-    if not config.keys("key") and not config.keys("api") \
-            and not config.keys("token") \
-            and os.path.exists("~/.devo.json"):
-        config.load_default_json('api')
-
-    config.keys('from')
-    config.keys('to')
+        if args.get('default'):
+            config.load_default_config(section="api")
+    finally:
+        config.mix(dict(args))
+        conf = config.get()
 
     # Try to compose the api
     api = None
     try:
-        api = Client.from_config(config.get())
+        api = Client.from_config(conf)
     except DevoClientException as error:
         print_error(str(error), show_help=True)
-    return api, config.get()
+    return api, conf
 
 
 def print_error(error, show_help=False, stop=True):

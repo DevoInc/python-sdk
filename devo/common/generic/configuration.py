@@ -2,10 +2,13 @@
 """ Util for load generic config file in devo standars"""
 import json
 import sys
+import os
+
 
 class ConfigurationException(Exception):
     """ Default Configuration Exception """
     pass
+
 
 class Configuration(object):
     """
@@ -71,7 +74,17 @@ class Configuration(object):
 
         raise ConfigurationException("Configuration file type unknown or not supportted: %s" %path)
 
-    def load_default_config(self, ext="yml", section=None):
+    @staticmethod
+    def __search_default_config_file():
+        return "json" if os.path.exists(os.path.expanduser("~/.devo.json")) \
+            else "yaml" if os.path.exists(os.path.expanduser("~/.devo.yaml")) \
+            else "yml" if os.path.exists(os.path.expanduser("~/.devo.yml")) \
+            else None
+
+    def load_default_config(self, ext=None, section=None):
+        if not ext:
+            ext = self.__search_default_config_file()
+
         if ext is "yml" or ext is "yaml":
             return self.load_yaml("~/.devo.%s" % ext, section)
         elif ext is "json":
@@ -151,7 +164,7 @@ class Configuration(object):
         if value:
             if not isinstance(key_list, list):
                 key_list = [key_list]
-            self.set_key_chain(self, key_list, value)
+            self.cfg = self.set_key_chain(self.cfg, key_list, value)
 
     @staticmethod
     def set_key_chain(aux_dict, key_list, value):
