@@ -120,7 +120,6 @@ class Sender(logging.Handler):
         logger = kwargs.get('logger', None)
         tag = kwargs.get('tag', None)
 
-
         logging.Handler.__init__(self)
         self.logger = self.__set_logger(verbose_level) if logger is None \
             else logger
