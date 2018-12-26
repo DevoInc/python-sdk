@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.5.0]
 #### Changed
  * Modify Configuration loads functions
- * Now Sender.send return the number of lines sent
+ * Now Sender send, send_raw, flush_buffer and fill_buffer return the number of lines sent
 
 #### Fixed
  * Problems when loads configuration from default sites
