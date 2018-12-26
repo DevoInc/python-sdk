@@ -20,7 +20,6 @@ PYPY = hasattr(sys, 'pypy_version_info')
 
 class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
-    pass
 
 
 class SenderConfigSSL:
@@ -121,7 +120,6 @@ class Sender(logging.Handler):
         logger = kwargs.get('logger', None)
         tag = kwargs.get('tag', None)
 
-
         logging.Handler.__init__(self)
         self.logger = self.__set_logger(verbose_level) if logger is None \
             else logger
@@ -134,8 +132,11 @@ class Sender(logging.Handler):
         self.max_zip_buffer = 19500
         self.compression_level = -1
         self.zip_buffer = b''
+        self.zip_events = 0
         self.composed_msg = b''
         self.facility = facility
+
+        self.num_sended = 0
 
         if self._sender_config.type == 'SSL':
             self.__connect_ssl()
@@ -210,8 +211,8 @@ class Sender(logging.Handler):
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "Devo-Sender|SSL conn establishment socket error: %s" % str(error))
-
+                "Devo-Sender|SSL conn establishment socket error: %s" %
+                str(error))
 
     def info(self, msg):
         """
@@ -261,12 +262,28 @@ class Sender(logging.Handler):
 
         return record
 
+    def __send_oc(self, record):
+        msg_size = len(record)
+        sent = 0
+        total = int(msg_size / 4096)
+        if msg_size % 4096 > 0:
+            total += 1
+        for iteration in range(0, total):
+            sent += self.socket.send(
+                record[int(iteration * 4096):
+                       int((iteration + 1) * 4096)])
+        if sent == 0:
+            raise DevoSenderException("Devo-Sender|Send error")
+            return False
+
+        return True
+
     def send_raw(self, record, multiline=False, zip=False):
         """
         Send raw messages to the collector
 
         >>>con.send_raw('<14>Jan  1 00:00:00 MacBook-Pro-de-X.local'
-        ...             'my.app.devo_sender.test: txt Prueba')
+        ...             'my.app.devo_sender.test: txt test')
 
         """
         try:
@@ -277,30 +294,23 @@ class Sender(logging.Handler):
                 try:
                     if not multiline and not zip:
                         sent = self.socket.send(self.__encode_record(record))
+                        return 1
                     else:
                         if multiline:
                             record = self.__encode_record(record)
 
-                        msg_size = len(record)
-                        sent = 0
-                        total = int(msg_size / 4096)
-                        if msg_size % 4096 > 0:
-                            total += 1
-                        for iteration in range(0, total):
-                            sent += self.socket.send(
-                                record[int(iteration * 4096):
-                                       int((iteration + 1) * 4096)])
-
-                        if sent == 0:
-                            raise DevoSenderException("Devo-Sender|Send error")
-
-                    if self._sender_config.debug:
-                        self.logger.debug('sent|%d|size|%d|msg|%s' %
-                                          (sent, len(record), record))
+                        if self.__send_oc(record):
+                            return 1
+                        return 0
                 except socket.error:
                     self.close()
                     raise DevoSenderException(
                         "Devo-Sender|Socket error: %s" % str(socket.error))
+                finally:
+                    if self._sender_config.debug:
+                        self.logger.debug('sent|%d|size|%d|msg|%s' %
+                                          (sent, len(record), record))
+
         except Exception as error:
             raise error
 
@@ -352,14 +362,16 @@ class Sender(logging.Handler):
         :param kwargs: date -> String Date format '%Y-%m-%d %H%M%S'
 
 
-        >>>con.send(tag='my.app.devo_sender.test', msg='prueba mensaje')
+        >>>con.send(tag='my.app.devo_sender.test', msg='test of msg')
         See Also:
             send_raw
         """
         if isinstance(msg, bytes):
-            self.send_bytes(tag, msg, **kwargs)
+            self.num_sended += self.send_bytes(tag, msg, **kwargs)
         else:
-            self.send_str(tag, msg, **kwargs)
+            self.num_sended += self.send_str(tag, msg, **kwargs)
+
+        return self.num_sended
 
     def send_str(self, tag, msg, **kwargs):
         """
@@ -369,7 +381,7 @@ class Sender(logging.Handler):
             msg += "\n"
 
         msg = COMPOSE % (self.compose_mem(tag, **kwargs), msg)
-        self.send_raw(msg, multiline=kwargs.get('multiline', False))
+        return self.send_raw(msg, multiline=kwargs.get('multiline', False))
 
     def send_bytes(self, tag, msg, **kwargs):
         """
@@ -377,12 +389,12 @@ class Sender(logging.Handler):
         """
         msg = COMPOSE_BYTES % (self.compose_mem(tag, bytes=True, **kwargs), msg)
         if kwargs.get('zip', False):
-            self.fill_buffer(msg)
+            return self.fill_buffer(msg)
         else:
             if msg[-1:] != b"\n":
                 msg += b"\n"
 
-            self.send_raw(msg, multiline=kwargs.get('multiline', False))
+            return self.send_raw(msg, multiline=kwargs.get('multiline', False))
 
     def fill_buffer(self, msg):
         """
@@ -395,7 +407,8 @@ class Sender(logging.Handler):
 
         self.zip_buffer += msg
         if len(self.zip_buffer) > self.max_zip_buffer:
-            self.flush_buffer()
+            return self.flush_buffer()
+        return 0
 
     def flush_buffer(self):
         """
@@ -403,11 +416,18 @@ class Sender(logging.Handler):
         :return: None
         """
         if self.zip_buffer:
-            compressor = zlib.compressobj(self.compression_level,
-                                          zlib.DEFLATED, 31)
-            record = compressor.compress(self.zip_buffer) + compressor.flush()
-            self.send_raw(record, zip=True)
-            self.zip_buffer = b''
+            try:
+                compressor = zlib.compressobj(self.compression_level,
+                                              zlib.DEFLATED, 31)
+                record = compressor.compress(self.zip_buffer) + compressor.flush()
+                if self.send_raw(record, zip=True):
+                    return self.zip_events
+                return 0
+            except Exception as error:
+                raise error
+            finally:
+                self.zip_buffer = b''
+                self.zip_events = 0
 
     def set_logger_tag(self, tag):
         """

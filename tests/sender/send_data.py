@@ -5,12 +5,12 @@ from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
 from .load_certs import *
 
 
-
 class TestSender(unittest.TestCase):
     def setUp(self):
         """
         Set up the test environment vars.
-        If you have an environment.env file (main directory) it will use it to set it else the vars will need to be set
+        If you have an environment.env file (main directory) it will use it
+        to set it else the vars will need to be set
         up in any other way.
         """
         self.server = os.getenv('DEVO_SENDER_SERVER', "0.0.0.0")
@@ -40,17 +40,24 @@ class TestSender(unittest.TestCase):
         self.assertEqual(Sender.compose_mem("test.tag", hostname="my-pc"),
                          '<14>Jan  1 00:00:00 my-pc test.tag: ')
 
-        self.assertEqual(Sender.compose_mem("test.tag", date="1991-02-20 12:00:00"),
-                         '<14>1991-02-20 12:00:00 %s test.tag: ' % self.localhost)
+        self.assertEqual(Sender.compose_mem("test.tag",
+                                            date="1991-02-20 12:00:00"),
+                         '<14>1991-02-20 12:00:00 %s test.tag: '
+                         % self.localhost)
 
         self.assertEqual(Sender.compose_mem(b"test.tag", bytes=True),
-                         b'<14>Jan  1 00:00:00 %s test.tag: ' % self.localhost.encode("utf-8"))
+                         b'<14>Jan  1 00:00:00 %s test.tag: '
+                         % self.localhost.encode("utf-8"))
 
-        self.assertEqual(Sender.compose_mem(b"test.tag", hostname=b"my-pc", bytes=True),
+        self.assertEqual(Sender.compose_mem(b"test.tag",
+                                            hostname=b"my-pc", bytes=True),
                          b'<14>Jan  1 00:00:00 my-pc test.tag: ')
 
-        self.assertEqual(Sender.compose_mem(b"test.tag", date=b"1991-02-20 12:00:00", bytes=True),
-                         b'<14>1991-02-20 12:00:00 %s test.tag: ' % self.localhost.encode("utf-8"))
+        self.assertEqual(Sender.compose_mem(b"test.tag",
+                                            date=b"1991-02-20 12:00:00",
+                                            bytes=True),
+                         b'<14>1991-02-20 12:00:00 %s test.tag: '
+                         % self.localhost.encode("utf-8"))
 
     def test_tcp_rt_send(self):
         """
@@ -149,7 +156,8 @@ class TestSender(unittest.TestCase):
 
     def test_sender_as_handler(self):
         """
-        Test that tries to check that Sender class can be used as a Handler and related logs are send to remote server
+        Test that tries to check that Sender class can be used as a Handler
+        and related logs are send to remote server
         """
         try:
             engine_config = SenderConfigSSL(address=self.server, port=self.port,
@@ -159,28 +167,34 @@ class TestSender(unittest.TestCase):
 
             logger = logging.getLogger('DEVO_logger')
             logger.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
+            formatter = logging.Formatter('%(asctime)s|%(levelname)s'
+                                          '|%(message)s')
             con.setFormatter(formatter)
             con.setLevel(logging.DEBUG)
             logger.addHandler(con)
 
-            logger.info("Testing Sender inherit logging handler functionality... INFO - log")
+            logger.info("Testing Sender inherit logging handler functio"
+                        "nality... INFO - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.error("Testing Sender inherit logging handler functionality... ERROR - log")
+            logger.error("Testing Sender inherit logging handler function"
+                         "ality... ERROR - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.warning("Testing Sender inherit logging handler functionality... WARNING - log")
+            logger.warning("Testing Sender inherit logging handler functio"
+                           "nality... WARNING - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.debug("Testing Sender inherit logging handler functionality... DEBUG - log")
+            logger.debug("Testing Sender inherit logging handler functiona"
+                         "lity... DEBUG - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.critical("Testing Sender inherit logging handler functionality... CRITICAL - log")
+            logger.critical("Testing Sender inherit logging handler functio"
+                            "nality... CRITICAL - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
@@ -190,7 +204,8 @@ class TestSender(unittest.TestCase):
 
     def test_sender_with_default_logger(self):
         """
-        Test that tries to check that Sender class can still use an internal logger and shows both local and remote
+        Test that tries to check that Sender class can still use an internal
+        logger and shows both local and remote
         traces
         """
         try:
@@ -201,9 +216,12 @@ class TestSender(unittest.TestCase):
             con = Sender(engine_config, tag=self.my_app)
 
             # NOTE: this logger logging traces will be visible in console
-            con.logger.info("Testing Sender default handler functionality in local console... INFO - log")
-            # NOTE: this logger logging traces will be visible in the remote table
-            con.info("Testing Sender default handler functionality in remote table... INFO - log")
+            con.logger.info("Testing Sender default handler functionality in "
+                            "local console... INFO - log")
+            # NOTE: this logger logging traces will be visible in the remote
+            # table
+            con.info("Testing Sender default handler functionality in remote "
+                     "table... INFO - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
@@ -213,7 +231,8 @@ class TestSender(unittest.TestCase):
 
     def test_sender_as_handler_static(self):
         """
-        Test that tries to check that Sender class can be used as a Handler through the static functions
+        Test that tries to check that Sender class can be used as a Handler
+        through the static functions
         and related logs are send to remote server
         """
         try:
@@ -223,28 +242,34 @@ class TestSender(unittest.TestCase):
             con = Sender.for_logging(engine_config, "SSL", self.my_app)
             logger = logging.getLogger('DEVO_logger_static')
             logger.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('%(asctime)s|%(levelname)s|%(message)s')
+            formatter = logging.Formatter('%(asctime)s|%(levelname)s|'
+                                          '%(message)s')
             con.setFormatter(formatter)
             con.setLevel(logging.DEBUG)
             logger.addHandler(con)
 
-            logger.info("Testing Sender static handler functionality... INFO - log")
+            logger.info("Testing Sender static handler functionality... "
+                        "INFO - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.error("Testing Sender static logging handler functionality... ERROR - log")
+            logger.error("Testing Sender static logging handler "
+                         "functionality... ERROR - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.warning("Testing Sender static logging handler functionality... WARNING - log")
+            logger.warning("Testing Sender static logging handler "
+                           "functionality... WARNING - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.debug("Testing Sender static logging handler functionality... DEBUG - log")
+            logger.debug("Testing Sender static logging handler "
+                         "functionality... DEBUG - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
-            logger.critical("Testing Sender static logging handler functionality... CRITICAL - log")
+            logger.critical("Testing Sender static logging handler "
+                            "functionality... CRITICAL - log")
             if len(con.socket.recv(1000)) == 0:
                 raise Exception('Not msg sended!')
 
