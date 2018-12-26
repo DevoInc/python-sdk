@@ -87,7 +87,7 @@ class TCP_Server:
             s.listen(5)
             conn, addr = s.accept()
             while not self.shutdown:
-                data = conn.recv(1000)
+                data = conn.recv(5000)
                 conn.send(data)
         else:
             server = SocketServer.TCPServer((ip, port), CustomTCPHandler)
