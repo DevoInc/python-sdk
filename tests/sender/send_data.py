@@ -88,7 +88,7 @@ class TestSender(unittest.TestCase):
                                             chain=self.chain)
             con = Sender(engine_config)
             for i in range(0, self.default_numbers_sendings):
-                con.send(tag=self.my_app, msg=self.test_msg)
+                print(con.send(tag=self.my_app, msg=self.test_msg))
                 if len(con.socket.recv(5000)) == 0:
                     raise Exception('Not msg sended!')
             con.close()
@@ -110,7 +110,6 @@ class TestSender(unittest.TestCase):
                 con.flush_buffer()
                 if len(con.socket.recv(1000)) == 0:
                     raise Exception('Not msg sended!')
-
             con.close()
         except Exception as error:
             self.fail("Problems with test: %s" % error)

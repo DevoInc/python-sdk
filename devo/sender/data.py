@@ -136,8 +136,6 @@ class Sender(logging.Handler):
         self.composed_msg = b''
         self.facility = facility
 
-        self.num_sended = 0
-
         if self._sender_config.type == 'SSL':
             self.__connect_ssl()
 
@@ -275,7 +273,6 @@ class Sender(logging.Handler):
         if sent == 0:
             raise DevoSenderException("Devo-Sender|Send error")
             return False
-
         return True
 
     def send_raw(self, record, multiline=False, zip=False):
@@ -367,11 +364,9 @@ class Sender(logging.Handler):
             send_raw
         """
         if isinstance(msg, bytes):
-            self.num_sended += self.send_bytes(tag, msg, **kwargs)
+            return self.send_bytes(tag, msg, **kwargs)
         else:
-            self.num_sended += self.send_str(tag, msg, **kwargs)
-
-        return self.num_sended
+            return self.send_str(tag, msg, **kwargs)
 
     def send_str(self, tag, msg, **kwargs):
         """
@@ -408,6 +403,8 @@ class Sender(logging.Handler):
         self.zip_buffer += msg
         if len(self.zip_buffer) > self.max_zip_buffer:
             return self.flush_buffer()
+
+        self.zip_events += 1
         return 0
 
     def flush_buffer(self):
