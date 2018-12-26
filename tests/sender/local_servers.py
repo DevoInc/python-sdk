@@ -93,6 +93,5 @@ class TCP_Server:
             server = SocketServer.TCPServer((ip, port), CustomTCPHandler)
             server.serve_forever()
 
-
     def close_server(self):
         self.shutdown = True

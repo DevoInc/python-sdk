@@ -1,8 +1,11 @@
 import unittest
 import logging
 import socket
+import sys
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
 from .load_certs import *
+
+PY3 = sys.version_info[0] > 2
 
 
 class TestSender(unittest.TestCase):
@@ -63,7 +66,7 @@ class TestSender(unittest.TestCase):
         """
         Tests that a TCP connection and data send it is possible
         """
-        if self.test_tcp == "True":
+        if self.test_tcp == "True" and PY3:
             try:
                 engine_config = SenderConfigTCP(address=self.tcp_server,
                                                 port=self.tcp_port)
