@@ -53,11 +53,15 @@ class SSL_Server:
     def connect_client(self, stream):
         try:
             while not self.shutdown:
-                data = stream.recv(1000)
+                data = stream.recv(5000)
                 stream.send(data)
         except socket.timeout:
-            print(data)
+            print("Timeout")
+        except ssl.SSLEOFError:
+            print("Socket closed by client when recv")
         except Exception as error:
+            print("Other exception")
+            print(type(error))
             print(error)
 
     def close_server(self):
