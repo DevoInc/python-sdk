@@ -212,6 +212,12 @@ con.compression_level = 6
 
 compression_level is an integer from 0 to 9 or -1 controlling the level of compression; 1 (Z_BEST_SPEED) is the fastest and produces the lower compression, 9 (Z_BEST_COMPRESSION) is the slowest and produces the highest compression. 0 (Z_NO_COMPRESSION) has no compression. The default value is -1 (Z_DEFAULT_COMPRESSION). Z_DEFAULT_COMPRESSION represents a default compromise between speed and compression (currently equivalent to level 6).
 
+
+### Extra info when send: 
+`send()`, `send_raw()`, `flush_buffer` and `fill_buffer()` return the numbers of lines sent
+ (1, each time, if not zipped, 0..X if zipped)
+ 
+
 ###Lookup
 
 Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).

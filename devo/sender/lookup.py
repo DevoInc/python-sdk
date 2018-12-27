@@ -9,7 +9,7 @@ PY3 = sys.version_info[0] > 2
 
 class Lookup:
     """ Main class Lookup for create and send the object from some sources """
-    # Type of the header sended
+    # Type of the header sent
     # - EVENT_START for START header
     # - EVENT_END for END header
     EVENT_START = 'START'
