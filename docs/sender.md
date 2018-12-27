@@ -214,7 +214,7 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
 
 
 ### Extra info when send: 
-`send()`, `send_raw()`, `flush_buffer` and `fill_buffer()` return the numbers of lines sended
+`send()`, `send_raw()`, `flush_buffer` and `fill_buffer()` return the numbers of lines sent
  (1, each time, if not zipped, 0..X if zipped)
  
 

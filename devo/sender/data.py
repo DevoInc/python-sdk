@@ -393,7 +393,7 @@ class Sender(logging.Handler):
 
     def fill_buffer(self, msg):
         """
-        Internal method for fill buffer for be zipped and sended
+        Internal method for fill buffer for be zipped and sent
         :param msg: bytes
         :return: None
         """
@@ -409,7 +409,7 @@ class Sender(logging.Handler):
 
     def flush_buffer(self):
         """
-        Method for flush-send buffer, its zipped and sended now
+        Method for flush-send buffer, its zipped and sent now
         :return: None
         """
         if self.zip_buffer:
