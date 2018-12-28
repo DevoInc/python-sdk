@@ -4,7 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.5.0]
+
+## [1.5.1] - 2018-12-28
+#### Fixed
+ * devo.common buffer now receive data when CSV response
+ * devo.common buffer.is_empty
+
+#### Added
+ * Travis CI deploy automatic options
+
+## [1.5.0] - 2018-12-27
 #### Changed
  * Modify Configuration loads functions
  * Now Sender send, send_raw, flush_buffer and fill_buffer return the number of lines sent
@@ -13,7 +22,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Problems when loads configuration from default sites
  * Problems with local_server
  
-## [1.4.0]
+## [1.4.0] - 2018-12-17
 #### Added
  * Allow the parameters user, application name and comment to queries
  * Add tests (test_pragmas and test_pragmas test_pragmas_not_comment_free) in the query.py file.

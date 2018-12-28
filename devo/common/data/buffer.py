@@ -15,13 +15,14 @@ class DevoBufferException(Exception):
 
 class Buffer(object):
     """ Simple Buffer class """
-    def __init__(self, buffer_max_size=1000):
+    def __init__(self, buffer_max_size=1000, api_response="json/compact"):
         self.queue = Queue.Queue(maxsize=buffer_max_size)
         self.thread = None
         self.temp = None
         self.error = None
         self.close = False
         self.timeout = 0
+        self.response_split = "\n" if api_response is "csv" else "\r\n "
 
     def is_alive(self):
         return self.thread.isAlive()
@@ -30,7 +31,7 @@ class Buffer(object):
         self.timeout = timeout
 
     def is_empty(self):
-        return True if self.size() > 0 else False
+        return True if self.size() < 0 else False
 
     def create_thread(self, target, kwargs):
         """ Function for create one separate thread for Queue"""
@@ -77,7 +78,7 @@ class Buffer(object):
         if not isinstance(data, str):
             data = data.decode('utf8')
 
-        data = data[data.find("\r\n") + 2:].split("\r\n ")
+        data = data[data.find("\r\n") + 2:].split(self.response_split)
 
         data_len = len(data)
         if self.temp is not None:
