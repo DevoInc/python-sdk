@@ -31,7 +31,7 @@ class Buffer(object):
         self.timeout = timeout
 
     def is_empty(self):
-        return True if self.size() < 0 else False
+        return False if self.size() > 0 else True
 
     def create_thread(self, target, kwargs):
         """ Function for create one separate thread for Queue"""
