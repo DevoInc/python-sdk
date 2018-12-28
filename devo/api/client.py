@@ -194,7 +194,7 @@ class Client:
             self.connect()
 
         if self.buffer is None:
-            self.buffer = Buffer()
+            self.buffer = Buffer(api_response=opts['response'])
         self.buffer.create_thread(
             target=self._call_stream,
             kwargs=({'payload': self._get_payload(query, query_id,
