@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Utils for date operations."""
 from datetime import datetime as dt, timedelta
-from .dateutils import DateUtils
+from .dateutils import to_millis, trunc_time, trunc_time_minute
 
 
 class DateOperations(object):
@@ -63,7 +63,7 @@ class DateOperations(object):
         Return current millis in UTC
         :return: Millis
         """
-        return DateUtils.to_millis(dt.utcnow())
+        return to_millis(dt.utcnow())
 
     @staticmethod
     def now_without_ms():
@@ -71,7 +71,7 @@ class DateOperations(object):
         Return current millis in UTC
         :return: Millis
         """
-        return DateUtils.to_millis(DateUtils.trunc_time_minute(dt.utcnow()))
+        return to_millis(trunc_time_minute(dt.utcnow()))
 
     @staticmethod
     def today():
@@ -79,7 +79,7 @@ class DateOperations(object):
         Return current millis with the time truncated to 00:00:00
         :return: Millis
         """
-        return DateUtils.to_millis(DateUtils.trunc_time(dt.utcnow()))
+        return to_millis(trunc_time(dt.utcnow()))
 
     @staticmethod
     def yesterday():
@@ -87,5 +87,4 @@ class DateOperations(object):
         Return millis from yesterday with time truncated to 00:00:00
         :return: Millis
         """
-        date = DateUtils.trunc_time(dt.utcnow()) - timedelta(days=1)
-        return DateUtils.to_millis(date)
+        return to_millis(trunc_time(dt.utcnow()) - timedelta(days=1))
