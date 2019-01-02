@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.6.0] - xxxx-xx-xx
 #### Changed
  * Mild refactoring of Sender class
-
+ * Refactoring of devo.common.dates from objects to simple functions
 
 ## [1.5.1] - 2018-12-28
 #### Fixed
