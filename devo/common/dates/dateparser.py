@@ -5,11 +5,10 @@ This file parse dates and provide some helpers for the very basic usage
 """
 
 from datetime import datetime as dt
+
 import sys
-
 from .dateutils import test_date_format, to_millis, trunc_time
-from .dateoperations import DateOperations
-
+from .dateoperations import parse_functions
 
 
 def parse(date_string=None, default='now()'):
@@ -22,6 +21,7 @@ def parse(date_string=None, default='now()'):
     if date_string is None:
         return parse_string(default)
     return parse_string(date_string)
+
 
 def parse_string(date_string):
     """
@@ -37,14 +37,14 @@ def parse_string(date_string):
         return to_millis(trunc_time(date))
     return parse_expression(date_string)
 
+
 def parse_expression(date_string):
     """
     Evaluate a date string expression for use controlled functions
     :param date_string: Date string
     :return: The millis evaluated from the expression
     """
-    ops_obj = DateOperations()
-    ops = {k: getattr(ops_obj, k) for k in dir(ops_obj)}
+    ops = parse_functions()
     try:
         return eval(date_string, None, ops)
     except SyntaxError as err:
@@ -54,6 +54,7 @@ def parse_expression(date_string):
     except Exception as err:
         sys.exit('ERROR: Unknown error on parse dates: ' + str(err))
 
+
 def default_from(date=None):
     """
     Helper for return date with the default as ()
@@ -61,6 +62,7 @@ def default_from(date=None):
     :return: Millis for the API
     """
     return parse(date, 'now()-day()')
+
 
 def default_to(date=None):
     """
