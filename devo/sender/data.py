@@ -93,6 +93,14 @@ class SenderConfigTCP:
                 "%s" % str(error))
 
 
+class SenderBuffer:
+    def __init__(self):
+        self.length = 19500
+        self.compression_level = -1
+        self.text_buffer = b''
+        self.events = 0
+
+
 class Sender(logging.Handler):
     """
     Class that manages the connection to the data collector
@@ -114,27 +122,20 @@ class Sender(logging.Handler):
         if not config:
             raise DevoSenderException("Problems with args passed to Sender")
 
-        facility = kwargs.get('facility', FACILITY_USER)
-        verbose_level = kwargs.get('verbose_level', "INFO")
-        sockettimeout = kwargs.get('sockettimeout', 5)
         logger = kwargs.get('logger', None)
-        tag = kwargs.get('tag', None)
 
         logging.Handler.__init__(self)
-        self.logger = self.__set_logger(verbose_level) if logger is None \
-            else logger
+        self.logger = self.__set_logger(kwargs.get('verbose_level', "INFO")) \
+            if logger is None else logger
 
-        self._logger_tag = tag
         self.socket = None
         self._sender_config = config
-        self.reconection = 0
-        self.sockettimeout = sockettimeout
-        self.max_zip_buffer = 19500
-        self.compression_level = -1
-        self.zip_buffer = b''
-        self.zip_events = 0
-        self.composed_msg = b''
-        self.facility = facility
+        self.reconnection = 0
+        self.sockettimeout = kwargs.get('sockettimeout', 5)
+        self.buffer = SenderBuffer()
+
+        self._logger_facility = kwargs.get('facility', FACILITY_USER)
+        self._logger_tag = kwargs.get('tag', None)
 
         if self._sender_config.type == 'SSL':
             self.__connect_ssl()
@@ -200,10 +201,10 @@ class Sender(logging.Handler):
             except ssl.SSLError:
                 raise ssl.SSLError
             self.socket.connect(self._sender_config.address)
-            self.reconection += 1
+            self.reconnection += 1
             self.logger.debug('Devo-Sender|Conected to %s|%s'
                               % (repr(self.socket.getpeername())
-                                 , str(self.reconection)))
+                                 , str(self.reconnection)))
             self.timestart = int(round(time.time() * 1000))
 
         except socket.error as error:
@@ -237,7 +238,7 @@ class Sender(logging.Handler):
         """
         Forces socket closure
         """
-        if self.zip_buffer:
+        if self.buffer.text_buffer:
             self.flush_buffer()
 
         if self.socket is not None:
@@ -365,8 +366,7 @@ class Sender(logging.Handler):
         """
         if isinstance(msg, bytes):
             return self.send_bytes(tag, msg, **kwargs)
-        else:
-            return self.send_str(tag, msg, **kwargs)
+        return self.send_str(tag, msg, **kwargs)
 
     def send_str(self, tag, msg, **kwargs):
         """
@@ -385,11 +385,11 @@ class Sender(logging.Handler):
         msg = COMPOSE_BYTES % (self.compose_mem(tag, bytes=True, **kwargs), msg)
         if kwargs.get('zip', False):
             return self.fill_buffer(msg)
-        else:
-            if msg[-1:] != b"\n":
-                msg += b"\n"
 
-            return self.send_raw(msg, multiline=kwargs.get('multiline', False))
+        if msg[-1:] != b"\n":
+            msg += b"\n"
+
+        return self.send_raw(msg, multiline=kwargs.get('multiline', False))
 
     def fill_buffer(self, msg):
         """
@@ -400,11 +400,11 @@ class Sender(logging.Handler):
         if msg[-1:] != b"\n":
             msg += b"\n"
 
-        self.zip_buffer += msg
-        if len(self.zip_buffer) > self.max_zip_buffer:
+        self.buffer.text_buffer += msg
+        if len(self.buffer.text_buffer) > self.buffer.length:
             return self.flush_buffer()
 
-        self.zip_events += 1
+        self.buffer.events += 1
         return 0
 
     def flush_buffer(self):
@@ -412,19 +412,21 @@ class Sender(logging.Handler):
         Method for flush-send buffer, its zipped and sent now
         :return: None
         """
-        if self.zip_buffer:
+        if self.buffer.text_buffer:
             try:
-                compressor = zlib.compressobj(self.compression_level,
+                compressor = zlib.compressobj(self.buffer.compression_level,
                                               zlib.DEFLATED, 31)
-                record = compressor.compress(self.zip_buffer) + compressor.flush()
+                record = compressor.compress(self.buffer.text_buffer) \
+                         + compressor.flush()
                 if self.send_raw(record, zip=True):
-                    return self.zip_events
+                    return self.buffer.events
                 return 0
             except Exception as error:
                 raise error
             finally:
-                self.zip_buffer = b''
-                self.zip_events = 0
+                self.buffer.text_buffer = b''
+                self.buffer.events = 0
+        return 0
 
     def set_logger_tag(self, tag):
         """
@@ -456,7 +458,8 @@ class Sender(logging.Handler):
         :param logger: logger handler, default None
         :return: Sender object
         """
-        con_type = config['type'].upper() if "type" in config and con_type is not None else "SSL"
+        con_type = config['type'].upper() if "type" in config and con_type \
+                                             is not None else "SSL"
         cert_reqs = config['cert_reqs'] if "cert_reqs" in config else True
 
         if con_type == "SSL":
@@ -504,7 +507,7 @@ class Sender(logging.Handler):
         try:
             msg = self.format(record)
             msg += '\000'
-            self.send(self._logger_tag, msg, facility=self.facility,
+            self.send(self._logger_tag, msg, facility=self._logger_facility,
                       severity=priority_map.get(record.levelname, "info"))
         except Exception:
             self.handleError(record)

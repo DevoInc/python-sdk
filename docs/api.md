@@ -42,7 +42,7 @@ api = Client(jwt="myauthtoken,
 - query: Query to perform
 - query_id: if not query, you can send the query id
 - dates: {'from': string, 'to': string} -> Date from and date to, if not "to", in object, to = now()
-- format: Type of response from Client API
+- response: Type of response from Client API
 - limit: Limits of rows returned
 - offset: Row number by which to start returning data
 - proccessor: Callback for process returned object/s
@@ -142,7 +142,7 @@ Options:
   --stream / --no-stream                       Flag for make streaming query or full query with start and end. Default is true
   --proc                                       if flag exists, dont return raw query reply. In compact replies you receive proccessed lines.
   --output TEXT                                File path to store query response if not want stdout
-  -f, --format TEXT                            The output format. Default is json/simple/compact
+  -r, --response TEXT                          The output format. Default is json/simple/compact
   --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --help                                       Show this message and exit.
@@ -191,10 +191,10 @@ Priority order:
 Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
 
 ## Choosing Fomat
-The default response format (`format`) is `json`, to change the default value set for example:
+The default response format (`response`) is `json`, to change the default value set for example:
 
 ```python
-api.format = 'json/compact'
+api.response = 'json/compact'
 ```
 
 To change the response format (`format`) of a query, just change the value of the attribute response of the query call
@@ -202,7 +202,7 @@ To change the response format (`format`) of a query, just change the value of th
 response = api.query(config['query'], 
                      date_from=config['from'], 
                      date_to=config['to'], 
-                     format=config['format'])
+                     response=config['response'])
 ```
 
 Type allow the following values:
@@ -218,7 +218,7 @@ Type allow the following values:
     
 #### Response type JSON 
 
-When `format` set to `json`, response is a
+When `response` is set to `json`, response is a
 Json Object with the following structure:
 
 
@@ -274,7 +274,7 @@ Example
 
 #### Response type json/compact
 
-When `format` set to `json/compact`, response is a
+When `response` is set to `json/compact`, response is a
 Json Object with the following structure:
 
 | Field Name | Type | Description |
@@ -338,7 +338,7 @@ Example
 
 #### Response type json/simple
 
-When `format` set to `json/simple`  
+When `response` is set to `json/simple`  
 The response is a stream of Json Objects with the following structure of the values that the Query generates, separated each registry  CRLF.
 
 When the query does not generate more information, the connection is closed by the server.
@@ -372,7 +372,7 @@ Example
 
 #### Reponse type json/simple/compact
 
-When `format` set to `json/simple/compact`  
+When `response` is set to `json/simple/compact`  
 The response is a stream of Json Objects with the following structure each line is  separated by  CRLF:
 
 The First Line is a JSON object  map with the Metadata information, the key is the name of the field, and the value is a Object with the following information:
@@ -420,14 +420,14 @@ Example
 
 #### Response type msgpack
 
-When response format set to `msgpack`  
+When `response` is set to `msgpack`  
 The response format is the same that the Json format, but encoded using MsgPack an efficient binary serialization format (http://msgpack.org/)
 
 
 
 #### Response type csv
 
-When `format` set to `csv`  
+When `response` is set to `csv`  
 The system returns the information in CSV(Comma Separated Values) format, as follows
 
 Example
@@ -455,7 +455,7 @@ Example
 
 #### Response type tsv
 
-When `format` set to `tsv`  
+When `response` is set to `tsv`  
 The system returns the information in TSV (Tab Separated Values)  format as follows
 
 Example

@@ -157,10 +157,10 @@ class Client:
         :param kwargs: query -> Query to perform
         :param kwargs: query_id -> Query ID to perform the query
         :param kwargs: dates -> Dict with "from" and "to" keys
-        :param kwargs: proccessor -> proccessor for each row of the response,
+        :param kwargs: processor -> processor for each row of the response,
         if stream
         :param kwargs: stream -> if stream or full response: Object with
-        options of query: proccessor, if stream
+        options of query: processor, if stream
         :param kwargs: response -> response format
         :return: Result of the query (dict) or Buffer object
         """
@@ -268,11 +268,11 @@ class Client:
             self.socket.send(self._get_stream_headers(payload))
         if not self.buffer.close and not self.buffer.error\
            and self.socket is not None:
-            result, data = self.buffer.proccess_first_line(
-                self.socket.recv(5000))
+            result, data = self.buffer.process_first_line(
+                self.socket.recv(4096))
             if result:
                 try:
-                    while self.buffer.proccess_recv(self.socket.recv(5000)):
+                    while self.buffer.decode(self.socket.recv(4096)):
                         pass
                 except socket.timeout:
                     while not self.buffer.is_empty() or self.buffer.close:
@@ -357,7 +357,7 @@ class Client:
         """
         tstamp = str(int(time.time()) * 1000)
 
-        headers = ("POST /%s HTTP/1.1\r\n"
+        headers = ("POST /%s HTTP/2.0\r\n"
                    "Host: %s\r\n"
                    "Content-Type: application/json\r\n"
                    "Content-Length: %s \r\n"
