@@ -3,6 +3,7 @@
 import sys
 import os
 import click
+import time
 from devo.common import Configuration
 from devo.api import Client, DevoClientException
 from devo.common.data.buffer import Buffer
@@ -42,11 +43,11 @@ def cli():
               help='Flag for make streaming query or full query with '
               'start and end. Default is true', default=True)
 @click.option('--proc', help='if flag exists, dont return raw query reply. In '
-                             'compact replies you receive proccessed lines.',
+                             'compact replies you receive processed lines.',
               is_flag=True)
 @click.option('--output', help='File path to store query response if not want '
                                'stdout')
-@click.option('--format', '-f', default="json/simple/compact",
+@click.option('--response', '-r', default="json/simple/compact",
               help='The output format. Default is json/simple/compact')
 @click.option('--from', default=None,
               help='From date, and time for the query (YYYY-MM-DD hh:mm:ss). '
@@ -65,7 +66,7 @@ def query(**kwargs):
                        dates={"from": config['from'],
                               "to": config['to'] if "to" in config.keys()
                                                     else None},
-                       format=config['format'],
+                       response=config['response'],
                        stream=config['stream'])
 
     process_response(buffer, config)
@@ -79,19 +80,19 @@ def identify_response(response, config):
     Identify what type of response are we received from Client API
     :param response: data received from Devo Client API
     :param config: array with launch options
-    :return: proccessed line (List or string normally)
+    :return: processed line (List or string normally)
     """
     return {
         'json': lambda x, y: proc_default(x) if y else x,
         'json/compact': lambda x, y: x,
         'json/simple': lambda x, y: list(x),
         'json/simple/compact': lambda x, y: list(x)
-    }[config['format']](response, config['proc'])
+    }[config['response']](response, config['proc'])
 
 
 def process_response(response, config):
     """
-    Proccess responses from Client API
+    process responses from Client API
     :param response: data received from Devo API
     :param config: array with launch options
     :return: None
