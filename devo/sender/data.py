@@ -130,7 +130,7 @@ class Sender(logging.Handler):
 
         self.socket = None
         self._sender_config = config
-        self.reconection = 0
+        self.reconnection = 0
         self.sockettimeout = kwargs.get('sockettimeout', 5)
         self.buffer = SenderBuffer()
 
@@ -201,10 +201,10 @@ class Sender(logging.Handler):
             except ssl.SSLError:
                 raise ssl.SSLError
             self.socket.connect(self._sender_config.address)
-            self.reconection += 1
+            self.reconnection += 1
             self.logger.debug('Devo-Sender|Conected to %s|%s'
                               % (repr(self.socket.getpeername())
-                                 , str(self.reconection)))
+                                 , str(self.reconnection)))
             self.timestart = int(round(time.time() * 1000))
 
         except socket.error as error:

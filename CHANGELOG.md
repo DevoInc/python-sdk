@@ -8,13 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Changed
  * Mild refactoring of Sender class
  * Refactoring API Response processing
+ * Typos in docs
  
 #### Fixed
  * API responses blank lines and splitted lines
  * Problems with API CLI and automatic shutdowns
- 
-#### Changed
- * Typos in docs
+
 
 ## [1.5.1] - 2018-12-28
 #### Fixed
