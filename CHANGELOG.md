@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Mild refactoring of Sender class
  * Refactoring API Response processing
  * Typos in docs
+ * API Socket recv size
  
 #### Fixed
  * API responses blank lines and splitted lines

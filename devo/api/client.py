@@ -269,10 +269,10 @@ class Client:
         if not self.buffer.close and not self.buffer.error\
            and self.socket is not None:
             result, data = self.buffer.process_first_line(
-                self.socket.recv(5000))
+                self.socket.recv(4096))
             if result:
                 try:
-                    while self.buffer.decode(self.socket.recv(5000)):
+                    while self.buffer.decode(self.socket.recv(4096)):
                         pass
                 except socket.timeout:
                     while not self.buffer.is_empty() or self.buffer.close:
