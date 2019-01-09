@@ -65,8 +65,7 @@ class Buffer(object):
             data = data.decode('utf8')
 
         if "200 OK" in data.split("\r\n\r\n")[0]:
-            self.decode(data[data.find("\r\n\r\n")+4:])
-            return True, None
+            return self.decode(data[data.find("\r\n\r\n")+4:]), None
 
         self.error = data
         return False, data

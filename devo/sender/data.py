@@ -404,7 +404,7 @@ class Sender(logging.Handler):
         if len(self.buffer.text_buffer) > self.buffer.length:
             return self.flush_buffer()
 
-        self.zip_events += 1
+        self.buffer.events += 1
         return 0
 
     def flush_buffer(self):

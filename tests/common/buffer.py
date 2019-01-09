@@ -5,11 +5,11 @@ from devo.common import Buffer
 class TestLtBuffer(unittest.TestCase):
 
     def test_proccess_first_line(self):
-        self.assertTrue(self.buffer.proccess_first_line(self.first_line))
+        self.assertTrue(self.buffer.process_first_line(self.first_line))
         self.assertIsNot(self.buffer.size(), 0)
 
     def test_proccess_data_line(self):
-        self.buffer.proccess_recv(self.data_line)
+        self.buffer.decode(self.data_line)
         self.assertIsNot(self.buffer.size(), 0)
 
     def setUp(self):
@@ -40,15 +40,15 @@ class TestLtBuffer(unittest.TestCase):
                           '1; mode=block\r\nReferrer-Policy: ' \
                           'same-origin\r\n\r\n20d\r\n' + self.data_first_line
 
-        self.data_line = '190\r\n {"eventdate":1519913684245,"clientIpAddress' \
+        self.data_line = '190\r\n{"eventdate":1519913684245,"clientIpAddress' \
                          '":1142130470,"timestamp":"01/Mar/2018:14:14:44 ' \
                          '+0000","method":"GET","url":"/","protocol":"HTTP ' \
                          '1.1","statusCode":200,"bytesTransferred":523,' \
                          '"referralUri":"http://www.devo.com/product.' \
                          'screen?product_id=009-73CKH-JASKD&JSESSIONID=' \
-                         'SD2SL1FF3ADFF2","userAgent":"Opera/9.20 (Windows ' \
+                         'SD2SL1FF3ADFF2","userAgent":"TQOpera/9.20 (Windows ' \
                          'NT 6.0; U; en)","cookie":"3djv1l0ebi7cmsai1131p' \
-                         'f2a65:-","timeTaken":589}\r\n\r\n'
+                         'f2a65:-","timeTaken":589}\r\n \r\n'
 
 
 if __name__ == '__main__':

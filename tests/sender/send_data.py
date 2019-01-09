@@ -109,7 +109,7 @@ class TestSender(unittest.TestCase):
             con = Sender(engine_config, sockettimeout=15)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8")
-                         ,zip=True)
+                         , zip=True)
                 con.flush_buffer()
                 if len(con.socket.recv(1000)) == 0:
                     raise Exception('Not msg sent!')
