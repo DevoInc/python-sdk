@@ -8,7 +8,7 @@ import socket
 import ssl
 import sys
 import requests
-from devo.common import DateParser, Buffer
+from devo.common import Buffer, default_from, default_to
 
 PY3 = sys.version_info[0] > 2
 
@@ -293,8 +293,8 @@ class Client:
         :param opts: destination -> Destination for the results
         :return: Return the formed payload
         """
-        payload = {"from": int(DateParser.default_from(dates['from']) / 1000),
-                   "to": int(DateParser.default_to(dates['to']) / 1000) if
+        payload = {"from": int(default_from(dates['from']) / 1000),
+                   "to": int(default_to(dates['to']) / 1000) if
                          dates['to'] is not None else None,
                    "mode": {"type": opts['response']}}
 
