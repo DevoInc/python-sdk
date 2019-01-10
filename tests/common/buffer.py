@@ -1,15 +1,16 @@
 import unittest
+from sys import version_info
 from devo.common import Buffer
 
 
 class TestLtBuffer(unittest.TestCase):
 
     def test_proccess_first_line(self):
-        self.assertTrue(self.buffer.process_first_line(self.first_line))
+        self.assertTrue(self.buffer.process_first_line(self.first_line.encode("utf-8") if version_info[0] > 2 else self.first_line))
         self.assertIsNot(self.buffer.size(), 0)
 
     def test_proccess_data_line(self):
-        self.buffer.decode(self.data_line)
+        self.buffer.buffering(self.data_line.encode("utf-8") if version_info[0] > 2 else self.data_line)
         self.assertIsNot(self.buffer.size(), 0)
 
     def setUp(self):
