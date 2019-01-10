@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Simple Buffer generic class for use of some package functions."""
 from threading import Thread
+from sys import version_info
+
 
 try:
     import Queue
@@ -13,18 +15,38 @@ class DevoBufferException(Exception):
     pass
 
 
+def clrf():
+    """clrf character in"""
+    return b"\r\n" if version_info[0] > 2 else "\r\n"
+
+
+def get_response_split(api_response):
+    """Get split for each event, if csv or other, and in bytes or str"""
+    if version_info[0] > 2:
+        return b"\n" if api_response is "csv" else b"\r\n"
+    else:
+        return "\n" if api_response is "csv" else "\r\n"
+
+
+def empty():
+    """Empty string in bytes or str if py2 or py3"""
+    return bytes() if version_info[0] > 2 else str()
+
+
 class Buffer(object):
     """ Simple Buffer class """
     def __init__(self, buffer_max_size=1000, api_response="json/compact"):
         self.queue = Queue.Queue(maxsize=buffer_max_size)
         self.thread = None
-        self.temp = ""
-        self.temp_event = ""
+        self.temp = empty()
+        self.temp_event = empty()
+        self.response_split = get_response_split(api_response)
+        self.clrf = clrf()
         self.octet = 0
         self.error = None
         self.close = False
         self.timeout = None
-        self.response_split = "\n" if api_response is "csv" else "\r\n"
+        self.api_response = api_response
 
     def is_alive(self):
         return self.thread.isAlive()
@@ -61,30 +83,28 @@ class Buffer(object):
 
     def process_first_line(self, data):
         """ process first line of the Query call (For delete headers) """
-        if not isinstance(data, str):
-            data = data.decode('utf8')
 
-        if "200 OK" in data.split("\r\n\r\n")[0]:
-            return self.decode(data[data.find("\r\n\r\n")+4:]), None
+        if version_info[0] > 2:
+            ok = b"200 OK"
+        else:
+            ok = "200 OK"
+
+        if ok in data.split(self.clrf+self.clrf)[0]:
+            return self.buffering(data[data.find(self.clrf+self.clrf)+4:]), None
 
         self.error = data
         return False, data
 
-    def decode(self, data):
-        if not isinstance(data, str):
-            data = data.decode('utf8')
-        return self.buffering(data)
-
     def buffering(self, data):
         if not self.octet:
-            pointer = data.find("\r\n") + 2
+            pointer = data.find(self.clrf) + 2
             size = int(data[:pointer], 16)
             data = self.temp_event + data[pointer:]
             self.octet = len(self.temp_event) + size
-            self.temp_event = ""
+            self.temp_event = empty()
 
         if len(self.temp + data) < self.octet or \
-                (not self.octet and not data.find("\r\n")):
+                (not self.octet and not data.find(self.clrf)):
             self.temp += data
             return not self.close
 
@@ -108,11 +128,9 @@ class Buffer(object):
         self.octet = 0
         if len(self.temp.strip()):
             data = self.temp
-            self.temp = ""
-            if data.find("\r\n") == 0:
+            self.temp = empty()
+            if data.find(self.clrf) == 0:
                 data = data[2:]
             return self.buffering(data)
         return not self.close
 
-    def close(self):
-        self.close = True

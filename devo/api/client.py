@@ -272,7 +272,7 @@ class Client:
                 self.socket.recv(4096))
             if result:
                 try:
-                    while self.buffer.decode(self.socket.recv(4096)):
+                    while self.buffer.buffering(self.socket.recv(4096)):
                         pass
                 except socket.timeout:
                     while not self.buffer.is_empty() or self.buffer.close:
