@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 #### Fixed
  * Problems with non ascii/utf-8 characters in API
+ * Travis CI autodeploy to pypi
+ 
+#### Added
+ * Travis CI upload wheel to release on github
  
 ## [1.6.0] - 2019-01-09
 #### Changed
