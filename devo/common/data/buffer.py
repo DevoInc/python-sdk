@@ -133,4 +133,3 @@ class Buffer(object):
                 data = data[2:]
             return self.buffering(data)
         return not self.close
-
