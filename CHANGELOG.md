@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2019-01-10
+#### Changed
+ * Refactoring of devo.common.dates from objects to simple functions
+ * Now API return bytes in Python 3 and str in Python 2 by default
+
+#### Fixed
+ * Problems with non ascii/utf-8 characters in API
+ * Travis CI autodeploy to pypi
+ 
+#### Added
+ * Travis CI upload wheel to release on github
+ 
 ## [1.6.0] - 2019-01-09
 #### Changed
  * Mild refactoring of Sender class
@@ -14,8 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Fixed
  * API responses blank lines and splitted lines
  * Problems with API CLI and automatic shutdowns
-
-
+ 
 ## [1.5.1] - 2018-12-28
 #### Fixed
  * devo.common buffer now receive data when CSV response
