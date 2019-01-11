@@ -134,7 +134,7 @@ def lookup(**kwargs):
 
 def configure(args):
     """ Configuration of Sender CLI """
-    return init_conf(args).get()
+    return init_conf(args)
 
 
 def init_conf(args):
