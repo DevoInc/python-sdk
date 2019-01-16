@@ -25,7 +25,7 @@ class Client(Base):
         :param url: URL for the service
         :param buffer: Buffer object, if want another diferent queue
         """
-        super().__init__(*args, **kwargs)
+        super(Client, self).__init__(*args, **kwargs)
         self.user = kwargs.get('user', CLIENT_DEFAULT_USER)
         self.app_name = kwargs.get('app_name', CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token",
