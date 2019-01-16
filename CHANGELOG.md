@@ -4,13 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.6.3] - 2019-01-12
+## [1.6.2] - 2019-01-12
 #### Added
  * Documentation about API "destination" parameter
+ * Task management with API Client: added functions, documentation
  
-## [1.6.2] - 2019-01-12
 #### Changed
  * Travis CI configuration
+ * Refactoring of API, separated now in two files
+ * Reorganized API documentation
 
 ## [1.6.1] - 2019-01-10
 #### Changed
