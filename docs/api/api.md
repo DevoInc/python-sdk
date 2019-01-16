@@ -54,7 +54,6 @@ return: Result of the query or Buffer object
 
 Normal response:
 ```python
-
 response = api.query(query="from my.app.web.activityAll select * limit 10",
                      dates= {'from': "2018-02-06 12:42:00"},
                      response="json",
