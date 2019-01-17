@@ -72,6 +72,7 @@ class Base:
         self.retries = 3
         self.timeout = 30
         self.sleep = 5
+        self.buffer = None
 
     def __set_url_query(self):
         """
@@ -92,29 +93,14 @@ class Base:
             self.url.split("//")[-1].split("/", maxsplit=1) if PY3
             else self.url.split("//")[-1].split("/", 1))
 
-    def __verify_url_complement(self, url_list):
+    @staticmethod
+    def __verify_url_complement(url_list):
         """
         Verify if only has main domain or full url
         :param url_list: One or two part of the url
         """
         return url_list if len(url_list) == 2 \
             else [url_list[0], URL_QUERY_COMPLEMENT]
-
-    def _generate_pragmas(self, comment=None):
-        """
-        Generate pragmas to add to query
-        :comment: Pragma comment free
-        :user: Pragma comment user
-        :app_name: Pragma comment id. App name.
-        """
-        str_pragmas = ' pragma comment.id:"{}" ' \
-                      'pragma comment.user:"{}"'\
-            .format(self.app_name, self.user)
-
-        if comment:
-            return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
-
-        return str_pragmas
 
     @staticmethod
     def _generate_dates(dates):
@@ -186,10 +172,3 @@ class Base:
         if self.socket is not None:
             self.socket.close()
             self.socket = None
-
-    def _get_job_url_part(self):
-        URL_JOB = '/search/job'
-        URL_JOBS = '/search/jobs'
-        URL_JOB_START = '/start/'
-        URL_JOB_STOP = '/start/'
-        URL_JOB_REMOVE = '/start/'
