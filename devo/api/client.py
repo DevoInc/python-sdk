@@ -151,7 +151,7 @@ class Client(Base):
                     while not self.buffer.is_empty() or self.buffer.close:
                         time.sleep(1)
             else:
-                raise DevoClientException("Devo-Client|%s" % str(data))
+                self.buffer.close = True
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):

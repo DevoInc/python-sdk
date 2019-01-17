@@ -56,7 +56,7 @@ class Buffer:
 
     def is_empty(self):
         """Revise is buffer queue is empty"""
-        return False if self.size() else True
+        return True if self.size() else False
 
     def create_thread(self, target, kwargs):
         """ Function for create one separate thread for Queue"""
@@ -128,7 +128,7 @@ class Buffer:
             self.queue.put(item.strip(), block=True)
 
         self.octet = 0
-        if not self.temp.strip():
+        if len(self.temp.strip()):
             data = self.temp
             self.temp = empty()
             if data.find(self.clrf) == 0:
