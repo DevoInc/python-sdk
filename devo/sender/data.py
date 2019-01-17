@@ -94,6 +94,7 @@ class SenderConfigTCP:
 
 
 class SenderBuffer:
+    """Micro class for buffer values"""
     def __init__(self):
         self.length = 19500
         self.compression_level = -1
@@ -273,7 +274,6 @@ class Sender(logging.Handler):
                        int((iteration + 1) * 4096)])
         if sent == 0:
             raise DevoSenderException("Devo-Sender|Send error")
-            return False
         return True
 
     def send_raw(self, record, multiline=False, zip=False):
@@ -293,13 +293,12 @@ class Sender(logging.Handler):
                     if not multiline and not zip:
                         sent = self.socket.send(self.__encode_record(record))
                         return 1
-                    else:
-                        if multiline:
-                            record = self.__encode_record(record)
+                    if multiline:
+                        record = self.__encode_record(record)
 
-                        if self.__send_oc(record):
-                            return 1
-                        return 0
+                    if self.__send_oc(record):
+                        return 1
+                    return 0
                 except socket.error:
                     self.close()
                     raise DevoSenderException(
@@ -308,7 +307,7 @@ class Sender(logging.Handler):
                     if self._sender_config.debug:
                         self.logger.debug('sent|%d|size|%d|msg|%s' %
                                           (sent, len(record), record))
-
+            raise DevoSenderException("Devo-Sender|Socket unknown error")
         except Exception as error:
             raise error
 
