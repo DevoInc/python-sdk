@@ -22,7 +22,7 @@ class TestApi(unittest.TestCase):
 
     def test_from_config(self):
         api = Client.from_config(
-            {'key': self.key, 'secret': self.secret, 'uri': self.uri,
+            {'key': self.key, 'secret': self.secret, 'url': self.uri,
              'user': self.user, 'app_name': self.app_name}
             )
 

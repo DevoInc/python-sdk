@@ -4,37 +4,18 @@ import hmac
 import hashlib
 import time
 import json
-import socket
-import ssl
-import sys
 import requests
+from socket import timeout as socket_timeout
 from devo.common import Buffer, default_from, default_to
-
-PY3 = sys.version_info[0] > 2
-
-
-class DevoClientException(Exception):
-    """ Default Devo Client Exception """
+from .base import Base, DevoClientException, CLIENT_DEFAULT_USER, \
+    CLIENT_DEFAULT_APP_NAME, URL_JOB, URL_JOBS, URL_JOB_START, URL_JOB_STOP, \
+    URL_JOB_REMOVE
 
 
-if not PY3:
-    class ConnectionError(OSError):
-        """ Connection error. """
-        def __init__(self, *args, **kwargs):  # real signature unknown
-            pass
-
-
-class Client:
+class Client(Base):
     """
     The Devo SERach REst Api main class
     """
-    CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
-    CLIENT_DEFAULT_USER = 'python-sdk-user'
-    URL_AWS_EU = 'https://api-eu.logtrust.com'
-    URL_VDC = 'https://spainapi.logtrust.com'
-    URL_AWS_USA = 'https://api-us.logtrust.com'
-    URL_QUERY_COMPLEMENT = '/search/query'
-
     def __init__(self, *args, **kwargs):
         """
         Initialize the API with this params, all optionals
@@ -44,30 +25,9 @@ class Client:
         :param url: URL for the service
         :param buffer: Buffer object, if want another diferent queue
         """
-        self.time_start = int(round(time.time() * 1000))
-        if len(args) == 3:
-            self.key = args[0]
-            self.secret = args[1]
-            url = args[2]
-        elif not args:
-            self.key = kwargs.get("key",
-                                  kwargs.get("api_key",
-                                             kwargs.get("apiKey", None)))
-
-            self.secret = kwargs.get("secret",
-                                     kwargs.get("api_secret",
-                                                kwargs.get("apiSecret", None)))
-
-            url = kwargs.get("url", None)
-        else:
-            raise DevoClientException("Devo-Client|Position arguments are "
-                                      "deprecated, It is only enabled as "
-                                      "compatibility, being able to pass only "
-                                      "3 arguments: key, secret and url, "
-                                      "in that order. ")
-
-        self.user = kwargs.get('user', self.CLIENT_DEFAULT_USER)
-        self.app_name = kwargs.get('app_name', self.CLIENT_DEFAULT_APP_NAME)
+        Base.__init__(self, *args, **kwargs)
+        self.user = kwargs.get('user', CLIENT_DEFAULT_USER)
+        self.app_name = kwargs.get('app_name', CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token",
                                 kwargs.get(
                                     "auth_token",
@@ -76,56 +36,7 @@ class Client:
         self.jwt = kwargs.get("jwt", None)
 
         self.response = "json/simple/compact"
-        self.url, self.query_url = self.__set_url_query(url)
-        self.socket = None
-        self.socket_timeout = 30
         self.buffer = kwargs.get("buffer", None)
-        self.retries = 3
-        self.timeout = 30
-        self.sleep = 5
-
-    def __set_url_query(self, url):
-        """
-        Set URL to ask
-        :param url: string, full or only one part
-        :return: Complete url for call api
-        """
-        if url is None:
-            return self.URL_AWS_EU, self.URL_QUERY_COMPLEMENT
-        return self.__get_url_parts(url)
-
-    def __get_url_parts(self, url):
-        """
-        Split the two parts of the api url
-        :param url: Url of the api
-        """
-        return self.__verify_url_complement(
-            url.split("//")[-1].split("/", maxsplit=1) if PY3
-            else url.split("//")[-1].split("/", 1))
-
-    def __generate_pragmas(self, comment=None):
-        """
-        Generate pragmas to add to query
-        :comment: Pragma comment free
-        :user: Pragma comment user
-        :app_name: Pragma comment id. App name.
-        """
-        str_pragmas = ' pragma comment.id:"{}" ' \
-                      'pragma comment.user:"{}"'\
-            .format(self.app_name, self.user)
-
-        if comment:
-            return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
-
-        return str_pragmas
-
-    def __verify_url_complement(self, url_list):
-        """
-        Verify if only has main domain or full url
-        :param url_list: One or two part of the url
-        """
-        return url_list if len(url_list) == 2 \
-            else [url_list[0], self.URL_QUERY_COMPLEMENT]
 
     @staticmethod
     def from_config(config):
@@ -134,21 +45,6 @@ class Client:
         :param config: lt-common config standar
         """
         return Client(**config)
-
-    @staticmethod
-    def __generate_dates(dates):
-        """
-        Generate and merge dates object
-        :param dates: object with optios for query, see doc
-        :return: updated opts
-        """
-        default = {'from': 'yesterday()', 'to': None}
-
-        if not dates:
-            return default
-
-        default.update(dates)
-        return default
 
     # API Methods
     def query(self, **kwargs):
@@ -167,11 +63,11 @@ class Client:
 
         query = kwargs.get('query', None)
         query_id = kwargs.get('query_id', None)
-        dates = self.__generate_dates(kwargs.get('dates', None))
+        dates = self._generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
         processor = kwargs.get('processor', None)
         if query is not None:
-            query += self.__generate_pragmas(comment=kwargs.get('comment', None))
+            query += self._generate_pragmas(comment=kwargs.get('comment', None))
 
         opts = {'limit': kwargs.get('limit', None),
                 'response': kwargs.get('response', self.response),
@@ -179,7 +75,7 @@ class Client:
                 'destination': kwargs.get('destination', None)
                 }
 
-        if not self.__stream_available(opts['response']) or not stream:
+        if not self._stream_available(opts['response']) or not stream:
             if not dates['to']:
                 dates['to'] = "now()"
 
@@ -204,29 +100,6 @@ class Client:
         self.buffer.start()
         return self.buffer
 
-    def status(self):
-        """
-        View Socket status, check if it's open
-        """
-        timeit = int(round(time.time() * 1000)) - self.time_start
-        if self.socket is None:
-            return False
-
-        if self.timeout < timeit:
-            self.close()
-            return False
-
-        return True
-
-    @staticmethod
-    def __stream_available(resp):
-        """
-        Verify if can stream resp from API by type of resp in opts
-        :param resp: str
-        :return: bool
-        """
-        return resp not in ["json", "json/compact"]
-
     # API Call
     def _call(self, payload, processor):
         """
@@ -239,7 +112,7 @@ class Client:
         while tries < self.retries:
             try:
                 response = requests.post(
-                    "https://%s/%s" % (self.url, self.query_url),
+                    "https://{}/{}".format(self.url, self.query_url),
                     data=payload,
                     headers=self._get_no_stream_headers(payload),
                     verify=True, timeout=self.timeout)
@@ -274,7 +147,7 @@ class Client:
                 try:
                     while self.buffer.buffering(self.socket.recv(4096)):
                         pass
-                except socket.timeout:
+                except socket_timeout:
                     while not self.buffer.is_empty() or self.buffer.close:
                         time.sleep(1)
             else:
@@ -394,40 +267,86 @@ class Client:
         :param tstamp: Epoch timestamp
         :return: The sign in hex response
         """
+        if not self.secret or not self.key:
+            raise DevoClientException("You need a API Key and API "
+                                      "secret to make this")
         sign = hmac.new(self.secret.encode("utf-8"),
                         (self.key + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
         return sign.hexdigest()
 
-    def connect(self):
+    def _call_jobs(self, url):
         """
-        Connect to SSL socket.
+        Make the call
+        :param payload: The payload
+        :param processor: Callback for process returned object/s
+        :return: Response from API
         """
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.socket_timeout)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-
-        try:
+        tries = 0
+        while tries < self.retries:
             try:
-                self.socket = ssl.wrap_socket(self.socket,
-                                              cert_reqs=ssl.CERT_NONE)
-            except ssl.SSLError:
-                raise ssl.SSLError
-            self.socket.connect((self.url, 443))
-            self.time_start = int(round(time.time() * 1000))
+                response = requests.get("https://{}".format(url),
+                                        headers=self._get_jobs_headers(),
+                                        verify=True, timeout=self.timeout)
+            except ConnectionError as error:
+                return {"status": 404, "error": error}
 
-        except socket.error as error:
-            self.close()
-            raise DevoClientException("Devo-Client| %s" % str(error))
+            if response:
+                if response.status_code != 200 or\
+                        "error" in response.text[0:15].lower():
+                    return {"status": response.status_code,
+                            "error": response.text}
+                try:
+                    return json.loads(response.text)
+                except json.decoder.JSONDecodeError:
+                    return response.text
+            tries += 1
+            time.sleep(self.sleep)
+        return {}
 
-    def close(self):
-        """
-        Forces socket closure
-        """
-        if self.buffer is not None:
-            self.buffer.close = True
-            self.buffer.thread.join()
+    def _get_jobs_headers(self):
+        tstamp = str(int(time.time()) * 1000)
 
-        if self.socket is not None:
-            self.socket.close()
-            self.socket = None
+        return {'x-logtrust-timestamp':tstamp,
+                'x-logtrust-apikey': self.key,
+                'x-logtrust-sign': self._get_sign("", tstamp)
+                }
+
+    def get_jobs(self, type=None, name=None):
+        """Get list of jobs by type and name, default All
+        :param type: category of jobs
+        :param name: name of jobs
+        :return: json"""
+        plus = "" if not type \
+            else "/{}".format(type if not name
+                              else "{}/{}".format(type, name))
+
+        return self._call_jobs("{}{}{}".format(self.url, URL_JOBS, plus))
+
+    def get_job(self, job_id):
+        """Get all info of job
+        :param job_id: job id
+        :return: json"""
+        return self._call_jobs("{}{}{}".format(self.url, URL_JOB, job_id))
+
+    def stop_job(self, job_id):
+        """ Stop one job by ID
+        :param job_id: id of job
+        :return: bool"""
+        return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
+                                                 URL_JOB_STOP, job_id))
+
+    def start_job(self, job_id):
+        """ Start one job by ID
+        :param job_id: id of job
+        :return: bool"""
+        return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
+                                                 URL_JOB_START, job_id))
+
+    def remove_job(self, job_id):
+        """ Remove one job by ID
+        :param job_id: id of job
+        :return: bool"""
+        return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
+                                                 URL_JOB_REMOVE, job_id))
+
