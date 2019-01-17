@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Utils for date operations."""
+"""A collection of allowed operations on date parsing"""
 from datetime import datetime as dt, timedelta
 from .dateutils import to_millis, trunc_time, trunc_time_minute
-
-
-"""
-This class is a collection of allowed operations on date parsing
-"""
 
 
 def month():
@@ -90,6 +85,7 @@ def yesterday():
 
 
 def parse_functions():
+    """Return object with all functions availables"""
     return {
         "month": month,
         "week": week,
