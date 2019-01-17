@@ -8,19 +8,24 @@ install:
 script:
 - python run_tests.py
 deploy:
+  - provider: releases
+    api_key:
+      secure: "ON5p7zLOp8YlGxvv9+saMVChEdyJnPdlY0Cvm4MuiJU0t1hVlcnREsX/QuztQM/uAs2Tug8rkWKlhwbUNt0gOz/N0aA5JqojS8jGYrB0at9rOAPoWj+MMbKlj8YfPxfWJwHAffxurwhKzklb/ni4tc2SFV7D8uUC1BUbj+agETV93MHYUAPrMNEhFmXFExTsNQw/5Bww145mrzRu1Kctz9IR7UtCj8a2KCeiFVxk3kaSuvtYBMHRfaVgkbDtIV8rMzZYBzM9OAEDcOBRqBAp9sFSvVxnG6l630Lv0VoRhmH1mvnpw/BM7BxWn4t2QVYAkMrTC//w6C6VIOMonQI9RaD6xEqu44PyedOVwtTpFTP1S71vob+u05K5uCs14zNCd3O8fVIZtCi8x/7t82UCaV/iCISy3YZqeeNioN5EsPEY0wLekmWOZG8dY3CBgukWsNeEe9MsteOvrPaJ59yqmJDw1JFbd7BU64aEeHj82/e75wf0TvIpfydwJAWFQLF9yTcvK+i/YxEwrjkpoIJ8sQLE7wrnpa5MVtOzHMomG5eVHI9tagrV3thwHwtq0tVBRr38L4BC4AHYSMtbH8g6a7jdPJMoy99jm1pfvrMRSd6dacYAF7yEn2wNYmwScwovI4vdaZkVanSvIR94YYKeAMoJfu8CRRXQVa0zz3jDz9w="
+    file: dist/devo_sdk-*.whl
+    on:
+      repo: DevoInc/python-sdk
+      branch: master
   - provider: pypi
     user: worvast
     password:
-      secure: YdcpCoGTzy1bmjMQH/Lxw5ZdLAlUUHvE7fq2n84BNjz1XiCokpoCKkR1OEC3SGiMNtpy3lJ5YvdHtEzfqmO1mUrwlHT9TyTx/fiKnA5nTWNVxIYtHzhuSL1Z1lopQIHU6QS5FXCXM0ZWs/47X0N7pLKz9V8Pu0g+aeC91swHCEGGDICrEbXFTbMFvJxcHyEIXk2NQ1q0T6cupNOsomQlZfO75SVZMUv/VXp0RpIRfn3qp5Q3XsR6aWP43Jb9IH/4PLLpTfsJpU+1kIsqr55FKy1WTWA89W/E1oXnaf5UK3GbpNuE9qguZn+RwvnRWDg1txvQxJD3tfeKQ5EZqNhB9HbcaYr6USWeA4drE/mVZZePZEMBXT2NSEFEO2dCEMiBBY9feMeTYryJLFgwiHxkc/yM4RnzKLF3MGGcow5IKVpgJYcoNrMS+Mb5/HH8a5E0A+wwHpztCKtOGTV4dGzWsomIPS1kK3FlMTEE1z8bF5ISX9O9dh4P08Uh4YciNShY7GTNvPO13Z7S38YGbDQeijj/Q2SA66zq8vebh37xtJ6BSA54BBFjrkkOBxfi024fsCs30FXvASj8Q2Tkr120VxA5D3OKo29pgWy1357YyCQrWmiLlY3KM/z5XkM0s6hDprirBlquw9+euaoKTBgvJqFb0/pJnqB8E8FBLboKg+A=
+      secure: "YkRREwI/8aEU+l++YY12WNMPatxtP6Y4J+SpWoxB8hYpNDaKSgd70eZFoyAvjbsGs740i16l4yRFuzEITdKWS99XL34V3w6dBiK+H1a8b5wuoxgWp/Y9plOrXK4sfCHTMVa4h1I3N2ZISrR0kZIFtsXlUp5Rqlu3x+pNd46mDjuwlrMBVtZiQagI43k8+G8eogzMF0CsIgEpu+gvYQQ5O8xb4naDbQfDa1DhmoDfT78QY/7dsNN/p/dUr46I7eqAeBoZq04gR7jvYI2TRPTH/tFBkNyMvW7aLCH3Rm8NUI61rQlOj86ZAPFkSkM73hL9s1Sj8HDW7dUxT14inRy047USksu4XnQ+HM0/VsqeFxwvMgwnXJxygHuDgegd0e+K+BMMenzcPUpZWb/2JAvXJD4s/RliZ0zI7OkWy/CkEahTO6cpaIuCnwx/A9pWVsHcL/8x98vShQze6IiTQVW1lcOerDEx/L2ieZs2xLTNSVch5QhKIANy8prvdypTfJsjoRUlwQEZHKMLREjR7rhRMk0JDBM8ATwBN7jgOgf7OBhwG8SC8Geu6EzUkdD/MAgCplWTUB2tXXKaPagqlEF3opEweYBhw6/BCwtWb8pk8kD4PTyM/fI8035hBN8fh8qZfJ5c3aOkGJ9Ix8SXINoRbTrg0oWbV5+rKJQJ/1D3WiA="
     on:
       tags: true
       python: 3.5
+      distributions: sdist bdist_wheel
+      repo: DevoInc/python-sdk
+      branch: master
     distributions: sdist bdist_wheel
     skip_existing: true
     skip_cleanup: true
-  - provider: releases
-    api_key:
-      secure: pP/ky4BlJNU+tTEW0YSRzj92+CzM8upmnS6bIj4cLlV4crJXlrGs5PA4+07oaILLZxIRyeBR+VFXyebseCffyBPEVFC9GYsxUlq32F0p1HxX9w6LfK8Zf/FNQCdtcN62ahM3ZbuAQBftNtldQ885SwyjHVJo4ZUAjMvr4nB8+ZqAF8Oykgx0R24yVeq1N3TQbRF8nTbwcTgoXP37r0Pkuq6ljve3lV5SZi56a4h1aOSPxNAknBX9xz7Avv/NfgkZ7R+f+mk3juBZuPov02+3P7xHtCUi8yo/bNi96ufwXiWD9xZPjZDOK3owV9iwWR2E/MDcOpORvIh8Rim7i3kMx7vDOIDR3yyYR36FTh2DIbQVRLKxCix8uESxVy84DpaWEaCOzn0jx4ddD/+EGBVRTjWqddF3Pu5+cKFCx7BYKlIDNPtYq3fIfsUKqoA7OaqJAIbk5N+Fl6jaDbbui2FCZN8LymwzpOKHv68ILztDLGIDUd4u6NpJMMHjF4xdp1tSkLyVEIE9cmrWJFom4J2STh8Ji6bODUY2vNK2vvxohJ/Cp5qBXd4VvegZGQu6xmV8EBEtqHX7UO9uY308SIV9wtwSTKswJyoptkJLPgeFnA/gCdc26MFvfo5Lxo1Etx1W8nXJIfkMo103xEuybGW2U4A7KDcZXvjdnOR6oHKhtkE=
-    file: dist/devo_sdk-*.whl
-    on:
-      repo: Devo/python-sdk
+
