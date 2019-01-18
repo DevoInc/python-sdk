@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Main class for pull data from Devo API (Client)."""
 import time
-import socket
-import ssl
 import sys
 
 PY3 = sys.version_info[0] > 2
@@ -67,12 +65,9 @@ class Base:
                                       "in that order. ")
 
         self.url, self.query_url = self.__set_url_query()
-        self.socket = None
-        self.socket_timeout = 30
         self.retries = 3
         self.timeout = 30
         self.sleep = 5
-        self.buffer = None
 
     def __set_url_query(self):
         """
@@ -117,20 +112,6 @@ class Base:
         default.update(dates)
         return default
 
-    def status(self):
-        """
-        View Socket status, check if it's open
-        """
-        timeit = int(round(time.time() * 1000)) - self.time_start
-        if self.socket is None:
-            return False
-
-        if self.timeout < timeit:
-            self.close()
-            return False
-
-        return True
-
     @staticmethod
     def _stream_available(resp):
         """
@@ -140,35 +121,20 @@ class Base:
         """
         return resp not in ["json", "json/compact"]
 
-    def connect(self):
-        """
-        Connect to SSL socket.
-        """
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.socket_timeout)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
+    @staticmethod
+    def _is_correct_response(line):
         try:
-            try:
-                self.socket = ssl.wrap_socket(self.socket,
-                                              cert_reqs=ssl.CERT_NONE)
-            except ssl.SSLError:
-                raise ssl.SSLError
-            self.socket.connect((self.url, 443))
-            self.time_start = int(round(time.time() * 1000))
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
+            if "error" in line[:15].lower():
+                return False
+            return True
+        except ValueError:
+            return False
 
-        except socket.error as error:
-            self.close()
-            raise DevoClientException("Devo-Client| %s" % str(error))
 
-    def close(self):
-        """
-        Forces socket closure
-        """
-        if self.buffer is not None:
-            self.buffer.close = True
-            self.buffer.thread.join()
-
-        if self.socket is not None:
-            self.socket.close()
-            self.socket = None
+    @staticmethod
+    def _format_error(error):
+        return '{"msg": "Error Launching Query", "status": 500, ' \
+               '"object": "%s"}' % error

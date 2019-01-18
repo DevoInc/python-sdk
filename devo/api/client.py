@@ -4,9 +4,8 @@ import hmac
 import hashlib
 import time
 import json
-from socket import timeout as socket_timeout
 import requests
-from devo.common import Buffer, default_from, default_to
+from devo.common import default_from, default_to
 from .base import Base, DevoClientException, CLIENT_DEFAULT_USER, \
     CLIENT_DEFAULT_APP_NAME, URL_JOB, URL_JOBS, URL_JOB_START, URL_JOB_STOP, \
     URL_JOB_REMOVE
@@ -36,7 +35,6 @@ class Client(Base):
         self.jwt = kwargs.get("jwt", None)
 
         self.response = "json/simple/compact"
-        self.buffer = kwargs.get("buffer", None)
 
     @staticmethod
     def from_config(config):
@@ -53,10 +51,8 @@ class Client(Base):
         :param kwargs: query -> Query to perform
         :param kwargs: query_id -> Query ID to perform the query
         :param kwargs: dates -> Dict with "from" and "to" keys
-        :param kwargs: processor -> processor for each row of the response,
         if stream
-        :param kwargs: stream -> if stream or full response: Object with
-        options of query: processor, if stream
+        :param kwargs: stream -> if stream or full response
         :param kwargs: response -> response format
         :return: Result of the query (dict) or Buffer object
         """
@@ -65,7 +61,6 @@ class Client(Base):
         query_id = kwargs.get('query_id', None)
         dates = self._generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
-        processor = kwargs.get('processor', None)
         if query is not None:
             query += self._generate_pragmas(comment=kwargs.get('comment', None))
 
@@ -78,77 +73,77 @@ class Client(Base):
         if not self._stream_available(opts['response']) or not stream:
             if not dates['to']:
                 dates['to'] = "now()"
-
             stream = False
-        else:
-            stream = True
 
         return self._call(
             self._get_payload(query, query_id, dates, opts),
-            processor, stream
+            stream
         )
 
-
-    # API Call
-    def _call(self, payload, processor, stream):
+    def _make_request(self, payload, stream):
         """
-        Make the call
-        :param payload: The payload
-        :param processor: Callback for process returned object/s
-        :return: Response from API
+        Make the request and control the logic about retries if not internet
+        :param payload: item with headers for request
+        :param stream: boolean, indicate if one call is a streaming call
+        :return: response
         """
         tries = 0
         while tries < self.retries:
             try:
+                response = requests.post(
+                                "https://{}/{}".format(self.url,
+                                                       self.query_url),
+                                data=payload,
+                                headers=self._get_headers(payload),
+                                verify=True, timeout=self.timeout,
+                                stream=stream)
                 if stream:
-                    return requests.post(
-                        "https://{}/{}".format(self.url, self.query_url),
-                        data=payload,
-                        headers=self._get_no_stream_headers(payload),
-                        verify=True, timeout=self.timeout, stream=True).iter_lines()
+                    return response.iter_lines()
+                return response
+            except Exception as error:
+                if isinstance(error, requests.exceptions.ConnectionError):
+                    tries += 1
+                    if tries >= self.retries:
+                        return self._format_error(error)
+                    time.sleep(self.sleep)
                 else:
-                    response = requests.post(
-                        "https://{}/{}".format(self.url, self.query_url),
-                        data=payload,
-                        headers=self._get_no_stream_headers(payload),
-                        verify=True, timeout=self.timeout)
-                    return response.text
-            except ConnectionError as error:
-                return {"status": 404, "error": error}
+                    return self._format_error(error)
 
-            # if response:
-            #     if response.status_code != 200 or\
-            #             "error" in response.text[0:15].lower():
-            #         return {"status": response.status_code,
-            #                 "error": response.text}
-            #
-            #     if processor is not None:
-            #         return processor(response.text)
-            #     return response.text
-            # tries += 1
-            # time.sleep(self.sleep)
-        return {}
+    def _return_stream(self, payload, stream):
+        """If its a stream call, return yield lines
+        :param payload: item with headers for request
+        :param stream: boolean, indicate if one call is a streaming call
+        :return line: yield-generator item
+        """
+        response = self._make_request(payload, stream)
 
-    def _call_stream(self, payload=None):
-        """
-        Make the call
-        :param payload: The payload
-        """
-        if self.socket is not None:
-            self.socket.send(self._get_stream_headers(payload))
-        if not self.buffer.close and not self.buffer.error\
-           and self.socket is not None:
-            result, data = self.buffer.process_first_line(
-                self.socket.recv(4096))
-            if result:
-                try:
-                    while self.buffer.buffering(self.socket.recv(4096)):
-                        pass
-                except socket_timeout:
-                    while not self.buffer.is_empty() or self.buffer.close:
-                        time.sleep(1)
+        if isinstance(response, str):
+            yield json.loads(response)
+        else:
+            first = next(response)
+            if self._is_correct_response(first):
+                yield first.strip()
+                for line in response:
+                    yield line.strip()
             else:
-                self.buffer.close = True
+                if isinstance(first, bytes):
+                    first = first.decode("utf-8")
+                yield json.loads(first)
+
+    def _call(self, payload, stream):
+        """
+        Make the call, select correct item to return
+        :param payload: item with headers for request
+        :param stream: boolean, indicate if one call is a streaming call
+        :return: Response from API
+        """
+        if stream:
+            return self._return_stream(payload, stream)
+        else:
+            response = self._make_request(payload, stream)
+            if isinstance(response, str):
+                return json.loads(response)
+            return response.text
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -185,7 +180,7 @@ class Client(Base):
 
         return json.dumps(payload)
 
-    def _get_no_stream_headers(self, data):
+    def _get_headers(self, data):
         """
         Create headers for post call
         :param data: returned value from _get_payload()
@@ -216,44 +211,6 @@ class Client(Base):
                 'Authorization': "jwt %s" % self.jwt
             }
 
-        raise DevoClientException("Devo-Client|Client dont have key&secret"
-                                  " or auth token/jwt")
-
-    def _get_stream_headers(self, payload):
-        """
-        Create headers for stream query call
-        :param payload: returned value from _get_payload()
-        :return: Return the formed headers
-        """
-        tstamp = str(int(time.time()) * 1000)
-
-        headers = ("POST /%s HTTP/2.0\r\n"
-                   "Host: %s\r\n"
-                   "Content-Type: application/json\r\n"
-                   "Content-Length: %s \r\n"
-                   "Cache-Control: no-cache\r\n"
-                   "x-logtrust-timestamp: %s\r\n"
-                   % (self.query_url, self.url, str(len(payload)), tstamp))
-
-        if self.key and self.secret:
-            return ("%s"
-                    "x-logtrust-apikey: %s\r\n"
-                    "x-logtrust-sign: %s\r\n"
-                    "\r\n%s\r\n"
-                    % (headers, self.key, self._get_sign(payload, tstamp),
-                       payload)).encode("utf-8")
-        if self.token:
-            return ("%s"
-                    "Authorization: Bearer %s\r\n"
-                    "\r\n%s\r\n"
-                    % (headers, self.token, payload)).encode("utf-8")
-        if self.jwt:
-            return ("%s"
-                    "Authorization: jwt %s\r\n"
-                    "\r\n%s\r\n"
-                    % (headers, self.jwt, payload)).encode("utf-8")
-
-        self.buffer.error = "Client dont have key&secret or auth token/jwt"
         raise DevoClientException("Devo-Client|Client dont have key&secret"
                                   " or auth token/jwt")
 
@@ -291,8 +248,7 @@ class Client(Base):
     def _call_jobs(self, url):
         """
         Make the call
-        :param payload: The payload
-        :param processor: Callback for process returned object/s
+        :param url: endpoint
         :return: Response from API
         """
         tries = 0
@@ -320,7 +276,7 @@ class Client(Base):
     def _get_jobs_headers(self):
         tstamp = str(int(time.time()) * 1000)
 
-        return {'x-logtrust-timestamp':tstamp,
+        return {'x-logtrust-timestamp': tstamp,
                 'x-logtrust-apikey': self.key,
                 'x-logtrust-sign': self._get_sign("", tstamp)
                 }
