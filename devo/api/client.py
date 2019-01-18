@@ -4,8 +4,8 @@ import hmac
 import hashlib
 import time
 import json
-import requests
 import sys
+import requests
 from devo.common import default_from, default_to
 
 PY3 = sys.version_info[0] > 2
@@ -203,11 +203,11 @@ class Client:
         """
         if stream:
             return self._return_stream(payload, stream)
-        else:
-            response = self._make_request(payload, stream)
-            if isinstance(response, str):
-                return json.loads(response)
-            return response.text
+
+        response = self._make_request(payload, stream)
+        if isinstance(response, str):
+            return json.loads(response)
+        return response.text
 
     def _return_stream(self, payload, stream):
         """If its a stream call, return yield lines
@@ -240,13 +240,12 @@ class Client:
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post(
-                                "https://{}/{}".format(self.url,
-                                                       self.query_url),
-                                data=payload,
-                                headers=self._get_headers(payload),
-                                verify=True, timeout=self.timeout,
-                                stream=stream)
+                response = requests.post("https://{}/{}".format(self.url,
+                                                                self.query_url),
+                                         data=payload,
+                                         headers=self._get_headers(payload),
+                                         verify=True, timeout=self.timeout,
+                                         stream=stream)
                 if stream:
                     return response.iter_lines()
                 return response
