@@ -4,8 +4,8 @@ import hmac
 import hashlib
 import time
 import json
-import requests
 from socket import timeout as socket_timeout
+import requests
 from devo.common import Buffer, default_from, default_to
 from .base import Base, DevoClientException, CLIENT_DEFAULT_USER, \
     CLIENT_DEFAULT_APP_NAME, URL_JOB, URL_JOBS, URL_JOB_START, URL_JOB_STOP, \
@@ -151,7 +151,7 @@ class Client(Base):
                     while not self.buffer.is_empty() or self.buffer.close:
                         time.sleep(1)
             else:
-                raise DevoClientException("Devo-Client|%s" % str(data))
+                self.buffer.close = True
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -275,6 +275,22 @@ class Client(Base):
                         hashlib.sha256)
         return sign.hexdigest()
 
+    def _generate_pragmas(self, comment=None):
+        """
+        Generate pragmas to add to query
+        :comment: Pragma comment free
+        :user: Pragma comment user
+        :app_name: Pragma comment id. App name.
+        """
+        str_pragmas = ' pragma comment.id:"{}" ' \
+                      'pragma comment.user:"{}"'\
+            .format(self.app_name, self.user)
+
+        if comment:
+            return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
+
+        return str_pragmas
+
     def _call_jobs(self, url):
         """
         Make the call
@@ -349,4 +365,3 @@ class Client(Base):
         :return: bool"""
         return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
                                                  URL_JOB_REMOVE, job_id))
-

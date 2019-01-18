@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import sys
-from devo.api.proccessors import *
+from devo.api.proccessors import proc_default, proc_json
 
 PY3 = sys.version_info[0] > 2
 

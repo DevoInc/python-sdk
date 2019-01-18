@@ -12,7 +12,6 @@ except ImportError:
 
 class DevoBufferException(Exception):
     """ Default Devo Client Exception """
-    pass
 
 
 def clrf():
@@ -23,9 +22,8 @@ def clrf():
 def get_response_split(api_response):
     """Get split for each event, if csv or other, and in bytes or str"""
     if version_info[0] > 2:
-        return b"\n" if api_response is "csv" else b"\r\n"
-    else:
-        return "\n" if api_response is "csv" else "\r\n"
+        return b"\n" if api_response == "csv" else b"\r\n"
+    return "\n" if api_response == "csv" else "\r\n"
 
 
 def empty():
@@ -33,7 +31,7 @@ def empty():
     return bytes() if version_info[0] > 2 else str()
 
 
-class Buffer(object):
+class Buffer:
     """ Simple Buffer class """
     def __init__(self, buffer_max_size=1000, api_response="json/compact"):
         self.queue = Queue.Queue(maxsize=buffer_max_size)
@@ -49,13 +47,16 @@ class Buffer(object):
         self.api_response = api_response
 
     def is_alive(self):
+        """Revise is buffer is alive"""
         return self.thread.isAlive()
 
     def set_timeout(self, timeout):
+        """Set timeout for socket call"""
         self.timeout = timeout
 
     def is_empty(self):
-        return False if self.size() > 0 else True
+        """Revise is buffer queue is empty"""
+        return True if self.size() else False
 
     def create_thread(self, target, kwargs):
         """ Function for create one separate thread for Queue"""
@@ -85,17 +86,18 @@ class Buffer(object):
         """ process first line of the Query call (For delete headers) """
 
         if version_info[0] > 2:
-            ok = b"200 OK"
+            response_ok = b"200 OK"
         else:
-            ok = "200 OK"
+            response_ok = "200 OK"
 
-        if ok in data.split(self.clrf+self.clrf)[0]:
+        if response_ok in data.split(self.clrf+self.clrf)[0]:
             return self.buffering(data[data.find(self.clrf+self.clrf)+4:]), None
 
         self.error = data
         return False, data
 
     def buffering(self, data):
+        """Saving temp date from system IO, waiting for all octet response"""
         if not self.octet:
             pointer = data.find(self.clrf) + 2
             size = int(data[:pointer], 16)
@@ -122,8 +124,8 @@ class Buffer(object):
         if data[-(len(self.response_split)):] != self.response_split:
             self.temp_event = data_list.pop()
 
-        for aux in range(0, len(data_list)):
-            self.queue.put(data_list[aux].strip(), block=True)
+        for item in data_list:
+            self.queue.put(item.strip(), block=True)
 
         self.octet = 0
         if len(self.temp.strip()):

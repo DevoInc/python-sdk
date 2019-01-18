@@ -8,13 +8,6 @@ install:
 script:
 - python run_tests.py
 deploy:
-  - provider: releases
-    api_key:
-      secure: "ON5p7zLOp8YlGxvv9+saMVChEdyJnPdlY0Cvm4MuiJU0t1hVlcnREsX/QuztQM/uAs2Tug8rkWKlhwbUNt0gOz/N0aA5JqojS8jGYrB0at9rOAPoWj+MMbKlj8YfPxfWJwHAffxurwhKzklb/ni4tc2SFV7D8uUC1BUbj+agETV93MHYUAPrMNEhFmXFExTsNQw/5Bww145mrzRu1Kctz9IR7UtCj8a2KCeiFVxk3kaSuvtYBMHRfaVgkbDtIV8rMzZYBzM9OAEDcOBRqBAp9sFSvVxnG6l630Lv0VoRhmH1mvnpw/BM7BxWn4t2QVYAkMrTC//w6C6VIOMonQI9RaD6xEqu44PyedOVwtTpFTP1S71vob+u05K5uCs14zNCd3O8fVIZtCi8x/7t82UCaV/iCISy3YZqeeNioN5EsPEY0wLekmWOZG8dY3CBgukWsNeEe9MsteOvrPaJ59yqmJDw1JFbd7BU64aEeHj82/e75wf0TvIpfydwJAWFQLF9yTcvK+i/YxEwrjkpoIJ8sQLE7wrnpa5MVtOzHMomG5eVHI9tagrV3thwHwtq0tVBRr38L4BC4AHYSMtbH8g6a7jdPJMoy99jm1pfvrMRSd6dacYAF7yEn2wNYmwScwovI4vdaZkVanSvIR94YYKeAMoJfu8CRRXQVa0zz3jDz9w="
-    file: dist/devo_sdk-*.whl
-    on:
-      repo: DevoInc/python-sdk
-      branch: master
   - provider: pypi
     user: worvast
     password:

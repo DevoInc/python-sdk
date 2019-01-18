@@ -14,7 +14,6 @@ class ChainDict(dict):
         if not isinstance(key_list, list):
             key_list = [key_list]
         self.set_key_chain(self, key_list, value)
-        return
 
     @staticmethod
     def set_key_chain(cdict, key_list, value):
@@ -30,6 +29,6 @@ class ChainDict(dict):
             cdict[key_list[0]] = value
         else:
             cdict[key_list[0]] = ChainDict.set_key_chain(dict(),
-                                                           key_list[1:],
-                                                           value)
+                                                         key_list[1:],
+                                                         value)
         return cdict

@@ -7,10 +7,9 @@ import os
 
 class ConfigurationException(Exception):
     """ Default Configuration Exception """
-    pass
 
 
-class Configuration(object):
+class Configuration:
     """
     Main class for load config files, and extract config objects
     """
@@ -69,7 +68,7 @@ class Configuration(object):
         """
         if path.endswith('.json'):
             return self.load_json(path, section)
-        elif path.endswith('.yaml') or path.endswith('.yml'):
+        if path.endswith('.yaml') or path.endswith('.yml'):
             return self.load_yaml(path, section)
 
         raise ConfigurationException("Configuration file type unknown or not supportted: %s" %path)
@@ -82,13 +81,16 @@ class Configuration(object):
             else None
 
     def load_default_config(self, ext=None, section=None):
+        """Function for load default configuration"""
         if not ext:
             ext = self.__search_default_config_file()
 
-        if ext is "yml" or ext is "yaml":
+        if ext in ("yml", "yaml"):
             return self.load_yaml("~/.devo.%s" % ext, section)
-        elif ext is "json":
+        if ext == "json":
             return self.load_json("~/.devo.json", section)
+
+        raise ConfigurationException("Config file must be yml or json")
 
     #Deprecated in future
     def load_default_json(self, section=None):
