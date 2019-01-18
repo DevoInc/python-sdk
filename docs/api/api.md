@@ -23,17 +23,17 @@ the commons clouds: can take several values, for example:
 from devo.api import Client
 
 api = Client(key="myapikey",
-              secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query",
-              user="user@devo.com",
-              app_name="testing app")
+             secret="myapisecret",
+             url="https://api-eu.logtrust.com/search/query",
+             user="user@devo.com",
+             app_name="testing app")
 
 
-api = Client(token="myauthtoken,
-              url="https://api-eu.logtrust.com/search/query")
+api = Client(token="myauthtoken",
+             url="https://api-eu.logtrust.com/search/query")
 
-api = Client(jwt="myauthtoken,
-              url="https://api-eu.logtrust.com/search/query")
+api = Client(jwt="myauthtoken",
+             url="https://api-eu.logtrust.com/search/query")
 ```    
     
 #### query() params
@@ -45,53 +45,59 @@ api = Client(jwt="myauthtoken,
 - response: Type of response from Client API
 - limit: Limits of rows returned
 - offset: Row number by which to start returning data
-- proccessor: Callback for process returned object/s
 - stream: Not wait for all response for return lines - real time mode if not "to" in dates
 - response: response type
 - comment: Comment for the query
 
-return: Result of the query or Buffer object
+#### Result returned:
+###### - Non stream call
+ - Result of the query in str/bytes when query work
+ - JSON Object when query has errors
+###### - stream call
+ - Generator with result of the query, str/bytes, when query work
+ - JSON Object when query has errors
 
-Normal response:
+Normal/Non stream response:
 ```python
+from devo.api import Client
+
+api = Client(key="myapikey",
+             secret="myapisecret",
+             url="https://api-eu.logtrust.com/search/query",
+             user="user@devo.com",
+             app_name="testing app")
+             
 response = api.query(query="from my.app.web.activityAll select * limit 10",
                      dates= {'from': "2018-02-06 12:42:00"},
                      response="json",
                      stream=False)
+                     
+print(response)
 ```
 
 Real time/stream query:
 ```python
+from devo.api import Client
 
-buffer = api.query(query="from my.app.web.activityAll select * limit 10",
+api = Client(key="myapikey",
+             secret="myapisecret",
+             url="https://api-eu.logtrust.com/search/query",
+             user="user@devo.com",
+             app_name="testing app")
+             
+response = api.query(query="from my.app.web.activityAll select * limit 10",
                      dates= {'from': "2018-02-06 12:42:00"},
                      response="json/simple/compact")
 
-buffer.set_timeout(3) #Max wait for data, 0 is no timeout/wait forever
-sleep(3)
 try:
-    while not buffer.is_empty():
-        data = buffer.get(timeout=10) #You can send timeout for buffer or per query, if some queries need more timeout
-        print(data)
+    for item in response:
+        print(item)
 except Exception as error:
     print(error)
 
 ```
-
-
 Query by id has the same parameters as query (), changing the field "query" 
 to "query_id", which is the ID of the query in Devo.
-
-You need to verify that `data` has data, in addition, you can not use `is_empty()` when you are verifying queries in real time, when there is the possibility of spaces without data, you would have to use an infinite loop, for example.
-
-
-#### close()
-
-The Queue works on a secondary thread (Son) of the main program, so it will die when the program ends, but it is recommended to close the thread / queue if it is not used, to avoid problems.
-
-
-The thread should close when using `buffer.close ()`
-
 
 
 ## The "from" and "to", formats and other stuff...
@@ -139,7 +145,6 @@ Options:
   --jwt TEXT                                   jwt auth for query.
   -q, --query TEXT                             Query.
   --stream / --no-stream                       Flag for make streaming query or full query with start and end. Default is true
-  --proc                                       if flag exists, dont return raw query reply. In compact replies you receive proccessed lines.
   --output TEXT                                File path to store query response if not want stdout
   -r, --response TEXT                          The output format. Default is json/simple/compact
   --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
@@ -190,7 +195,7 @@ Priority order:
 Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
 
 ## Choosing Fomat
-The default response format (`response`) is `json`, to change the default value set for example:
+The default response format (`response`) is `json`, to change the default value, it can be established directly:
 
 ```python
 api.response = 'json/compact'
@@ -232,43 +237,31 @@ Json Object with the following structure:
 Example
  
 ```python
-    HTTP/1.1 200 OK
-    Access-Control-Allow-Origin: *
-    Content-Encoding: gzip
-    Content-Type: application/json
-    Date: Mon, 24 Oct 2016 14:39:48 GMT
-    Server: nginx
-    X-Content-Type-Options: nosniff
-    X-XSS-Protection: 1; mode=block
-    transfer-encoding: chunked
-    Connection: keep-alive
-    
-    
-    {
-     "success": true,
-     "status": 0,
-     "msg": "valid request",
-     "object": [
-       {
-         "eventdate": "2016-10-24 06:35:00.000",
-         "host": "aws-apiodata-euw1-52-49-216-97",
-         "memory_heap_used": "3.049341704E9",
-         "memory_non_heap_used": "1.21090632E8"
-       },
-       {
-         "eventdate": "2016-10-24 06:36:00.000",
-         "host": "aws-apiodata-euw1-52-49-216-97",
-         "memory_heap_used": "3.04991028E9",
-         "memory_non_heap_used": "1.21090632E8"
-       },
-       {
-         "eventdate": "2016-10-24 06:37:00.000",
-         "host": "aws-apiodata-euw1-52-49-216-97",
-         "memory_heap_used": "3.050472496E9",
-         "memory_non_heap_used": "1.21090632E8"
-       },
-      ………
-    }
+{
+ "success": True,
+ "status": 0,
+ "msg": "valid request",
+ "object": [
+   {
+     "eventdate": "2016-10-24 06:35:00.000",
+     "host": "aws-apiodata-euw1-52-49-216-97",
+     "memory_heap_used": "3.049341704E9",
+     "memory_non_heap_used": "1.21090632E8"
+   },
+   {
+     "eventdate": "2016-10-24 06:36:00.000",
+     "host": "aws-apiodata-euw1-52-49-216-97",
+     "memory_heap_used": "3.04991028E9",
+     "memory_non_heap_used": "1.21090632E8"
+   },
+   {
+     "eventdate": "2016-10-24 06:37:00.000",
+     "host": "aws-apiodata-euw1-52-49-216-97",
+     "memory_heap_used": "3.050472496E9",
+     "memory_non_heap_used": "1.21090632E8"
+   }
+ ]
+}
 ```
 
 #### Response type json/compact
