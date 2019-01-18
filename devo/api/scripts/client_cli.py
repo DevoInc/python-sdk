@@ -5,8 +5,6 @@ import os
 import click
 from devo.common import Configuration
 from devo.api import Client, DevoClientException
-from devo.common.data.buffer import Buffer
-from ..proccessors import proc_default
 
 # Groups
 # ------------------------------------------------------------------------------
@@ -41,9 +39,6 @@ def cli():
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with '
               'start and end. Default is true', default=True)
-@click.option('--proc', help='if flag exists, dont return raw query reply. In '
-                             'compact replies you receive processed lines.',
-              is_flag=True)
 @click.option('--output', help='File path to store query response if not want '
                                'stdout')
 @click.option('--response', '-r', default="json/simple/compact",
@@ -61,32 +56,14 @@ def query(**kwargs):
     if config['query'] is None:
         print_error("Error: Not query provided.", show_help=True)
 
-    buffer = api.query(query=config['query'],
-                       dates={"from": config['from'],
-                              "to": config['to'] if "to" in config.keys()
+    reponse = api.query(query=config['query'],
+                        dates={"from": config['from'],
+                               "to": config['to'] if "to" in config.keys()
                                                     else None},
-                       response=config['response'],
-                       stream=config['stream'])
+                        response=config['response'],
+                        stream=config['stream'])
 
-    process_response(buffer, config)
-
-# Utils
-# ------------------------------------------------------------------------------
-
-
-def identify_response(response, config):
-    """
-    Identify what type of response are we received from Client API
-    :param response: data received from Devo Client API
-    :param config: array with launch options
-    :return: processed line (List or string normally)
-    """
-    return {
-        'json': lambda x, y: proc_default(x) if y else x,
-        'json/compact': lambda x, y: x,
-        'json/simple': lambda x, y: list(x),
-        'json/simple/compact': lambda x, y: list(x)
-    }[config['response']](response, config['proc'])
+    process_response(reponse, config)
 
 
 def process_response(response, config):
@@ -96,35 +73,27 @@ def process_response(response, config):
     :param config: array with launch options
     :return: None
     """
-    if not isinstance(response, Buffer) or not config['stream']:
-        response = identify_response(response, config)
-
     try:
         file_printer = open(config['output'], 'w')\
          if 'output' in config.keys() else None
     except (OSError, IOError) as error:
         print_error("Error: (%s)" % error)
 
-    if isinstance(response, Buffer):
-        while True:
-            if file_printer is None:
-                response.get(click.echo)
-            else:
-                response.get(file_printer.write)
+    if not Client.stream_available(config['response']):
+        config['stream'] = False
+
+    printer = line_printer(file_printer)
+    if config['stream']:
+        for item in response:
+            printer(item)
     else:
-        if not isinstance(response, Buffer):
-            click.echo(response, file_printer)
-        else:
-            response.get(click.echo)
+        printer(response)
 
 
-def list_to_csv(lst):
-    """
-    Convert list to string separated by comma
-    :param lst: Python list
-    :return: string
-    """
-    return '"' + '","'.join(lst) + '"'
+def line_printer(file_printer):
+    if file_printer is None:
+        return lambda line: click.echo(line)
+    return lambda line: file_printer.write(line)
 
 
 def configure(args):

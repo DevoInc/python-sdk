@@ -135,7 +135,7 @@ class Client:
         return default
 
     @staticmethod
-    def _stream_available(resp):
+    def stream_available(resp):
         """
         Verify if can stream resp from API by type of resp in opts
         :param resp: str
@@ -184,7 +184,7 @@ class Client:
                 'destination': kwargs.get('destination', None)
                 }
 
-        if not self._stream_available(opts['response']) or not stream:
+        if not self.stream_available(opts['response']) or not stream:
             if not dates['to']:
                 dates['to'] = "now()"
             stream = False
