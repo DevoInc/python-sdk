@@ -79,29 +79,18 @@ class Client(Base):
             if not dates['to']:
                 dates['to'] = "now()"
 
-            return self._call(
-                self._get_payload(query, query_id, dates, opts),
-                processor
-            )
+            stream = False
+        else:
+            stream = True
 
-        if self.socket is None:
-            self.connect()
-        elif not self.status():
-            self.connect()
-
-        if self.buffer is None:
-            self.buffer = Buffer(api_response=opts['response'])
-        self.buffer.create_thread(
-            target=self._call_stream,
-            kwargs=({'payload': self._get_payload(query, query_id,
-                                                  dates, opts)})
+        return self._call(
+            self._get_payload(query, query_id, dates, opts),
+            processor, stream
         )
 
-        self.buffer.start()
-        return self.buffer
 
     # API Call
-    def _call(self, payload, processor):
+    def _call(self, payload, processor, stream):
         """
         Make the call
         :param payload: The payload
@@ -111,25 +100,33 @@ class Client(Base):
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post(
-                    "https://{}/{}".format(self.url, self.query_url),
-                    data=payload,
-                    headers=self._get_no_stream_headers(payload),
-                    verify=True, timeout=self.timeout)
+                if stream:
+                    return requests.post(
+                        "https://{}/{}".format(self.url, self.query_url),
+                        data=payload,
+                        headers=self._get_no_stream_headers(payload),
+                        verify=True, timeout=self.timeout, stream=True).iter_lines()
+                else:
+                    response = requests.post(
+                        "https://{}/{}".format(self.url, self.query_url),
+                        data=payload,
+                        headers=self._get_no_stream_headers(payload),
+                        verify=True, timeout=self.timeout)
+                    return response.text
             except ConnectionError as error:
                 return {"status": 404, "error": error}
 
-            if response:
-                if response.status_code != 200 or\
-                        "error" in response.text[0:15].lower():
-                    return {"status": response.status_code,
-                            "error": response.text}
-
-                if processor is not None:
-                    return processor(response.text)
-                return response.text
-            tries += 1
-            time.sleep(self.sleep)
+            # if response:
+            #     if response.status_code != 200 or\
+            #             "error" in response.text[0:15].lower():
+            #         return {"status": response.status_code,
+            #                 "error": response.text}
+            #
+            #     if processor is not None:
+            #         return processor(response.text)
+            #     return response.text
+            # tries += 1
+            # time.sleep(self.sleep)
         return {}
 
     def _call_stream(self, payload=None):
