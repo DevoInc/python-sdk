@@ -32,7 +32,7 @@ def parse_string(date_string):
     if test_date_format(date_string, '%Y-%m-%d %H:%M:%S'):
         date = dt.strptime(date_string, '%Y-%m-%d %H:%M:%S')
         return to_millis(date)
-    elif test_date_format(date_string, '%Y-%m-%d'):
+    if test_date_format(date_string, '%Y-%m-%d'):
         date = dt.strptime(date_string, '%Y-%m-%d')
         return to_millis(trunc_time(date))
     return parse_expression(date_string)

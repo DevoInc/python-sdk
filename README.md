@@ -1,7 +1,7 @@
 
 [![relese-next Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=release-next)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
 
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-1.6.2-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-2.7%20%7C%203.3%20%7C%203.4%20%7C%203.5%20%7C%203.6%20%7C%203.7-blue.svg)](https://pypi.org/project/devo-sdk/)
+[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-1.6.3-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-2.7%20%7C%203.3%20%7C%203.4%20%7C%203.5%20%7C%203.6%20%7C%203.7-blue.svg)](https://pypi.org/project/devo-sdk/)
 
 
 # Devo Python SDK
@@ -42,9 +42,16 @@ You can use sources files, clonning the project too:
 ### Documentation
 
 You has specific documentation in _[docs](docs)_ folder for each part of SDK:
-* [Api Query](docs/api.md)
 * [Sender](docs/sender.md)
 * [Common](docs/common.md)
+* API:
+    * [Api query](docs/api/api.md)
+    * [Api tasks management](docs/api/task.md)
+        * [Destination: email](docs/api/destination_email.md)
+        * [Destination: redis](docs/api/destination_redis.md)
+        * [Destination: S3](docs/api/destination_s3.md)
+
+
 
 
 ## Contributing
@@ -57,18 +64,18 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
  * **USA:** 	us.elb.relay.logtrust.net:443
  * **EU:**   	eu.elb.relay.logtrust.net:443
 
-You has more info in [Relays article](https://docs.devo.com/confluence/docs/system-configuration/relays).
+You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	https://api-us.logtrust.com/search/query
  * **EU:**   	https://api-eu.logtrust.com/search/query
 
-You has more info in [REST API article](https://docs.devo.com/confluence/docs/api/rest-api-v2) .
+You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
 
 ## Credentials
 To obtain the access credentials necessary to use this SDK, you must have an account in [DEVO](https://www.devo.com/).<br/>
-Check the [Credentials article](https://docs.devo.com/confluence/docs/administration/administration-credentials) for more details. 
+Check the [security credentials](https://docs.devo.com/confluence/ndt/domain-administration/security-credentials) info for more details. 
 
 ##### Certificates
 You need use a three files (Cert, key and chain) to secure send data to Devo. 

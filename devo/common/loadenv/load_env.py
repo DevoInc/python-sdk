@@ -26,8 +26,8 @@ def _proc_env(path):
     """
     Gets each line from the file and parse it.
     """
-    with open(path) as f:
-        for line in f:
+    with open(path) as file:
+        for line in file:
             line = line.strip()
             if line.startswith('#') or '=' not in line:
                 continue
