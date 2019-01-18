@@ -144,6 +144,11 @@ class Client:
         return resp not in ["json", "json/compact"]
 
     @staticmethod
+    def _format_error(error):
+        return '{"msg": "Error Launching Query", "status": 500, ' \
+               '"object": "%s"}' % error
+
+    @staticmethod
     def _is_correct_response(line):
         try:
             if isinstance(line, bytes):
@@ -153,11 +158,6 @@ class Client:
             return True
         except ValueError:
             return False
-
-    @staticmethod
-    def _format_error(error):
-        return '{"msg": "Error Launching Query", "status": 500, ' \
-               '"object": "%s"}' % error
 
     def query(self, **kwargs):
         """
@@ -194,6 +194,42 @@ class Client:
             stream
         )
 
+    def _call(self, payload, stream):
+        """
+        Make the call, select correct item to return
+        :param payload: item with headers for request
+        :param stream: boolean, indicate if one call is a streaming call
+        :return: Response from API
+        """
+        if stream:
+            return self._return_stream(payload, stream)
+        else:
+            response = self._make_request(payload, stream)
+            if isinstance(response, str):
+                return json.loads(response)
+            return response.text
+
+    def _return_stream(self, payload, stream):
+        """If its a stream call, return yield lines
+        :param payload: item with headers for request
+        :param stream: boolean, indicate if one call is a streaming call
+        :return line: yield-generator item
+        """
+        response = self._make_request(payload, stream)
+
+        if isinstance(response, str):
+            yield json.loads(response)
+        else:
+            first = next(response)
+            if self._is_correct_response(first):
+                yield first.strip()
+                for line in response:
+                    yield line.strip()
+            else:
+                if isinstance(first, bytes):
+                    first = first.decode("utf-8")
+                yield json.loads(first)
+
     def _make_request(self, payload, stream):
         """
         Make the request and control the logic about retries if not internet
@@ -222,42 +258,6 @@ class Client:
                     time.sleep(self.sleep)
                 else:
                     return self._format_error(error)
-
-    def _return_stream(self, payload, stream):
-        """If its a stream call, return yield lines
-        :param payload: item with headers for request
-        :param stream: boolean, indicate if one call is a streaming call
-        :return line: yield-generator item
-        """
-        response = self._make_request(payload, stream)
-
-        if isinstance(response, str):
-            yield json.loads(response)
-        else:
-            first = next(response)
-            if self._is_correct_response(first):
-                yield first.strip()
-                for line in response:
-                    yield line.strip()
-            else:
-                if isinstance(first, bytes):
-                    first = first.decode("utf-8")
-                yield json.loads(first)
-
-    def _call(self, payload, stream):
-        """
-        Make the call, select correct item to return
-        :param payload: item with headers for request
-        :param stream: boolean, indicate if one call is a streaming call
-        :return: Response from API
-        """
-        if stream:
-            return self._return_stream(payload, stream)
-        else:
-            response = self._make_request(payload, stream)
-            if isinstance(response, str):
-                return json.loads(response)
-            return response.text
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -359,42 +359,6 @@ class Client:
 
         return str_pragmas
 
-    def _call_jobs(self, url):
-        """
-        Make the call
-        :param url: endpoint
-        :return: Response from API
-        """
-        tries = 0
-        while tries < self.retries:
-            try:
-                response = requests.get("https://{}".format(url),
-                                        headers=self._get_jobs_headers(),
-                                        verify=True, timeout=self.timeout)
-            except ConnectionError as error:
-                return {"status": 404, "error": error}
-
-            if response:
-                if response.status_code != 200 or\
-                        "error" in response.text[0:15].lower():
-                    return {"status": response.status_code,
-                            "error": response.text}
-                try:
-                    return json.loads(response.text)
-                except json.decoder.JSONDecodeError:
-                    return response.text
-            tries += 1
-            time.sleep(self.sleep)
-        return {}
-
-    def _get_jobs_headers(self):
-        tstamp = str(int(time.time()) * 1000)
-
-        return {'x-logtrust-timestamp': tstamp,
-                'x-logtrust-apikey': self.key,
-                'x-logtrust-sign': self._get_sign("", tstamp)
-                }
-
     def get_jobs(self, type=None, name=None):
         """Get list of jobs by type and name, default All
         :param type: category of jobs
@@ -432,3 +396,38 @@ class Client:
         :return: bool"""
         return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
                                                  URL_JOB_REMOVE, job_id))
+
+    def _call_jobs(self, url):
+        """
+        Make the call
+        :param url: endpoint
+        :return: Response from API
+        """
+        tries = 0
+        while tries < self.retries:
+            try:
+                response = requests.get("https://{}".format(url),
+                                        headers=self._get_jobs_headers(),
+                                        verify=True, timeout=self.timeout)
+            except ConnectionError as error:
+                return {"status": 404, "error": error}
+
+            if response:
+                if response.status_code != 200 or\
+                        "error" in response.text[0:15].lower():
+                    return {"status": response.status_code,
+                            "error": response.text}
+                try:
+                    return json.loads(response.text)
+                except json.decoder.JSONDecodeError:
+                    return response.text
+            tries += 1
+            time.sleep(self.sleep)
+        return {}
+
+    def _get_jobs_headers(self):
+        tstamp = str(int(time.time()) * 1000)
+        return {'x-logtrust-timestamp': tstamp,
+                'x-logtrust-apikey': self.key,
+                'x-logtrust-sign': self._get_sign("", tstamp)
+                }
