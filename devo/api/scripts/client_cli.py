@@ -3,7 +3,6 @@
 import sys
 import os
 import click
-import time
 from devo.common import Configuration
 from devo.api import Client, DevoClientException
 from devo.common.data.buffer import Buffer
