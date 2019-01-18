@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2019-01-19
+#### Changed
+ * Changed all logic in API calls for stream and non stream calls, improving speed in streaming x3
+ * Rollback to request sockets instead of custom sockets in API
+ * Rollback to one class in Client, instead of Base and Client
+ 
+#### Removed
+ * Buffer files
+ * Processors files
+ * chain_dict files
+
+#### Deprecated
+ * Buffer item
+ * Processors in api calls
+
+
 ## [1.6.3] - 2019-01-17
 #### Fixed
  * Broken urls in documentations
