@@ -1,10 +1,9 @@
 import json
 import os
 import unittest
+import types
 from time import gmtime, strftime
-
 from devo.api import Client
-from devo.common import Buffer
 
 
 class TestApi(unittest.TestCase):
@@ -27,21 +26,18 @@ class TestApi(unittest.TestCase):
             )
 
         self.assertTrue(isinstance(api, Client))
-        api.close()
 
     def test_query(self):
         api = Client(key=self.key, secret=self.secret, url=self.uri)
         result = api.query(query=self.query, stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
-        api.close()
 
     def test_token(self):
         api = Client(token=self.token, url=self.uri)
         result = api.query(query=self.query, stream=False, response="json")
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
-        api.close()
 
     def test_query_id(self):
         api = Client(key=self.key, secret=self.secret, url=self.uri)
@@ -50,7 +46,6 @@ class TestApi(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertNotEqual(result, {})
         self.assertEqual(type(len(json.loads(result)['object'])), type(1))
-        api.close()
 
     def test_query_yesterday_to_today(self):
         api = Client(key=self.key, secret=self.secret, url=self.uri)
@@ -82,31 +77,30 @@ class TestApi(unittest.TestCase):
     def test_stream_query(self):
         api = Client(key=self.key, secret=self.secret, url=self.uri)
         result = api.query(query=self.query, response="json/simple")
-        self.assertTrue(isinstance(result, Buffer))
-        api.close()
+        self.assertTrue(isinstance(result, types.GeneratorType))
+        result = list(result)
+        self.assertEqual(len(result), 1)
 
     def test_pragmas(self):
         """Test the api when the pragma comment.free is used"""
         api = Client(key=self.key, secret=self.secret, url=self.uri,
-                     user=self.user, app_name=self.app_name)
+                     user=self.user, app_name=self.app_name, stream=False)
         result = api.query(
             query=self.query,
             response="json",
             comment=self.comment)
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
-        api.close()
 
     def test_pragmas_not_comment_free(self):
         """Test the api when the pragma comment.free is not used"""
         api = Client(key=self.key, secret=self.secret, url=self.uri,
-                     user=self.user, app_name=self.app_name)
+                     user=self.user, app_name=self.app_name, stream=False)
         result = api.query(
             query=self.query,
             response="json")
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
-        api.close()
 
 
 if __name__ == '__main__':
