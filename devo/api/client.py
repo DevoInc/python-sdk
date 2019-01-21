@@ -7,6 +7,8 @@ import json
 import sys
 import requests
 from devo.common import default_from, default_to
+from .processors import processors, proc_json, proc_default, \
+    json_compact_simple_names, proc_json_compact_simple_to_jobj
 
 PY3 = sys.version_info[0] > 2
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
@@ -20,6 +22,15 @@ URL_JOBS = '/search/jobs'
 URL_JOB_START = 'start/'
 URL_JOB_STOP = 'stop/'
 URL_JOB_REMOVE = 'remove/'
+
+DEFAULT = "default"
+TO_STR = "bytes_to_str"
+TO_BYTES = "str_to_bytes"
+JSON = "json"
+JSON_SIMPLE = "json_simple"
+COMPACT_TO_ARRAY = "jsoncompact_to_array"
+SIMPLECOMPACT_TO_OBJ = "jsoncompactsimple_to_obj"
+SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 
 
 class DevoClientException(Exception):
@@ -77,6 +88,8 @@ class Client:
 
         self.jwt = kwargs.get("jwt", None)
         self.response = "json/simple/compact"
+        self.processor = proc_default()
+        self.proc = DEFAULT
 
         self.url, self.query_url = self.__set_url_query()
         self.retries = 3
@@ -175,11 +188,23 @@ class Client:
         query_id = kwargs.get('query_id', None)
         dates = self._generate_dates(kwargs.get('dates', None))
         stream = kwargs.get('stream', True)
+
+        processor = kwargs.get('processor', None)
+        response = kwargs.get('response', self.response)
+
+        if not processor or \
+                (response == "csv" and processor not in (TO_STR, TO_BYTES)):
+            self.proc = DEFAULT
+        else:
+            self.proc = processor
+
+        self.processor = processors()[self.proc]()
+
         if query is not None:
             query += self._generate_pragmas(comment=kwargs.get('comment', None))
 
         opts = {'limit': kwargs.get('limit', None),
-                'response': kwargs.get('response', self.response),
+                'response': response,
                 'offset': kwargs.get('offset', None),
                 'destination': kwargs.get('destination', None)
                 }
@@ -206,8 +231,8 @@ class Client:
 
         response = self._make_request(payload, stream)
         if isinstance(response, str):
-            return json.loads(response)
-        return response.text
+            return proc_json()(response)
+        return self.processor(response.text)
 
     def _return_stream(self, payload, stream):
         """If its a stream call, return yield lines
@@ -218,17 +243,21 @@ class Client:
         response = self._make_request(payload, stream)
 
         if isinstance(response, str):
-            yield json.loads(response)
+            yield proc_json()(response)
         else:
             first = next(response)
             if self._is_correct_response(first):
-                yield first.strip()
+                if self.proc == SIMPLECOMPACT_TO_OBJ:
+                    aux = json_compact_simple_names(proc_json()(first)['m'])
+                    self.processor = proc_json_compact_simple_to_jobj(aux)
+                elif self.proc == SIMPLECOMPACT_TO_ARRAY:
+                    pass
+                else:
+                    yield self.processor(first)
                 for line in response:
-                    yield line.strip()
+                    yield self.processor(line)
             else:
-                if isinstance(first, bytes):
-                    first = first.decode("utf-8")
-                yield json.loads(first)
+                yield proc_json()(first)
 
     def _make_request(self, payload, stream):
         """

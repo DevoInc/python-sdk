@@ -47,6 +47,7 @@ api = Client(jwt="myauthtoken",
 - offset: Row number by which to start returning data
 - stream: Not wait for all response for return lines - real time mode if not "to" in dates
 - response: response type
+- processor: response processor flag from defaults
 - comment: Comment for the query
 
 #### Result returned:
@@ -99,6 +100,70 @@ except Exception as error:
 Query by id has the same parameters as query (), changing the field "query" 
 to "query_id", which is the ID of the query in Devo.
 
+## Processors flags:
+
+By default, you receive response in str/bytes (Depends of your python version) direct from Socket, and you need manipulate the data.
+But you can specify one default processor for data, soo you receive in diferente format:
+
+
+```python
+from devo.api import Client, JSON_SIMPLE
+
+api = Client(key="myapikey",
+             secret="myapisecret",
+             url="https://api-eu.logtrust.com/search/query",
+             user="user@devo.com",
+             app_name="testing app")
+             
+response = api.query(query="from my.app.web.activityAll select * limit 10",
+                     dates= {'from': "2018-02-06 12:42:00"},
+                     response="json/simple", processor=JSON_SIMPLE)
+
+try:
+    for item in response:
+        print(item)
+except Exception as error:
+    print(error)
+
+```
+
+####Flag list:
+
+- DEFAULT: It is the default processor, it returns str or bytes, depending on the Python version
+- TO_STR: Return str, decoding data if receive bytes
+- TO_BYTES: Return bytes, encoding data if receive str
+- JSON: Use it if you want json objects, when ask for json responses, instead of str/bytes. Ignored when response=csv
+- JSON_SIMPLE: Use it if you want json objects, when ask for json/simple response, instead of str/bytes.  Ignored when response=csv
+- COMPACT_TO_ARRAY: Use it if you want arrays, when ask for json/compact responses, instead of str/bytes. Ignored when response=csv
+- SIMPLECOMPACT_TO_OBJ: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
+- SIMPLECOMPACT_TO_ARRAY: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
+
+
+######- DEFAULT example in Python 3, response csv: 
+```python
+b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
+```  
+
+######- DEFAULT example in Python 2.7, response csv: 
+```python
+'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
+```  
+######- TO_STR example in Python 3, response csv: 
+```python
+'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
+```  
+######- TO_BYTES example in Python 2.7, response csv: 
+```python
+b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
+```  
+######- SIMPLECOMPACT_TO_ARRAY example in Python 3, response json/simple/compact: 
+```python
+['18/Jan/2019:09:58:51 +0000', '/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7', 404, 'http://www.bing.com/', 'Googlebot/2.1 ( http://www.googlebot.com/bot.html)', 'gaqfse5dpcm690jdh5ho1f00o2:-']
+```  
+######- SIMPLECOMPACT_TO_OBJ example in Python 3, response json/simple/compact: 
+```python
+{'statusCode': 404, 'uri': '/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7', 'referralUri': 'http://www.bing.com/', 'userAgent': 'Googlebot/2.1 ( http://www.googlebot.com/bot.html)', 'cookie': 'gaqfse5dpcm690jdh5ho1f00o2:-', 'timestamp': '18/Jan/2019:09:58:51 +0000'}
+```  
 
 ## The "from" and "to", formats and other stuff...
 Here we define the start and end of the query (query eventdate filter are
