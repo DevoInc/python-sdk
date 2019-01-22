@@ -2,6 +2,7 @@
 """ Generic function to logging events in Devo SDK """
 import os
 import logging
+from logging.handlers import RotatingFileHandler
 
 
 def get_log(path_base="./",
@@ -30,8 +31,6 @@ def set_handler(path, msg_format):
 
     :return: RotatingFileHandler object
     """
-    handler = logging.handlers.RotatingFileHandler(path,
-                                                   maxBytes=2097152,
-                                                   backupCount=5)
+    handler = RotatingFileHandler(path, maxBytes=2097152, backupCount=5)
     handler.setFormatter(set_formatter(msg_format))
     return handler

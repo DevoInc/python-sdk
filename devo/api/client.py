@@ -159,7 +159,7 @@ class Client:
     @staticmethod
     def _format_error(error):
         return '{"msg": "Error Launching Query", "status": 500, ' \
-               '"object": "%s"}' % error
+               '"object": "%s"}' % str(error).replace("\"", "\\\"")
 
     @staticmethod
     def _is_correct_response(line):
