@@ -4,13 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.0.3] - 2019-01-23
+## [2.1.0] - 2019-01-23
 #### Changed
  * Devo.common get_log() has more flags for better customization
  
 #### Added
  * Sender for_logging() creation now verify where is tag flag
- * Functions for configuration (save, leng, etc)
+ * Functions for configuration (save, len, etc)
+ * Added verify flag for API, for not verify TLS certs
 
 ## [2.0.2] - 2019-01-23
 #### Fixed

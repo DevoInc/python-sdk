@@ -181,6 +181,10 @@ class Client:
         if stream
         :param kwargs: stream -> if stream or full response
         :param kwargs: response -> response format
+        :param kwargs: verify -> (optional) Either a boolean, in which case
+         it controls whether we verify
+         the server's TLS certificate, or a string, in which case it must be
+         a path to a CA bundle to use. Defaults to ``True``.
         :return: Result of the query (dict) or Buffer object
         """
 
@@ -216,10 +220,10 @@ class Client:
 
         return self._call(
             self._get_payload(query, query_id, dates, opts),
-            stream
+            stream, kwargs.get('verify', True)
         )
 
-    def _call(self, payload, stream):
+    def _call(self, payload, stream, verify):
         """
         Make the call, select correct item to return
         :param payload: item with headers for request
@@ -227,20 +231,20 @@ class Client:
         :return: Response from API
         """
         if stream:
-            return self._return_stream(payload, stream)
+            return self._return_stream(payload, stream, verify)
 
-        response = self._make_request(payload, stream)
+        response = self._make_request(payload, stream, verify)
         if isinstance(response, str):
             return proc_json()(response)
         return self.processor(response.text)
 
-    def _return_stream(self, payload, stream):
+    def _return_stream(self, payload, stream, verify):
         """If its a stream call, return yield lines
         :param payload: item with headers for request
         :param stream: boolean, indicate if one call is a streaming call
         :return line: yield-generator item
         """
-        response = self._make_request(payload, stream)
+        response = self._make_request(payload, stream, verify)
 
         if isinstance(response, str):
             yield proc_json()(response)
@@ -259,7 +263,7 @@ class Client:
             else:
                 yield proc_json()(first)
 
-    def _make_request(self, payload, stream):
+    def _make_request(self, payload, stream, verify):
         """
         Make the request and control the logic about retries if not internet
         :param payload: item with headers for request
@@ -273,7 +277,7 @@ class Client:
                                                                 self.query_url),
                                          data=payload,
                                          headers=self._get_headers(payload),
-                                         verify=True, timeout=self.timeout,
+                                         verify=verify, timeout=self.timeout,
                                          stream=stream)
                 if stream:
                     return response.iter_lines()
