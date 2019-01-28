@@ -167,13 +167,19 @@ class Configuration:
             if key not in self.cfg.keys():
                 self.cfg[key] = cfg[key]
 
-    def get(self, *args, key=None, aux_dict=None):
+    def get(self, *args, **kwargs):
         """Get the configuration as dict
 
         :return: Return the configuration dict
         """
+        key = kwargs.get("key", None)
+        aux_dict = kwargs.get("aux_dict", None)
+
         if args:
-            key = list(args)
+            if isinstance(args[0], list):
+                key = args[0]
+            else:
+                key = list(args)
         if key:
             if aux_dict is None:
                 aux_dict = self.cfg
@@ -186,16 +192,6 @@ class Configuration:
         return self.cfg
 
     def keys(self, prop):
-        """Check if exist property and if not then set to None
-
-        :param prop: Property to check
-        """
-        if prop not in self.cfg:
-            return False
-        return True
-
-    #DEPRECATE THIS FOR 2.0
-    def key_exist(self, prop):
         """Check if exist property and if not then set to None
 
         :param prop: Property to check
