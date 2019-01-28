@@ -436,17 +436,25 @@ class Sender(logging.Handler):
         self._logger_tag = tag
 
     @staticmethod
-    def for_logging(config, con_type="SSL", tag="test.drop.free"):
+    def for_logging(config, con_type="SSL", tag=None, level=10):
         """ Function for create Sender object from config file to use in
         logging handler
         :param config: config Devo file
         :param con_type: type of connection
         :param tag: tag for the table
+        :param level: level of logger
+        :param formatter: log formatter
         :return: Sender object
         """
         con = Sender.from_config(config, con_type)
-        con.set_logger_tag(tag)
-        con.set_level = 7
+        if tag:
+            con.set_logger_tag(tag)
+        elif "tag" in config.keys():
+            con.set_logger_tag(config['tag'])
+        else:
+            con.set_logger_tag("test.keep.free")
+
+        con.set_level = level
         return con
 
     @staticmethod
