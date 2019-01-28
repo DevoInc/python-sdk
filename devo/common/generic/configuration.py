@@ -200,6 +200,13 @@ class Configuration:
             return False
         return True
 
+    def key_exist(self, prop):
+        """Check if exist property and if not then set to None
+
+        :param prop: Property to check
+        """
+        return self.keys(prop)
+
     def set(self, key_list, value):
         """ Set value of dict
          :param key_list: Key when save value, can be list to create depth key
