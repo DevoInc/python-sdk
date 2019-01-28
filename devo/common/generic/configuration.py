@@ -13,8 +13,10 @@ class Configuration:
     """
     Main class for load config files, and extract config objects
     """
-    def __init__(self):
+    def __init__(self, path=None, section=None):
         self.cfg = dict()
+        if path is not None:
+            self.load_config(path=path, section=section)
 
     def __load_cfg(self, cfg, section=None):
         """Load Configuration
@@ -27,7 +29,7 @@ class Configuration:
                 self.mix(cfg[section])
         else:
             self.mix(cfg)
-        return self
+        return None
 
     def load_json(self, path, section=None):
         """Load Json Configuration
@@ -72,6 +74,39 @@ class Configuration:
             return self.load_yaml(path, section)
 
         raise ConfigurationException("Configuration file type unknown or not supportted: %s" %path)
+
+    def save(self, path=None, save_bak=False):
+        if path is None:
+            return False
+
+        if os.path.isfile(path):
+            os.rename(path, "{}.bak".format(path))
+        try:
+            with open(path, 'w') as file:
+                if path.endswith('.json'):
+                    json.dump(self.cfg, file)
+                if path.endswith('.yaml') or path.endswith('.yml'):
+                    try:
+                        import yaml
+                    except ImportError as import_error:
+                        print(str(import_error),
+                              "- Use 'pip install pyyaml' or install this "
+                              "package with [click] option")
+                    yaml.dump(self.cfg, file, default_flow_style=False)
+            if os.path.isfile("{}.bak".format(path)) and not save_bak:
+                self.delete_file("{}.bak".format(path))
+            return True
+        except Exception:
+            if os.path.isfile(path):
+                self.delete_file(path)
+            if os.path.isfile("{}.bak".format(path)):
+                os.rename("{}.bak".format(path), path)
+            return False
+
+    @staticmethod
+    def delete_file(file):
+        if os.path.isfile(file):
+            os.remove(file)
 
     @staticmethod
     def __search_default_config_file():
@@ -132,11 +167,22 @@ class Configuration:
             if key not in self.cfg.keys():
                 self.cfg[key] = cfg[key]
 
-    def get(self):
+    def get(self, *args, key=None, aux_dict=None):
         """Get the configuration as dict
 
         :return: Return the configuration dict
         """
+        if args:
+            key = list(args)
+        if key:
+            if aux_dict is None:
+                aux_dict = self.cfg
+            if isinstance(key, list):
+                if len(key) > 1:
+                    return self.get(key=key[1:], aux_dict=aux_dict[key[0]])
+                return aux_dict[key[0]]
+            return self.cfg[key]
+
         return self.cfg
 
     def keys(self, prop):
@@ -184,3 +230,13 @@ class Configuration:
                                                                 key_list[1:],
                                                                 value)
         return aux_dict
+
+    def __getitem__(self, key):
+        return self.cfg[key]
+
+    def __setitem__(self, key, value):
+        self.cfg[key] = value
+        return None
+
+    def __str__(self):
+        return str(self.cfg)
