@@ -49,6 +49,9 @@ api = Client(jwt="myauthtoken",
 - response: response type
 - processor: response processor flag from defaults
 - comment: Comment for the query
+- verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use. Defaults to ``True``.
 
 #### Result returned:
 ###### - Non stream call
