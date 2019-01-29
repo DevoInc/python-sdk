@@ -239,9 +239,6 @@ class Sender(logging.Handler):
         """
         Forces socket closure
         """
-        if self.buffer.text_buffer:
-            self.flush_buffer()
-
         if self.socket is not None:
             self.socket.close()
             self.socket = None
