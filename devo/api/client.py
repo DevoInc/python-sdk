@@ -13,9 +13,9 @@ from .processors import processors, proc_json, proc_default, \
 PY3 = sys.version_info[0] > 2
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
-URL_AWS_EU = 'https://api-eu.logtrust.com'
-URL_VDC = 'https://spainapi.logtrust.com'
-URL_AWS_USA = 'https://api-us.logtrust.com'
+URL_AWS_EU = 'https://api-eu.devo.com'
+URL_VDC = 'https://api-es.devo.com'
+URL_AWS_USA = 'https://api-us.devo.com'
 URL_QUERY_COMPLEMENT = 'search/query'
 URL_JOB = '/search/job/'
 URL_JOBS = '/search/jobs'

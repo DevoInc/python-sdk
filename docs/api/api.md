@@ -2,6 +2,13 @@
 ## Overview
 This library performs queries to the Client API (Search rest api) of Devo.
 
+## Endpoints
+##### API
+To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
+ * **USA:** 	https://api-us.devo.com/search/query
+ * **EU:**   	https://api-eu.devo.com/search/query
+
+You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
 
 ## USAGE
 #### Constructor
@@ -24,16 +31,16 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.logtrust.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
 
 
 api = Client(token="myauthtoken",
-             url="https://api-eu.logtrust.com/search/query")
+             url="https://api-eu.devo.com/search/query")
 
 api = Client(jwt="myauthtoken",
-             url="https://api-eu.logtrust.com/search/query")
+             url="https://api-eu.devo.com/search/query")
 ```    
     
 #### query() params
@@ -67,7 +74,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.logtrust.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -85,7 +92,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.logtrust.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -114,7 +121,7 @@ from devo.api import Client, JSON_SIMPLE
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.logtrust.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -238,7 +245,7 @@ json example:
     "api": {
       "key": "MyAPIkeytoaccessdevo",
       "secret": "MyAPIsecrettoaccessdevo",
-      "url": "https://api-us.logtrust.com/search/query"
+      "url": "https://api-us.devo.com/search/query"
     }
   }
   
@@ -249,7 +256,7 @@ yaml example:
   api:
     key: "MyAPIkeytoaccessdevo"
     secret: "MyAPIsecrettoaccessdevo"
-    url: "https://api-us.logtrust.com/search/query"
+    url: "https://api-us.devo.com/search/query"
 ```
 
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values

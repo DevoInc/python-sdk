@@ -8,12 +8,16 @@ This library allows you to send logs or lookups to the Devo platform.
 - Allows to send real time data
 - Logger integration and logging handler capacity for Sender
 
-## Compatibility 
-- Tested compatibility between python 2.x and 3.x series
-- Unit tests for both python 2.x and 3.x
+## Endpoints
+##### Sender
+To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
+ * **USA:** 	collector-us.devo.io:443
+ * **EU:**   	collector-eu.devo.io:443
+
+You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
+
 
 ## Usage in script
-
 ### Sender
 
 Before sending the lookup information it is necessary to initialize the collector configuration
