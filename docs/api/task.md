@@ -9,7 +9,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
               
 job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.get_job(job_id)
@@ -67,7 +67,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 response = api.get_jobs()
 ```
 
@@ -118,7 +118,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 response = api.get_jobs(type="donothing")
 ```
 
@@ -141,7 +141,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 response = api.get_jobs(type="donothing", name="devo-sdk-test")
 ```
 
@@ -162,7 +162,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.stop_job(job_id)
 ```
@@ -206,7 +206,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.start_job(job_id)
 ```
@@ -248,7 +248,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://api-eu.logtrust.com/search/query")
+              url="https://api-eu.devo.com/search/query")
 job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.remove_job(job_id)
 ```
