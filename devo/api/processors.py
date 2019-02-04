@@ -51,11 +51,13 @@ def json_compact_simple_names(data):
 
 def proc_json_compact_simple_to_jobj(names=None):
     return proc_json_compact_simple_to_array() if not names else \
-        lambda data: dict(zip(names, proc_json_compact_simple_to_array()(data)))
+        lambda data: dict(zip(names,
+                              proc_json_compact_simple_to_array()(data))) \
+            if data else {}
 
 
 def proc_json_compact_simple_to_array():
-    return lambda data: proc_json()(data)['d']
+    return lambda data: proc_json()(data)['d'] if data else []
 
 
 def processors():
