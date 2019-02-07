@@ -53,7 +53,8 @@ class Configuration:
         try:
             import yaml
         except ImportError as import_error:
-            print(str(import_error), "- Use 'pip install pyyaml' or install this "
+            print(str(import_error), "- Use 'pip install pyyaml' or "
+                                     "install this "
                                      "package with [click] option")
             sys.exit(1)
         with open(path, 'r') as stream:
@@ -73,7 +74,8 @@ class Configuration:
         if path.endswith('.yaml') or path.endswith('.yml'):
             return self.load_yaml(path, section)
 
-        raise ConfigurationException("Configuration file type unknown or not supportted: %s" %path)
+        raise ConfigurationException("Configuration file type unknown "
+                                     "or not supported: %s" % path)
 
     def save(self, path=None, save_bak=False):
         if path is None:
