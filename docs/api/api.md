@@ -64,9 +64,16 @@ api = Client(jwt="myauthtoken",
 ###### - Non stream call
  - Result of the query in str/bytes when query work
  - JSON Object when query has errors
+ - You can use all the response formats in non-stream mode.
 ###### - stream call
  - Generator with result of the query, str/bytes, when query work
  - JSON Object when query has errors
+ - Stream available formats:
+    - json/simple
+    - json/simple/compact
+    - msgpack
+    - csv (comma separated values)
+    - tsv (Tab separated Values) 
 
 Normal/Non stream response:
 ```python
@@ -283,8 +290,8 @@ response = api.query(config['query'],
                      date_to=config['to'], 
                      response=config['response'])
 ```
-
-Type allow the following values:
+ 
+Format allow the following values:
 
     · json
     · json/compact
@@ -292,8 +299,7 @@ Type allow the following values:
     · json/simple/compact
     · msgpack
     · csv (comma separated values)
-    · tsv (Tab separated Values)
-    
+    · tsv (Tab separated Values) 
     
 #### Response type JSON 
 
