@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] - 2019-02-12
+#### Added
+ * More documentation info and examples
+ 
+#### Changed
+ * All new endpoints references for sender and api
+ 
+#### Fixed
+ * Problems with proc_json_compact_simple_to_jobj when None
+
 ## [2.1.1] - 2019-01-29
 #### Fixed
  * Problems with recursion depth when zipped send has problems with Socket.

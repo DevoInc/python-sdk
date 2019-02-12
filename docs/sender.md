@@ -8,12 +8,16 @@ This library allows you to send logs or lookups to the Devo platform.
 - Allows to send real time data
 - Logger integration and logging handler capacity for Sender
 
-## Compatibility 
-- Tested compatibility between python 2.x and 3.x series
-- Unit tests for both python 2.x and 3.x
+## Endpoints
+##### Sender
+To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
+ * **USA:** 	collector-us.devo.io:443
+ * **EU:**   	collector-eu.devo.io:443
+
+You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
+
 
 ## Usage in script
-
 ### Sender
 
 Before sending the lookup information it is necessary to initialize the collector configuration
@@ -113,7 +117,7 @@ In order to use **Sender** as an Handler, for logging instances, the **tag** pro
 
 The regular use of the handler can be observed in this 3 examples:
 
-######Setting up configuration variables.
+##### Setting up configuration variables.
 ```python
 from devo.sender import SenderConfigSSL
 tag = 'test.dump.free'
@@ -123,7 +127,7 @@ engine_config = SenderConfigSSL(address=server, port=port,
 con = Sender(engine_config)
                     
 ```
-######First example: Setting up tag after Sender is created
+##### First example: Setting up tag after Sender is created
 
 ```python
 logger = logging.getLogger('DEVO_logger')
@@ -132,14 +136,14 @@ con = Sender(engine_config)
 con.set_logger_tag(tag)
 logger.addHandler(con)
 ```
-######Second example: Setting up a Sender with tag
+##### Second example: Setting up a Sender with tag
 ```python
 logger = logging.getLogger('DEVO_logger')
 #Sender created ready to be used
 con = Sender(engine_config, tag)
 logger.addHandler(con)
 ```
-######Third example: Setting up a static Sender
+##### Third example: Setting up a static Sender
 
 ```python
 engine_config = {"address": server, "port": port,
