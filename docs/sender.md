@@ -117,7 +117,7 @@ In order to use **Sender** as an Handler, for logging instances, the **tag** pro
 
 The regular use of the handler can be observed in this 3 examples:
 
-######Setting up configuration variables.
+##### Setting up configuration variables.
 ```python
 from devo.sender import SenderConfigSSL
 tag = 'test.dump.free'
@@ -127,7 +127,7 @@ engine_config = SenderConfigSSL(address=server, port=port,
 con = Sender(engine_config)
                     
 ```
-######First example: Setting up tag after Sender is created
+##### First example: Setting up tag after Sender is created
 
 ```python
 logger = logging.getLogger('DEVO_logger')
@@ -136,14 +136,14 @@ con = Sender(engine_config)
 con.set_logger_tag(tag)
 logger.addHandler(con)
 ```
-######Second example: Setting up a Sender with tag
+##### Second example: Setting up a Sender with tag
 ```python
 logger = logging.getLogger('DEVO_logger')
 #Sender created ready to be used
 con = Sender(engine_config, tag)
 logger.addHandler(con)
 ```
-######Third example: Setting up a static Sender
+##### Third example: Setting up a static Sender
 
 ```python
 engine_config = {"address": server, "port": port,
