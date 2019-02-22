@@ -34,7 +34,7 @@ glance the objective of the branch.
 3. Make your awesome code
 4. Never forget to **change the changelog**.  
 4.1 [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-5. Create a Merge Request to release-next.
+5. Create a Pull Request to master with correct version and tests passed.
 
 
 ## Keep a CHANGELOG
@@ -77,6 +77,7 @@ Always have an `Unreleased` section at the top for keeping track of any changes.
 
 This serves two purposes:
 * People can see what changes they might expect in upcoming releases
-* At release time, you just have to change "Unreleased" to the version number and add a new "Unreleased" header at the top.
+* At release time, you just have to change "Unreleased" to the version number and add a new "Unreleased" 
+header at the top.
 
 **Feel free for update and improve this document content or format.**<br/>

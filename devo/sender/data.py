@@ -169,6 +169,10 @@ class Sender(logging.Handler):
     @staticmethod
     def __set_logger(verbose_level):
         logger = logging.getLogger('DevoSender')
+
+        if isinstance(verbose_level, int):
+            verbose_level = logging.getLevelName(verbose_level)
+
         logger.setLevel(verbose_level.upper())
         if not logger.handlers:
             sender_logger = logging.StreamHandler(sys.stdout)
@@ -271,9 +275,9 @@ class Sender(logging.Handler):
                        int((iteration + 1) * 4096)])
         if sent == 0:
             raise DevoSenderException("Devo-Sender|Send error")
-        return True
+        return sent
 
-    def send_raw(self, record, multiline=False, zip=False):
+    def send_raw(self, record, multiline=False, zipped=False):
         """
         Send raw messages to the collector
 
@@ -287,13 +291,14 @@ class Sender(logging.Handler):
 
             if self.socket:
                 try:
-                    if not multiline and not zip:
+                    if not multiline and not zipped:
                         sent = self.socket.send(self.__encode_record(record))
                         return 1
                     if multiline:
                         record = self.__encode_record(record)
 
-                    if self.__send_oc(record):
+                    sent = self.__send_oc(record)
+                    if sent:
                         return 1
                     return 0
                 except socket.error:
@@ -353,6 +358,7 @@ class Sender(logging.Handler):
         :param kwargs: severity -> severity info
         :param kwargs: hostname -> set hostname machine
         :param kwargs: multiline -> send multiline msg
+        :param kwargs: zip -> send it zipped
         :param kwargs: date -> String Date format '%Y-%m-%d %H%M%S'
 
 
@@ -414,7 +420,7 @@ class Sender(logging.Handler):
                                               zlib.DEFLATED, 31)
                 record = compressor.compress(self.buffer.text_buffer) \
                          + compressor.flush()
-                if self.send_raw(record, zip=True):
+                if self.send_raw(record, zipped=True):
                     return self.buffer.events
                 return 0
             except Exception as error:
@@ -443,6 +449,9 @@ class Sender(logging.Handler):
         :param formatter: log formatter
         :return: Sender object
         """
+        if "verbose_level" not in config.keys():
+            config["verbose_level"] = level
+
         con = Sender.from_config(config, con_type)
         if tag:
             con.set_logger_tag(tag)
@@ -451,7 +460,6 @@ class Sender(logging.Handler):
         else:
             con.set_logger_tag("test.keep.free")
 
-        con.set_level = level
         return con
 
     @staticmethod
@@ -476,14 +484,18 @@ class Sender(logging.Handler):
                         key=config['key'],
                         cert=config['cert'],
                         chain=config['chain']
-                    ), logger=logger
+                    ),
+                    logger=logger,
+                    verbose_level=config.get('verbose_level', "INFO")
                 )
             return Sender(
                 SenderConfigSSL(
                     address=config['address'],
                     port=int(config['port']),
                     cert_reqs=False
-                ), logger=logger
+                ),
+                logger=logger,
+                verbose_level=config.get('verbose_level', "INFO")
             )
 
         if con_type == "TCP":
@@ -491,7 +503,9 @@ class Sender(logging.Handler):
                 SenderConfigTCP(
                     address=config['address'],
                     port=int(config['port'])
-                ), logger=logger
+                ),
+                logger=logger,
+                verbose_level=config.get('verbose_level', "INFO")
             )
         raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
 
