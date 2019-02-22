@@ -271,7 +271,7 @@ class Sender(logging.Handler):
                        int((iteration + 1) * 4096)])
         if sent == 0:
             raise DevoSenderException("Devo-Sender|Send error")
-        return True
+        return sent
 
     def send_raw(self, record, multiline=False, zip=False):
         """
@@ -293,7 +293,8 @@ class Sender(logging.Handler):
                     if multiline:
                         record = self.__encode_record(record)
 
-                    if self.__send_oc(record):
+                    sent = self.__send_oc(record)
+                    if sent:
                         return 1
                     return 0
                 except socket.error:
