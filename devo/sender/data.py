@@ -358,6 +358,7 @@ class Sender(logging.Handler):
         :param kwargs: severity -> severity info
         :param kwargs: hostname -> set hostname machine
         :param kwargs: multiline -> send multiline msg
+        :param kwargs: zip -> send it zipped
         :param kwargs: date -> String Date format '%Y-%m-%d %H%M%S'
 
 
