@@ -169,6 +169,10 @@ class Sender(logging.Handler):
     @staticmethod
     def __set_logger(verbose_level):
         logger = logging.getLogger('DevoSender')
+
+        if isinstance(verbose_level, int):
+            verbose_level = logging.getLevelName(verbose_level)
+
         logger.setLevel(verbose_level.upper())
         if not logger.handlers:
             sender_logger = logging.StreamHandler(sys.stdout)
