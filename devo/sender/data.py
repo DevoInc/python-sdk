@@ -273,7 +273,7 @@ class Sender(logging.Handler):
             raise DevoSenderException("Devo-Sender|Send error")
         return sent
 
-    def send_raw(self, record, multiline=False, zip=False):
+    def send_raw(self, record, multiline=False, zipped=False):
         """
         Send raw messages to the collector
 
@@ -287,7 +287,7 @@ class Sender(logging.Handler):
 
             if self.socket:
                 try:
-                    if not multiline and not zip:
+                    if not multiline and not zipped:
                         sent = self.socket.send(self.__encode_record(record))
                         return 1
                     if multiline:
@@ -415,7 +415,7 @@ class Sender(logging.Handler):
                                               zlib.DEFLATED, 31)
                 record = compressor.compress(self.buffer.text_buffer) \
                          + compressor.flush()
-                if self.send_raw(record, zip=True):
+                if self.send_raw(record, zipped=True):
                     return self.buffer.events
                 return 0
             except Exception as error:
@@ -444,6 +444,9 @@ class Sender(logging.Handler):
         :param formatter: log formatter
         :return: Sender object
         """
+        if "verbose_level" not in config.keys():
+            config["verbose_level"] = level
+
         con = Sender.from_config(config, con_type)
         if tag:
             con.set_logger_tag(tag)
@@ -452,7 +455,6 @@ class Sender(logging.Handler):
         else:
             con.set_logger_tag("test.keep.free")
 
-        con.set_level = level
         return con
 
     @staticmethod
@@ -477,14 +479,18 @@ class Sender(logging.Handler):
                         key=config['key'],
                         cert=config['cert'],
                         chain=config['chain']
-                    ), logger=logger
+                    ),
+                    logger=logger,
+                    verbose_level=config.get('verbose_level', "INFO")
                 )
             return Sender(
                 SenderConfigSSL(
                     address=config['address'],
                     port=int(config['port']),
                     cert_reqs=False
-                ), logger=logger
+                ),
+                logger=logger,
+                verbose_level=config.get('verbose_level', "INFO")
             )
 
         if con_type == "TCP":
@@ -492,7 +498,9 @@ class Sender(logging.Handler):
                 SenderConfigTCP(
                     address=config['address'],
                     port=int(config['port'])
-                ), logger=logger
+                ),
+                logger=logger,
+                verbose_level=config.get('verbose_level', "INFO")
             )
         raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
 
