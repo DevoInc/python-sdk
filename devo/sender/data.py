@@ -118,7 +118,7 @@ class Sender(logging.Handler):
         if not config:
             config = {}
 
-        if not isinstance(config, (SenderConfigTCP, SenderConfigTCP)):
+        if not isinstance(config, (SenderConfigSSL, SenderConfigTCP)):
             if kwargs.get('type') == "TCP" or config.get("type") == "TCP":
                 config = SenderConfigTCP(**config, **kwargs)
             elif kwargs.get('type') == "SSL" or config.get("type") == "SSL":
