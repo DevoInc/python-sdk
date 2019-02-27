@@ -116,9 +116,15 @@ class Sender(logging.Handler):
     """
     def __init__(self, config=None, **kwargs):
         if not config:
-            config = SenderConfigTCP(**kwargs) if kwargs.get('type') == "TCP" \
-                else SenderConfigSSL(**kwargs) if kwargs.get('type') == "SSL" \
-                else None
+            config = {}
+
+        if not isinstance(config, (SenderConfigTCP, SenderConfigTCP)):
+            if kwargs.get('type') == "TCP" or config.get("type") == "TCP":
+                config = SenderConfigTCP(**config, **kwargs)
+            elif kwargs.get('type') == "SSL" or config.get("type") == "SSL":
+                config = SenderConfigSSL(**config, **kwargs)
+            else:
+                config = None
 
         if not config:
             raise DevoSenderException("Problems with args passed to Sender")
@@ -472,42 +478,18 @@ class Sender(logging.Handler):
         """
         con_type = config['type'].upper() if "type" in config and con_type \
                                              is not None else "SSL"
-        cert_reqs = config['cert_reqs'] if "cert_reqs" in config else True
 
-        if con_type == "SSL":
-            if cert_reqs:
-                return Sender(
-                    SenderConfigSSL(
-                        address=config['address'],
-                        port=int(config['port']),
-                        cert_reqs=True,
-                        key=config['key'],
-                        cert=config['cert'],
-                        chain=config['chain']
-                    ),
-                    logger=logger,
-                    verbose_level=config.get('verbose_level', "INFO")
-                )
-            return Sender(
-                SenderConfigSSL(
-                    address=config['address'],
-                    port=int(config['port']),
-                    cert_reqs=False
-                ),
-                logger=logger,
-                verbose_level=config.get('verbose_level', "INFO")
-            )
+        if "type" not in config.keys():
+            config['type'] = con_type if con_type else "SSL"
 
-        if con_type == "TCP":
-            return Sender(
-                SenderConfigTCP(
-                    address=config['address'],
-                    port=int(config['port'])
-                ),
-                logger=logger,
-                verbose_level=config.get('verbose_level', "INFO")
-            )
-        raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
+        config['type'] = str(config['type']).upper()
+        if config['type'] not in ("TCP", "SSL"):
+            raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
+
+        if "cert_reqs" not in config.keys():
+            config['cert_reqs'] = True
+
+        return Sender(**config, logger=logger)
 
     def emit(self, record):
         """
