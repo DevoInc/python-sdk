@@ -7,6 +7,7 @@ import ssl
 import sys
 import time
 import zlib
+from functools import wraps
 
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
@@ -115,25 +116,32 @@ class Sender(logging.Handler):
 
     """
     def __init__(self, config=None, **kwargs):
-        if not config:
-            config = {}
-
         if not isinstance(config, (SenderConfigSSL, SenderConfigTCP)):
-            if kwargs.get('type') == "TCP" or config.get("type") == "TCP":
-                config = SenderConfigTCP(**config, **kwargs)
-            elif kwargs.get('type') == "SSL" or config.get("type") == "SSL":
-                config = SenderConfigSSL(**config, **kwargs)
+            if not config:
+                config = kwargs
             else:
-                config = None
+                config.update(kwargs)
 
-        if not config:
-            raise DevoSenderException("Problems with args passed to Sender")
+            if "type" not in config.keys():
+                config["type"] = "SSL"
+                config = SenderConfigSSL(**config)
+            elif config["type"] not in ["TCP", "SSL"]:
+                raise DevoSenderException(
+                        "Devo-Sender|Type must be 'SSL' or 'TCP'")
+            elif config.get("type") == "TCP":
+                config = SenderConfigTCP(**config)
+            elif config.get("type") == "SSL":
+                config = SenderConfigSSL(**config)
+            else:
+                raise DevoSenderException("Problems with args passed to Sender")
 
         logger = kwargs.get('logger', None)
 
         logging.Handler.__init__(self)
-        self.logger = self.__set_logger(kwargs.get('verbose_level', "INFO")) \
-            if logger is None else logger
+        if not logger:
+            self.logger = self.__set_logger(kwargs.get('verbose_level', "INFO"))
+        else:
+            self.logger = logger
 
         self.socket = None
         self._sender_config = config
@@ -458,7 +466,7 @@ class Sender(logging.Handler):
         if "verbose_level" not in config.keys():
             config["verbose_level"] = level
 
-        con = Sender.from_config(config, con_type)
+        con = Sender.from_config(config, con_type=con_type)
         if tag:
             con.set_logger_tag(tag)
         elif "tag" in config.keys():
@@ -476,20 +484,13 @@ class Sender(logging.Handler):
         :param logger: logger handler, default None
         :return: Sender object
         """
-        con_type = config['type'].upper() if "type" in config and con_type \
-                                             is not None else "SSL"
+        if "cert_reqs" not in config.keys():
+            config['cert_reqs'] = True
 
         if "type" not in config.keys():
             config['type'] = con_type if con_type else "SSL"
 
-        config['type'] = str(config['type']).upper()
-        if config['type'] not in ("TCP", "SSL"):
-            raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
-
-        if "cert_reqs" not in config.keys():
-            config['cert_reqs'] = True
-
-        return Sender(**config, logger=logger)
+        return Sender(logger=logger, **config)
 
     def emit(self, record):
         """
@@ -507,7 +508,7 @@ class Sender(logging.Handler):
         try:
             msg = self.format(record)
             msg += '\000'
-            self.send(self._logger_tag, msg, facility=self._logger_facility,
+            self.send(tag=self._logger_tag, msg=msg, facility=self._logger_facility,
                       severity=priority_map.get(record.levelname, "info"))
         except Exception:
             self.handleError(record)
