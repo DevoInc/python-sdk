@@ -137,10 +137,8 @@ class Sender(logging.Handler):
         logger = kwargs.get('logger', None)
 
         logging.Handler.__init__(self)
-        if not logger:
-            self.logger = self.__set_logger(kwargs.get('verbose_level', "INFO"))
-        else:
-            self.logger = logger
+        self.logger = logger if logger \
+            else self.__set_logger(kwargs.get('verbose_level', "INFO"))
 
         self.socket = None
         self._sender_config = config
