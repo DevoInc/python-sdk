@@ -115,19 +115,30 @@ class Sender(logging.Handler):
 
     """
     def __init__(self, config=None, **kwargs):
-        if not config:
-            config = SenderConfigTCP(**kwargs) if kwargs.get('type') == "TCP" \
-                else SenderConfigSSL(**kwargs) if kwargs.get('type') == "SSL" \
-                else None
+        if not isinstance(config, (SenderConfigSSL, SenderConfigTCP)):
+            if not config:
+                config = kwargs
+            else:
+                config.update(kwargs)
 
-        if not config:
-            raise DevoSenderException("Problems with args passed to Sender")
+            if "type" not in config.keys():
+                config["type"] = "SSL"
+                config = SenderConfigSSL(**config)
+            elif config["type"] not in ["TCP", "SSL"]:
+                raise DevoSenderException(
+                        "Devo-Sender|Type must be 'SSL' or 'TCP'")
+            elif config.get("type") == "TCP":
+                config = SenderConfigTCP(**config)
+            elif config.get("type") == "SSL":
+                config = SenderConfigSSL(**config)
+            else:
+                raise DevoSenderException("Problems with args passed to Sender")
 
         logger = kwargs.get('logger', None)
 
         logging.Handler.__init__(self)
-        self.logger = self.__set_logger(kwargs.get('verbose_level', "INFO")) \
-            if logger is None else logger
+        self.logger = logger if logger \
+            else self.__set_logger(kwargs.get('verbose_level', "INFO"))
 
         self.socket = None
         self._sender_config = config
@@ -452,7 +463,7 @@ class Sender(logging.Handler):
         if "verbose_level" not in config.keys():
             config["verbose_level"] = level
 
-        con = Sender.from_config(config, con_type)
+        con = Sender.from_config(config, con_type=con_type)
         if tag:
             con.set_logger_tag(tag)
         elif "tag" in config.keys():
@@ -470,44 +481,13 @@ class Sender(logging.Handler):
         :param logger: logger handler, default None
         :return: Sender object
         """
-        con_type = config['type'].upper() if "type" in config and con_type \
-                                             is not None else "SSL"
-        cert_reqs = config['cert_reqs'] if "cert_reqs" in config else True
+        if "cert_reqs" not in config.keys():
+            config['cert_reqs'] = True
 
-        if con_type == "SSL":
-            if cert_reqs:
-                return Sender(
-                    SenderConfigSSL(
-                        address=config['address'],
-                        port=int(config['port']),
-                        cert_reqs=True,
-                        key=config['key'],
-                        cert=config['cert'],
-                        chain=config['chain']
-                    ),
-                    logger=logger,
-                    verbose_level=config.get('verbose_level', "INFO")
-                )
-            return Sender(
-                SenderConfigSSL(
-                    address=config['address'],
-                    port=int(config['port']),
-                    cert_reqs=False
-                ),
-                logger=logger,
-                verbose_level=config.get('verbose_level', "INFO")
-            )
+        if "type" not in config.keys():
+            config['type'] = con_type if con_type else "SSL"
 
-        if con_type == "TCP":
-            return Sender(
-                SenderConfigTCP(
-                    address=config['address'],
-                    port=int(config['port'])
-                ),
-                logger=logger,
-                verbose_level=config.get('verbose_level', "INFO")
-            )
-        raise DevoSenderException("Devo-Sender|Type must be 'SSL' or 'TCP'")
+        return Sender(logger=logger, **config)
 
     def emit(self, record):
         """
@@ -525,7 +505,7 @@ class Sender(logging.Handler):
         try:
             msg = self.format(record)
             msg += '\000'
-            self.send(self._logger_tag, msg, facility=self._logger_facility,
+            self.send(tag=self._logger_tag, msg=msg, facility=self._logger_facility,
                       severity=priority_map.get(record.levelname, "info"))
         except Exception:
             self.handleError(record)
