@@ -28,7 +28,7 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = ['requests>=2.17,<3', 'click>=7']
-EXTRA_REQUIRES = {'pyyaml': ['pyyaml>=4.2b1']}
+EXTRA_REQUIRES = {'pyyaml': ['pyyaml>=5.1b3']}
 CLI = ['devo-sender=devo.sender.scripts.sender_cli:cli',
        'devo-api=devo.api.scripts.client_cli:cli']
 
