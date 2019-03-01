@@ -7,7 +7,6 @@ import ssl
 import sys
 import time
 import zlib
-from functools import wraps
 
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
