@@ -157,16 +157,15 @@ def init_conf(args):
             config.load_default_config(section="sender")
     finally:
         config.mix(dict(args))
-        return config.get()
+        return config
 
 
 def configure_lookup(args):
     """ Configuration of Lookup for CLI """
     config = init_conf(args)
-    config.load_config(args.get('config'), 'lookup')
-    config.mix(dict(args))
-
-    return config.get()
+    if args.get('config'):
+        config.load_config(args.get('config'), 'lookup')
+    return config
 
 
 def print_error(error, show_help=False, stop=True):
