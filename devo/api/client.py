@@ -279,6 +279,9 @@ class Client:
                                          headers=self._get_headers(payload),
                                          verify=verify, timeout=self.timeout,
                                          stream=stream)
+                if response.status_code != 200:
+                    return response
+
                 if stream:
                     return response.iter_lines()
                 return response
