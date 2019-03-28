@@ -96,7 +96,7 @@ def data(**kwargs):
 @click.option('--default', '-d', help='Use default file for configuration',
               default=False)
 @click.option('--url', '--address', '-a', help='Devo relay address')
-@click.option('--port', '-p', help='Devo relay address port')
+@click.option('--port', '-p', default=443, help='Devo relay address port')
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
@@ -165,6 +165,9 @@ def configure_lookup(args):
     config = init_conf(args)
     if args.get('config'):
         config.load_config(args.get('config'), 'lookup')
+    if "url" in config.keys():
+        config.set("address", config.get("url"))
+
     return config
 
 
