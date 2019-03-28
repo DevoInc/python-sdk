@@ -193,11 +193,14 @@ class Configuration:
 
         return self.cfg
 
-    def keys(self, prop):
+    def keys(self, prop=None):
         """Check if exist property and if not then set to None
 
         :param prop: Property to check
         """
+        if not prop:
+            return self.cfg.keys()
+
         if prop not in self.cfg:
             return False
         return True

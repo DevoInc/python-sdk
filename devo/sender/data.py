@@ -78,7 +78,7 @@ class SenderConfigTCP:
 
     """
 
-    def __init__(self, address=None, port=None, debug=False, timeout=300,
+    def __init__(self, address=None, port=443, debug=False, timeout=300,
                  **kwargs):
 
         try:
@@ -216,6 +216,7 @@ class Sender(logging.Handler):
                                                   cert_reqs=ssl.CERT_NONE)
             except ssl.SSLError:
                 raise ssl.SSLError
+            print(self._sender_config)
             self.socket.connect(self._sender_config.address)
             self.reconnection += 1
             self.logger.debug('Devo-Sender|Conected to %s|%s'
@@ -481,6 +482,7 @@ class Sender(logging.Handler):
         :param logger: logger handler, default None
         :return: Sender object
         """
+        print(config)
         if "cert_reqs" not in config.keys():
             config['cert_reqs'] = True
 

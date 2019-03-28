@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2019-03-28
+#### Fixed
+ * Lookup shell client now read config correctly
+ * Lookup shell client now apply default port if empty
+ 
+#### Changed
+ * API response in stream mode now return response object if response.code its not 200
+
 ## [2.2.0] - 2019-02-23
 #### Changed
  * Inits args for Sender(), and from_config(), to make it more flexible to config objects and flags
