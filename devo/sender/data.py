@@ -506,7 +506,11 @@ class Sender(logging.Handler):
         try:
             msg = self.format(record)
             msg += '\000'
-            self.send(tag=self._logger_tag, msg=msg, facility=self._logger_facility,
-                      severity=priority_map.get(record.levelname, "info"))
+            try:
+                severity = priority_map.get(record.levelname, record.levelno)
+            except AttributeError:
+                severity = priority_map.get("INFO")
+            self.send(tag=self._logger_tag, msg=msg,
+                      facility=self._logger_facility, severity=severity)
         except Exception:
             self.handleError(record)
