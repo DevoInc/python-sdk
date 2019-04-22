@@ -12,6 +12,8 @@ from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 
+from devo.common import Configuration
+
 PY3 = sys.version_info[0] > 2
 PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
 PY34 = sys.version_info[0] == 3 and sys.version_info[1] == 4
@@ -119,7 +121,10 @@ class Sender(logging.Handler):
             if not config:
                 config = kwargs
             else:
-                config.update(kwargs)
+                if isinstance(config, Configuration):
+                    config.cfg.update(kwargs)
+                else:
+                    config.update(kwargs)
 
             if "type" not in config.keys():
                 config["type"] = "SSL"
@@ -488,7 +493,7 @@ class Sender(logging.Handler):
         if "type" not in config.keys():
             config['type'] = con_type if con_type else "SSL"
 
-        return Sender(logger=logger, **config)
+        return Sender(logger=logger, config=config)
 
     def emit(self, record):
         """

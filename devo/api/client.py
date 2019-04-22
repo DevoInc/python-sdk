@@ -37,6 +37,23 @@ class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
 
+
+def raise_DevoClientException(error):
+    try:
+        if isinstance(error, str):
+            raise DevoClientException(proc_json()(error))
+        else:
+            response_text = proc_json()(error.text)
+            raise DevoClientException(response_text)
+    except json.decoder.JSONDecodeError:
+        raise DevoClientException(_format_error(error))
+
+
+def _format_error(error):
+    return '{"msg": "Error Launching Query", "status": 500, ' \
+           '"object": "%s"}' % str(error).replace("\"", "\\\"")
+
+
 if not PY3:
     class ConnectionError(OSError):
         """ Connection error. """
@@ -157,11 +174,6 @@ class Client:
         return resp not in ["json", "json/compact"]
 
     @staticmethod
-    def _format_error(error):
-        return '{"msg": "Error Launching Query", "status": 500, ' \
-               '"object": "%s"}' % str(error).replace("\"", "\\\"")
-
-    @staticmethod
     def _is_correct_response(line):
         try:
             if isinstance(line, bytes):
@@ -234,6 +246,7 @@ class Client:
             return self._return_stream(payload, stream, verify)
 
         response = self._make_request(payload, stream, verify)
+
         if isinstance(response, str):
             return proc_json()(response)
         return self.processor(response.text)
@@ -245,23 +258,26 @@ class Client:
         :return line: yield-generator item
         """
         response = self._make_request(payload, stream, verify)
-
-        if isinstance(response, str):
-            yield proc_json()(response)
-        else:
+        #
+        # if isinstance(response, str):
+        #     raise DevoClientException(proc_json()(response))
+        try:
             first = next(response)
-            if self._is_correct_response(first):
-                if self.proc == SIMPLECOMPACT_TO_OBJ:
-                    aux = json_compact_simple_names(proc_json()(first)['m'])
-                    self.processor = proc_json_compact_simple_to_jobj(aux)
-                elif self.proc == SIMPLECOMPACT_TO_ARRAY:
-                    pass
-                else:
-                    yield self.processor(first)
-                for line in response:
-                    yield self.processor(line)
+        except TypeError:
+            raise_DevoClientException(response)
+
+        if self._is_correct_response(first):
+            if self.proc == SIMPLECOMPACT_TO_OBJ:
+                aux = json_compact_simple_names(proc_json()(first)['m'])
+                self.processor = proc_json_compact_simple_to_jobj(aux)
+            elif self.proc == SIMPLECOMPACT_TO_ARRAY:
+                pass
             else:
-                yield proc_json()(first)
+                yield self.processor(first)
+            for line in response:
+                yield self.processor(line)
+        else:
+            yield proc_json()(first)
 
     def _make_request(self, payload, stream, verify):
         """
@@ -280,19 +296,20 @@ class Client:
                                          verify=verify, timeout=self.timeout,
                                          stream=stream)
                 if response.status_code != 200:
-                    return response
+                    raise DevoClientException()
 
                 if stream:
                     return response.iter_lines()
                 return response
+            except requests.exceptions.ConnectionError as error:
+                tries += 1
+                if tries >= self.retries:
+                    return raise_DevoClientException(_format_error(error))
+                time.sleep(self.sleep)
+            except DevoClientException:
+                raise_DevoClientException(response)
             except Exception as error:
-                if isinstance(error, requests.exceptions.ConnectionError):
-                    tries += 1
-                    if tries >= self.retries:
-                        return self._format_error(error)
-                    time.sleep(self.sleep)
-                else:
-                    return self._format_error(error)
+                return raise_DevoClientException(_format_error(error))
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
