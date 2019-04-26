@@ -11,7 +11,7 @@ class TestApi(unittest.TestCase):
         self.query = 'from demo.ecommerce.data select * limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_URL',
-                             'https://api-us.logtrust.com/search/query')
+                             'https://apiv2-us.logtrust.com/search/query')
         self.key = os.getenv('DEVO_API_KEY', None)
         self.secret = os.getenv('DEVO_API_SECRET', None)
         self.token = os.getenv('DEVO_AUTH_TOKEN', None)

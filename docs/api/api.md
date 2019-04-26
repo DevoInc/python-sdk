@@ -7,8 +7,9 @@ This library performs queries to the Client API (Search rest api) of Devo.
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	https://apiv2-us.devo.com/search/query
  * **EU:**   	https://apiv2-eu.devo.com/search/query
+ * **VDC:**   	https://apiv2-es.devo.com/search/query
 
-You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
+You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 
 ## USAGE
 #### Constructor
@@ -31,16 +32,16 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.devo.com/search/query",
+             url="https://apiv2-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
 
 
 api = Client(token="myauthtoken",
-             url="https://api-eu.devo.com/search/query")
+             url="https://apiv2-eu.devo.com/search/query")
 
 api = Client(jwt="myauthtoken",
-             url="https://api-eu.devo.com/search/query")
+             url="https://apiv2-eu.devo.com/search/query")
 ```    
     
 #### query() params
@@ -81,7 +82,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.devo.com/search/query",
+             url="https://apiv2-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -99,7 +100,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.devo.com/search/query",
+             url="https://apiv2-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -128,7 +129,7 @@ from devo.api import Client, JSON_SIMPLE
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://api-eu.devo.com/search/query",
+             url="https://apiv2-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -252,7 +253,7 @@ json example:
     "api": {
       "key": "MyAPIkeytoaccessdevo",
       "secret": "MyAPIsecrettoaccessdevo",
-      "url": "https://api-us.devo.com/search/query"
+      "url": "https://apiv2-us.devo.com/search/query"
     }
   }
   
@@ -263,7 +264,7 @@ yaml example:
   api:
     key: "MyAPIkeytoaccessdevo"
     secret: "MyAPIsecrettoaccessdevo"
-    url: "https://api-us.devo.com/search/query"
+    url: "https://apiv2-us.devo.com/search/query"
 ```
 
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values

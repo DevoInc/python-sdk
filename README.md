@@ -13,11 +13,10 @@ This is the SDK to access Devo directly from Python. It can be used to:
 
 ## Requirements
 
-The Devo SDK for Python requires Python 2.7+ or Python 3.4+ 
+The Devo SDK for Python requires Python 3.5+
 
 ## Compatibility 
-- Tested compatibility between python 2.x and 3.x series
-- Unit tests for both python 2.x and 3.x
+- Tested compatibility for python 3.5, 3.6 and 3.7
 
 ## Quick Start
 ### Installing the SDK
@@ -63,15 +62,23 @@ Pull and merge requests are welcome ☺
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	collector-us.devo.io:443
- * **EU:**   	collector-eu.devo.io:443
+ * **USA:** 	
+    * **url**: collector-us.devo.io
+    * **port**: 443
+ * **EU:**
+    * **url**: collector-eu.devo.io
+    * **port**: 443
+ * **VDC:**
+    * **url**: collector-es.devo.io
+    * **port**: 443
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	https://api-us.devo.com/search/query
- * **EU:**   	https://api-eu.devo.com/search/query
+ * **USA:** 	https://apiv2-us.devo.com/search/query
+ * **EU:**   	https://apiv2-eu.devo.com/search/query
+ * **VDC:**   	https://apiv2-es.devo.com/search/query
 
 You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
 

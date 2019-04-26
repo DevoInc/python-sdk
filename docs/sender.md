@@ -11,8 +11,15 @@ This library allows you to send logs or lookups to the Devo platform.
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	collector-us.devo.io:443
- * **EU:**   	collector-eu.devo.io:443
+ * **USA:** 	
+    * **url**: collector-us.devo.io
+    * **port**: 443
+ * **EU:**
+    * **url**: collector-eu.devo.io
+    * **port**: 443
+ * **VDC:**
+    * **url**: collector-es.devo.io
+    * **port**: 443
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
