@@ -5,8 +5,8 @@ This library performs queries to the Client API (Search rest api) of Devo.
 ## Endpoints
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	https://api-us.devo.com/search/query
- * **EU:**   	https://api-eu.devo.com/search/query
+ * **USA:** 	https://apiv2-us.devo.com/search/query
+ * **EU:**   	https://apiv2-eu.devo.com/search/query
 
 You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
 
@@ -19,9 +19,9 @@ You have more information in the official documentation of Devo, [REST API v2](h
 - jwt: JWT token
 - url(optional): The url of the service. A static constants are provided with
 the commons clouds: can take several values, for example:
-    - Client.URL_AWS_EU: https://api-eu.logtrust.com
-    - Client.URL_AWS_USA: https://api-us.logtrust.com
-    - Client.URL_VDC: https://spainapi.logtrust.com
+    - Client.URL_AWS_EU: https://apiv2-eu.devo.com
+    - Client.URL_AWS_USA: https://apiv2-us.devo.com
+    - Client.URL_VDC: https://spainapi.devo.com
     - Client.URL_QUERY_COMPLEMENT = '/search/query'
 - buffer (optional): Buffer object if you modify the Devo Buffer class
 

@@ -265,6 +265,14 @@ class Sender(logging.Handler):
             self.socket = None
 
     @staticmethod
+    def __encode_multiline(record):
+        try:
+            record = Sender.__encode_record(record)
+            return b'%d %s' % (len(record), record)
+        except Exception as error:
+            raise DevoSenderException(error)
+
+    @staticmethod
     def __encode_record(record):
         """
         Class for encode the record for correct send
@@ -312,7 +320,7 @@ class Sender(logging.Handler):
                         sent = self.socket.send(self.__encode_record(record))
                         return 1
                     if multiline:
-                        record = self.__encode_record(record)
+                        record = self.__encode_multiline(record)
 
                     sent = self.__send_oc(record)
                     if sent:
