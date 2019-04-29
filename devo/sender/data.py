@@ -7,16 +7,11 @@ import ssl
 import sys
 import time
 import zlib
-
+from devo.common import Configuration
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 
-from devo.common import Configuration
-
-PY3 = sys.version_info[0] > 2
-PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
-PY34 = sys.version_info[0] == 3 and sys.version_info[1] == 4
 PYPY = hasattr(sys, 'pypy_version_info')
 
 
@@ -277,15 +272,10 @@ class Sender(logging.Handler):
         """
         Class for encode the record for correct send
         :param record: the record to encode
-        :return: record encoded for PY3 or PY2
+        :return: record encoded for PY3
         """
-        if PY3:
-            if not isinstance(record, bytes):
-                return record.encode('utf-8')
-        else:
-            if not isinstance(record, str):
-                return bytes(record.encode("utf-8"))
-
+        if not isinstance(record, bytes):
+            return record.encode('utf-8')
         return record
 
     def __send_oc(self, record):
@@ -302,7 +292,7 @@ class Sender(logging.Handler):
             raise DevoSenderException("Devo-Sender|Send error")
         return sent
 
-    def send_raw(self, record, multiline=False, zipped=False):
+    def send_raw(self, record, multiline=False, zip=False):
         """
         Send raw messages to the collector
 
@@ -316,7 +306,7 @@ class Sender(logging.Handler):
 
             if self.socket:
                 try:
-                    if not multiline and not zipped:
+                    if not multiline and not zip:
                         sent = self.socket.send(self.__encode_record(record))
                         return 1
                     if multiline:
@@ -397,7 +387,7 @@ class Sender(logging.Handler):
 
     def send_str(self, tag, msg, **kwargs):
         """
-        Send function when str, sure py 27. Cant be zipped
+        Send function when str, sure py 27. Cant be zip
         """
         if msg[-1:] != "\n":
             msg += "\n"
@@ -445,7 +435,7 @@ class Sender(logging.Handler):
                                               zlib.DEFLATED, 31)
                 record = compressor.compress(self.buffer.text_buffer) \
                          + compressor.flush()
-                if self.send_raw(record, zipped=True):
+                if self.send_raw(record, zip=True):
                     return self.buffer.events
                 return 0
             except Exception as error:

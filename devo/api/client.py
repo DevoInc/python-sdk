@@ -10,7 +10,6 @@ from devo.common import default_from, default_to
 from .processors import processors, proc_json, proc_default, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
 
-PY3 = sys.version_info[0] > 2
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
 URL_AWS_EU = 'https://apiv2-eu.devo.com'
@@ -37,7 +36,6 @@ class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
 
-
 def raise_DevoClientException(error):
     try:
         if isinstance(error, str):
@@ -54,18 +52,11 @@ def _format_error(error):
            '"object": "%s"}' % str(error).replace("\"", "\\\"")
 
 
-if not PY3:
-    class ConnectionError(OSError):
-        """ Connection error. """
-        def __init__(self, *args, **kwargs):  # real signature unknown
-            pass
-
-
 class Client:
     """
     The Devo SERach REst Api main class
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """
         Initialize the API with this params, all optionals
         :param key: Key string
@@ -75,35 +66,14 @@ class Client:
         :param buffer: Buffer object, if want another diferent queue
         """
         self.time_start = int(round(time.time() * 1000))
-        if len(args) == 3:
-            self.key = args[0]
-            self.secret = args[1]
-            self.url = args[2]
-        elif not args:
-            self.key = kwargs.get("key",
-                                  kwargs.get("api_key",
-                                             kwargs.get("apiKey", None)))
-
-            self.secret = kwargs.get("secret",
-                                     kwargs.get("api_secret",
-                                                kwargs.get("apiSecret", None)))
-
-            self.url = kwargs.get("url", None)
-        else:
-            raise DevoClientException("Devo-Client|Position arguments are "
-                                      "deprecated, It is only enabled as "
-                                      "compatibility, being able to pass only "
-                                      "3 arguments: key, secret and url, "
-                                      "in that order. ")
-
+        self.key = kwargs.get("key", None)
+        self.secret = kwargs.get("secret", None)
+        self.url = kwargs.get("url", None)
         self.user = kwargs.get('user', CLIENT_DEFAULT_USER)
         self.app_name = kwargs.get('app_name', CLIENT_DEFAULT_APP_NAME)
-        self.token = kwargs.get("token",
-                                kwargs.get(
-                                    "auth_token",
-                                    kwargs.get("authToken", None)))
-
+        self.token = kwargs.get("token", None)
         self.jwt = kwargs.get("jwt", None)
+
         self.response = "json/simple/compact"
         self.processor = proc_default()
         self.proc = DEFAULT
@@ -136,9 +106,9 @@ class Client:
         Split the two parts of the api url
         :param url: Url of the api
         """
-        return self.__verify_url_complement(
-            self.url.split("//")[-1].split("/", maxsplit=1) if PY3
-            else self.url.split("//")[-1].split("/", 1))
+        return \
+            self.__verify_url_complement(
+                self.url.split("//")[-1].split("/", maxsplit=1))
 
     @staticmethod
     def __verify_url_complement(url_list):
@@ -153,11 +123,10 @@ class Client:
     def _generate_dates(dates):
         """
         Generate and merge dates object
-        :param dates: object with optios for query, see doc
+        :param dates: object with options for query, see doc
         :return: updated opts
         """
         default = {'from': 'yesterday()', 'to': None}
-
         if not dates:
             return default
 
@@ -199,7 +168,6 @@ class Client:
          a path to a CA bundle to use. Defaults to ``True``.
         :return: Result of the query (dict) or Buffer object
         """
-
         query = kwargs.get('query', None)
         query_id = kwargs.get('query_id', None)
         dates = self._generate_dates(kwargs.get('dates', None))
