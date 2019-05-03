@@ -1,10 +1,8 @@
 """CLI for use Devo API from shell command line."""
-
-import sys
 import os
 import click
 from devo.common import Configuration
-from devo.api import Client, DevoClientException
+from devo.api.client import Client, DevoClientException, ERROR_MSGS
 
 # Groups
 # ------------------------------------------------------------------------------
@@ -35,7 +33,7 @@ def cli():
               help='Secret for the api.')
 @click.option('--api_token', '--apiToken', '--token',
               help='Secret for the api.')
-@click.option('--query', '-q', help='Query.')
+@click.option('--query', '-q', help='Query.', default="")
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with '
               'start and end. Default is true', default=True)
@@ -49,12 +47,16 @@ def cli():
 @click.option('--to', default=None,
               help='To date, and time for the query (YYYY-MM-DD hh:mm:ss). '
                    'For valid formats see lt-common README')
+@click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def query(**kwargs):
     """Perform query by query string"""
     api, config = configure(kwargs)
 
-    if config['query'] is None:
-        print_error("Error: Not query provided.", show_help=True)
+    if not config['query']:
+        print_error(ERROR_MSGS['no_query'], show_help=True)
+        if config['debug']:
+            return
+        exit()
 
     reponse = api.query(query=config['query'],
                         dates={"from": config['from'],
@@ -129,11 +131,11 @@ def configure(args):
     return api, conf
 
 
-def print_error(error, show_help=False, stop=True):
+def print_error(error, show_help=False):
     """Class for print error in shell when exception"""
-    click.echo(click.style(error, fg='red'), err=True)
     if show_help:
         click.echo("")
         click.echo(click.get_current_context().get_help())
-    if stop:
-        sys.exit(1)
+    click.echo(click.style(error, fg='red'), err=True)
+
+

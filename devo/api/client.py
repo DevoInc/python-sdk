@@ -4,7 +4,6 @@ import hmac
 import hashlib
 import time
 import json
-import sys
 import requests
 from devo.common import default_from, default_to
 from .processors import processors, proc_json, proc_default, \
@@ -13,14 +12,8 @@ from .processors import processors, proc_json, proc_default, \
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
 URL_AWS_EU = 'https://apiv2-eu.devo.com'
-URL_VDC = 'https://apiv2-es.devo.com'
-URL_AWS_USA = 'https://apiv2-us.devo.com'
 URL_QUERY_COMPLEMENT = 'search/query'
 URL_JOB = '/search/job/'
-URL_JOBS = '/search/jobs'
-URL_JOB_START = 'start/'
-URL_JOB_STOP = 'stop/'
-URL_JOB_REMOVE = 'remove/'
 
 DEFAULT = "default"
 TO_STR = "bytes_to_str"
@@ -31,6 +24,11 @@ COMPACT_TO_ARRAY = "jsoncompact_to_array"
 SIMPLECOMPACT_TO_OBJ = "jsoncompactsimple_to_obj"
 SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 
+ERROR_MSGS = {
+    "no_query": "Error: Not query provided.",
+    "no_auth": "Client dont have key&secret or auth token/jwt",
+    "no_endpoint": "Endpoint 'url' not found"
+}
 
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
@@ -68,7 +66,11 @@ class Client:
         self.time_start = int(round(time.time() * 1000))
         self.key = kwargs.get("key", None)
         self.secret = kwargs.get("secret", None)
+
         self.url = kwargs.get("url", None)
+        if not self.url:
+            raise raise_DevoClientException(ERROR_MSGS['no_endpoint'])
+
         self.user = kwargs.get('user', CLIENT_DEFAULT_USER)
         self.app_name = kwargs.get('app_name', CLIENT_DEFAULT_APP_NAME)
         self.token = kwargs.get("token", None)
@@ -97,8 +99,6 @@ class Client:
         :param url: string, full or only one part
         :return: Complete url for call api
         """
-        if self.url is None:
-            return URL_AWS_EU, URL_QUERY_COMPLEMENT
         return self.__get_url_parts()
 
     def __get_url_parts(self):
@@ -274,8 +274,9 @@ class Client:
                 if tries >= self.retries:
                     return raise_DevoClientException(_format_error(error))
                 time.sleep(self.sleep)
-            except DevoClientException:
-                raise_DevoClientException(response)
+            except DevoClientException as error:
+                print(error)
+                raise_DevoClientException(error)
             except Exception as error:
                 return raise_DevoClientException(_format_error(error))
 
@@ -345,8 +346,7 @@ class Client:
                 'Authorization': "jwt %s" % self.jwt
             }
 
-        raise DevoClientException("Devo-Client|Client dont have key&secret"
-                                  " or auth token/jwt")
+        raise DevoClientException(ERROR_MSGS['no_auth'])
 
     def _get_sign(self, data, tstamp):
         """
@@ -388,7 +388,7 @@ class Client:
             else "/{}".format(type if not name
                               else "{}/{}".format(type, name))
 
-        return self._call_jobs("{}{}{}".format(self.url, URL_JOBS, plus))
+        return self._call_jobs("{}{}{}".format(self.url, '/search/jobs', plus))
 
     def get_job(self, job_id):
         """Get all info of job
@@ -401,21 +401,21 @@ class Client:
         :param job_id: id of job
         :return: bool"""
         return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
-                                                 URL_JOB_STOP, job_id))
+                                                 'stop/', job_id))
 
     def start_job(self, job_id):
         """ Start one job by ID
         :param job_id: id of job
         :return: bool"""
         return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
-                                                 URL_JOB_START, job_id))
+                                                 'start/', job_id))
 
     def remove_job(self, job_id):
         """ Remove one job by ID
         :param job_id: id of job
         :return: bool"""
         return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
-                                                 URL_JOB_REMOVE, job_id))
+                                                 'remove/', job_id))
 
     def _call_jobs(self, url):
         """
