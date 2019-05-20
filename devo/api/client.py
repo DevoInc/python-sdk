@@ -92,9 +92,9 @@ class Client:
         self.proc = DEFAULT
 
         self.url, self.query_url = self.__set_url_query()
-        self.retries = 3
-        self.timeout = 30
-        self.sleep = 5
+        self.retries = kwargs.get('retries', 3)
+        self.timeout = kwargs.get('timeout', 30)
+        self.sleep = kwargs.get('sleep', 5)
 
     @staticmethod
     def from_config(config):
