@@ -1,6 +1,7 @@
 import unittest
 import os
 from click.testing import CliRunner
+from devo.common import Configuration
 from devo.api.scripts.client_cli import query
 from devo.api.client import ERROR_MSGS, DevoClientException
 
@@ -17,7 +18,16 @@ class TestApi(unittest.TestCase):
         self.query_id = os.getenv('DEVO_API_QUERYID', None)
         self.user = os.getenv('DEVO_API_USER', "python-sdk-user")
         self.comment = os.getenv('DEVO_API_COMMENT', None)
-        self.config_path = os.getenv('DEVO_TEST_CONFIG_PATH', None)
+
+        configuration = Configuration()
+        configuration.cfg = {"api": {
+            "query": self.query, "url": self.uri,
+            "key": self.key, "secret": self.secret, "token": self.token,
+            "query_id": self.query_id, "user": self.user,
+            "comment": self.comment, "app_name": self.app_name
+        }}
+        self.config_path = "/tmp/devo_api_tests_config.json"
+        configuration.save(path=self.config_path)
 
     def test_query_args(self):
         runner = CliRunner()

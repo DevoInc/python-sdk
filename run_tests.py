@@ -1,5 +1,6 @@
 import os
 import sys
+import unittest
 import argparse
 from devo.common import load_env_file
 from tests.sender.local_servers import ssl_server, tcp_server
@@ -8,11 +9,6 @@ failed = False
 
 
 def run_test_suite():
-    try:
-        import unittest2 as unittest
-    except ImportError:
-        import unittest
-
     def mark_failed():
         global failed
         failed = True

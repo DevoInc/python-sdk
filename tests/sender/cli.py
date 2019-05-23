@@ -1,6 +1,7 @@
 import unittest
 import socket
 from click.testing import CliRunner
+from devo.common import Configuration
 from devo.sender.scripts.sender_cli import data
 from devo.sender import DevoSenderException
 from load_certs import *
@@ -29,6 +30,14 @@ class TestApi(unittest.TestCase):
         self.localhost = socket.gethostname()
         # change this value if you want to send another number of test string
         self.default_numbers_sendings = 10
+
+        configuration = Configuration()
+        configuration.cfg = {"sender": {
+            "key": self.key, "cert": self.cert, "chain": self.chain,
+            "address": self.address, "port": self.port,
+        }}
+        self.config_path = "/tmp/devo_sender_tests_config.json"
+        configuration.save(path=self.config_path)
 
     def test_sender_args(self):
         runner = CliRunner()
@@ -75,14 +84,10 @@ class TestApi(unittest.TestCase):
         if self.config_path:
             runner = CliRunner()
             result = runner.invoke(data, ["--debug",
-                                           "--from", "2018-01-01",
-                                           "--query",
-                                           "from demo.ecommerce.data "
-                                           "select timestamp limit 1",
-                                           "--config", self.config_path])
+                                          "--config", self.config_path])
 
             self.assertIsNone(result.exception)
-            self.assertEqual(result.exit_code, 0)
+            self.assertGreater(int(result.output), 0)
 
 
 if __name__ == '__main__':
