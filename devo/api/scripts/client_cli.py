@@ -3,15 +3,22 @@ import os
 import click
 from devo.common import Configuration
 from devo.api.client import Client, DevoClientException, ERROR_MSGS
+from devo.__version__ import __version__
 
 # Groups
 # ------------------------------------------------------------------------------
 
 
-@click.group()
-def cli():
-    """Empty group"""
-    pass
+@click.group(invoke_without_command=True)
+@click.option('--version', "-v", is_flag=True, default=False)
+def cli(version):
+    """ Initialize click """
+    pkg_dir =  os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "..",
+    ))
+    click.echo("devo-sdk {!s} from {!s} (python {!s})".format(__version__,
+                                                              pkg_dir,
+                                                              sys.version[:3]))
 
 # Commands
 # ------------------------------------------------------------------------------
@@ -28,11 +35,9 @@ def cli():
 @click.option('--user', '-user', help='User for the api.')
 @click.option('--app_name', '-app_name', help='Application name for the api.')
 @click.option('--comment', '-comment', help='Comment for the queries.')
-@click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
-@click.option('--api_secret', '--apiSecret', '--secret',
-              help='Secret for the api.')
-@click.option('--api_token', '--apiToken', '--token',
-              help='Secret for the api.')
+@click.option('--key', help='Key for the api.')
+@click.option('--secret', help='Secret for the api.')
+@click.option('--token', help='Secret for the api.')
 @click.option('--query', '-q', help='Query.', default="")
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with '
@@ -102,7 +107,7 @@ def configure(args):
     """
     Load CLI configuration
     :param args: args from files, launch vars, etc
-    :return: Client API Object and Config values in array
+    :return: Clien  t API Object and Config values in array
     """
     config = Configuration()
     try:
@@ -137,5 +142,3 @@ def print_error(error, show_help=False):
         click.echo("")
         click.echo(click.get_current_context().get_help())
     click.echo(click.style(error, fg='red'), err=True)
-
-

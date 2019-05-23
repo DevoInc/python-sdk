@@ -14,13 +14,21 @@ import os
 from devo.common import Configuration
 from ..lookup import Lookup
 from ..data import Sender
+from devo.__version__ import __version__
 # Groups
 # ------------------------------------------------------------------------------
 
 
-@click.group()
-def cli():
+@click.group(invoke_without_command=True)
+@click.option('--version', "-v", is_flag=True, default=False)
+def cli(version):
     """ Initialize click """
+    pkg_dir =  os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "..",
+    ))
+    click.echo("devo-sdk {!s} from {!s} (python {!s})".format(__version__,
+                                                              pkg_dir,
+                                                              sys.version[:3]))
 
 
 # Commands
@@ -59,7 +67,7 @@ def data(**kwargs):
     """Send data to devo"""
     config = configure(kwargs)
     try:
-        con = Sender.from_config(config)
+        con = Sender.from_dict(config)
         if config['file']:
             if not os.path.isfile(config['file']):
                 print_error(str("File not exist"))
@@ -117,10 +125,7 @@ def data(**kwargs):
 def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
-    con = Sender.from_config(config)
-    logger = logging.getLogger("lt")
-    logger.setLevel(logging.DEBUG)
-    logger.addHandler(con)
+    con = Sender.from_dict(config)
     look_up = Lookup(name=config['name'], historic_tag=None, con=con)
 
     with open(config['file']) as file:
