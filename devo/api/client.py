@@ -30,14 +30,19 @@ ERROR_MSGS = {
     "no_endpoint": "Endpoint 'url' not found"
 }
 
+
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
 
-def raise_DevoClientException(error):
+def raise_exception(error):
     try:
         if isinstance(error, str):
             raise DevoClientException(proc_json()(error))
+        elif isinstance(error, DevoClientException):
+            raise DevoClientException(error.args[0])
+        elif isinstance(error, dict):
+            raise DevoClientException(error)
         else:
             response_text = proc_json()(error.text)
             raise DevoClientException(response_text)
@@ -67,9 +72,11 @@ class Client:
         self.key = kwargs.get("key", None)
         self.secret = kwargs.get("secret", None)
 
-        self.url = kwargs.get("url", None)
-        if not self.url:
-            raise raise_DevoClientException(ERROR_MSGS['no_endpoint'])
+        if not kwargs.get("url", None):
+            raise raise_exception(
+                _format_error(ERROR_MSGS['no_endpoint'])
+            )
+        self.url, self.query_url = self.__get_url_parts(kwargs.get("url", None))
 
         self.user = kwargs.get('user', CLIENT_DEFAULT_USER)
         self.app_name = kwargs.get('app_name', CLIENT_DEFAULT_APP_NAME)
@@ -80,7 +87,6 @@ class Client:
         self.processor = proc_default()
         self.proc = DEFAULT
 
-        self.url, self.query_url = self.__set_url_query()
         self.retries = 3
         self.timeout = 30
         self.sleep = 5
@@ -93,22 +99,14 @@ class Client:
         """
         return Client(**config)
 
-    def __set_url_query(self):
-        """
-        Set URL to ask
-        :param url: string, full or only one part
-        :return: Complete url for call api
-        """
-        return self.__get_url_parts()
-
-    def __get_url_parts(self):
+    def __get_url_parts(self, url):
         """
         Split the two parts of the api url
         :param url: Url of the api
         """
         return \
             self.__verify_url_complement(
-                self.url.split("//")[-1].split("/", maxsplit=1))
+                url.split("//")[-1].split("/", maxsplit=1))
 
     @staticmethod
     def __verify_url_complement(url_list):
@@ -226,13 +224,10 @@ class Client:
         :return line: yield-generator item
         """
         response = self._make_request(payload, stream, verify)
-        #
-        # if isinstance(response, str):
-        #     raise DevoClientException(proc_json()(response))
         try:
             first = next(response)
         except TypeError:
-            raise_DevoClientException(response)
+            raise_exception(response)
 
         if self._is_correct_response(first):
             if self.proc == SIMPLECOMPACT_TO_OBJ:
@@ -264,7 +259,7 @@ class Client:
                                          verify=verify, timeout=self.timeout,
                                          stream=stream)
                 if response.status_code != 200:
-                    raise DevoClientException()
+                    raise DevoClientException(response)
 
                 if stream:
                     return response.iter_lines()
@@ -272,13 +267,15 @@ class Client:
             except requests.exceptions.ConnectionError as error:
                 tries += 1
                 if tries >= self.retries:
-                    return raise_DevoClientException(_format_error(error))
+                    return raise_exception(_format_error(error))
                 time.sleep(self.sleep)
             except DevoClientException as error:
-                print(error)
-                raise_DevoClientException(error)
+                if isinstance(error, DevoClientException):
+                    raise_exception(error.args[0])
+                else:
+                    raise_exception(error)
             except Exception as error:
-                return raise_DevoClientException(_format_error(error))
+                return raise_exception(_format_error(error))
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -295,7 +292,7 @@ class Client:
         """
         payload = {"from": int(default_from(dates['from']) / 1000),
                    "to": int(default_to(dates['to']) / 1000) if
-                         dates['to'] is not None else None,
+                   dates['to'] is not None else None,
                    "mode": {"type": opts['response']}}
 
         if query:
@@ -346,7 +343,7 @@ class Client:
                 'Authorization': "jwt %s" % self.jwt
             }
 
-        raise DevoClientException(ERROR_MSGS['no_auth'])
+        raise DevoClientException(_format_error(ERROR_MSGS['no_auth']))
 
     def _get_sign(self, data, tstamp):
         """
@@ -356,8 +353,8 @@ class Client:
         :return: The sign in hex response
         """
         if not self.secret or not self.key:
-            raise DevoClientException("You need a API Key and API "
-                                      "secret to make this")
+            raise DevoClientException(_format_error("You need a API Key and "
+                                                    "API secret to make this"))
         sign = hmac.new(self.secret.encode("utf-8"),
                         (self.key + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
@@ -430,13 +427,13 @@ class Client:
                                         headers=self._get_jobs_headers(),
                                         verify=True, timeout=self.timeout)
             except ConnectionError as error:
-                return {"status": 404, "error": error}
+                raise_exception({"status": 404, "msg": error})
 
             if response:
                 if response.status_code != 200 or\
                         "error" in response.text[0:15].lower():
-                    return {"status": response.status_code,
-                            "error": response.text}
+                    raise_exception(response.text)
+                    return
                 try:
                     return json.loads(response.text)
                 except json.decoder.JSONDecodeError:

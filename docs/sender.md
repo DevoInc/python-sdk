@@ -120,49 +120,6 @@ config = conf.get()
 con = Sender.from_config(config)
 ```
 
-In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
-
-The regular use of the handler can be observed in this 3 examples:
-
-##### Setting up configuration variables.
-```python
-from devo.sender import SenderConfigSSL
-tag = 'test.dump.free'
-engine_config = SenderConfigSSL(address=server, port=port,
-                                        key=key, cert=cert,
-                                        chain=chain)
-con = Sender(engine_config)
-                    
-```
-##### First example: Setting up tag after Sender is created
-
-```python
-logger = logging.getLogger('DEVO_logger')
-# tag added after Sender is created
-con = Sender(engine_config)
-con.set_logger_tag(tag)
-logger.addHandler(con)
-```
-##### Second example: Setting up a Sender with tag
-```python
-logger = logging.getLogger('DEVO_logger')
-#Sender created ready to be used
-con = Sender(engine_config, tag)
-logger.addHandler(con)
-```
-##### Third example: Setting up a static Sender
-
-```python
-engine_config = {"address": server, "port": port,
-                             "key": key, "cert": cert,
-                             "chain": chain, "type": "SSL", "cert_regs": True}
-logger = logging.getLogger('DEVO_logger')
-#Static Sender
-con = Sender.for_logging(engine_config, "SSL", tag)
-logger.addHandler(con)
-```
-
-
 #### Sending data 
 
 - After we use the configuration class, we will now be able to send events to the collector
@@ -228,6 +185,39 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
 `send()`, `send_raw()`, `flush_buffer` and `fill_buffer()` return the numbers of lines sent
  (1, each time, if not zipped, 0..X if zipped)
  
+ 
+## Sender as an Logging Handler
+In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
+
+The regular use of the handler can be observed in this  examples:
+
+##### Second example: Setting up a Sender with tag
+```python
+from devo.common import get_log
+from devo.sender import Sender, SenderConfigSSL
+
+engine_config = SenderConfigSSL(address=("devo.collector", 443),
+                                key="key.key", cert="cert.crt",
+                                chain="chain.crt")
+                                
+con = Sender.for_logging(engine_config, "my.app.test.logger")
+logger = get_log(name="devo_logger", handler=con)
+logger.info("Hello devo!")
+
+```
+##### Second example: Setting up a static Sender
+
+```python
+from devo.common import get_log
+from devo.sender import Sender
+config = {"address": "devo.collertor", "port": 443,
+                 "key": "key.key", "cert": "cert.crt",
+                 "chain": "chain.crt", "type": "SSL"}
+#Static Sender
+con = Sender.for_logging(config=config, tag="my.app.test.logging")
+logger = get_log(name="devo_logger", handler=con)
+```
+
 
 ###Lookup
 
@@ -288,7 +278,7 @@ conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
 config = conf.get()
-con = Sender.from_config(config)
+con = Sender.from_dict(config)
 lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 with open(config['file']) as f:
     line = f.readline()
@@ -386,7 +376,7 @@ conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
 config = conf.get()
-con = Sender.from_config(config)
+con = Sender.from_dict(config)
 lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 
 pHeaders = Lookup.list_to_headers(['KEY','HEX', 'COLOR'], 'KEY')
@@ -404,7 +394,7 @@ conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
 config = conf.get()
-con = Sender.from_config(config)
+con = Sender.from_dict(config)
 lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 
 lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START')

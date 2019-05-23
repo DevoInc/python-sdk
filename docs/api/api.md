@@ -22,7 +22,7 @@ You have more information in the official documentation of Devo, [REST API](http
 the commons clouds: can take several values, for example:
     - Client.URL_AWS_EU: https://apiv2-eu.devo.com
     - Client.URL_AWS_USA: https://apiv2-us.devo.com
-    - Client.URL_VDC: https://spainapi.devo.com
+    - Client.URL_VDC: https://apiv2-es.devo.com
     - Client.URL_QUERY_COMPLEMENT = '/search/query'
 - buffer (optional): Buffer object if you modify the Devo Buffer class
 
