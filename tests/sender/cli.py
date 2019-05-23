@@ -1,97 +1,88 @@
 import unittest
-import os
+import socket
 from click.testing import CliRunner
-from devo.sender.scripts.sender_cli import data, lookup
+from devo.sender.scripts.sender_cli import data
 from devo.sender import DevoSenderException
+from load_certs import *
 
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.query = 'from demo.ecommerce.data select * limit 1'
-        self.app_name = "testing-app_name"
-        self.uri = os.getenv('DEVO_API_URL',
-                             'https://apiv2-us.devo.com/search/query')
-        self.key = os.getenv('DEVO_API_KEY', None)
-        self.secret = os.getenv('DEVO_API_SECRET', None)
-        self.token = os.getenv('DEVO_AUTH_TOKEN', None)
-        self.query_id = os.getenv('DEVO_API_QUERYID', None)
-        self.user = os.getenv('DEVO_API_USER', "python-sdk-user")
-        self.comment = os.getenv('DEVO_API_COMMENT', None)
-        self.config_path = os.getenv('DEVO_TEST_CONFIG_PATH', None)
-    #
-    # def test_query_args(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(data, [])
-    #     self.assertIn(ERROR_MSGS['no_query'], result.stdout)
-    #     self.assertIn(ERROR_MSGS['no_endpoint'], result.stdout)
-    #
-    # def test_not_credentials(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(query, ["--debug",
-    #                                    "--from", "2018-01-01",
-    #                                    "--query", "from demo.ecommerce.data "
-    #                                               "select timestamp limit 1",
-    #                                    "--url", self.uri])
-    #
-    #     self.assertIsInstance(result.exception, DevoClientException)
-    #     self.assertEqual(result.exception.args[0]['status'], 500)
-    #     self.assertIn(ERROR_MSGS['no_auth'],
-    #                   result.exception.args[0]['object'])
-    #
-    # def test_bad_url(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(query, ["--debug",
-    #                                    "--from", "2018-01-01",
-    #                                    "--query", "from demo.ecommerce.data "
-    #                                               "select timestamp limit 1",
-    #                                    "--url", "apiv2-us.logtrust.com/search/query",
-    #                                    "--key", self.key,
-    #                                    "--secret", self.secret])
-    #     self.assertIsInstance(result.exception, DevoClientException)
-    #     self.assertEqual(result.exception.args[0]['status'], 500)
-    #
-    # def test_bad_credentials(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(query, ["--debug",
-    #                                    "--from", "2018-01-01",
-    #                                    "--query", "from demo.ecommerce.data "
-    #                                               "select timestamp limit 1",
-    #                                    "--url", self.uri,
-    #                                    "--key", self.key + "aaa",
-    #                                    "--secret", self.secret])
-    #
-    #     self.assertIsInstance(result.exception, DevoClientException)
-    #     self.assertEqual(result.exception.args[0]['status'], 401)
-    #
-    # def test_normal_query(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(query, ["--debug",
-    #                                    "--from", "2018-01-01",
-    #                                    "--query", "from demo.ecommerce.data "
-    #                                               "select timestamp limit 1",
-    #                                    "--url", self.uri,
-    #                                    "--key", self.key,
-    #                                    "--secret", self.secret])
-    #
-    #     self.assertIsNone(result.exception)
-    #     self.assertEqual(result.exit_code, 0)
-    #     self.assertIn('{"m":{"timestamp":{"type":"str","index":0}}}',
-    #                   result.output)
-    #
-    # def test_with_config_file(self):
-    #     if self.config_path:
-    #         runner = CliRunner()
-    #         result = runner.invoke(query, ["--debug",
-    #                                        "--from", "2018-01-01",
-    #                                        "--query",
-    #                                        "from demo.ecommerce.data "
-    #                                        "select timestamp limit 1",
-    #                                        "--config", self.config_path])
-    #
-    #         self.assertIsNone(result.exception)
-    #         self.assertEqual(result.exit_code, 0)
-    #         self.assertIn('{"m":{"timestamp":{"type":"str","index":0}}}',
-    #                       result.output)
+        self.address = os.getenv('DEVO_SENDER_SERVER', "0.0.0.0")
+        self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
+        self.tcp_address = os.getenv('DEVO_SENDER_TCP_SERVER', "0.0.0.0")
+        self.tcp_port = int(os.getenv('DEVO_SENDER_TCP_PORT', 4489))
+
+        self.key = os.getenv('DEVO_SENDER_KEY', CLIENT_KEY)
+        self.cert = os.getenv('DEVO_SENDER_CERT', CLIENT_CERT)
+        self.chain = os.getenv('DEVO_SENDER_CHAIN', CLIENT_CHAIN)
+
+        self.local_key = os.getenv(CLIENT_KEY)
+        self.test_tcp = os.getenv('DEVO_TEST_TCP', "True")
+        self.my_app = 'test.drop.free'
+        self.my_bapp = b'test.drop.free'
+        self.my_date = 'my.date.test.sender'
+        self.test_file = "".join((os.path.dirname(os.path.abspath(__file__)),
+                                  os.sep, "testfile_multiline.txt"))
+
+        self.test_msg = 'Test send msg\n'
+        self.localhost = socket.gethostname()
+        # change this value if you want to send another number of test string
+        self.default_numbers_sendings = 10
+
+    def test_sender_args(self):
+        runner = CliRunner()
+        result = runner.invoke(data, [])
+        self.assertIn('No address', result.stdout)
+
+    def test_bad_address(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address", self.address + "asd"])
+
+        self.assertIsInstance(result.exception, DevoSenderException)
+        self.assertIn("Name or service not known",
+                         result.exception.args[0])
+
+    def test_bad_certs(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                       "--address",
+                                       "collector-us.devo.io",
+                                       "--port", "443",
+                                       "--key", self.local_key,
+                                       "--cert", self.cert,
+                                       "--chain", self.chain])
+        self.assertIsInstance(result.exception, DevoSenderException)
+        self.assertIn("SSL conn establishment socket error",
+                      result.exception.args[0])
+
+    def test_normal_send(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address", self.address,
+                                      "--port", self.port,
+                                      "--key", self.key,
+                                      "--cert", self.cert,
+                                      "--chain", self.chain,
+                                      "--tag", self.my_app,
+                                      "--line", "Test line"])
+
+        self.assertIsNone(result.exception)
+        self.assertGreater(int(result.output), 0)
+
+    def test_with_config_file(self):
+        if self.config_path:
+            runner = CliRunner()
+            result = runner.invoke(data, ["--debug",
+                                           "--from", "2018-01-01",
+                                           "--query",
+                                           "from demo.ecommerce.data "
+                                           "select timestamp limit 1",
+                                           "--config", self.config_path])
+
+            self.assertIsNone(result.exception)
+            self.assertEqual(result.exit_code, 0)
 
 
 if __name__ == '__main__':

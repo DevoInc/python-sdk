@@ -458,7 +458,10 @@ tag=None, logger=None, verbose_level="INFO",
         else:
             connection_type = "SSL"
 
-        address = config.get("address")
+        address = config.get("address", None)
+
+        if not address:
+            raise DevoSenderException("No address")
 
         if not isinstance(address, tuple):
             address = (address, int(config.get("port", 443)))
