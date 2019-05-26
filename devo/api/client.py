@@ -59,7 +59,7 @@ class Client:
     """
     The Devo SERach REst Api main class
     """
-    def __init__(self, **kwargs):
+    def __init__(self, address=None, auth=None, retries=3, timeout=30):
         """
         Initialize the API with this params, all optionals
         :param key: Key string
@@ -68,54 +68,57 @@ class Client:
         :param url: URL for the service
         :param buffer: Buffer object, if want another diferent queue
         """
-        self.time_start = int(round(time.time() * 1000))
-        self.key = kwargs.get("key", None)
-        self.secret = kwargs.get("secret", None)
+        self.auth = auth
 
-        if not kwargs.get("url", None):
+        if not address:
             raise raise_exception(
                 _format_error(ERROR_MSGS['no_endpoint'])
             )
-        self.url, self.query_url = self.__get_url_parts(kwargs.get("url", None))
 
-        self.user = kwargs.get('user', CLIENT_DEFAULT_USER)
-        self.app_name = kwargs.get('app_name', CLIENT_DEFAULT_APP_NAME)
-        self.token = kwargs.get("token", None)
-        self.jwt = kwargs.get("jwt", None)
+        self.address = self.__get_address_parts(address)
 
-        self.response = "json/simple/compact"
+        self.pragmas = {"user": CLIENT_DEFAULT_USER,
+                        "app_name": CLIENT_DEFAULT_APP_NAME}
+
         self.processor = proc_default()
         self.proc = DEFAULT
 
-        self.retries = 3
-        self.timeout = 30
-        self.sleep = 5
+        self.retries = retries
+        self.timeout = timeout
+
+    def set_user(self, user=CLIENT_DEFAULT_USER):
+        self.pragmas['user'] = user
+        return True
+
+    def set_app_name(self, app_name=CLIENT_DEFAULT_APP_NAME):
+        self.pragmas['app_name'] = app_name
+        return True
 
     @staticmethod
-    def from_config(config):
+    def from_dict(config):
         """
         Create Client object from config file values
         :param config: lt-common config standar
         """
         return Client(**config)
 
-    def __get_url_parts(self, url):
+    def __get_address_parts(self, address):
         """
         Split the two parts of the api url
         :param url: Url of the api
         """
         return \
-            self.__verify_url_complement(
-                url.split("//")[-1].split("/", maxsplit=1))
+            self.__verify_address_complement(
+                address.split("//")[-1].split("/", maxsplit=1))
 
     @staticmethod
-    def __verify_url_complement(url_list):
+    def __verify_address_complement(address_list):
         """
         Verify if only has main domain or full url
         :param url_list: One or two part of the url
         """
-        return url_list if len(url_list) == 2 \
-            else [url_list[0], URL_QUERY_COMPLEMENT]
+        return address_list if len(address_list) == 2 \
+            else [address_list[0], URL_QUERY_COMPLEMENT]
 
     @staticmethod
     def _generate_dates(dates):
@@ -172,7 +175,7 @@ class Client:
         stream = kwargs.get('stream', True)
 
         processor = kwargs.get('processor', None)
-        response = kwargs.get('response', self.response)
+        response = kwargs.get('response', "json/simple/compact")
 
         if not processor or \
                 (response == "csv" and processor not in (TO_STR, TO_BYTES)):
@@ -226,6 +229,8 @@ class Client:
         response = self._make_request(payload, stream, verify)
         try:
             first = next(response)
+        except StopIteration:
+            first = None
         except TypeError:
             raise_exception(response)
 
@@ -252,8 +257,8 @@ class Client:
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("https://{}/{}".format(self.url,
-                                                                self.query_url),
+                response = requests.post("https://{}"
+                                         .format("/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
                                          verify=verify, timeout=self.timeout,
@@ -268,7 +273,7 @@ class Client:
                 tries += 1
                 if tries >= self.retries:
                     return raise_exception(_format_error(error))
-                time.sleep(self.sleep)
+                time.sleep(self.timeout)
             except DevoClientException as error:
                 if isinstance(error, DevoClientException):
                     raise_exception(error.args[0])
@@ -291,8 +296,9 @@ class Client:
         :return: Return the formed payload
         """
         payload = {"from": int(default_from(dates['from']) / 1000),
-                   "to": int(default_to(dates['to']) / 1000) if
-                   dates['to'] is not None else None,
+                   "to": int(default_to(dates['to']) / 1000) if dates['to']
+                         is not None
+                         else None,
                    "mode": {"type": opts['response']}}
 
         if query:
@@ -320,27 +326,27 @@ class Client:
         """
 
         tstamp = str(int(time.time()) * 1000)
-        if self.key and self.secret:
+        if self.auth.get("key", False) and self.auth.get("secret", False):
             sign = self._get_sign(data, tstamp)
             return {
                 'Content-Type': 'application/json',
-                'x-logtrust-apikey': self.key,
+                'x-logtrust-apikey': self.auth.get("key"),
                 'x-logtrust-timestamp': tstamp,
                 'x-logtrust-sign': sign
             }
 
-        if self.token:
+        if self.auth.get("token", False):
             return {
                 'Content-Type': 'application/json',
                 'x-logtrust-timestamp': tstamp,
-                'Authorization': "Bearer %s" % self.token
+                'Authorization': "Bearer %s" % self.auth.get("token")
             }
 
-        if self.jwt:
+        if self.auth.get("jwt", False):
             return {
                 'Content-Type': 'application/json',
                 'x-logtrust-timestamp': tstamp,
-                'Authorization': "jwt %s" % self.jwt
+                'Authorization': "jwt %s" % self.auth.get("jwt")
             }
 
         raise DevoClientException(_format_error(ERROR_MSGS['no_auth']))
@@ -352,11 +358,11 @@ class Client:
         :param tstamp: Epoch timestamp
         :return: The sign in hex response
         """
-        if not self.secret or not self.key:
+        if not self.auth.get("key", False) or self.auth.get("secret", False):
             raise DevoClientException(_format_error("You need a API Key and "
                                                     "API secret to make this"))
-        sign = hmac.new(self.secret.encode("utf-8"),
-                        (self.key + data + tstamp).encode("utf-8"),
+        sign = hmac.new(self.auth.get("secret").encode("utf-8"),
+                        (self.auth.get("key") + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
         return sign.hexdigest()
 
@@ -369,49 +375,51 @@ class Client:
         """
         str_pragmas = ' pragma comment.id:"{}" ' \
                       'pragma comment.user:"{}"'\
-            .format(self.app_name, self.user)
+            .format(self.pragmas['app_name'], self.pragmas['user'])
 
         if comment:
             return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
 
         return str_pragmas
 
-    def get_jobs(self, type=None, name=None):
+    def get_jobs(self, job_type=None, name=None):
         """Get list of jobs by type and name, default All
-        :param type: category of jobs
+        :param job_type: category of jobs
         :param name: name of jobs
         :return: json"""
-        plus = "" if not type \
-            else "/{}".format(type if not name
-                              else "{}/{}".format(type, name))
+        plus = "" if not job_type \
+            else "/{}".format(job_type if not name
+                              else "{}/{}".format(job_type, name))
 
-        return self._call_jobs("{}{}{}".format(self.url, '/search/jobs', plus))
+        return self._call_jobs("{}{}{}".format(self.address[0],
+                                               '/search/jobs', plus))
 
     def get_job(self, job_id):
         """Get all info of job
         :param job_id: job id
         :return: json"""
-        return self._call_jobs("{}{}{}".format(self.url, URL_JOB, job_id))
+        return self._call_jobs("{}{}{}".format(self.address[0],
+                                               URL_JOB, job_id))
 
     def stop_job(self, job_id):
         """ Stop one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
+        return self._call_jobs("{}{}{}{}".format(self.address[0], URL_JOB,
                                                  'stop/', job_id))
 
     def start_job(self, job_id):
         """ Start one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
+        return self._call_jobs("{}{}{}{}".format(self.address[0], URL_JOB,
                                                  'start/', job_id))
 
     def remove_job(self, job_id):
         """ Remove one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.url, URL_JOB,
+        return self._call_jobs("{}{}{}{}".format(self.address[0], URL_JOB,
                                                  'remove/', job_id))
 
     def _call_jobs(self, url):
@@ -422,6 +430,7 @@ class Client:
         """
         tries = 0
         while tries < self.retries:
+            response = None
             try:
                 response = requests.get("https://{}".format(url),
                                         headers=self._get_jobs_headers(),
@@ -433,18 +442,18 @@ class Client:
                 if response.status_code != 200 or\
                         "error" in response.text[0:15].lower():
                     raise_exception(response.text)
-                    return
+                    return None
                 try:
                     return json.loads(response.text)
                 except json.decoder.JSONDecodeError:
                     return response.text
             tries += 1
-            time.sleep(self.sleep)
+            time.sleep(self.timeout)
         return {}
 
     def _get_jobs_headers(self):
         tstamp = str(int(time.time()) * 1000)
         return {'x-logtrust-timestamp': tstamp,
-                'x-logtrust-apikey': self.key,
+                'x-logtrust-apikey': self.auth.get("key"),
                 'x-logtrust-sign': self._get_sign("", tstamp)
                 }
