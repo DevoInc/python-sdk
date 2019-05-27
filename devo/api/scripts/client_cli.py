@@ -130,7 +130,7 @@ def configure(args):
     # Try to compose the api
     api = None
     try:
-        api = Client.from_config(conf)
+        api = Client.from_dict(conf)
     except DevoClientException as error:
         print_error(str(error), show_help=True)
     return api, conf

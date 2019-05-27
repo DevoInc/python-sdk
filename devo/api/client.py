@@ -11,9 +11,9 @@ from .processors import processors, proc_json, proc_default, \
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
-URL_AWS_EU = 'https://apiv2-eu.devo.com'
-URL_QUERY_COMPLEMENT = 'search/query'
-URL_JOB = '/search/job/'
+ADDRESS_AWS_EU = 'https://apiv2-eu.devo.com'
+ADDRESS_QUERY_COMPLEMENT = 'search/query'
+ADDRESS_JOB = '/search/job/'
 
 DEFAULT = "default"
 TO_STR = "bytes_to_str"
@@ -27,7 +27,7 @@ SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 ERROR_MSGS = {
     "no_query": "Error: Not query provided.",
     "no_auth": "Client dont have key&secret or auth token/jwt",
-    "no_endpoint": "Endpoint 'url' not found"
+    "no_endpoint": "Endpoint 'address' not found"
 }
 
 
@@ -55,18 +55,35 @@ def _format_error(error):
            '"object": "%s"}' % str(error).replace("\"", "\\\"")
 
 
+class Options:
+    def __init__(self, processor=DEFAULT, response="json/simple/compact",
+                 comment=None, destination=None, stream=True):
+
+        self.stream = stream
+        self.response = response
+        self.comment = comment
+        self.destination = destination
+        self.proc = processor
+        self.processor = processors()[self.proc]()
+
+    def set_processor(self, processor=None):
+        if processor:
+            self.proc = processor
+            self.processor = processors()[self.proc]()
+        return True
+
 class Client:
     """
     The Devo SERach REst Api main class
     """
-    def __init__(self, address=None, auth=None, retries=3, timeout=30):
+    def __init__(self, address=None, auth=None, options=None,
+                 retries=3, timeout=30):
         """
         Initialize the API with this params, all optionals
-        :param key: Key string
-        :param secret: Secret string
-        :param token: Auth Token
-        :param url: URL for the service
-        :param buffer: Buffer object, if want another diferent queue
+        :param address: endpoint
+        :param auth: object with auth params (key, secret, token, jwt)
+        :param retries: number of retries for a query
+        :param timeout: timeout of socket
         """
         self.auth = auth
 
@@ -80,11 +97,11 @@ class Client:
         self.pragmas = {"user": CLIENT_DEFAULT_USER,
                         "app_name": CLIENT_DEFAULT_APP_NAME}
 
-        self.processor = proc_default()
-        self.proc = DEFAULT
+        self.opts = Options() if not options else options
 
         self.retries = retries
         self.timeout = timeout
+        self.verify = True
 
     def set_user(self, user=CLIENT_DEFAULT_USER):
         self.pragmas['user'] = user
@@ -100,12 +117,29 @@ class Client:
         Create Client object from config file values
         :param config: lt-common config standar
         """
-        return Client(**config)
+        options = Options(processor=config.get("processor", DEFAULT),
+                          response=config.get("response", "json/simple/compact")
+                          , comment=config.get("comment", None),
+                          destination=config.get("destination", None),
+                          stream=config.get("stream", True))
+
+        if "auth" in config.keys():
+
+            return Client(address=config.get("address"),
+                          auth=config.get("auth"),
+                          options=options)
+        else:
+            return Client(address=config.get("address"),
+                          auth={"key": config.get("key", None),
+                                "secret": config.get("secret", None),
+                                "jwt": config.get("jwt", None),
+                                "token": config.get("token", None)},
+                          options=options)
 
     def __get_address_parts(self, address):
         """
-        Split the two parts of the api url
-        :param url: Url of the api
+        Split the two parts of the api address
+        :param address: address of the api
         """
         return \
             self.__verify_address_complement(
@@ -114,11 +148,11 @@ class Client:
     @staticmethod
     def __verify_address_complement(address_list):
         """
-        Verify if only has main domain or full url
-        :param url_list: One or two part of the url
+        Verify if only has main domain or full address
+        :param address_list: One or two part of the address
         """
         return address_list if len(address_list) == 2 \
-            else [address_list[0], URL_QUERY_COMPLEMENT]
+            else [address_list[0], ADDRESS_QUERY_COMPLEMENT]
 
     @staticmethod
     def _generate_dates(dates):
@@ -154,79 +188,75 @@ class Client:
         except ValueError:
             return False
 
-    def query(self, **kwargs):
+    def options(self, processor=None, response=None, stream=None,
+                comment=None, destination=None):
+
+        self.opts.set_processor(processor)
+        if response:
+            self.opts.response = response
+
+        if stream:
+            self.opts.stream = stream
+
+        if comment:
+            self.opts.comment = comment
+
+        if destination:
+            self.opts.destination = destination
+
+    def query(self, query=None, query_id=None, dates=None,
+              limit=None, offset=None):
         """
         Query API by a custom query
-        :param kwargs: query -> Query to perform
-        :param kwargs: query_id -> Query ID to perform the query
-        :param kwargs: dates -> Dict with "from" and "to" keys
-        if stream
-        :param kwargs: stream -> if stream or full response
-        :param kwargs: response -> response format
-        :param kwargs: verify -> (optional) Either a boolean, in which case
-         it controls whether we verify
-         the server's TLS certificate, or a string, in which case it must be
-         a path to a CA bundle to use. Defaults to ``True``.
+        :param query: Query to perform
+        :param query_id: Query ID to perform the query
+        :param dates: Dict with "from" and "to" keys
+        :param limit: Max number of rows
+        :param offset: start of needle for query
         :return: Result of the query (dict) or Buffer object
         """
-        query = kwargs.get('query', None)
-        query_id = kwargs.get('query_id', None)
-        dates = self._generate_dates(kwargs.get('dates', None))
-        stream = kwargs.get('stream', True)
-
-        processor = kwargs.get('processor', None)
-        response = kwargs.get('response', "json/simple/compact")
-
-        if not processor or \
-                (response == "csv" and processor not in (TO_STR, TO_BYTES)):
-            self.proc = DEFAULT
-        else:
-            self.proc = processor
-
-        self.processor = processors()[self.proc]()
+        dates = self._generate_dates(dates)
 
         if query is not None:
-            query += self._generate_pragmas(comment=kwargs.get('comment', None))
+            query += self._generate_pragmas(comment=self.opts.comment)
 
-        opts = {'limit': kwargs.get('limit', None),
-                'response': response,
-                'offset': kwargs.get('offset', None),
-                'destination': kwargs.get('destination', None)
-                }
+        query_opts = {'limit': limit,
+                      'response': self.opts.response,
+                      'offset': offset,
+                      'destination': self.opts.destination
+                      }
 
-        if not self.stream_available(opts['response']) or not stream:
+        if not self.stream_available(self.opts.response) \
+                or not self.opts.stream:
             if not dates['to']:
                 dates['to'] = "now()"
-            stream = False
+            self.opts.stream = False
 
         return self._call(
-            self._get_payload(query, query_id, dates, opts),
-            stream, kwargs.get('verify', True)
+            self._get_payload(query, query_id, dates, query_opts)
         )
 
-    def _call(self, payload, stream, verify):
+    def _call(self, payload):
         """
         Make the call, select correct item to return
         :param payload: item with headers for request
         :param stream: boolean, indicate if one call is a streaming call
         :return: Response from API
         """
-        if stream:
-            return self._return_stream(payload, stream, verify)
-
-        response = self._make_request(payload, stream, verify)
+        if self.opts.stream:
+            return self._return_stream(payload)
+        response = self._make_request(payload)
 
         if isinstance(response, str):
             return proc_json()(response)
-        return self.processor(response.text)
+        return self.opts.processor(response.text)
 
-    def _return_stream(self, payload, stream, verify):
+    def _return_stream(self, payload):
         """If its a stream call, return yield lines
         :param payload: item with headers for request
-        :param stream: boolean, indicate if one call is a streaming call
         :return line: yield-generator item
         """
-        response = self._make_request(payload, stream, verify)
+        response = self._make_request(payload)
         try:
             first = next(response)
         except StopIteration:
@@ -235,23 +265,22 @@ class Client:
             raise_exception(response)
 
         if self._is_correct_response(first):
-            if self.proc == SIMPLECOMPACT_TO_OBJ:
+            if self.opts.proc == SIMPLECOMPACT_TO_OBJ:
                 aux = json_compact_simple_names(proc_json()(first)['m'])
-                self.processor = proc_json_compact_simple_to_jobj(aux)
-            elif self.proc == SIMPLECOMPACT_TO_ARRAY:
+                self.opts.processor = proc_json_compact_simple_to_jobj(aux)
+            elif self.opts.proc == SIMPLECOMPACT_TO_ARRAY:
                 pass
             else:
-                yield self.processor(first)
+                yield self.opts.processor(first)
             for line in response:
-                yield self.processor(line)
+                yield self.opts.processor(line)
         else:
             yield proc_json()(first)
 
-    def _make_request(self, payload, stream, verify):
+    def _make_request(self, payload):
         """
         Make the request and control the logic about retries if not internet
         :param payload: item with headers for request
-        :param stream: boolean, indicate if one call is a streaming call
         :return: response
         """
         tries = 0
@@ -261,12 +290,13 @@ class Client:
                                          .format("/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
-                                         verify=verify, timeout=self.timeout,
-                                         stream=stream)
+                                         verify=self.verify,
+                                         timeout=self.timeout,
+                                         stream=self.opts.stream)
                 if response.status_code != 200:
                     raise DevoClientException(response)
 
-                if stream:
+                if self.opts.stream:
                     return response.iter_lines()
                 return response
             except requests.exceptions.ConnectionError as error:
@@ -358,7 +388,8 @@ class Client:
         :param tstamp: Epoch timestamp
         :return: The sign in hex response
         """
-        if not self.auth.get("key", False) or self.auth.get("secret", False):
+        if not self.auth.get("key", False) \
+                or not self.auth.get("secret", False):
             raise DevoClientException(_format_error("You need a API Key and "
                                                     "API secret to make this"))
         sign = hmac.new(self.auth.get("secret").encode("utf-8"),
@@ -399,42 +430,43 @@ class Client:
         :param job_id: job id
         :return: json"""
         return self._call_jobs("{}{}{}".format(self.address[0],
-                                               URL_JOB, job_id))
+                                               ADDRESS_JOB, job_id))
 
     def stop_job(self, job_id):
         """ Stop one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.address[0], URL_JOB,
+        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB,
                                                  'stop/', job_id))
 
     def start_job(self, job_id):
         """ Start one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.address[0], URL_JOB,
+        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB,
                                                  'start/', job_id))
 
     def remove_job(self, job_id):
         """ Remove one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.address[0], URL_JOB,
+        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB,
                                                  'remove/', job_id))
 
-    def _call_jobs(self, url):
+    def _call_jobs(self, address):
         """
         Make the call
-        :param url: endpoint
+        :param address: endpoint
         :return: Response from API
         """
         tries = 0
         while tries < self.retries:
             response = None
             try:
-                response = requests.get("https://{}".format(url),
+                response = requests.get("https://{}".format(address),
                                         headers=self._get_jobs_headers(),
-                                        verify=True, timeout=self.timeout)
+                                        verify=self.verify,
+                                        timeout=self.timeout)
             except ConnectionError as error:
                 raise_exception({"status": 404, "msg": error})
 
