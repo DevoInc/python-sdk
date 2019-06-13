@@ -1,6 +1,7 @@
 """CLI for use Devo API from shell command line."""
 import os
 import click
+import sys
 from devo.common import Configuration
 from devo.api.client import Client, DevoClientException, ERROR_MSGS
 from devo.__version__ import __version__
@@ -31,7 +32,7 @@ def cli(version):
               default=False)
 @click.option('--default', '-d', help='Use default file for configuration',
               default=False)
-@click.option('--url', '-u', help='Endpoint for the api.')
+@click.option('--address', '-a', help='Endpoint for the api.')
 @click.option('--user', '-user', help='User for the api.')
 @click.option('--app_name', '-app_name', help='Application name for the api.')
 @click.option('--comment', '-comment', help='Comment for the queries.')
@@ -57,18 +58,21 @@ def query(**kwargs):
     """Perform query by query string"""
     api, config = configure(kwargs)
 
+    if config is None:
+        print_error("Error in config", show_help=True)
+        if config['debug']:
+            return
+        exit()
+
     if not config['query']:
         print_error(ERROR_MSGS['no_query'], show_help=True)
         if config['debug']:
             return
         exit()
-
     reponse = api.query(query=config['query'],
                         dates={"from": config['from'],
                                "to": config['to'] if "to" in config.keys()
-                                                    else None},
-                        response=config['response'],
-                        stream=config['stream'])
+                                                    else None})
 
     process_response(reponse, config)
 
@@ -117,23 +121,24 @@ def configure(args):
         if args.get('env'):
             config.set("key", os.environ.get('DEVO_API_KEY', None))
             config.set("secret", os.environ.get('DEVO_API_SECRET', None))
-            config.set("url", os.environ.get('DEVO_API_URL', None))
+            config.set("address", os.environ.get('DEVO_API_ADDRESS', None))
             config.set("user", os.environ.get('DEVO_API_USER', None))
             config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
 
         if args.get('default'):
             config.load_default_config(section="api")
+    except Exception as error:
+        print_error(str(error), show_help=True)
     finally:
         config.mix(dict(args))
-        conf = config.get()
 
     # Try to compose the api
     api = None
     try:
-        api = Client.from_dict(conf)
+        api = Client.from_dict(config.cfg)
     except DevoClientException as error:
         print_error(str(error), show_help=True)
-    return api, conf
+    return api, config
 
 
 def print_error(error, show_help=False):

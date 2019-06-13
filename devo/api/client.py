@@ -36,6 +36,7 @@ class DevoClientException(Exception):
 
 
 def raise_exception(error):
+    """Util function for raise exceptions"""
     try:
         if isinstance(error, str):
             raise DevoClientException(proc_json()(error))
@@ -57,11 +58,10 @@ def _format_error(error):
 
 class Options:
     def __init__(self, processor=DEFAULT, response="json/simple/compact",
-                 comment=None, destination=None, stream=True):
+                 destination=None, stream=True):
 
         self.stream = stream
         self.response = response
-        self.comment = comment
         self.destination = destination
         self.proc = processor
         self.processor = processors()[self.proc]()
@@ -71,6 +71,7 @@ class Options:
             self.proc = processor
             self.processor = processors()[self.proc]()
         return True
+
 
 class Client:
     """
@@ -119,8 +120,7 @@ class Client:
         """
         options = Options(processor=config.get("processor", DEFAULT),
                           response=config.get("response", "json/simple/compact")
-                          , comment=config.get("comment", None),
-                          destination=config.get("destination", None),
+                          ,destination=config.get("destination", None),
                           stream=config.get("stream", True))
 
         if "auth" in config.keys():
@@ -189,7 +189,7 @@ class Client:
             return False
 
     def options(self, processor=None, response=None, stream=None,
-                comment=None, destination=None):
+                destination=None):
 
         self.opts.set_processor(processor)
         if response:
@@ -198,14 +198,11 @@ class Client:
         if stream:
             self.opts.stream = stream
 
-        if comment:
-            self.opts.comment = comment
-
         if destination:
             self.opts.destination = destination
 
     def query(self, query=None, query_id=None, dates=None,
-              limit=None, offset=None):
+              limit=None, offset=None, comment=None):
         """
         Query API by a custom query
         :param query: Query to perform
@@ -213,12 +210,13 @@ class Client:
         :param dates: Dict with "from" and "to" keys
         :param limit: Max number of rows
         :param offset: start of needle for query
+        :param comment: comment for query
         :return: Result of the query (dict) or Buffer object
         """
         dates = self._generate_dates(dates)
 
         if query is not None:
-            query += self._generate_pragmas(comment=self.opts.comment)
+            query += self._generate_pragmas(comment=comment)
 
         query_opts = {'limit': limit,
                       'response': self.opts.response,
@@ -330,7 +328,6 @@ class Client:
                          is not None
                          else None,
                    "mode": {"type": opts['response']}}
-
         if query:
             payload['query'] = query
 

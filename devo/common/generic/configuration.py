@@ -232,7 +232,9 @@ class Configuration:
         if len(key_list) == 1:
             aux_dict[key_list[0]] = value
         else:
-            aux_dict[key_list[0]] = Configuration.set_key_chain(dict(),
+            new_dict = aux_dict[key_list[0]] if key_list[0] in aux_dict.keys()\
+                else dict()
+            aux_dict[key_list[0]] = Configuration.set_key_chain(new_dict,
                                                                 key_list[1:],
                                                                 value)
         return aux_dict

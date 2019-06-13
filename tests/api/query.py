@@ -28,9 +28,12 @@ class TestApi(unittest.TestCase):
         self.assertTrue(isinstance(api, Client))
 
     def test_query(self):
+        options = Options(stream=False, response="json")
+
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     options=Options(stream=False, response="json"))
+                     options=options)
+
         result = api.query(query=self.query)
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
@@ -96,11 +99,10 @@ class TestApi(unittest.TestCase):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
                      options=Options(response="json",
-                                     stream=False,
-                                     comment=self.comment))
+                                     stream=False))
         api.set_user(user=self.user)
         api.set_app_name(app_name=self.app_name)
-        result = api.query(query=self.query)
+        result = api.query(query=self.query, comment=self.comment)
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
 
