@@ -4,10 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.3.1] - 2019-05-21
+
+## [3.0.0] - 2019-04-26
 #### Added
-* Have Client query method accept Unix timestamps for to and from dates
-* Make Client parameters retries, timeout, and sleep configurable
+ * for_logging option in Sender, added more values
+ * Logging streamhandler
+ * Tests for CLI
+ * Have Client query method accept Unix timestamps for to and from dates
+ * Make Client parameters retries, timeout, and sleep configurable
+
+#### Changed
+ * Errors exceptions in API and Sender are now full controlled and homogenized
+ * logging in Common now are created more flexible
+ * Sender init class, SSLSender and TCPSender too.
+ * API init class
+ * Config.from_config to Config.from_dict in API and Sender
+ * New documentation
+ 
+#### Fixed
+ * Fixed when add key chain to configuration
+ * Fixed problems with API CLI Config objects
+ * Fixed problems with SENDER CLI Config objects
+ * API Proccessors
+ * Problems with multiline and zip when both are activated
 
 ## [2.2.4] - 2019-04-25
 #### Fixed

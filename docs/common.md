@@ -29,20 +29,46 @@ This library add utilities for other packages.
 
 #### Standard Devo logging file
 
-Devo commons gives you a function, with enough parameters for your personalization, to get a rotatting log handler:
+Devo commons gives you a function, with enough parameters for your personalization, to get a logging object:
 
 ```python
-def get_log(path_base="./",
-            file_name="history.log",
-            msg_format="'%(asctime)s %(levelname)s %(message)s'",
-            name="log",
-            max_size=2097152,
-            backup_count=5,
-            level=logging.DEBUG):
+def get_log(name="log", level=logging.DEBUG, handler=None)
+```
+By default, handler will be a RotatingFileHandler, named history.log, 5 files, in work folder.
+You can use other Handler, by you own or using one of the common package
+
+##### StreamHandler
+
+```python
+def get_stream_handler(dest=sys.stdout,
+                       msg_format='%(asctime)s|%(levelname)s|%(message)s')
+```
+With this function you will obtain a StreamHandler, by default the whole log will be to stdout.
+
+
+```python
+from devo.common import get_log, get_stream_handler
+my_logger = get_log(handler=get_stream_handler())
 ```
 
+##### RotatingFileHandler
 
-You can use this handler with sender object, you can see more info in ['Sender readme'](sender.md######Third example)
+The default handler for logging, return a handler, you can modify the default parameters in constructor:
+
+```python
+def get_rotating_file_handler(path="./",
+                              file_name="history.log",
+                              msg_format='%(asctime)s|%(levelname)s|%(message)s',
+                              max_size=2097152,
+                              backup_count=5):
+```
+
+You can use this handler like in the StreamHandler example
+
+
+##### DevoHandler
+
+You can use this Devo Sender like handler, you can see more info in ['Sender readme'](sender.md######Third example)
 
 #### Standard Devo configuration file
 
