@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
 ## [3.0.0] - 2019-04-26
 #### Added
  * for_logging option in Sender, added more values
  * Logging streamhandler
  * Tests for CLI
+ * Have Client query method accept Unix timestamps for to and from dates
+ * Make Client parameters retries, timeout, and sleep configurable
 
 #### Changed
  * Errors exceptions in API and Sender are now full controlled and homogenized
@@ -32,16 +35,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.2.3] - 2019-04-22
 #### Fixed
  * Fixed bug in Sender CLI introduced in version 2.2.2
- 
+
 ## [2.2.2] - 2019-04-03
 #### Fixed
  * Sender for logging (Handler) get Severity correctly when use custom Level info
- 
+
 ## [2.2.1] - 2019-03-28
 #### Fixed
  * Lookup shell client now read config correctly
  * Lookup shell client now apply default port if empty
- 
+
 #### Changed
  * API response in stream mode now return response object if response.code its not 200
 
@@ -53,7 +56,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Added
  * Requirements file
  * .pyup.yaml file for security dependencies bot
- 
+
 #### Fixed
  * Logging when send data in multiline or zipped
  * Error of for_logging() function in Sender when applicate level
@@ -61,10 +64,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.1.2] - 2019-02-12
 #### Added
  * More documentation info and examples
- 
+
 #### Changed
  * All new endpoints references for sender and api
- 
+
 #### Fixed
  * Problems with proc_json_compact_simple_to_jobj when None
 
@@ -75,7 +78,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [2.1.0] - 2019-01-28
 #### Changed
  * Devo.common get_log() has more flags for better customization
- 
+
 #### Added
  * Sender for_logging() creation now verify where is tag flag
  * Functions for configuration (save, len, etc)
@@ -93,7 +96,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Rollback to request sockets instead of custom sockets in API
  * Rollback to one class in Client, instead of Base and Client
  * Behavior of the processors, optimizing their performance and only allowing default processors/flags, within the API
- 
+
 #### Removed
  * Buffer files
  * chain_dict files
@@ -106,7 +109,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.6.3] - 2019-01-17
 #### Fixed
  * Broken urls in documentations
- 
+
 #### Changed
  * Inconsistences in api.base class
  * PEP8/Pylint styles in api and common packages
@@ -115,7 +118,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Added
  * Documentation about API "destination" parameter
  * Task management with API Client: added functions, documentation
- 
+
 #### Changed
  * Travis CI configuration
  * Refactoring of API, separated now in two files
@@ -129,21 +132,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Fixed
  * Problems with non ascii/utf-8 characters in API
  * Travis CI autodeploy to pypi
- 
+
 #### Added
  * Travis CI upload wheel to release on github
- 
+
 ## [1.6.0] - 2019-01-09
 #### Changed
  * Mild refactoring of Sender class
  * Refactoring API Response processing
  * Typos in docs
  * API Socket recv size
- 
+
 #### Fixed
  * API responses blank lines and splitted lines
  * Problems with API CLI and automatic shutdowns
- 
+
 ## [1.5.1] - 2018-12-28
 #### Fixed
  * devo.common buffer now receive data when CSV response
@@ -160,12 +163,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Fixed
  * Problems when loads configuration from default sites
  * Problems with local_server
- 
+
 ## [1.4.0] - 2018-12-17
 #### Added
  * Allow the parameters user, application name and comment to queries
  * Add tests (test_pragmas and test_pragmas test_pragmas_not_comment_free) in the query.py file.
- 
+
 #### Fixed
  * Problems when API CAll query has not "to", now added be default "now()" if not to in no stream mode
 
@@ -178,16 +181,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Use of Token auth and JWT in API, added docs and tests
  * Local servers for tests
  * YAML file for Travis CI tests
- 
+
 #### Fixed
  * ConnectionError in python 2
  * tests of Sender  
  * Close order of API/Buffer
- 
+
 #### Changed
  * Modify Client init class
  * License file
- 
+
 #### Removed
  * Dockerfile
 
@@ -197,7 +200,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * YAML configuration file information in all docs.
  * EXTRA_REQUIRES option for YAML support
  * Default Yaml file load in Common
- 
+
 #### Changed
  * Removed the octec count for performance, and verify if "\n" at the end of each msg, if applicable.
  * Modify classes to privates
@@ -209,17 +212,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Bad class debug for Sender, unused too
  * Memoize class from Common namespase
  * Memoize references in Common readme.
- 
+
 ## [1.2.0] - 2018-11-16
 #### Added
  * Int conversion for SenderSSL and SenderTCP classes in port value
  * is_empty, set_timeout and close functions for Buffer class
- 
+
 #### Changed
  * Modified how API flow work
  * Modified Buffer class to avoid failures by timeouts and emptys that block the threads
  * Updated documentation
- 
+
 ## [1.1.4] - 2018-11-15
 #### Changed
  * Modified Sender init class for kwargs arguments
@@ -231,7 +234,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.1.2] - 2018-10-26
 #### Added
  * Long description value in setup for pypi
- 
+
 #### Fixed
  * Fixed problems when zip msgs dont have "\n" in each line msg
 
@@ -249,29 +252,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Fixed
  * Problems with double "\n" in messages
  * Sender CLI problems when no certs required
- 
+
 ## [1.0.4] - 2018-10-03
 #### Added
  * More error prevention in API
  * More debug information when exceptions occur in API
- 
+
 #### Changed
  * Strings joins for test files in Sender and Lookup tests
  * Name of internal vars in sender tests
  * API docs examples
- 
+
 #### Fixed
  * API urls in docs, examples and code
- 
+
 ## [1.0.3] - 2018-10-01
 #### Added
  * Documentation of .devo.json file
  * Contributors lists
  * test function for setup.py
- 
+
 #### Changed
  * API response when code are not 404 or 200 give more info now
- 
+
 #### Fixed
  * Fixed API EU default url in code and documentation
 
@@ -294,11 +297,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 #### Added
  * Docker file for testing purposes
  * Example vars in environment.env example file
- 
+
 #### Changed
  * Updated option of not launch TCP tests for no-devo developers
  * .gitignore file
- 
+
 #### Fixed
  * Zip flag in Devo Sender
  * Problems with QueryId and normal query in payload
