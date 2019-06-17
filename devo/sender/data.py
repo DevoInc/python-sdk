@@ -414,7 +414,7 @@ tag=None, logger=None, verbose_level="INFO",
         return 0
 
     @staticmethod
-    def for_logging(config, con_type=None, tag=None, level=None):
+    def for_logging(config=None, con_type=None, tag=None, level=None):
         """ Function for create Sender object from config file to use in
         logging handler
         :param config: config Devo file
@@ -434,7 +434,7 @@ tag=None, logger=None, verbose_level="INFO",
             if tag:
                 con.logging['tag'] = tag
             else:
-                con.logging['tag'] = config.get("tag", )
+                con.logging['tag'] = config.get("tag", "my.app.log")
 
             if level is not None:
                 con.logging['level'] = level

@@ -221,8 +221,9 @@ Usage: `devo-api query [OPTIONS]`
 ```
 Options:
   -c, --config PATH                            JSON/YAML File with configuration, you can put all options here
-  -u, --url TEXT                               Endpoint for the api.
-  --api_key, --apiKey, --key TEXT              Key for the api.
+  -e, --env                                    Use env vars for configuration
+  -a, --address TEXT                           Endpoint for the api.
+  --key TEXT                                   Key for the api.
   --api_secret, --apiSecret, --secret TEXT     Secret for the api.
   --auth_token, --authToken, --token TEXT      Token auth for query.
   --jwt TEXT                                   jwt auth for query.
@@ -233,8 +234,11 @@ Options:
   --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --help                                       Show this message and exit.
-  -user                                        User for the api.
-  -app_name                                    App Name for the api.
+  --user                                       User for the api.
+  --app_name                                   App Name for the api.
+  --comment                                    Comment for pragma in query
+  --debug/--no-debug  For testing purposes
+  --help                 Show this message and exit.
 ```
 
 A configuration file does not have to have all the necessary keys, you can have 
@@ -286,10 +290,10 @@ api.response = 'json/compact'
 
 To change the response format (`format`) of a query, just change the value of the attribute response of the query call
 ```python
-response = api.query(config['query'], 
-                     date_from=config['from'], 
-                     date_to=config['to'], 
-                     response=config['response'])
+response = api.query(config.get('query'), 
+                     date_from=config.get('from'), 
+                     date_to=config.get('to'), 
+                     response=config.get('response'))
 ```
  
 Format allow the following values:

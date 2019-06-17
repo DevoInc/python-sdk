@@ -33,9 +33,9 @@ def cli(version):
 @click.option('--default', '-d', help='Use default file for configuration',
               default=False)
 @click.option('--address', '-a', help='Endpoint for the api.')
-@click.option('--user', '-user', help='User for the api.')
-@click.option('--app_name', '-app_name', help='Application name for the api.')
-@click.option('--comment', '-comment', help='Comment for the queries.')
+@click.option('--user', help='User for the api.')
+@click.option('--app_name', help='Application name for the api.')
+@click.option('--comment', help='Comment for the queries.')
 @click.option('--key', help='Key for the api.')
 @click.option('--secret', help='Secret for the api.')
 @click.option('--token', help='Secret for the api.')

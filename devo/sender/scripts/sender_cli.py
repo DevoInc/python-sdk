@@ -113,11 +113,6 @@ def data(**kwargs):
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
-@click.option('--cert_reqs/--no-cert_reqs', help='Boolean to indicate if the '
-                                                 'shipment is done using '
-                                                 'security certificates or not.'
-                                                 ' Default True'
-              , default=True)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--name', '-n', help='Name for Lookup.')
 @click.option('--file', '-f', help='The file that you want to send to Devo,'

@@ -80,7 +80,7 @@ To perform a request with API, first choose the required endpoint depending on t
  * **EU:**   	https://apiv2-eu.devo.com/search/query
  * **VDC:**   	https://apiv2-es.devo.com/search/query
 
-You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
+You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 
 ## Credentials
 To obtain the access credentials necessary to use this SDK, you must have an account in [DEVO](https://www.devo.com/).<br/>

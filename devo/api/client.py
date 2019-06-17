@@ -124,7 +124,6 @@ class Client:
                           stream=config.get("stream", True))
 
         if "auth" in config.keys():
-
             return Client(address=config.get("address"),
                           auth=config.get("auth"),
                           options=options)
