@@ -14,6 +14,6 @@
   "api": {
       "key": "MyAPIkeytoaccessdevo",
       "secret": "MyAPIsecrettoaccessdevo",
-      "url": "https://apiv2-us.logtrust.com/search/query"
+      "url": "https://api-us.logtrust.com/search/query"
   } 
 }
