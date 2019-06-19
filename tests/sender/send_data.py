@@ -1,11 +1,8 @@
 import unittest
-import logging
 import socket
-import sys
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
+from devo.common import get_log
 from .load_certs import *
-
-PY3 = sys.version_info[0] > 2
 
 
 class TestSender(unittest.TestCase):
@@ -66,27 +63,24 @@ class TestSender(unittest.TestCase):
         """
         Tests that a TCP connection and data send it is possible
         """
-        if self.test_tcp == "True" and PY3:
-            try:
-                engine_config = SenderConfigTCP(address=self.tcp_server,
-                                                port=self.tcp_port)
-                con = Sender(engine_config)
-                for i in range(self.default_numbers_sendings):
-                    con.send(tag=self.my_app, msg=self.test_msg)
-                    if len(con.socket.recv(5000)) == 0:
-                        raise Exception('Not msg sent!')
-                con.close()
-            except Exception as error:
-                self.fail("Problems with test: %s" % error)
-        else:
-            return True
+        try:
+            engine_config = SenderConfigTCP(address=(self.tcp_server,
+                                                     self.tcp_port))
+            con = Sender(engine_config)
+            for i in range(self.default_numbers_sendings):
+                con.send(tag=self.my_app, msg=self.test_msg)
+                if len(con.socket.recv(5000)) == 0:
+                    raise Exception('Not msg sent!')
+            con.close()
+        except Exception as error:
+            self.fail("Problems with test: %s" % error)
 
     def test_ssl_rt_send(self):
         """
         Test that tries to send a message through a ssl connection
         """
         try:
-            engine_config = SenderConfigSSL(address=self.server, port=self.port,
+            engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
             con = Sender(engine_config)
@@ -103,10 +97,10 @@ class TestSender(unittest.TestCase):
         Test that tries to send a message through a ssl connection
         """
         try:
-            engine_config = SenderConfigSSL(address=self.server, port=self.port,
+            engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
-            con = Sender(engine_config, sockettimeout=15)
+            con = Sender(engine_config, timeout=15)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8")
                          , zip=True)
@@ -122,7 +116,7 @@ class TestSender(unittest.TestCase):
         Test that tries to send a multiple line message through a ssl connection
         """
         try:
-            engine_config = SenderConfigSSL(address=self.server, port=self.port,
+            engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
             con = Sender(engine_config)
@@ -144,9 +138,8 @@ class TestSender(unittest.TestCase):
         """
         if self.test_tcp == "True":
             try:
-                engine_config = SenderConfigSSL(address=self.server,
-                                                port=self.port,
-                                                cert_reqs=False)
+                engine_config = SenderConfigSSL(address=(self.server,
+                                                         self.port))
                 con = Sender(engine_config)
                 for i in range(self.default_numbers_sendings):
                     con.send(tag=self.my_app, msg=self.test_msg)
@@ -162,19 +155,11 @@ class TestSender(unittest.TestCase):
         and related logs are send to remote server
         """
         try:
-            engine_config = SenderConfigSSL(address=self.server, port=self.port,
+            engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
-            con = Sender(engine_config, tag=self.my_app)
-
-            logger = logging.getLogger('DEVO_logger')
-            logger.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('%(asctime)s|%(levelname)s'
-                                          '|%(message)s')
-            con.setFormatter(formatter)
-            con.setLevel(logging.DEBUG)
-            logger.addHandler(con)
-
+            con = Sender.for_logging(config=engine_config, tag=self.my_app)
+            logger = get_log(name="DevoLogger", handler=con)
             logger.info("Testing Sender inherit logging handler functio"
                         "nality... INFO - log")
             if len(con.socket.recv(5000)) == 0:
@@ -212,11 +197,10 @@ class TestSender(unittest.TestCase):
         """
         try:
 
-            engine_config = SenderConfigSSL(address=self.server, port=self.port,
+            engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
-            con = Sender(engine_config, tag=self.my_app)
-
+            con = Sender.for_logging(config=engine_config, tag=self.my_app)
             # NOTE: this logger logging traces will be visible in console
             con.logger.info("Testing Sender default handler functionality in "
                             "local console... INFO - log")
@@ -240,15 +224,10 @@ class TestSender(unittest.TestCase):
         try:
             engine_config = {"address": self.server, "port": self.port,
                              "key": self.key, "cert": self.cert,
-                             "chain": self.chain, "type": "SSL", "cert_regs": True}
-            con = Sender.for_logging(engine_config, "SSL", self.my_app)
-            logger = logging.getLogger('DEVO_logger_static')
-            logger.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('%(asctime)s|%(levelname)s|'
-                                          '%(message)s')
-            con.setFormatter(formatter)
-            con.setLevel(logging.DEBUG)
-            logger.addHandler(con)
+                             "chain": self.chain}
+
+            con = Sender.for_logging(config=engine_config, tag=self.my_app)
+            logger = get_log(name="DevoLogger2", handler=con)
 
             logger.info("Testing Sender static handler functionality... "
                         "INFO - log")
