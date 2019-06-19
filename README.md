@@ -63,8 +63,15 @@ Pull and merge requests are welcome ☺
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	collector-us.devo.io:443
- * **EU:**   	collector-eu.devo.io:443
+ * **USA:** 	
+    * **url**: usa.elb.relay.logtrust.net
+    * **port**: 443
+ * **EU:**
+    * **url**: eu.elb.relay.logtrust.net
+    * **port**: 443
+ * **VDC:**
+    * **url**: es.elb.relay.logtrust.net
+    * **port**: 443
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
@@ -73,7 +80,7 @@ To perform a request with API, first choose the required endpoint depending on t
  * **USA:** 	https://api-us.devo.com/search/query
  * **EU:**   	https://api-eu.devo.com/search/query
 
-You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
+You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 
 ## Credentials
 To obtain the access credentials necessary to use this SDK, you must have an account in [DEVO](https://www.devo.com/).<br/>
