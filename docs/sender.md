@@ -11,8 +11,15 @@ This library allows you to send logs or lookups to the Devo platform.
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	collector-us.devo.io:443
- * **EU:**   	collector-eu.devo.io:443
+ * **USA:** 	
+    * **url**: usa.elb.relay.logtrust.net
+    * **port**: 443
+ * **EU:**
+    * **url**: eu.elb.relay.logtrust.net
+    * **port**: 443
+ * **VDC:**
+    * **url**: es.elb.relay.logtrust.net
+    * **port**: 443
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
@@ -222,7 +229,7 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
  (1, each time, if not zipped, 0..X if zipped)
  
 
-###Lookup
+### Lookup
 
 Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).
 
