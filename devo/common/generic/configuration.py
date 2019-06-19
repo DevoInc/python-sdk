@@ -169,27 +169,29 @@ class Configuration:
             if key not in self.cfg.keys():
                 self.cfg[key] = cfg[key]
 
-    def get(self, key=None, default=None, aux_dict=None):
+    def get(self, *args, **kwargs):
         """Get the configuration as dict
 
         :return: Return the configuration dict
         """
-        if aux_dict is None:
-            aux_dict = self.cfg
+        key = kwargs.get("key", None)
+        aux_dict = kwargs.get("aux_dict", None)
 
-        if key is None:
-            return aux_dict
+        if args:
+            if isinstance(args[0], list):
+                key = args[0]
+            else:
+                key = list(args)
+        if key:
+            if aux_dict is None:
+                aux_dict = self.cfg
+            if isinstance(key, list):
+                if len(key) > 1:
+                    return self.get(key=key[1:], aux_dict=aux_dict[key[0]])
+                return aux_dict[key[0]]
+            return self.cfg[key]
 
-        if not isinstance(key, (list, tuple)):
-            key = [key]
-
-        if key[0] in aux_dict.keys():
-            if len(key) > 1:
-                return self.get(key=key[1:], default=default,
-                                aux_dict=aux_dict[key[0]])
-            return aux_dict[key[0]]
-
-        return default
+        return self.cfg
 
     def keys(self, prop=None):
         """Check if exist property and if not then set to None
@@ -232,9 +234,7 @@ class Configuration:
         if len(key_list) == 1:
             aux_dict[key_list[0]] = value
         else:
-            new_dict = aux_dict[key_list[0]] if key_list[0] in aux_dict.keys()\
-                else dict()
-            aux_dict[key_list[0]] = Configuration.set_key_chain(new_dict,
+            aux_dict[key_list[0]] = Configuration.set_key_chain(dict(),
                                                                 key_list[1:],
                                                                 value)
         return aux_dict

@@ -61,8 +61,6 @@ def default_from(date=None):
     :param date: Date in the accepted formats
     :return: Millis for the API
     """
-    if isinstance(date, int):
-        return date * 1000
     return parse(date, 'now()-day()')
 
 
@@ -72,6 +70,4 @@ def default_to(date=None):
     :param date: Date in the accepted formats
     :return: Millis for the API
     """
-    if isinstance(date, int):
-        return date * 1000
     return parse(date, 'now()')

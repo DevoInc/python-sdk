@@ -36,7 +36,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
               secret="myapisecret",
-              url="https://apiv2-eu.devo.com/search/query",
+              url="https://api-eu.devo.com/search/query",
               user="user@devo.com",
               app_name="testing app")
               

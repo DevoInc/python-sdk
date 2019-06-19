@@ -30,11 +30,11 @@ class TestConfiguration(unittest.TestCase):
 
     def test_get_keys_chain(self):
         config = Configuration(self.config_path + ".yaml")
-        self.assertEqual(config.get(("devo", "die")), "hard")
+        self.assertEqual(config.get("devo", "die"), "hard")
 
     def test_get_keys_chain_in_array(self):
         config = Configuration(self.config_path + ".yaml")
-        self.assertEqual(config.get(("devo", "die")), "hard")
+        self.assertEqual(config.get(["devo", "die"]), "hard")
 
     def test_add_key(self):
         config = Configuration(self.config_path + ".yaml")
@@ -45,7 +45,7 @@ class TestConfiguration(unittest.TestCase):
         config = Configuration(self.config_path + ".yaml")
         config.set(["devo", "old", "name"], "logtrust")
         self.assertEqual(config["devo"]['old']['name'], "logtrust")
-        self.assertEqual(config.get(("devo", 'old', 'name')), "logtrust")
+        self.assertEqual(config.get("devo", 'old', 'name'), "logtrust")
 
     def test_save(self):
         config = Configuration(self.config_path + ".yaml")

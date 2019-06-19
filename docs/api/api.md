@@ -7,9 +7,8 @@ This library performs queries to the Client API (Search rest api) of Devo.
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	https://apiv2-us.devo.com/search/query
  * **EU:**   	https://apiv2-eu.devo.com/search/query
- * **VDC:**   	https://apiv2-es.devo.com/search/query
 
-You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
+You have more information in the official documentation of Devo, [REST API v2](https://docs.devo.com/confluence/ndt/api-reference/rest-api-v2) .
 
 ## USAGE
 #### Constructor
@@ -22,7 +21,7 @@ You have more information in the official documentation of Devo, [REST API](http
 the commons clouds: can take several values, for example:
     - Client.URL_AWS_EU: https://apiv2-eu.devo.com
     - Client.URL_AWS_USA: https://apiv2-us.devo.com
-    - Client.URL_VDC: https://apiv2-es.devo.com
+    - Client.URL_VDC: https://spainapi.devo.com
     - Client.URL_QUERY_COMPLEMENT = '/search/query'
 - buffer (optional): Buffer object if you modify the Devo Buffer class
 
@@ -32,16 +31,16 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
 
 
 api = Client(token="myauthtoken",
-             url="https://apiv2-eu.devo.com/search/query")
+             url="https://api-eu.devo.com/search/query")
 
 api = Client(jwt="myauthtoken",
-             url="https://apiv2-eu.devo.com/search/query")
+             url="https://api-eu.devo.com/search/query")
 ```    
     
 #### query() params
@@ -82,7 +81,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -100,7 +99,7 @@ from devo.api import Client
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -129,7 +128,7 @@ from devo.api import Client, JSON_SIMPLE
 
 api = Client(key="myapikey",
              secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
+             url="https://api-eu.devo.com/search/query",
              user="user@devo.com",
              app_name="testing app")
              
@@ -221,9 +220,8 @@ Usage: `devo-api query [OPTIONS]`
 ```
 Options:
   -c, --config PATH                            JSON/YAML File with configuration, you can put all options here
-  -e, --env                                    Use env vars for configuration
-  -a, --address TEXT                           Endpoint for the api.
-  --key TEXT                                   Key for the api.
+  -u, --url TEXT                               Endpoint for the api.
+  --api_key, --apiKey, --key TEXT              Key for the api.
   --api_secret, --apiSecret, --secret TEXT     Secret for the api.
   --auth_token, --authToken, --token TEXT      Token auth for query.
   --jwt TEXT                                   jwt auth for query.
@@ -234,11 +232,8 @@ Options:
   --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
   --help                                       Show this message and exit.
-  --user                                       User for the api.
-  --app_name                                   App Name for the api.
-  --comment                                    Comment for pragma in query
-  --debug/--no-debug  For testing purposes
-  --help                 Show this message and exit.
+  -user                                        User for the api.
+  -app_name                                    App Name for the api.
 ```
 
 A configuration file does not have to have all the necessary keys, you can have 
@@ -257,7 +252,7 @@ json example:
     "api": {
       "key": "MyAPIkeytoaccessdevo",
       "secret": "MyAPIsecrettoaccessdevo",
-      "url": "https://apiv2-us.devo.com/search/query"
+      "url": "https://api-us.devo.com/search/query"
     }
   }
   
@@ -268,7 +263,7 @@ yaml example:
   api:
     key: "MyAPIkeytoaccessdevo"
     secret: "MyAPIsecrettoaccessdevo"
-    url: "https://apiv2-us.devo.com/search/query"
+    url: "https://api-us.devo.com/search/query"
 ```
 
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values
@@ -290,10 +285,10 @@ api.response = 'json/compact'
 
 To change the response format (`format`) of a query, just change the value of the attribute response of the query call
 ```python
-response = api.query(config.get('query'), 
-                     date_from=config.get('from'), 
-                     date_to=config.get('to'), 
-                     response=config.get('response'))
+response = api.query(config['query'], 
+                     date_from=config['from'], 
+                     date_to=config['to'], 
+                     response=config['response'])
 ```
  
 Format allow the following values:

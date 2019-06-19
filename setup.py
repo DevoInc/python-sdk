@@ -18,15 +18,17 @@ CLASSIFIERS = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.4",
     "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-INSTALL_REQUIRES = ['requests>=2.21,<3', 'click>=7', 'pyyaml>=5.1']
+INSTALL_REQUIRES = ['requests>=2.17,<3', 'click>=7']
+EXTRA_REQUIRES = {'pyyaml': ['pyyaml>=5.1b3']}
 CLI = ['devo-sender=devo.sender.scripts.sender_cli:cli',
        'devo-api=devo.api.scripts.client_cli:cli']
 
@@ -72,6 +74,7 @@ setup(
     classifiers=CLASSIFIERS,
     packages=PACKAGES,
     install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRA_REQUIRES,
     entry_points={
             'console_scripts': CLI
         }

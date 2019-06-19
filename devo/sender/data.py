@@ -7,19 +7,17 @@ import ssl
 import sys
 import time
 import zlib
-from devo.common import get_stream_handler, get_log
+
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 
+from devo.common import Configuration
+
+PY3 = sys.version_info[0] > 2
+PY33 = sys.version_info[0] == 3 and sys.version_info[1] == 3
+PY34 = sys.version_info[0] == 3 and sys.version_info[1] == 4
 PYPY = hasattr(sys, 'pypy_version_info')
-
-
-ERROR_MSGS = {
-    "no_query": "Error: Not query provided.",
-    "no_auth": "Client dont have key&secret or auth token/jwt",
-    "no_endpoint": "Endpoint 'url' not found"
-}
 
 
 class DevoSenderException(Exception):
@@ -30,12 +28,16 @@ class SenderConfigSSL:
     """
     Configuration SSL class.
 
-    :param address: (tuple) (Server address, port)
+    :param address: (str) Server address
+    :param port: (int) Server port
     :param key: (str) key src file
     :param cert:  (str) cert src file
     :param chain:  (str) chain src file
+    :param timeout: (int) Time in seconds to restart connection
+    :param cert_reqs: (bool) Use certs in SSL connection
 
-    >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
+    >>>sender_config = SenderConfigSSL(address=SERVER, port=PORT,
+    ...                                cert_reqs=True, key=KEY,
     ...                                cert=CERT, chain=CHAIN)
 
     See Also:
@@ -43,17 +45,20 @@ class SenderConfigSSL:
 
     """
 
-    def __init__(self, address=None, key=None, cert=None, chain=None):
-        if not isinstance(address, tuple):
-            raise DevoSenderException(
-                "Devo-SenderConfigSSL| address must be a tuple "
-                "'(\"hostname\", int(port))'")
+    def __init__(self, address=None, port=None, key=None, debug=False,
+                 cert=None, chain=None, timeout=300, cert_reqs=True,
+                 **kwargs):
         try:
-            self.address = address
-            self.key = key
-            self.cert = cert
-            self.chain = chain
+            self.timeout = timeout * 1000
+            self.address = (address, int(port))
+            self.cert_reqs = cert_reqs
+            self.debug = debug
+            if cert_reqs:
+                self.key = key
+                self.cert = cert
+                self.chain = chain
             self.hostname = socket.gethostname()
+            self.type = 'SSL'
         except Exception as error:
             raise DevoSenderException(
                 "Devo-SenderConfigSSL|Can't create SSL config: "
@@ -75,14 +80,15 @@ class SenderConfigTCP:
 
     """
 
-    def __init__(self, address=None):
-        if not isinstance(address, tuple):
-            raise DevoSenderException(
-                "Devo-SenderConfigSSL| address must be a tuple "
-                "'(\"hostname\", int(port))'")
+    def __init__(self, address=None, port=443, debug=False, timeout=300,
+                 **kwargs):
+
         try:
-            self.address = address
+            self.timeout = timeout * 1000
+            self.address = (address, int(port))
             self.hostname = socket.gethostname()
+            self.type = 'TCP'
+            self.debug = debug
         except Exception as error:
             raise DevoSenderException(
                 "DevoSenderConfigTCP|Can't create TCP config: "
@@ -108,53 +114,90 @@ class Sender(logging.Handler):
     :param logger: logger. Default sys.console
 
     >>>con = Sender(sender_config)
-, facility=FACILITY_USER
-tag=None, logger=None, verbose_level="INFO",
+
     """
-    def __init__(self, config=None, timeout=10, debug=False, logger=None):
-        if not config:
-            raise DevoSenderException("Problems with args passed to Sender")
+    def __init__(self, config=None, **kwargs):
+        if not isinstance(config, (SenderConfigSSL, SenderConfigTCP)):
+            if not config:
+                config = kwargs
+            else:
+                if isinstance(config, Configuration):
+                    config.cfg.update(kwargs)
+                else:
+                    config.update(kwargs)
+
+            if "type" not in config.keys():
+                config["type"] = "SSL"
+                config = SenderConfigSSL(**config)
+            elif config["type"] not in ["TCP", "SSL"]:
+                raise DevoSenderException(
+                        "Devo-Sender|Type must be 'SSL' or 'TCP'")
+            elif config.get("type") == "TCP":
+                config = SenderConfigTCP(**config)
+            elif config.get("type") == "SSL":
+                config = SenderConfigSSL(**config)
+            else:
+                raise DevoSenderException("Problems with args passed to Sender")
+
+        logger = kwargs.get('logger', None)
 
         logging.Handler.__init__(self)
-        self.logger = logger if logger else \
-            get_log(handler=get_stream_handler(
-                msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
+        self.logger = logger if logger \
+            else self.__set_logger(kwargs.get('verbose_level', "INFO"))
 
         self.socket = None
         self._sender_config = config
         self.reconnection = 0
-        self.debug = debug
-        self.timeout = timeout
+        self.sockettimeout = kwargs.get('sockettimeout', 5)
         self.buffer = SenderBuffer()
-        self.logging = {}
 
-        if isinstance(config, SenderConfigSSL):
+        self._logger_facility = kwargs.get('facility', FACILITY_USER)
+        self._logger_tag = kwargs.get('tag', None)
+
+        if self._sender_config.type == 'SSL':
             self.__connect_ssl()
 
-        if isinstance(config, SenderConfigTCP):
-            self.__connect_tcp_socket()
+        if self._sender_config.type == 'TCP':
+            self.__connect_tcpsocket()
 
     def __connect(self):
-        if isinstance(self._sender_config, SenderConfigSSL):
+        if self._sender_config.type == 'SSL':
             self.__connect_ssl()
-        if isinstance(self._sender_config, SenderConfigTCP):
-            self.__connect_tcp_socket()
+        if self._sender_config.type == 'TCP':
+            self.__connect_tcpsocket()
 
-    def __connect_tcp_socket(self):
+    def __connect_tcpsocket(self):
         """
         Connect to TCP socket
         :return:
         """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.timeout)
+        self.socket.settimeout(self.sockettimeout)
         try:
             self.socket.connect(self._sender_config.address)
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "TCP conn establishment socket error: %s" % str(error))
+                "Devo-Sender|TCP conn establishment socket error: %s" % str(error))
 
         self.timestart = int(round(time.time() * 1000))
+
+    @staticmethod
+    def __set_logger(verbose_level):
+        logger = logging.getLogger('DevoSender')
+
+        if isinstance(verbose_level, int):
+            verbose_level = logging.getLevelName(verbose_level)
+
+        logger.setLevel(verbose_level.upper())
+        if not logger.handlers:
+            sender_logger = logging.StreamHandler(sys.stdout)
+            sender_logger.setLevel(logging.DEBUG)
+            formatter = logging.Formatter(
+                '%(asctime)s|%(levelname)s|%(message)s')
+            sender_logger.setFormatter(formatter)
+            logger.addHandler(sender_logger)
+        return logger
 
     def __connect_ssl(self):
         """
@@ -162,13 +205,11 @@ tag=None, logger=None, verbose_level="INFO",
 
         """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.timeout)
+        self.socket.settimeout(self.sockettimeout)
 
         try:
             try:
-                if self._sender_config.key is not None \
-                        and self._sender_config.chain is not None \
-                        and self._sender_config.cert is not None:
+                if self._sender_config.cert_reqs:
                     self.socket = ssl.wrap_socket(
                         self.socket,
                         keyfile=self._sender_config.key,
@@ -183,7 +224,7 @@ tag=None, logger=None, verbose_level="INFO",
 
             self.socket.connect(self._sender_config.address)
             self.reconnection += 1
-            self.logger.debug('Conected to %s|%s'
+            self.logger.debug('Devo-Sender|Conected to %s|%s'
                               % (repr(self.socket.getpeername())
                                  , str(self.reconnection)))
             self.timestart = int(round(time.time() * 1000))
@@ -191,7 +232,7 @@ tag=None, logger=None, verbose_level="INFO",
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "SSL conn establishment socket error: %s" %
+                "Devo-Sender|SSL conn establishment socket error: %s" %
                 str(error))
 
     def info(self, msg):
@@ -201,7 +242,7 @@ tag=None, logger=None, verbose_level="INFO",
         :param msg: the msg to log
         :return:
         """
-        self.send(tag=self.logging.get("tag"), msg=msg)
+        self.send(tag=self._logger_tag, msg=msg)
 
     def __status(self):
         """
@@ -210,10 +251,7 @@ tag=None, logger=None, verbose_level="INFO",
         timeit = int(round(time.time() * 1000)) - self.timestart
         if self.socket is None:
             return False
-        if not self.timeout:
-            self.timeout = 10
-
-        if self.timeout < timeit:
+        if self._sender_config.timeout < timeit:
             self.close()
             return False
         return True
@@ -239,10 +277,15 @@ tag=None, logger=None, verbose_level="INFO",
         """
         Class for encode the record for correct send
         :param record: the record to encode
-        :return: record encoded for PY3
+        :return: record encoded for PY3 or PY2
         """
-        if not isinstance(record, bytes):
-            return record.encode('utf-8')
+        if PY3:
+            if not isinstance(record, bytes):
+                return record.encode('utf-8')
+        else:
+            if not isinstance(record, str):
+                return bytes(record.encode("utf-8"))
+
         return record
 
     def __send_oc(self, record):
@@ -256,10 +299,10 @@ tag=None, logger=None, verbose_level="INFO",
                 record[int(iteration * 4096):
                        int((iteration + 1) * 4096)])
         if sent == 0:
-            raise DevoSenderException("Send error")
+            raise DevoSenderException("Devo-Sender|Send error")
         return sent
 
-    def send_raw(self, record, multiline=False, zip=False):
+    def send_raw(self, record, multiline=False, zipped=False):
         """
         Send raw messages to the collector
 
@@ -273,7 +316,7 @@ tag=None, logger=None, verbose_level="INFO",
 
             if self.socket:
                 try:
-                    if not multiline and not zip:
+                    if not multiline and not zipped:
                         sent = self.socket.send(self.__encode_record(record))
                         return 1
                     if multiline:
@@ -286,12 +329,12 @@ tag=None, logger=None, verbose_level="INFO",
                 except socket.error:
                     self.close()
                     raise DevoSenderException(
-                        "Socket error: %s" % str(socket.error))
+                        "Devo-Sender|Socket error: %s" % str(socket.error))
                 finally:
-                    if self.debug:
+                    if self._sender_config.debug:
                         self.logger.debug('sent|%d|size|%d|msg|%s' %
                                           (sent, len(record), record))
-            raise DevoSenderException("Socket unknown error")
+            raise DevoSenderException("Devo-Sender|Socket unknown error")
         except Exception as error:
             raise error
 
@@ -320,8 +363,7 @@ tag=None, logger=None, verbose_level="INFO",
         severity = kwargs.get('severity', SEVERITY_INFO)
         if kwargs.get('bytes', False):
             date = kwargs.get('date', b'Jan  1 00:00:00')
-            hostname = kwargs.get('hostname',
-                                  socket.gethostname().encode("utf-8"))
+            hostname = kwargs.get('hostname', socket.gethostname().encode("utf-8"))
             log_format = kwargs.get('log_format', FORMAT_MY_BYTES)
         else:
             date = kwargs.get('date', 'Jan  1 00:00:00')
@@ -355,7 +397,7 @@ tag=None, logger=None, verbose_level="INFO",
 
     def send_str(self, tag, msg, **kwargs):
         """
-        Send function when str, sure py 27. Cant be zip
+        Send function when str, sure py 27. Cant be zipped
         """
         if msg[-1:] != "\n":
             msg += "\n"
@@ -403,7 +445,7 @@ tag=None, logger=None, verbose_level="INFO",
                                               zlib.DEFLATED, 31)
                 record = compressor.compress(self.buffer.text_buffer) \
                          + compressor.flush()
-                if self.send_raw(record, zip=True):
+                if self.send_raw(record, zipped=True):
                     return self.buffer.events
                 return 0
             except Exception as error:
@@ -413,8 +455,16 @@ tag=None, logger=None, verbose_level="INFO",
                 self.buffer.events = 0
         return 0
 
+    def set_logger_tag(self, tag):
+        """
+        When Sender its used for logging, you can set the tag for default
+        :param tag: table tag
+        :return:
+        """
+        self._logger_tag = tag
+
     @staticmethod
-    def for_logging(config=None, con_type=None, tag=None, level=None):
+    def for_logging(config, con_type="SSL", tag=None, level=10):
         """ Function for create Sender object from config file to use in
         logging handler
         :param config: config Devo file
@@ -424,59 +474,34 @@ tag=None, logger=None, verbose_level="INFO",
         :param formatter: log formatter
         :return: Sender object
         """
-        if isinstance(config, (SenderConfigSSL, SenderConfigTCP)):
-            con = Sender(config=config)
-            con.logging['tag'] = tag
-            con.logging['level'] = 10 if not level else level
+        if "verbose_level" not in config.keys():
+            config["verbose_level"] = level
+
+        con = Sender.from_config(config, con_type=con_type)
+        if tag:
+            con.set_logger_tag(tag)
+        elif "tag" in config.keys():
+            con.set_logger_tag(config['tag'])
         else:
-            con = Sender.from_dict(config, con_type=con_type)
-
-            if tag:
-                con.logging['tag'] = tag
-            else:
-                con.logging['tag'] = config.get("tag", "my.app.log")
-
-            if level is not None:
-                con.logging['level'] = level
-            else:
-                con.logging['level'] = config.get("verbose_level", 10)
+            con.set_logger_tag("test.keep.free")
 
         return con
 
     @staticmethod
-    def from_dict(config=None, con_type=None, logger=None):
+    def from_config(config, con_type=None, logger=None):
         """ Function for create Sender object from config file
         :param config: config Devo file
         :param con_type: type of connection
         :param logger: logger handler, default None
         :return: Sender object
         """
-        if con_type:
-            connection_type = con_type
-        elif "type" in config.keys():
-            connection_type = config['type']
-        else:
-            connection_type = "SSL"
+        if "cert_reqs" not in config.keys():
+            config['cert_reqs'] = True
 
-        address = config.get("address", None)
+        if "type" not in config.keys():
+            config['type'] = con_type if con_type else "SSL"
 
-        if not address:
-            raise DevoSenderException("No address")
-
-        if not isinstance(address, tuple):
-            address = (address, int(config.get("port", 443)))
-
-        if connection_type == "SSL":
-            conf = SenderConfigSSL(address=address,
-                                   key=config.get("key"),
-                                   cert=config.get("cert"),
-                                   chain=config.get("chain"))
-        else:
-            conf = SenderConfigTCP(address=address)
-
-        return Sender(logger=logger, config=conf,
-                      timeout=config.get("timeout"),
-                      debug=config.get("debug"))
+        return Sender(logger=logger, config=config)
 
     def emit(self, record):
         """
@@ -498,8 +523,7 @@ tag=None, logger=None, verbose_level="INFO",
                 severity = priority_map.get(record.levelname, record.levelno)
             except AttributeError:
                 severity = priority_map.get("INFO")
-            self.send(tag=self.logging.get("tag", "test.keep.free"), msg=msg,
-                      facility=self.logging.get("level", FACILITY_USER),
-                      severity=severity)
+            self.send(tag=self._logger_tag, msg=msg,
+                      facility=self._logger_facility, severity=severity)
         except Exception:
             self.handleError(record)

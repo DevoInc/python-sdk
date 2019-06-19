@@ -1,25 +1,19 @@
 """CLI for use Devo API from shell command line."""
+
+import sys
 import os
 import click
-import sys
 from devo.common import Configuration
-from devo.api.client import Client, DevoClientException, ERROR_MSGS
-from devo.__version__ import __version__
+from devo.api import Client, DevoClientException
 
 # Groups
 # ------------------------------------------------------------------------------
 
 
-@click.group(invoke_without_command=True)
-@click.option('--version', "-v", is_flag=True, default=False)
-def cli(version):
-    """ Initialize click """
-    pkg_dir =  os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "..", "..",
-    ))
-    click.echo("devo-sdk {!s} from {!s} (python {!s})".format(__version__,
-                                                              pkg_dir,
-                                                              sys.version[:3]))
+@click.group()
+def cli():
+    """Empty group"""
+    pass
 
 # Commands
 # ------------------------------------------------------------------------------
@@ -32,14 +26,16 @@ def cli(version):
               default=False)
 @click.option('--default', '-d', help='Use default file for configuration',
               default=False)
-@click.option('--address', '-a', help='Endpoint for the api.')
-@click.option('--user', help='User for the api.')
-@click.option('--app_name', help='Application name for the api.')
-@click.option('--comment', help='Comment for the queries.')
-@click.option('--key', help='Key for the api.')
-@click.option('--secret', help='Secret for the api.')
-@click.option('--token', help='Secret for the api.')
-@click.option('--query', '-q', help='Query.', default="")
+@click.option('--url', '-u', help='Endpoint for the api.')
+@click.option('--user', '-user', help='User for the api.')
+@click.option('--app_name', '-app_name', help='Application name for the api.')
+@click.option('--comment', '-comment', help='Comment for the queries.')
+@click.option('--api_key', '--apiKey', '--key', help='Key for the api.')
+@click.option('--api_secret', '--apiSecret', '--secret',
+              help='Secret for the api.')
+@click.option('--api_token', '--apiToken', '--token',
+              help='Secret for the api.')
+@click.option('--query', '-q', help='Query.')
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with '
               'start and end. Default is true', default=True)
@@ -53,26 +49,19 @@ def cli(version):
 @click.option('--to', default=None,
               help='To date, and time for the query (YYYY-MM-DD hh:mm:ss). '
                    'For valid formats see lt-common README')
-@click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def query(**kwargs):
     """Perform query by query string"""
     api, config = configure(kwargs)
 
-    if config is None:
-        print_error("Error in config", show_help=True)
-        if config['debug']:
-            return
-        exit()
+    if config['query'] is None:
+        print_error("Error: Not query provided.", show_help=True)
 
-    if not config['query']:
-        print_error(ERROR_MSGS['no_query'], show_help=True)
-        if config['debug']:
-            return
-        exit()
     reponse = api.query(query=config['query'],
                         dates={"from": config['from'],
                                "to": config['to'] if "to" in config.keys()
-                                                    else None})
+                                                    else None},
+                        response=config['response'],
+                        stream=config['stream'])
 
     process_response(reponse, config)
 
@@ -111,7 +100,7 @@ def configure(args):
     """
     Load CLI configuration
     :param args: args from files, launch vars, etc
-    :return: Clien  t API Object and Config values in array
+    :return: Client API Object and Config values in array
     """
     config = Configuration()
     try:
@@ -121,29 +110,30 @@ def configure(args):
         if args.get('env'):
             config.set("key", os.environ.get('DEVO_API_KEY', None))
             config.set("secret", os.environ.get('DEVO_API_SECRET', None))
-            config.set("address", os.environ.get('DEVO_API_ADDRESS', None))
+            config.set("url", os.environ.get('DEVO_API_URL', None))
             config.set("user", os.environ.get('DEVO_API_USER', None))
             config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
 
         if args.get('default'):
             config.load_default_config(section="api")
-    except Exception as error:
-        print_error(str(error), show_help=True)
     finally:
         config.mix(dict(args))
+        conf = config.get()
 
     # Try to compose the api
     api = None
     try:
-        api = Client.from_dict(config.cfg)
+        api = Client.from_config(conf)
     except DevoClientException as error:
         print_error(str(error), show_help=True)
-    return api, config
+    return api, conf
 
 
-def print_error(error, show_help=False):
+def print_error(error, show_help=False, stop=True):
     """Class for print error in shell when exception"""
+    click.echo(click.style(error, fg='red'), err=True)
     if show_help:
         click.echo("")
         click.echo(click.get_current_context().get_help())
-    click.echo(click.style(error, fg='red'), err=True)
+    if stop:
+        sys.exit(1)
