@@ -12,14 +12,15 @@ This library allows you to send logs or lookups to the Devo platform.
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	
-    * **url**: collector-us.devo.io
+    * **url**: usa.elb.relay.logtrust.net
     * **port**: 443
  * **EU:**
-    * **url**: collector-eu.devo.io
+    * **url**: eu.elb.relay.logtrust.net
     * **port**: 443
  * **VDC:**
-    * **url**: collector-es.devo.io
+    * **url**: es.elb.relay.logtrust.net
     * **port**: 443
+
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
@@ -217,7 +218,7 @@ logger = get_log(name="devo_logger", handler=con)
 ```
 
 
-###Lookup
+### Lookups
 
 Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).
 

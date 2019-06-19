@@ -63,13 +63,13 @@ Pull and merge requests are welcome ☺
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	
-    * **url**: collector-us.devo.io
+    * **url**: usa.elb.relay.logtrust.net
     * **port**: 443
  * **EU:**
-    * **url**: collector-eu.devo.io
+    * **url**: eu.elb.relay.logtrust.net
     * **port**: 443
  * **VDC:**
-    * **url**: collector-es.devo.io
+    * **url**: es.elb.relay.logtrust.net
     * **port**: 443
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
