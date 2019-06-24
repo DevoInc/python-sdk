@@ -14,7 +14,6 @@ class Configuration(dict):
     Main class for load config files, and extract config objects
     """
     def __init__(self, path=None, section=None):
-        self.cfg = dict()
         if path is not None:
             self.load_config(path=path, section=section)
 
@@ -86,7 +85,7 @@ class Configuration(dict):
         try:
             with open(path, 'w') as file:
                 if path.endswith('.json'):
-                    json.dump(self.cfg, file)
+                    json.dump(self, file)
                 if path.endswith('.yaml') or path.endswith('.yml'):
                     try:
                         import yaml
@@ -94,7 +93,7 @@ class Configuration(dict):
                         print(str(import_error),
                               "- Use 'pip install pyyaml' or install this "
                               "package with [click] option")
-                    yaml.dump(self.cfg, file, default_flow_style=False)
+                    yaml.dump(self, file, default_flow_style=False)
             if os.path.isfile("{}.bak".format(path)) and not save_bak:
                 self.delete_file("{}.bak".format(path))
             return True
@@ -129,19 +128,10 @@ class Configuration(dict):
 
         raise ConfigurationException("Config file must be yml or json")
 
-    #Deprecated in future
-    def load_default_json(self, section=None):
-        """Load Json Configuration in ~/.devo.json
-
-        :param section: Section of the file if it have one
-        :return: Returns a reference to the instance object
-        """
-        return self.load_json("~/.devo.json", section)
-
     @staticmethod
     def clean_cfg(cfg):
         """
-        Clean self.cfg keys with None (CLI default values fix)
+        Clean self keys with None (CLI default values fix)
         """
         keys = list(cfg.keys())
         for key in keys:
@@ -150,24 +140,39 @@ class Configuration(dict):
 
         return cfg
 
-    def mix(self, cfg):
+    def mix(self, cfg, aux=None):
         """Mix configuration only if not None param (Override vars)
 
         :param cfg: Configuration to mix
+        :param aux: aux dict for recursive use
         """
-        cfg = self.clean_cfg(cfg)
-        for key in cfg:
-            self.cfg[key] = cfg[key]
+        if aux is None:
+            aux = self
 
-    def secure_mix(self, cfg):
+        cfg = self.clean_cfg(cfg)
+        for key, value in cfg.items():
+            aux_key = aux.get(key)
+            if isinstance(aux_key, dict) and isinstance(value, dict):
+                self.mix(value, aux_key)
+            else:
+                aux[key] = value
+
+    def secure_mix(self, cfg, aux=None):
         """Mix configuration only if not None param and if not exist
 
         :param cfg: Configuration to mix
+        :param aux: aux dict for recursive use
         """
-        self.clean_cfg(cfg)
-        for key in cfg:
-            if key not in self.cfg.keys():
-                self.cfg[key] = cfg[key]
+        if aux is None:
+            aux = self
+
+        cfg = self.clean_cfg(cfg)
+        for key, value in cfg.items():
+            aux_key = aux.get(key, None)
+            if isinstance(aux_key, dict) and isinstance(value, dict):
+                self.mix(value, aux_key)
+            elif aux_key is not None and aux_key not in aux.keys():
+                aux[key] = value
 
     def get(self, key=None, default=None, aux_dict=None):
         """Get the configuration as dict
@@ -175,7 +180,7 @@ class Configuration(dict):
         :return: Return the configuration dict
         """
         if aux_dict is None:
-            aux_dict = self.cfg
+            aux_dict = self
 
         if key is None:
             return aux_dict
@@ -191,62 +196,19 @@ class Configuration(dict):
 
         return default
 
-    def keys(self, prop=None):
-        """Check if exist property and if not then set to None
-
-        :param prop: Property to check
-        """
-        if not prop:
-            return self.cfg.keys()
-
-        if prop not in self.cfg:
-            return False
-        return True
-
-    def key_exist(self, prop):
-        """Check if exist property and if not then set to None
-
-        :param prop: Property to check
-        """
-        return self.keys(prop)
-
-    def set(self, key_list, value):
+    def set(self, key=None, value=None):
         """ Set value of dict
          :param key_list: Key when save value, can be list to create depth key
          :param value: Value to save
         """
         if value:
-            if not isinstance(key_list, list):
-                key_list = [key_list]
-            self.cfg = self.set_key_chain(self.cfg, key_list, value)
+            if not isinstance(key, (list, tuple)):
+                self[key] = value
+            else:
+                self.mix(self.create_dict_chain(key, value))
 
-    @staticmethod
-    def set_key_chain(aux_dict, key_list, value):
-        """
-        Auxiliar function to create subdicts into dicts, and save the value
-        recursively
-         :param aux_dict: aux_dict when you create dicts into dicts
-         :param key_list: Actual key list for the loop
-         :param value: Value to save
-        """
+    def create_dict_chain(self, key_list, value):
         if len(key_list) == 1:
-            aux_dict[key_list[0]] = value
-        else:
-            new_dict = aux_dict[key_list[0]] if key_list[0] in aux_dict.keys()\
-                else dict()
-            aux_dict[key_list[0]] = Configuration.set_key_chain(new_dict,
-                                                                key_list[1:],
-                                                                value)
-        return aux_dict
+            return {key_list[0]: value}
 
-    def __getitem__(self, key):
-        return self.cfg[key]
-
-    def __setitem__(self, key, value):
-        self.cfg[key] = value
-
-    def __str__(self):
-        return str(self.cfg)
-
-    def __repr__(self):
-        return self.__str__()
+        return {key_list[0]: self.create_dict_chain(key_list[1:], value)}
