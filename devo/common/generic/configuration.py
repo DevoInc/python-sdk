@@ -141,7 +141,7 @@ class Configuration(dict):
         return cfg
 
     def mix(self, cfg, aux=None):
-        """Mix configuration only if not None param (Override vars)
+        """Mix configuration (override vars values)
 
         :param cfg: Configuration to mix
         :param aux: aux dict for recursive use
@@ -158,7 +158,7 @@ class Configuration(dict):
                 aux[key] = value
 
     def secure_mix(self, cfg, aux=None):
-        """Mix configuration only if not None param and if not exist
+        """Mix configuration only if value is None or if not exist
 
         :param cfg: Configuration to mix
         :param aux: aux dict for recursive use
