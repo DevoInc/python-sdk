@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * API init class
  * Config.from_config to Config.from_dict in API and Sender
  * New documentation
+ * Now devo Configuration object inherits from the dict class
  
 #### Fixed
  * Fixed when add key chain to configuration

@@ -9,7 +9,7 @@ class ConfigurationException(Exception):
     """ Default Configuration Exception """
 
 
-class Configuration:
+class Configuration(dict):
     """
     Main class for load config files, and extract config objects
     """
@@ -244,7 +244,9 @@ class Configuration:
 
     def __setitem__(self, key, value):
         self.cfg[key] = value
-        return None
 
     def __str__(self):
         return str(self.cfg)
+
+    def __repr__(self):
+        return self.__str__()

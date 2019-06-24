@@ -4,7 +4,11 @@ from click.testing import CliRunner
 from devo.common import Configuration
 from devo.sender.scripts.sender_cli import data
 from devo.sender import DevoSenderException
-from load_certs import *
+
+try:
+    from .load_certs import *
+except ImportError:
+    from load_certs import *
 
 
 class TestApi(unittest.TestCase):

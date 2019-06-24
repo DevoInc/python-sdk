@@ -11,55 +11,80 @@ To perform a request with API, first choose the required endpoint depending on t
 
 You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 
+#### Differences in use from version 2 to 3:
+
+You have a special README to quickly show the important changes suffered from version 2 to 3
+
+[You can go read it here](api_v3_changes.md)
+
 ## USAGE
 #### Constructor
 
-- key: The key of the domain
-- secret: The secret of the domain
-- token: Auth token
-- jwt: JWT token
-- url(optional): The url of the service. A static constants are provided with
-the commons clouds: can take several values, for example:
-    - Client.URL_AWS_EU: https://apiv2-eu.devo.com
-    - Client.URL_AWS_USA: https://apiv2-us.devo.com
-    - Client.URL_VDC: https://apiv2-es.devo.com
-    - Client.URL_QUERY_COMPLEMENT = '/search/query'
-- buffer (optional): Buffer object if you modify the Devo Buffer class
+- address: endpoint
+- auth: object with auth params (key and secret, token or jwt)
+    - key: The key of the domain
+    - secret: The secret of the domain
+    - token: Auth token
+    - jwt: JWT token
+- retries: number of retries for a query
+- timeout: timeout of socket
+- config: dict or ClientConfig object
 
     
 ```python
 from devo.api import Client
 
-api = Client(key="myapikey",
-             secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
-             user="user@devo.com",
-             app_name="testing app")
+api = Client(auth= {"key":"myapikey", "secret":"myapisecret"}, 
+             address="https://apiv2-eu.devo.com/search/query")
 
 
-api = Client(token="myauthtoken",
-             url="https://apiv2-eu.devo.com/search/query")
+api = Client(auth={"token":"myauthtoken"},
+             address="https://apiv2-eu.devo.com/search/query")
 
-api = Client(jwt="myauthtoken",
-             url="https://apiv2-eu.devo.com/search/query")
+api = Client(auth={"jwt":"myauthtoken"},
+             address="https://apiv2-eu.devo.com/search/query")
 ```    
     
+#### ClientConfig
+
+- processor: processor for response, default is None
+- response: format of response
+- destination: Destination options, see Documentation for more info
+- stream: Stream queries or not
+- pragmas: pragmas por query: {"user": "Username", "app_name": "app name", "comment": "This query is for x"}
+    - All pragmas are optional 
+
+```python
+from devo.api import Client, ClientConfig
+
+config = ClientConfig(response="json", pragmas={"user": "jose_ramon_id153"})
+
+api = Client(auth= {"key":"myapikey", "secret":"myapisecret"}, 
+             address="https://apiv2-eu.devo.com/search/query",
+             config=config)
+
+
+config = ClientConfig(response="json/compact", stream=False,
+                      pragmas={"user": "jose_ramon_id153", "app_name": "devo-sdk-tests-master"})
+
+api = Client(auth= {"key":"myapikey", "secret":"myapisecret"}, 
+             address="https://apiv2-eu.devo.com/search/query",
+             config=config)
+
+
+```  
+   
 #### query() params
 
 `def query(self, **kwargs)`
 - query: Query to perform
-- query_id: if not query, you can send the query id
-- dates: {'from': string, 'to': string} -> Date from and date to, if not "to", in object, to = now()
-- response: Type of response from Client API
-- limit: Limits of rows returned
-- offset: Row number by which to start returning data
-- stream: Not wait for all response for return lines - real time mode if not "to" in dates
-- response: response type
-- processor: response processor flag from defaults
-- comment: Comment for the query
-- verify: (optional) Either a boolean, in which case it controls whether we verify
-            the server's TLS certificate, or a string, in which case it must be a path
-            to a CA bundle to use. Defaults to ``True``.
+- query_id: Query ID to perform the query
+- dates: Dict with "from" and "to" keys
+- limit: Max number of rows
+- offset: start of needle for query
+- comment: comment for query pragmas
+- Result of the query (dict) or Iterator object
+
 
 #### Result returned:
 ###### - Non stream call
@@ -78,35 +103,38 @@ api = Client(jwt="myauthtoken",
 
 Normal/Non stream response:
 ```python
-from devo.api import Client
+from devo.api import Client, ClientConfig
 
-api = Client(key="myapikey",
-             secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
-             user="user@devo.com",
-             app_name="testing app")
+api = Client(auth={"key":"myapikey", "secret": "myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query", 
+             config=ClientConfig(response="json", stream=False))
              
 response = api.query(query="from my.app.web.activityAll select * limit 10",
-                     dates= {'from': "2018-02-06 12:42:00"},
-                     response="json",
-                     stream=False)
+                     dates= {'from': "2018-02-06 12:42:00"})
                      
 print(response)
+
+api.config.response = "json/compact"
+
+response = api.query(query="from my.app.web.activityAll select * limit 10",
+                     dates= {'from': "2018-02-06 12:42:00"})
+                     
+print(response)
+
 ```
 
 Real time/stream query:
 ```python
-from devo.api import Client
+from devo.api import Client, ClientConfig
 
-api = Client(key="myapikey",
-             secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
-             user="user@devo.com",
-             app_name="testing app")
+api = Client(auth={"key":"myapikey", "secret": "myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query", 
+             config=ClientConfig(response="json/simple/compact", 
+                                 pragmas={"name": "jose_ramon_id123",
+                                          "app_name": "sdk-tests-master"}))
              
 response = api.query(query="from my.app.web.activityAll select * limit 10",
-                     dates= {'from': "2018-02-06 12:42:00"},
-                     response="json/simple/compact")
+                     dates= {'from': "2018-02-06 12:42:00"})
 
 try:
     for item in response:
@@ -118,31 +146,47 @@ except Exception as error:
 Query by id has the same parameters as query (), changing the field "query" 
 to "query_id", which is the ID of the query in Devo.
 
+## Not verify certificates
+If server has https certificates with problems, autogenrados or not verified, you can deactivate
+ the secure calls (Verifying the certificates https when making the call) disabling it with:
+
+```python
+from devo.api import Client, ClientConfig
+
+
+api = Client(auth= {"key":"myapikey", "secret":"myapisecret"}, 
+             address="https://apiv2-eu.devo.com/search/query")
+api.verify_certificates(False)
+```
+
+You can revert it with:
+
+```python
+api.verify_certificates(True)
+```  
+
 ## Processors flags:
 
 By default, you receive response in str/bytes (Depends of your python version) direct from Socket, and you need manipulate the data.
 But you can specify one default processor for data, soo you receive in diferente format:
 
-
 ```python
-from devo.api import Client, JSON_SIMPLE
+from devo.api import Client, ClientConfig, JSON_SIMPLE
 
-api = Client(key="myapikey",
-             secret="myapisecret",
-             url="https://apiv2-eu.devo.com/search/query",
-             user="user@devo.com",
-             app_name="testing app")
+config = ClientConfig(response="json/simple", processor=JSON_SIMPLE, stream=True)
+
+api = Client(auth={"key":"myapikey", "secret":"myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query",
+             config=config)
              
 response = api.query(query="from my.app.web.activityAll select * limit 10",
-                     dates= {'from': "2018-02-06 12:42:00"},
-                     response="json/simple", processor=JSON_SIMPLE)
+                     dates= {'from': "2018-02-06 12:42:00"})
 
 try:
     for item in response:
         print(item)
 except Exception as error:
     print(error)
-
 ```
 
 ####Flag list:
@@ -224,8 +268,8 @@ Options:
   -e, --env                                    Use env vars for configuration
   -a, --address TEXT                           Endpoint for the api.
   --key TEXT                                   Key for the api.
-  --api_secret, --apiSecret, --secret TEXT     Secret for the api.
-  --auth_token, --authToken, --token TEXT      Token auth for query.
+  --secret TEXT     Secret for the api.
+  --token TEXT      Token auth for query.
   --jwt TEXT                                   jwt auth for query.
   -q, --query TEXT                             Query.
   --stream / --no-stream                       Flag for make streaming query or full query with start and end. Default is true
@@ -251,7 +295,7 @@ arguments of the call over the configuration file
 **Config file key:** The CLI uses the "api" key to search for information. 
 You can see one examples in tests folders
 
-json example:
+json example 1:
 ```json
   {
     "api": {
@@ -263,12 +307,34 @@ json example:
   
 ```
 
-yaml example:
+json example 2:
+```json
+  {
+    "api": {
+      "auth": {
+        "key": "MyAPIkeytoaccessdevo",
+        "secret": "MyAPIsecrettoaccessdevo",
+      },
+      "address": "https://apiv2-us.devo.com/search/query"
+    }
+  }
+  
+```
+
+yaml example 1:
 ```yaml
   api:
     key: "MyAPIkeytoaccessdevo"
     secret: "MyAPIsecrettoaccessdevo"
     url: "https://apiv2-us.devo.com/search/query"
+```
+yaml example 2:
+```yaml
+  api:
+    auth:
+      key: "MyAPIkeytoaccessdevo"
+      secret: "MyAPIsecrettoaccessdevo"
+    address: "https://apiv2-us.devo.com/search/query"
 ```
 
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values
@@ -279,7 +345,7 @@ Priority order:
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
 4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
-Environment vars are: `DEVO_API_URL`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
+Environment vars are: `DEVO_API_ADDRESS`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
 
 ## Choosing Fomat
 The default response format (`response`) is `json`, to change the default value, it can be established directly:
@@ -290,10 +356,10 @@ api.response = 'json/compact'
 
 To change the response format (`format`) of a query, just change the value of the attribute response of the query call
 ```python
+api.config.response = config.get('response')
+
 response = api.query(config.get('query'), 
-                     date_from=config.get('from'), 
-                     date_to=config.get('to'), 
-                     response=config.get('response'))
+                     dates={"from": config.get('from'), "to": config.get('to')})
 ```
  
 Format allow the following values:

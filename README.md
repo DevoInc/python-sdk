@@ -46,6 +46,7 @@ You can use sources files, clonning the project too:
 
 You has specific documentation in _[docs](docs)_ folder for each part of SDK:
 * [Sender](docs/sender.md)
+* [Lookups](docs/sender.md#Lookups)
 * [Common](docs/common.md)
 * API:
     * [Api query](docs/api/api.md)
@@ -63,7 +64,7 @@ Pull and merge requests are welcome ☺
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	
-    * **url**: usa.elb.relay.logtrust.net
+    * **url**: us.elb.relay.logtrust.net
     * **port**: 443
  * **EU:**
     * **url**: eu.elb.relay.logtrust.net

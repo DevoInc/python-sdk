@@ -72,7 +72,7 @@ def query(**kwargs):
     reponse = api.query(query=config['query'],
                         dates={"from": config['from'],
                                "to": config['to'] if "to" in config.keys()
-                                                    else None})
+                               else None})
 
     process_response(reponse, config)
 
@@ -133,11 +133,12 @@ def configure(args):
         config.mix(dict(args))
 
     # Try to compose the api
-    api = None
     try:
-        api = Client.from_dict(config.cfg)
+        api = Client(config=config)
     except DevoClientException as error:
         print_error(str(error), show_help=True)
+        raise DevoClientException(str(error))
+
     return api, config
 
 

@@ -7,7 +7,7 @@ import ssl
 import sys
 import time
 import zlib
-from devo.common import get_stream_handler, get_log
+from devo.common import get_stream_handler, get_log, Configuration
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
@@ -65,8 +65,6 @@ class SenderConfigTCP:
     Configuration TCP class.
 
     :param address:(str) Server address
-    :param port: (int) Server port
-    :param timeout: (int) Time in seconds to restart connection
 
     >>>sender_config = SenderConfigTCP(address=SERVER, port=PORT)
 
@@ -102,18 +100,23 @@ class Sender(logging.Handler):
     """
     Class that manages the connection to the data collector
 
-    :param config: Config class, you can send params in kwargs
-    :param verbose_level: Logger verbose level. Default level INFO
-    :param sockettimeout: Socket timeout in minutes
+    :param config: SenderConfigSSL, SenderConfigTCP or dict object
+    :param con_type: TCP or SSL, default SSL, you can pass it in config object too
+    :param timeout: timeout for socket
+    :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
-
-    >>>con = Sender(sender_config)
-, facility=FACILITY_USER
-tag=None, logger=None, verbose_level="INFO",
     """
-    def __init__(self, config=None, timeout=10, debug=False, logger=None):
-        if not config:
+    def __init__(self, config=None, con_type=None,
+                 timeout=10, debug=False, logger=None):
+
+        if config is None:
             raise DevoSenderException("Problems with args passed to Sender")
+
+        self.timestart = time.time()
+        if isinstance(config, (dict, Configuration)):
+            timeout = config.get("timeout", timeout)
+            debug = config.get("debug", debug)
+            config = self._from_dict(config=config, con_type=con_type)
 
         logging.Handler.__init__(self)
         self.logger = logger if logger else \
@@ -291,9 +294,9 @@ tag=None, logger=None, verbose_level="INFO",
                     if self.debug:
                         self.logger.debug('sent|%d|size|%d|msg|%s' %
                                           (sent, len(record), record))
-            raise DevoSenderException("Socket unknown error")
+            raise Exception("Socket cant connect: unknown error")
         except Exception as error:
-            raise error
+            raise DevoSenderException(error)
 
     @staticmethod
     def compose_mem(tag, **kwargs):
@@ -424,28 +427,26 @@ tag=None, logger=None, verbose_level="INFO",
         :param formatter: log formatter
         :return: Sender object
         """
-        if isinstance(config, (SenderConfigSSL, SenderConfigTCP)):
-            con = Sender(config=config)
+        con = Sender(config=config, con_type=con_type)
+        if tag:
             con.logging['tag'] = tag
-            con.logging['level'] = 10 if not level else level
+        elif isinstance(config, dict):
+            con.logging['tag'] = config.get("tag", "my.app.log")
         else:
-            con = Sender.from_dict(config, con_type=con_type)
+            con.logging['tag'] = "my.app.log"
 
-            if tag:
-                con.logging['tag'] = tag
-            else:
-                con.logging['tag'] = config.get("tag", "my.app.log")
-
-            if level is not None:
-                con.logging['level'] = level
-            else:
-                con.logging['level'] = config.get("verbose_level", 10)
+        if level:
+            con.logging['level'] = level
+        elif isinstance(config, dict):
+            con.logging['level'] = config.get("verbose_level", 10)
+        else:
+            con.logging['tag'] = 10
 
         return con
 
     @staticmethod
-    def from_dict(config=None, con_type=None, logger=None):
-        """ Function for create Sender object from config file
+    def _from_dict(config=None, con_type=None):
+        """ Function for create Sender config object from dict file
         :param config: config Devo file
         :param con_type: type of connection
         :param logger: logger handler, default None
@@ -467,16 +468,12 @@ tag=None, logger=None, verbose_level="INFO",
             address = (address, int(config.get("port", 443)))
 
         if connection_type == "SSL":
-            conf = SenderConfigSSL(address=address,
+            return SenderConfigSSL(address=address,
                                    key=config.get("key"),
                                    cert=config.get("cert"),
                                    chain=config.get("chain"))
-        else:
-            conf = SenderConfigTCP(address=address)
 
-        return Sender(logger=logger, config=conf,
-                      timeout=config.get("timeout"),
-                      debug=config.get("debug"))
+        return SenderConfigTCP(address=address)
 
     def emit(self, record):
         """
