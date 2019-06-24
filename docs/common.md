@@ -70,16 +70,21 @@ You can use this handler like in the StreamHandler example
 
 You can use this Devo Sender like handler, you can see more info in ['Sender readme'](sender.md######Third example)
 
-#### Standard Devo configuration file
+
+## Standard Devo configuration file
 
 Devo Common contains the [`Configuration`](common/generic/configuration.py) 
 class to read JSON and YAML configuration files 
 and automix an array with the file.
 
+It is basically a class that inherits from "dict", so it has all its 
+functionalities and those that we add
+
 You can see in several Devo libraries that the CLI allows the reading of a 
 config.json file, they all use this class to load them, and in each of the 
 libraries you can find the format they use, in addition to examples of use in 
 this class tests.
+
 
 You can read json or yaml file and save to obj faster:
 
@@ -106,8 +111,6 @@ value = config.get("keyOne")
 
 # Get key chain
 value = config['keyOne']['subKey']['id']
-# or
-value = config.get("keyOne", "subKey", "id")
 # or
 value = config.get(["keyOne", "subKey", "id"])
 # ---
