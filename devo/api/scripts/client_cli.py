@@ -137,7 +137,10 @@ def configure(args):
         api = Client(config=config)
     except DevoClientException as error:
         print_error(str(error), show_help=True)
-        raise DevoClientException(str(error))
+        if isinstance(error, DevoClientException):
+            raise DevoClientException(error.args[0])
+        else:
+            raise DevoClientException(str(error.args[0]))
 
     return api, config
 

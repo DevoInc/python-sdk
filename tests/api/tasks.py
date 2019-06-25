@@ -29,12 +29,12 @@ class TestApi(unittest.TestCase):
         self.assertTrue(result['object'])
 
         # Get job by type
-        result = self.client.get_jobs(type="donothing")
+        result = self.client.get_jobs(job_type="donothing")
         self.assertTrue(result['object'])
 
         # Get job by name and type
         result = self.client.get_jobs(name="devo-sdk-api-test",
-                                      type="donothing")
+                                      job_type="donothing")
         self.assertTrue(result['object'])
         job_id = result['object'][0]['id']
 

@@ -20,12 +20,12 @@ class TestApi(unittest.TestCase):
         self.comment = os.getenv('DEVO_API_COMMENT', None)
 
         configuration = Configuration()
-        configuration.cfg = {"api": {
+        configuration.set("api", {
             "query": self.query, "address": self.uri,
             "key": self.key, "secret": self.secret, "token": self.token,
             "query_id": self.query_id, "user": self.user,
             "comment": self.comment, "app_name": self.app_name
-        }}
+        })
         self.config_path = "/tmp/devo_api_tests_config.json"
         configuration.save(path=self.config_path)
 

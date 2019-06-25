@@ -41,7 +41,10 @@ def raise_exception(error):
         if isinstance(error, str):
             raise DevoClientException(proc_json()(error))
         elif isinstance(error, DevoClientException):
-            raise DevoClientException(error.args[0])
+            if isinstance(error.args[0], str):
+                raise DevoClientException(proc_json()(error.args[0]))
+            else:
+                raise DevoClientException(error.args[0])
         elif isinstance(error, dict):
             raise DevoClientException(error)
         else:
