@@ -5,13 +5,11 @@ from devo.api import Client, ClientConfig
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.uri = os.getenv('DEVO_API_URL',
-                             'https://api-us.logtrust.com/')
-        self.client = Client(
+        self.client = Client(config=
             {'key': os.getenv('DEVO_API_KEY', None),
              'secret': os.getenv('DEVO_API_SECRET', None),
-             'url': os.getenv('DEVO_API_ADDRESS',
-                              'https://apiv2-us.logtrust.com/'),
+             'address': os.getenv('DEVO_API_ADDRESS',
+                              'https://apiv2-us.devo.com/'),
              "stream": False,
              "destination": {"type": "donothing",
                              "params": {"friendlyName": "devo-sdk-api-test"}}

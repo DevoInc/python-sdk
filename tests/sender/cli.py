@@ -36,10 +36,11 @@ class TestApi(unittest.TestCase):
         self.default_numbers_sendings = 10
 
         configuration = Configuration()
-        configuration.cfg = {"sender": {
+        configuration.set("sender", {
             "key": self.key, "cert": self.cert, "chain": self.chain,
             "address": self.address, "port": self.port,
-        }}
+        })
+
         self.config_path = "/tmp/devo_sender_tests_config.json"
         configuration.save(path=self.config_path)
 
