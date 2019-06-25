@@ -245,7 +245,7 @@ Example:
 }
 ```
 
-After initializing the colletor, you must initialize the lookup class.
+After initializing the collector, you must initialize the lookup class.
 
 + name **(_string_)**: lookup table name
 + historic_tag **(_boolean_)**: save historical

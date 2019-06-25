@@ -198,10 +198,10 @@ class Configuration(dict):
 
     def set(self, key=None, value=None):
         """ Set value of dict
-         :param key_list: Key when save value, can be list to create depth key
+         :param key: Key when save value, can be list to create depth key
          :param value: Value to save
         """
-        if value:
+        if key:
             if not isinstance(key, (list, tuple)):
                 self[key] = value
             else:
