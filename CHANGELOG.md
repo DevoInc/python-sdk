@@ -6,21 +6,30 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [3.0.0] - 2019-04-26
+#### Removed
+ * Support to Python 2.7
+ * Configuration class "key_exist()" and "keys()" functions
+ * Api and Sender "from_config" are now removed and included in Class init flag
+
 #### Added
  * for_logging option in Sender, added more values
  * Logging streamhandler
  * Tests for CLI
  * Have Client query method accept Unix timestamps for to and from dates
  * Make Client parameters retries, timeout, and sleep configurable
+ * CLI of devo-sdk now has --version flag.
 
 #### Changed
  * Errors exceptions in API and Sender are now full controlled and homogenized
  * logging in Common now are created more flexible
  * Sender init class, SSLSender and TCPSender too.
  * API init class
- * Config.from_config to Config.from_dict in API and Sender
  * New documentation
  * Now devo Configuration object inherits from the dict class
+ * Configuration set and get are now more dict homogenized
+ * vars/flags "url" are now like python: "address" and are now tuples
+ * New "auth" flag to encapsulate key, secret, jwt and token
+ * Env var "DEVO_AUTH_TOKEN" to "DEVO_API_TOKEN"
  
 #### Fixed
  * Fixed when add key chain to configuration
