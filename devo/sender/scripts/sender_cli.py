@@ -91,7 +91,7 @@ def data(**kwargs):
 
         con.close()
         if config.get("debug", False):
-            click.echo("Sended: ", sended)
+            click.echo("Sended: %s" % str(sended))
     except DevoSenderException as error:
         print_error(str(error))
         if config.get('debug', False):
