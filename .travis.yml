@@ -6,7 +6,6 @@ install:
 - pip install pyyaml
 script:
 - python run_tests.py
-- sonar-scanner
 deploy:
   - provider: pypi
     user: worvast
@@ -21,6 +20,3 @@ deploy:
     distributions: sdist bdist_wheel
     skip_existing: true
     skip_cleanup: true
-addons:
-  sonarcloud:
-    organization: "devoinc"
