@@ -63,7 +63,7 @@ def data(**kwargs):
     config = configure(kwargs)
     sended = 0
     try:
-        con = Sender.from_dict(config)
+        con = Sender(config=config)
         if config['file']:
             if not os.path.isfile(config['file']):
                 print_error(str("File not exist"))
@@ -91,7 +91,7 @@ def data(**kwargs):
 
         con.close()
         if config.get("debug", False):
-            click.echo(sended)
+            click.echo("Sended: %s" % str(sended))
     except DevoSenderException as error:
         print_error(str(error))
         if config.get('debug', False):
@@ -126,13 +126,13 @@ def data(**kwargs):
 def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
-    con = Sender.from_dict(config)
-    look_up = Lookup(name=config['name'], historic_tag=None, con=con)
+    con = Sender(config=config)
+    lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 
     with open(config['file']) as file:
         line = file.readline()
 
-        look_up.send_csv(config['file'], delimiter=config['delimiter'],
+        lookup.send_csv(config['file'], delimiter=config['delimiter'],
                          quotechar=config['quotechar'],
                          headers=line.rstrip().split(config['delimiter']),
                          key=config['lkey'])

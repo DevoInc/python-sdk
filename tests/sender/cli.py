@@ -4,10 +4,14 @@ from click.testing import CliRunner
 from devo.common import Configuration
 from devo.sender.scripts.sender_cli import data
 from devo.sender import DevoSenderException
-from load_certs import *
+
+try:
+    from .load_certs import *
+except ImportError:
+    from load_certs import *
 
 
-class TestApi(unittest.TestCase):
+class TestSender(unittest.TestCase):
     def setUp(self):
         self.address = os.getenv('DEVO_SENDER_SERVER', "0.0.0.0")
         self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
@@ -32,10 +36,11 @@ class TestApi(unittest.TestCase):
         self.default_numbers_sendings = 10
 
         configuration = Configuration()
-        configuration.cfg = {"sender": {
+        configuration.set("sender", {
             "key": self.key, "cert": self.cert, "chain": self.chain,
             "address": self.address, "port": self.port,
-        }}
+        })
+
         self.config_path = "/tmp/devo_sender_tests_config.json"
         configuration.save(path=self.config_path)
 
@@ -78,7 +83,7 @@ class TestApi(unittest.TestCase):
                                       "--line", "Test line"])
 
         self.assertIsNone(result.exception)
-        self.assertGreater(int(result.output), 0)
+        self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
 
     def test_with_config_file(self):
         if self.config_path:
@@ -87,7 +92,7 @@ class TestApi(unittest.TestCase):
                                           "--config", self.config_path])
 
             self.assertIsNone(result.exception)
-            self.assertGreater(int(result.output), 0)
+            self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
 
 
 if __name__ == '__main__':

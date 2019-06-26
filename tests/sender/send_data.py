@@ -90,7 +90,7 @@ class TestSender(unittest.TestCase):
                     raise Exception('Not msg sent!')
             con.close()
         except Exception as error:
-            self.fail("Problems with test: %s" % error)
+            self.fail("Problems with test: %s" % str(error))
 
     def test_ssl_zip_send(self):
         """
@@ -109,7 +109,7 @@ class TestSender(unittest.TestCase):
                     raise Exception('Not msg sent!')
             con.close()
         except Exception as error:
-            self.fail("Problems with test: %s" % error)
+            self.fail("Problems with test: %s" % str(error))
 
     def test_multiline_send(self):
         """
@@ -187,7 +187,7 @@ class TestSender(unittest.TestCase):
 
             con.close()
         except Exception as error:
-            self.fail("Problems with test: %s" % error)
+            self.fail("Problems with test: %s" % str(error))
 
     def test_sender_with_default_logger(self):
         """
@@ -213,7 +213,7 @@ class TestSender(unittest.TestCase):
 
             con.close()
         except Exception as error:
-            self.fail("Problems with test: %s" % error)
+            self.fail("Problems with test: %s" % str(error))
 
     def test_sender_as_handler_static(self):
         """
@@ -256,4 +256,4 @@ class TestSender(unittest.TestCase):
 
             con.close()
         except Exception as error:
-            self.fail("Problems with test: %s" % error)
+            self.fail("Problems with test: %s" % str(error))

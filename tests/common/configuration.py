@@ -20,7 +20,7 @@ class TestConfiguration(unittest.TestCase):
 
     def test_load_directly(self):
         config = Configuration(self.config_path + ".yaml")
-        self.assertDictEqual(config.cfg, {"devo": {
+        self.assertDictEqual(config, {"devo": {
             "die": "hard"
         },
             "api": {
@@ -60,7 +60,7 @@ class TestConfiguration(unittest.TestCase):
     def test_load_json(self):
         config = Configuration()
         config.load_json(self.config_path + ".json")
-        self.assertDictEqual(config.cfg, {"devo": {
+        self.assertDictEqual(config, {"devo": {
             "die": "hard"
         },
             "api": {
@@ -70,12 +70,12 @@ class TestConfiguration(unittest.TestCase):
 
     def test_load_section_json(self):
         config = Configuration(self.config_path + ".json", "api")
-        self.assertDictEqual(config.cfg, {"velazquez": "Then I am beautiful?"})
+        self.assertDictEqual(config, {"velazquez": "Then I am beautiful?"})
 
     def test_load_yaml(self):
         config = Configuration()
         config.load_yaml(self.config_path + ".yaml")
-        self.assertDictEqual(config.cfg, {"devo": {
+        self.assertDictEqual(config, {"devo": {
             "die": "hard"
         },
             "api": {
@@ -85,12 +85,12 @@ class TestConfiguration(unittest.TestCase):
 
     def test_load_section_yaml(self):
         config = Configuration(self.config_path + ".yaml", "devo")
-        self.assertDictEqual(config.cfg, {"die": "hard"})
+        self.assertDictEqual(config, {"die": "hard"})
 
     def test_mix_json(self):
         config = Configuration(self.config_path + ".json")
         config.mix({"test": "ok"})
-        self.assertDictEqual(config.cfg, {"devo": {
+        self.assertDictEqual(config, {"devo": {
             "die": "hard"
         },
             "api": {
@@ -102,7 +102,7 @@ class TestConfiguration(unittest.TestCase):
     def test_mix_yaml(self):
         config = Configuration(self.config_path + ".yaml")
         config.mix({"test": "ok"})
-        self.assertDictEqual(config.cfg, {"devo": {
+        self.assertDictEqual(config, {"devo": {
             "die": "hard"
         },
             "api": {
@@ -110,11 +110,6 @@ class TestConfiguration(unittest.TestCase):
             },
             "test": "ok"
         })
-
-    def test_key_exist(self):
-        config = Configuration(self.config_path + ".json")
-        self.assertFalse(config.key_exist("noexiste"))
-        self.assertTrue(config.key_exist("api"))
 
 
 if __name__ == '__main__':

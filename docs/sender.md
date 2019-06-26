@@ -22,6 +22,12 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
     * **port**: 443
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
+#### Differences in use from version 2 to 3:
+
+You have a special README to quickly show the important changes suffered from version 2 to 3
+
+[You can go read it here](sender_v3_changes.md)
+
 
 ## Usage in script
 ### Sender
@@ -34,13 +40,12 @@ There are different ways (and types) to initialize the collector configuration
 
 Variable descriptions
 
-+ address **(_string_)**: host name to send data
-+ port **(_int_)**: port
-+ cert_reqs **(_boolean__)**: indicates if certificate is required
-+ key **(_string_)**: key file path
-+ cert **(_string_)**: cert file path
-+ chain **(_string_)**: chain file path
-+ tag **(_string_)**: remote table name
++ config **(_SenderConfigSSL_, _SenderConfigTCP_ or _dict_)**: address, port, keypath, chainpath, etc
++ con_type **(_string_)**: TCP or SSL, default SSL, you can pass it in config object too
++ timeout **(_int_)**: timeout for socket
++ debug **(_bool_)**: True or False, for show more info in console/logger output
++ logger **(_string_)**: logger. Default sys.console
+
 
 - With certificates:
 	
@@ -68,18 +73,18 @@ con = Sender(engine_config)
 ```
 	
 
-- From config function - TCP example
+- From dict - TCP example
 ```python
 from devo.sender import Sender
-con = Sender.from_dict({"address": "collector", "port": 443, "type": "TCP"})
+con = Sender(config={"address": "collector", "port": 443, "type": "TCP"})
 ```
 
-- From config function - SSL example
+- From dict - SSL example
 ```python
 from devo.sender import Sender
-con = Sender.from_dict({"address": "collector", "port": 443, 
-                        "key": "/tmp/key.key", "cert": "/tmp/cert.cert", 
-                        "chain": "/tmp/chain.crt"})
+con = Sender(config={"address": "collector", "port": 443, 
+                     "key": "/tmp/key.key", "cert": "/tmp/cert.cert", 
+                     "chain": "/tmp/chain.crt"})
 ```
 
 - From a file
@@ -216,7 +221,7 @@ logger = get_log(name="devo_logger", handler=con)
 ```
 
 
-### Lookup
+## Lookups
 
 Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).
 
@@ -238,7 +243,7 @@ Example:
 }
 ```
 
-After initializing the colletor, you must initialize the lookup class.
+After initializing the collector, you must initialize the lookup class.
 
 + name **(_string_)**: lookup table name
 + historic_tag **(_boolean_)**: save historical

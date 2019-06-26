@@ -6,7 +6,7 @@ import time
 import json
 import requests
 from devo.common import default_from, default_to
-from .processors import processors, proc_json, proc_default, \
+from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
@@ -41,7 +41,10 @@ def raise_exception(error):
         if isinstance(error, str):
             raise DevoClientException(proc_json()(error))
         elif isinstance(error, DevoClientException):
-            raise DevoClientException(error.args[0])
+            if isinstance(error.args[0], str):
+                raise DevoClientException(proc_json()(error.args[0]))
+            else:
+                raise DevoClientException(error.args[0])
         elif isinstance(error, dict):
             raise DevoClientException(error)
         else:
@@ -56,38 +59,102 @@ def _format_error(error):
            '"object": "%s"}' % str(error).replace("\"", "\\\"")
 
 
-class Options:
+class ClientConfig:
+    """
+    Main class for configuration of Client class. With diferent configurations
+    """
     def __init__(self, processor=DEFAULT, response="json/simple/compact",
-                 destination=None, stream=True):
-
+                 destination=None, stream=True, pragmas=None):
+        """
+        Initialize the API with this params, all optionals
+        :param processor: processor for response, default is None
+        :param response: format of response
+        :param destination: Destination options, see Documentation for more info
+        :param stream: Stream queries or not
+        :param pragmas: pragmas por query: user, app_name and comment
+        """
         self.stream = stream
         self.response = response
         self.destination = destination
         self.proc = processor
         self.processor = processors()[self.proc]()
+        if pragmas:
+            self.pragmas = pragmas
+            if "user" not in self.pragmas.keys():
+                self.pragmas['user'] = CLIENT_DEFAULT_USER
+            if "app_name" not in self.pragmas.keys():
+                self.pragmas['app_name'] = CLIENT_DEFAULT_APP_NAME
+        else:
+            self.pragmas = {"user": CLIENT_DEFAULT_USER,
+                            "app_name": CLIENT_DEFAULT_APP_NAME}
 
     def set_processor(self, processor=None):
+        """
+        Set processor of response
+        :param processor: lambda function
+        :return:
+        """
         if processor:
             self.proc = processor
             self.processor = processors()[self.proc]()
         return True
 
+    def set_user(self, user=CLIENT_DEFAULT_USER):
+        """
+        Set user to put in pragma when make the query
+        :param user: username string
+        :return:
+        """
+        self.pragmas['user'] = user
+        return True
+
+    def set_app_name(self, app_name=CLIENT_DEFAULT_APP_NAME):
+
+        """
+        Set app_name to put in pragma when make the query
+        :param app_name: app_name string
+        :return:
+        """
+        self.pragmas['app_name'] = app_name
+        return True
+
 
 class Client:
     """
-    The Devo SERach REst Api main class
+    The Devo seach rest api main class
     """
-    def __init__(self, address=None, auth=None, options=None,
-                 retries=3, timeout=30):
+    def __init__(self, address=None, auth=None, config=None,
+                 retries=None, timeout=None):
         """
         Initialize the API with this params, all optionals
         :param address: endpoint
         :param auth: object with auth params (key, secret, token, jwt)
+        :param options: options class for Client and queries
         :param retries: number of retries for a query
         :param timeout: timeout of socket
         """
-        self.auth = auth
+        if config is None:
+            self.config = ClientConfig()
+        elif isinstance(config, ClientConfig):
+            self.config = config
+        else:
+            address = address if address else config.get("address", None)
+            auth = auth if auth else config.get("auth",
+                                                {"key": config.get("key", None),
+                                                 "secret": config.get("secret",
+                                                                      None),
+                                                 "jwt": config.get("jwt", None),
+                                                 "token": config.get("token",
+                                                                     None)})
 
+            retries = retries if retries else config.get("retries", 3)
+            timeout = timeout if retries else config.get("retries", 30)
+            self.config = self._from_dict(config)
+
+        retries = retries if retries else 3
+        timeout = timeout if timeout else 30
+
+        self.auth = auth
         if not address:
             raise raise_exception(
                 _format_error(ERROR_MSGS['no_endpoint'])
@@ -95,45 +162,28 @@ class Client:
 
         self.address = self.__get_address_parts(address)
 
-        self.pragmas = {"user": CLIENT_DEFAULT_USER,
-                        "app_name": CLIENT_DEFAULT_APP_NAME}
-
-        self.opts = Options() if not options else options
-
         self.retries = retries
         self.timeout = timeout
         self.verify = True
 
-    def set_user(self, user=CLIENT_DEFAULT_USER):
-        self.pragmas['user'] = user
-        return True
-
-    def set_app_name(self, app_name=CLIENT_DEFAULT_APP_NAME):
-        self.pragmas['app_name'] = app_name
-        return True
-
     @staticmethod
-    def from_dict(config):
+    def _from_dict(config):
         """
         Create Client object from config file values
         :param config: lt-common config standar
         """
-        options = Options(processor=config.get("processor", DEFAULT),
-                          response=config.get("response", "json/simple/compact")
-                          ,destination=config.get("destination", None),
-                          stream=config.get("stream", True))
+        return ClientConfig(processor=config.get("processor", DEFAULT),
+                            response=config.get("response",
+                                                "json/simple/compact"),
+                            destination=config.get("destination", None),
+                            stream=config.get("stream", True))
 
-        if "auth" in config.keys():
-            return Client(address=config.get("address"),
-                          auth=config.get("auth"),
-                          options=options)
-        else:
-            return Client(address=config.get("address"),
-                          auth={"key": config.get("key", None),
-                                "secret": config.get("secret", None),
-                                "jwt": config.get("jwt", None),
-                                "token": config.get("token", None)},
-                          options=options)
+    def verify_certificates(self, option=True):
+        """
+        Set if verify or not the TSL certificates in https calls
+        :param option: (bool) True or False
+        """
+        self.verify = option
 
     def __get_address_parts(self, address):
         """
@@ -187,18 +237,18 @@ class Client:
         except ValueError:
             return False
 
-    def options(self, processor=None, response=None, stream=None,
-                destination=None):
+    def configurate(self, processor=None, response=None, stream=None,
+                    destination=None):
 
-        self.opts.set_processor(processor)
+        self.config.set_processor(processor)
         if response:
-            self.opts.response = response
+            self.config.response = response
 
         if stream:
-            self.opts.stream = stream
+            self.config.stream = stream
 
         if destination:
-            self.opts.destination = destination
+            self.config.destination = destination
 
     def query(self, query=None, query_id=None, dates=None,
               limit=None, offset=None, comment=None):
@@ -210,7 +260,7 @@ class Client:
         :param limit: Max number of rows
         :param offset: start of needle for query
         :param comment: comment for query
-        :return: Result of the query (dict) or Buffer object
+        :return: Result of the query (dict) or Iterator object
         """
         dates = self._generate_dates(dates)
 
@@ -218,16 +268,16 @@ class Client:
             query += self._generate_pragmas(comment=comment)
 
         query_opts = {'limit': limit,
-                      'response': self.opts.response,
+                      'response': self.config.response,
                       'offset': offset,
-                      'destination': self.opts.destination
+                      'destination': self.config.destination
                       }
 
-        if not self.stream_available(self.opts.response) \
-                or not self.opts.stream:
+        if not self.stream_available(self.config.response) \
+                or not self.config.stream:
             if not dates['to']:
                 dates['to'] = "now()"
-            self.opts.stream = False
+            self.config.stream = False
 
         return self._call(
             self._get_payload(query, query_id, dates, query_opts)
@@ -240,13 +290,13 @@ class Client:
         :param stream: boolean, indicate if one call is a streaming call
         :return: Response from API
         """
-        if self.opts.stream:
+        if self.config.stream:
             return self._return_stream(payload)
         response = self._make_request(payload)
 
         if isinstance(response, str):
             return proc_json()(response)
-        return self.opts.processor(response.text)
+        return self.config.processor(response.text)
 
     def _return_stream(self, payload):
         """If its a stream call, return yield lines
@@ -262,15 +312,15 @@ class Client:
             raise_exception(response)
 
         if self._is_correct_response(first):
-            if self.opts.proc == SIMPLECOMPACT_TO_OBJ:
+            if self.config.proc == SIMPLECOMPACT_TO_OBJ:
                 aux = json_compact_simple_names(proc_json()(first)['m'])
-                self.opts.processor = proc_json_compact_simple_to_jobj(aux)
-            elif self.opts.proc == SIMPLECOMPACT_TO_ARRAY:
+                self.config.processor = proc_json_compact_simple_to_jobj(aux)
+            elif self.config.proc == SIMPLECOMPACT_TO_ARRAY:
                 pass
             else:
-                yield self.opts.processor(first)
+                yield self.config.processor(first)
             for line in response:
-                yield self.opts.processor(line)
+                yield self.config.processor(line)
         else:
             yield proc_json()(first)
 
@@ -289,11 +339,11 @@ class Client:
                                          headers=self._get_headers(payload),
                                          verify=self.verify,
                                          timeout=self.timeout,
-                                         stream=self.opts.stream)
+                                         stream=self.config.stream)
                 if response.status_code != 200:
                     raise DevoClientException(response)
 
-                if self.opts.stream:
+                if self.config.stream:
                     return response.iter_lines()
                 return response
             except requests.exceptions.ConnectionError as error:
@@ -402,7 +452,8 @@ class Client:
         """
         str_pragmas = ' pragma comment.id:"{}" ' \
                       'pragma comment.user:"{}"'\
-            .format(self.pragmas['app_name'], self.pragmas['user'])
+            .format(self.config.pragmas['app_name'],
+                    self.config.pragmas['user'])
 
         if comment:
             return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
@@ -460,7 +511,7 @@ class Client:
             response = None
             try:
                 response = requests.get("https://{}".format(address),
-                                        headers=self._get_jobs_headers(),
+                                        headers=self._get_headers(""),
                                         verify=self.verify,
                                         timeout=self.timeout)
             except ConnectionError as error:
@@ -478,10 +529,3 @@ class Client:
             tries += 1
             time.sleep(self.timeout)
         return {}
-
-    def _get_jobs_headers(self):
-        tstamp = str(int(time.time()) * 1000)
-        return {'x-logtrust-timestamp': tstamp,
-                'x-logtrust-apikey': self.auth.get("key"),
-                'x-logtrust-sign': self._get_sign("", tstamp)
-                }
