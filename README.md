@@ -1,7 +1,7 @@
 
 [![master Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=master)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
 
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-2.2.4-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-2.7%20%7C%203.3%20%7C%203.4%20%7C%203.5%20%7C%203.6%20%7C%203.7-blue.svg)](https://pypi.org/project/devo-sdk/)
+[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.0.0-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7-blue.svg)](https://pypi.org/project/devo-sdk/)
 
 
 # Devo Python SDK
@@ -13,11 +13,10 @@ This is the SDK to access Devo directly from Python. It can be used to:
 
 ## Requirements
 
-The Devo SDK for Python requires Python 2.7+ or Python 3.4+ 
+The Devo SDK for Python requires Python 3.5+
 
 ## Compatibility 
-- Tested compatibility between python 2.x and 3.x series
-- Unit tests for both python 2.x and 3.x
+- Tested compatibility for python 3.5, 3.6 and 3.7
 
 ## Quick Start
 ### Installing the SDK
@@ -65,7 +64,7 @@ Pull and merge requests are welcome ☺
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
  * **USA:** 	
-    * **url**: usa.elb.relay.logtrust.net
+    * **url**: us.elb.relay.logtrust.net
     * **port**: 443
  * **EU:**
     * **url**: eu.elb.relay.logtrust.net
@@ -78,8 +77,9 @@ You have more information in the official documentation of Devo, [Sending data t
 
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	https://api-us.devo.com/search/query
- * **EU:**   	https://api-eu.devo.com/search/query
+ * **USA:** 	https://apiv2-us.devo.com/search/query
+ * **EU:**   	https://apiv2-eu.devo.com/search/query
+ * **VDC:**   	https://apiv2-es.devo.com/search/query
 
 You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 
