@@ -20,8 +20,6 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
  * **VDC:**
     * **url**: es.elb.relay.logtrust.net
     * **port**: 443
-
-
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
 #### Differences in use from version 2 to 3:
