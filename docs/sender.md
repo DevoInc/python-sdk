@@ -11,10 +11,24 @@ This library allows you to send logs or lookups to the Devo platform.
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	collector-us.devo.io:443
- * **EU:**   	collector-eu.devo.io:443
+ * **USA:** 	
+    * **url**: us.elb.relay.logtrust.net
+    * **port**: 443
+ * **EU:**
+    * **url**: eu.elb.relay.logtrust.net
+    * **port**: 443
+ * **VDC:**
+    * **url**: es.elb.relay.logtrust.net
+    * **port**: 443
+
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
+
+#### Differences in use from version 2 to 3:
+
+You have a special README to quickly show the important changes suffered from version 2 to 3
+
+[You can go read it here](sender_v3_changes.md)
 
 
 ## Usage in script
@@ -28,19 +42,19 @@ There are different ways (and types) to initialize the collector configuration
 
 Variable descriptions
 
-+ address **(_string_)**: host name to send data
-+ port **(_int_)**: port
-+ cert_reqs **(_boolean__)**: indicates if certificate is required
-+ key **(_string_)**: key file path
-+ cert **(_string_)**: cert file path
-+ chain **(_string_)**: chain file path
-+ tag **(_string_)**: remote table name
++ config **(_SenderConfigSSL_, _SenderConfigTCP_ or _dict_)**: address, port, keypath, chainpath, etc
++ con_type **(_string_)**: TCP or SSL, default SSL, you can pass it in config object too
++ timeout **(_int_)**: timeout for socket
++ debug **(_bool_)**: True or False, for show more info in console/logger output
++ logger **(_string_)**: logger. Default sys.console
+
 
 - With certificates:
 	
 ```python
 from devo.sender import SenderConfigSSL, Sender
-engine_config = SenderConfigSSL(address=SERVER, port=PORT,key=KEY, cert=CERT,chain=CHAIN)
+engine_config = SenderConfigSSL(address=(SERVER, PORT), 
+                                key=KEY, cert=CERT,chain=CHAIN)
 con = Sender(engine_config)
 ```
 	
@@ -48,7 +62,7 @@ con = Sender(engine_config)
 
 ```python
 from devo.sender import SenderConfigSSL, Sender
-engine_config = SenderConfigSSL(address=SERVER, port=PORT, cert_reqs=False)
+engine_config = SenderConfigSSL(address=(SERVER, PORT))
 con = Sender(engine_config)
 ```
 	
@@ -56,21 +70,23 @@ con = Sender(engine_config)
 	
 ```python
 from devo.sender import SenderConfigTCP, Sender
-engine_config = SenderConfigTCP(address=SERVER, port=PORT)
+engine_config = SenderConfigTCP(address=(SERVER, PORT))
 con = Sender(engine_config)
 ```
 	
 
-- From config function - TCP example
+- From dict - TCP example
 ```python
 from devo.sender import Sender
-con = Sender.from_config({"address": "relayurl", "port": 443, "type": "TCP"})
+con = Sender(config={"address": "collector", "port": 443, "type": "TCP"})
 ```
 
-- From config function - SSL example
+- From dict - SSL example
 ```python
 from devo.sender import Sender
-con = Sender.from_config({"address": "relayurl", "port": 443, "key": "/tmp/key.key", "cert": "/tmp/cert.cert", "chain": "/tmp/chain.crt"})
+con = Sender(config={"address": "collector", "port": 443, 
+                     "key": "/tmp/key.key", "cert": "/tmp/cert.cert", 
+                     "chain": "/tmp/chain.crt"})
 ```
 
 - From a file
@@ -86,7 +102,8 @@ This is a json example:
 	        "port": 443,
 	        "key": "/devo/certs/key.key",
 	        "cert": "/devo/certs/cert.crt",
-	        "chain": "/devo/certs/chain.crt"
+	        "chain": "/devo/certs/chain.crt",
+	        "type": "SSL"
 	    },
 }
 ```
@@ -95,86 +112,38 @@ This is a yaml example:
 
 ```yaml
 sender":
-  address:"devo-relay"
+  address: "devo-relay"
   port: 443
   key: "/devo/certs/key.key"
   cert: "/devo/certs/cert.crt"
   chain: "/devo/certs/chain.crt"
+  type: "SSL"
 ```
 
 To initialize the collector configuration from a file we need to import **Configuration** class
 
 ```python
 from devo.common import Configuration
+from devo.sender import Sender
 
-conf = Configuration()
-conf.load_config("./config.json.example", 'sender')
-config = conf.get()
-con = Sender.from_config(config)
+conf = Configuration("./config.json.example", 'sender')
+con = Sender.from_dict(conf)
 ```
-
-In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
-
-The regular use of the handler can be observed in this 3 examples:
-
-##### Setting up configuration variables.
-```python
-from devo.sender import SenderConfigSSL
-tag = 'test.dump.free'
-engine_config = SenderConfigSSL(address=server, port=port,
-                                        key=key, cert=cert,
-                                        chain=chain)
-con = Sender(engine_config)
-                    
-```
-##### First example: Setting up tag after Sender is created
-
-```python
-logger = logging.getLogger('DEVO_logger')
-# tag added after Sender is created
-con = Sender(engine_config)
-con.set_logger_tag(tag)
-logger.addHandler(con)
-```
-##### Second example: Setting up a Sender with tag
-```python
-logger = logging.getLogger('DEVO_logger')
-#Sender created ready to be used
-con = Sender(engine_config, tag)
-logger.addHandler(con)
-```
-##### Third example: Setting up a static Sender
-
-```python
-engine_config = {"address": server, "port": port,
-                             "key": key, "cert": cert,
-                             "chain": chain, "type": "SSL", "cert_regs": True}
-logger = logging.getLogger('DEVO_logger')
-#Static Sender
-con = Sender.for_logging(engine_config, "SSL", tag)
-logger.addHandler(con)
-```
-
 
 #### Sending data 
 
-- After we use the configuration class, we will now be able to send events to the collector
-
-```python
-from devo.sender import SenderConfigSSL
-con = Sender(engine_config)   
-```
+After we use the configuration class, we will now be able to send events to the collector
 
 - send logs to the collector,
 
 ```python
-con.send(tag="test.drop.actors", msg='Hasselhoff vs Cage')
+con.send(tag="test.drop.actors", msg='Hasselhoff')
 ```
 - Send raw log to collector
 
 ```python
 con.send_raw('<14>Jan  1 00:00:00 Nice-MacBook-Pro.local'
-        'test.drop.actors: Testing this random tool')
+             'test.drop.actors: Testing this cool tool')
 ```
 
 ## Optional fields for send function:
@@ -193,7 +162,6 @@ Python 3) and not with str.
 
 
 ```python
-con = Sender(engine_config) 
 con.send(tag=b"test.drop.actors", msg=b'Hasselhoff vs Cage', zip=True)
 con.flush_buffer()
 ```
@@ -221,8 +189,41 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
 `send()`, `send_raw()`, `flush_buffer` and `fill_buffer()` return the numbers of lines sent
  (1, each time, if not zipped, 0..X if zipped)
  
+ 
+## Sender as an Logging Handler
+In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
 
-###Lookup
+The regular use of the handler can be observed in this  examples:
+
+##### Second example: Setting up a Sender with tag
+```python
+from devo.common import get_log
+from devo.sender import Sender, SenderConfigSSL
+
+engine_config = SenderConfigSSL(address=("devo.collector", 443),
+                                key="key.key", cert="cert.crt",
+                                chain="chain.crt")
+                                
+con = Sender.for_logging(config=engine_config, tag="my.app.test.logger")
+logger = get_log(name="devo_logger", handler=con)
+logger.info("Hello devo!")
+
+```
+##### Second example: Setting up a static Sender
+
+```python
+from devo.common import get_log
+from devo.sender import Sender
+config = {"address": "devo.collertor", "port": 443,
+          "key": "key.key", "cert": "cert.crt",
+          "chain": "chain.crt", "type": "SSL"}
+#Static Sender
+con = Sender.for_logging(config=config, tag="my.app.test.logging")
+logger = get_log(name="devo_logger", handler=con)
+```
+
+
+## Lookups
 
 Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration (as previously shown).
 
@@ -244,7 +245,7 @@ Example:
 }
 ```
 
-After initializing the colletor, you must initialize the lookup class.
+After initializing the collector, you must initialize the lookup class.
 
 + name **(_string_)**: lookup table name
 + historic_tag **(_boolean_)**: save historical
@@ -277,17 +278,17 @@ Example
 Complete example
 
 ````python
+from devo.common import Configuration
+from devo.sender import Sender, Lookup
 conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
-config = conf.get()
-con = Sender.from_config(config)
-lookup = Lookup(name=config['name'], historic_tag=None, con=con)
-with open(config['file']) as f:
+con = Sender.from_dict(conf.get("sender"))
+lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
+with open(conf.get("file", "example.csv")) as f:
     line = f.readline()
 
-lookup.send_csv(config['file'], headers=line.rstrip().split(","), key=config['lkey'])
-
+lookup.send_csv(conf('file', "example.csv"), headers=line.rstrip().split(","), key=conf.get('lkey', "key"))
 con.socket.shutdown(0)
 ````
 
@@ -316,6 +317,7 @@ Params
 Example: 
 
 ```python
+from devo.sender import Lookup
 pHeaders = Lookup.list_to_headers(['KEY','HEX', 'COLOR'], 'KEY')
 ```
 
@@ -375,13 +377,14 @@ lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
 A complete example to send a lookup row is:
 
 ````python
+from devo.common import Configuration
+from devo.sender import Sender, Lookup
+
 conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
-config = conf.get()
-con = Sender.from_config(config)
-lookup = Lookup(name=config['name'], historic_tag=None, con=con)
-
+con = Sender.from_dict(conf.get("sender"))
+lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
 pHeaders = Lookup.list_to_headers(['KEY','HEX', 'COLOR'], 'KEY')
 lookup.send_control('START', pHeaders, 'INC')
 lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
@@ -393,12 +396,14 @@ con.socket.shutdown(0)
 A simplify complete example to send a row of lookup is:
 
 ````python
+from devo.common import Configuration
+from devo.sender import Sender, Lookup
+
 conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
-config = conf.get()
-con = Sender.from_config(config)
-lookup = Lookup(name=config['name'], historic_tag=None, con=con)
+con = Sender.from_dict(conf.get("sender"))
+lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
 
 lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START')
 lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"], delete=True)
@@ -449,6 +454,18 @@ Priority order:
     }
   }
 ```
+```yaml
+sender:
+  address: "devo-relay"
+  port: 443
+  key: "/devo/certs/key.key"
+  cert: "/devo/certs/cert.crt"
+  chain: "/devo/certs/chain.crt"
+lookup: 
+  name: "Test lookup"
+  file: "/lookups/lookup.csv"
+  lkey: "KEY"
+```
 
 You can see another example in docs/common/config.example.json
 
@@ -467,8 +484,6 @@ Options:
   --key TEXT          Devo user key cert file.
   --cert TEXT         Devo user cert file.
   --chain TEXT        Devo chain.crt file.
-  --cert_reqs/
-  --no-cert_reqs BOOL   Boolean to indicate if the shipment is done using security certificates or not.
   --multiline/
   --no-multiline BOOL Flag for multiline (With break-line in msg). Default is False.
   --type TEXT         Connection type: SSL or TCP
@@ -479,6 +494,8 @@ Options:
                       be sent line by line.
   -h, --header TEXT   This option is used to indicate if the file has headers
                       or not, they will not be send.
+  --raw               Send raw events from file when using --file
+  --debug/--no-debug  For testing purposes
   --help              Show help message and exit.
 ```
 
@@ -517,8 +534,6 @@ Options:
   --key TEXT             Devo user key cert file.
   --cert TEXT            Devo user cert file.
   --chain TEXT           Devo chain.crt file.
-  --cert_reqs/
-  --no-cert_reqs BOOL   Boolean to indicate if the shipment is done using security certificates or not.
   --type TEXT            Connection type: SSL or TCP
   -n, --name TEXT        Name for Lookup.
   -f, --file TEXT        The file that you want to send to Devo, which
@@ -527,6 +542,7 @@ Options:
                          has to be the exact name that appears in the header.
   -d, --delimiter TEXT   CSV Delimiter char.
   -qc, --quotechar TEXT  CSV Quote char.
+  --debug/--no-debug  For testing purposes
   --help                 Show this message and exit.
 ```
 

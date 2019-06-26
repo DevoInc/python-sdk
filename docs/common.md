@@ -29,31 +29,62 @@ This library add utilities for other packages.
 
 #### Standard Devo logging file
 
-Devo commons gives you a function, with enough parameters for your personalization, to get a rotatting log handler:
+Devo commons gives you a function, with enough parameters for your personalization, to get a logging object:
 
 ```python
-def get_log(path_base="./",
-            file_name="history.log",
-            msg_format="'%(asctime)s %(levelname)s %(message)s'",
-            name="log",
-            max_size=2097152,
-            backup_count=5,
-            level=logging.DEBUG):
+def get_log(name="log", level=logging.DEBUG, handler=None)
+```
+By default, handler will be a RotatingFileHandler, named history.log, 5 files, in work folder.
+You can use other Handler, by you own or using one of the common package
+
+##### StreamHandler
+
+```python
+def get_stream_handler(dest=sys.stdout,
+                       msg_format='%(asctime)s|%(levelname)s|%(message)s')
+```
+With this function you will obtain a StreamHandler, by default the whole log will be to stdout.
+
+
+```python
+from devo.common import get_log, get_stream_handler
+my_logger = get_log(handler=get_stream_handler())
 ```
 
+##### RotatingFileHandler
 
-You can use this handler with sender object, you can see more info in ['Sender readme'](sender.md######Third example)
+The default handler for logging, return a handler, you can modify the default parameters in constructor:
 
-#### Standard Devo configuration file
+```python
+def get_rotating_file_handler(path="./",
+                              file_name="history.log",
+                              msg_format='%(asctime)s|%(levelname)s|%(message)s',
+                              max_size=2097152,
+                              backup_count=5):
+```
+
+You can use this handler like in the StreamHandler example
+
+
+##### DevoHandler
+
+You can use this Devo Sender like handler, you can see more info in ['Sender readme'](sender.md######Third example)
+
+
+## Standard Devo configuration file
 
 Devo Common contains the [`Configuration`](common/generic/configuration.py) 
 class to read JSON and YAML configuration files 
 and automix an array with the file.
 
+It is basically a class that inherits from "dict", so it has all its 
+functionalities and those that we add
+
 You can see in several Devo libraries that the CLI allows the reading of a 
 config.json file, they all use this class to load them, and in each of the 
 libraries you can find the format they use, in addition to examples of use in 
 this class tests.
+
 
 You can read json or yaml file and save to obj faster:
 
@@ -80,8 +111,6 @@ value = config.get("keyOne")
 
 # Get key chain
 value = config['keyOne']['subKey']['id']
-# or
-value = config.get("keyOne", "subKey", "id")
 # or
 value = config.get(["keyOne", "subKey", "id"])
 # ---

@@ -1,24 +1,24 @@
 import os
 import unittest
-from devo.api import Client
+from devo.api import Client, ClientConfig
 
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.uri = os.getenv('DEVO_API_URL',
-                             'https://api-us.logtrust.com/')
-        self.client = Client.from_config(
+        self.client = Client(config=
             {'key': os.getenv('DEVO_API_KEY', None),
              'secret': os.getenv('DEVO_API_SECRET', None),
-             'url': os.getenv('DEVO_API_URL', 'https://api-us.logtrust.com/'),
+             'address': os.getenv('DEVO_API_ADDRESS',
+                              'https://apiv2-us.devo.com/'),
+             "stream": False,
+             "destination": {"type": "donothing",
+                             "params": {"friendlyName": "devo-sdk-api-test"}}
              })
 
     def test_jobs_cycle(self):
-        self.client.query(query="from demo.ecommerce.data select *",
-                          dates={'from': '2018-01-01 00:00:00'}, stream=False,
-                          destination={"type": "donothing",
-                                       "params": {
-                                           "friendlyName": "devo-sdk-api-test"}})
+        self.client.query(
+            query="from demo.ecommerce.data select *",
+            dates={'from': '2018-01-01 00:00:00'})
 
         # Get all jobs
         result = self.client.get_jobs()
@@ -29,12 +29,12 @@ class TestApi(unittest.TestCase):
         self.assertTrue(result['object'])
 
         # Get job by type
-        result = self.client.get_jobs(type="donothing")
+        result = self.client.get_jobs(job_type="donothing")
         self.assertTrue(result['object'])
 
         # Get job by name and type
         result = self.client.get_jobs(name="devo-sdk-api-test",
-                                      type="donothing")
+                                      job_type="donothing")
         self.assertTrue(result['object'])
         job_id = result['object'][0]['id']
 
