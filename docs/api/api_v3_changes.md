@@ -1,4 +1,4 @@
-# Devo Sender v2 to v3
+# Devo Api Client v2 to v3
 
 ## Main Changes
 The Client object has a lot of changes, we can resume this in 3 important points
