@@ -10,7 +10,7 @@ class TestApi(unittest.TestCase):
     def setUp(self):
         self.query = 'from demo.ecommerce.data select * limit 1'
         self.app_name = "testing-app_name"
-        self.uri = os.getenv('DEVO_API_URL',
+        self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
         self.key = os.getenv('DEVO_API_KEY', None)
         self.secret = os.getenv('DEVO_API_SECRET', None)
@@ -46,6 +46,7 @@ class TestApi(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
 
+    test_token
     def test_query_id(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,

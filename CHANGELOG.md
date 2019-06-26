@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * vars/flags "url" are now like python: "address" and are now tuples
  * New "auth" flag to encapsulate key, secret, jwt and token
  * Env var "DEVO_AUTH_TOKEN" to "DEVO_API_TOKEN"
+ * Env var "DEVO_API_URL" to "DEVO_API_ADDRESS"
  
 #### Fixed
  * Fixed when add key chain to configuration
