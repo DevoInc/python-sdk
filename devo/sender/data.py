@@ -186,9 +186,10 @@ class Sender(logging.Handler):
 
             self.socket.connect(self._sender_config.address)
             self.reconnection += 1
-            self.logger.debug('Conected to %s|%s'
-                              % (repr(self.socket.getpeername())
-                                 , str(self.reconnection)))
+            if self.debug:
+                self.logger.debug('Conected to %s|%s'
+                                  % (repr(self.socket.getpeername())
+                                     , str(self.reconnection)))
             self.timestart = int(round(time.time() * 1000))
 
         except socket.error as error:
