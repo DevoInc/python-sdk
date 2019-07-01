@@ -441,7 +441,7 @@ class Sender(logging.Handler):
         elif isinstance(config, dict):
             con.logging['level'] = config.get("verbose_level", 10)
         else:
-            con.logging['tag'] = 10
+            con.logging['level'] = 10
 
         return con
 

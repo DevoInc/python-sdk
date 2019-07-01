@@ -62,7 +62,9 @@ def default_from(date=None):
     :return: Millis for the API
     """
     if isinstance(date, int):
-        return date * 1000
+        if len(str(abs(date))) == 10:
+            return date * 1000
+        return date
     return parse(date, 'now()-day()')
 
 
@@ -73,5 +75,7 @@ def default_to(date=None):
     :return: Millis for the API
     """
     if isinstance(date, int):
-        return date * 1000
+        if len(str(abs(date))) == 10:
+            return date * 1000
+        return date
     return parse(date, 'now()')
