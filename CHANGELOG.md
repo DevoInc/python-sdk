@@ -17,11 +17,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * API dates when int, verify if len its correct before add 3 zero
  * Problem overriding tag when use Sender for logging
 
-## [3.0.2] - 2019-07-01
-#### Fixed
- * API dates when int, verify if len its correct before add 3 zero
- * Problem overriding tag when use Sender for logging
-
 ## [3.0.1] - 2019-06-27
 #### Fixed
  * Fixed always debug on reconnection
