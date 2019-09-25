@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [3.0.3] - 2019-09-25
+#### Fixed
+ * Fixed reconnection to socket in every send instruction of Sender
+ * Code style changes
+ * Added pep8speaks file for Github
+
+
 ## [3.0.2] - 2019-07-01
 #### Fixed
  * API dates when int, verify if len its correct before add 3 zero

@@ -42,7 +42,6 @@ class SenderConfigSSL:
         Sender
 
     """
-
     def __init__(self, address=None, key=None, cert=None, chain=None):
         if not isinstance(address, tuple):
             raise DevoSenderException(
@@ -63,14 +62,12 @@ class SenderConfigSSL:
 class SenderConfigTCP:
     """
     Configuration TCP class.
+    :param address:(tuple) Server address and port
 
-    :param address:(str) Server address
-
-    >>>sender_config = SenderConfigTCP(address=SERVER, port=PORT)
+    >>>sender_config = SenderConfigTCP(address=(ADDRESS, PORT))
 
     See Also:
         Sender
-
     """
 
     def __init__(self, address=None):
@@ -107,8 +104,7 @@ class Sender(logging.Handler):
     :param logger: logger. Default sys.console
     """
     def __init__(self, config=None, con_type=None,
-                 timeout=10, debug=False, logger=None):
-
+                 timeout=30, debug=False, logger=None):
         if config is None:
             raise DevoSenderException("Problems with args passed to Sender")
 
@@ -127,7 +123,8 @@ class Sender(logging.Handler):
         self._sender_config = config
         self.reconnection = 0
         self.debug = debug
-        self.timeout = timeout
+        self.socket_timeout = timeout
+        self.socket_max_connection = 3600 * 1000
         self.buffer = SenderBuffer()
         self.logging = {}
 
@@ -149,7 +146,7 @@ class Sender(logging.Handler):
         :return:
         """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.timeout)
+        self.socket.settimeout(self.socket_timeout)
         try:
             self.socket.connect(self._sender_config.address)
         except socket.error as error:
@@ -165,7 +162,7 @@ class Sender(logging.Handler):
 
         """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.settimeout(self.timeout)
+        self.socket.settimeout(self.socket_timeout)
 
         try:
             try:
@@ -214,10 +211,8 @@ class Sender(logging.Handler):
         timeit = int(round(time.time() * 1000)) - self.timestart
         if self.socket is None:
             return False
-        if not self.timeout:
-            self.timeout = 10
 
-        if self.timeout < timeit:
+        if self.socket_max_connection < timeit:
             self.close()
             return False
         return True

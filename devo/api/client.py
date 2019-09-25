@@ -237,9 +237,15 @@ class Client:
         except ValueError:
             return False
 
-    def configurate(self, processor=None, response=None, stream=None,
-                    destination=None):
-
+    def configurate(self, processor=None, response=None,
+                    destination=None, stream=True):
+        """
+        Method for fill Configuration options more easy
+        :param processor: processor for response, default is None
+        :param response: format of response
+        :param destination: Destination options, see Doc for more info
+        :param stream: Stream queries or not
+        """
         self.config.set_processor(processor)
         if response:
             self.config.response = response
