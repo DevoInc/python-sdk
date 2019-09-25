@@ -243,7 +243,7 @@ class Client:
         Method for fill Configuration options more easy
         :param processor: processor for response, default is None
         :param response: format of response
-        :param destination: Destination options, see Documentation for more info
+        :param destination: Destination options, see Doc for more info
         :param stream: Stream queries or not
         """
         self.config.set_processor(processor)
