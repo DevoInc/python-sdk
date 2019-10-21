@@ -158,8 +158,10 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
-            con = Sender.for_logging(config=engine_config, tag=self.my_app)
-            logger = get_log(name="DevoLogger", handler=con)
+            con = Sender.for_logging(config=engine_config, tag=self.my_app,
+                                     level=1)
+            logger = get_log(name="DevoLogger", handler=con,
+                             level=1)
             logger.info("Testing Sender inherit logging handler functio"
                         "nality... INFO - log")
             if len(con.socket.recv(5000)) == 0:
@@ -200,7 +202,8 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
-            con = Sender.for_logging(config=engine_config, tag=self.my_app)
+            con = Sender.for_logging(config=engine_config, tag=self.my_app,
+                                     level=1)
             # NOTE: this logger logging traces will be visible in console
             con.logger.info("Testing Sender default handler functionality in "
                             "local console... INFO - log")
@@ -226,8 +229,10 @@ class TestSender(unittest.TestCase):
                              "key": self.key, "cert": self.cert,
                              "chain": self.chain}
 
-            con = Sender.for_logging(config=engine_config, tag=self.my_app)
-            logger = get_log(name="DevoLogger2", handler=con)
+            con = Sender.for_logging(config=engine_config, tag=self.my_app,
+                                     level=1)
+            logger = get_log(name="DevoLogger2", handler=con,
+                             level=1)
 
             logger.info("Testing Sender static handler functionality... "
                         "INFO - log")

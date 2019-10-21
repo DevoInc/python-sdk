@@ -34,7 +34,7 @@ def get_rotating_file_handler(path="./",
                               msg_format='%(asctime)s|%(levelname)s|%(message)s',
                               max_size=2097152,
                               backup_count=5,
-                              level=logging.DEBUG):
+                              level=logging.INFO):
     """Initialize rotating file handler for logger
 
     :return: RotatingFileHandler object
@@ -53,7 +53,7 @@ def get_rotating_file_handler(path="./",
 
 def get_stream_handler(dest=sys.stdout,
                        msg_format='%(asctime)s|%(levelname)s|%(message)s',
-                       level=logging.DEBUG):
+                       level=logging.INFO):
     """Initialize stream handlerhandler for logger
     :return: StreamHandler object
     """
@@ -62,3 +62,4 @@ def get_stream_handler(dest=sys.stdout,
     if level is not None:
         handler.setLevel(level)
     return handler
+

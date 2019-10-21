@@ -168,18 +168,24 @@ class Sender(logging.Handler):
         self.socket.settimeout(self.socket_timeout)
 
         try:
+            if self._sender_config.pkcs is not None:
+                print("Entro aqui")
+                from .pfx_to_pem import pfx_to_pem
+                pkcs = self._sender_config.pkcs
+                key, cert, chain = pfx_to_pem(path=pkcs.get("path", None),
+                                              password=pkcs.get("password",
+                                                                None))
+
+                self._sender_config.key = key.name
+                self._sender_config.cert = cert.name
+                self._sender_config.chain = chain.name
+        except Exception as error:
+            self.close()
+            raise DevoSenderException(
+                "PFX Certificate read failed: %s" %
+                str(error))
+        try:
             try:
-                if self._sender_config.pkcs is not None:
-                    from .pfx_to_pem import pfx_to_pem
-                    pkcs = self._sender_config.pkcs
-                    key, cert, chain = pfx_to_pem(path=pkcs.get("path", None),
-                                                  password=pkcs.get("password",
-                                                                    None))
-
-                    self._sender_config.key = key.name
-                    self._sender_config.cert = cert.name
-                    self._sender_config.chain = chain.name
-
                 if self._sender_config.key is not None \
                         and self._sender_config.chain is not None \
                         and self._sender_config.cert is not None:
@@ -450,7 +456,7 @@ class Sender(logging.Handler):
         elif isinstance(config, dict):
             con.logging['level'] = config.get("verbose_level", 10)
         else:
-            con.logging['level'] = 10
+            con.logging['level'] = logging.INFO
 
         return con
 
