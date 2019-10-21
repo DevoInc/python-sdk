@@ -70,8 +70,6 @@ config = ClientConfig(response="json/compact", stream=False,
 api = Client(auth= {"key":"myapikey", "secret":"myapisecret"}, 
              address="https://apiv2-eu.devo.com/search/query",
              config=config)
-
-
 ```  
    
 #### query() params

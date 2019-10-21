@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [3.1.0] - 2019-10-21
+#### Fixed
+ * Documentation with examples of version 2.0
+ 
+#### Added
+ * level flag to handlers for logging, not general for all (See updated documentation)
+ * flag/capacity of Sender to use pfx certificates
+ 
+
 ## [3.0.3] - 2019-09-25
 #### Fixed
  * Fixed reconnection to socket in every send instruction of Sender

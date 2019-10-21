@@ -6,14 +6,18 @@ import logging
 from logging.handlers import RotatingFileHandler
 
 
-def get_log(name="log", level=logging.DEBUG, handler=None):
+def get_log(name="log", level=None, handler=None):
     """Initialize logger for self process log
     :return: Log object
     """
     logger = logging.getLogger(name)
-    logger.addHandler(get_rotating_file_handler()
-                      if not handler else handler)
-    logger.setLevel(level)
+    handler = get_rotating_file_handler() if not handler else handler
+
+    if level is not None:
+        handler.setLevel(level)
+        logger.setLevel(level)
+
+    logger.addHandler(handler)
     return logger
 
 
@@ -29,7 +33,8 @@ def get_rotating_file_handler(path="./",
                               file_name="history.log",
                               msg_format='%(asctime)s|%(levelname)s|%(message)s',
                               max_size=2097152,
-                              backup_count=5):
+                              backup_count=5,
+                              level=logging.DEBUG):
     """Initialize rotating file handler for logger
 
     :return: RotatingFileHandler object
@@ -41,14 +46,19 @@ def get_rotating_file_handler(path="./",
     handler = RotatingFileHandler(full_path, maxBytes=max_size,
                                   backupCount=backup_count)
     handler.setFormatter(set_formatter(msg_format))
+    if level is not None:
+        handler.setLevel(level)
     return handler
 
 
 def get_stream_handler(dest=sys.stdout,
-                       msg_format='%(asctime)s|%(levelname)s|%(message)s'):
+                       msg_format='%(asctime)s|%(levelname)s|%(message)s',
+                       level=logging.DEBUG):
     """Initialize stream handlerhandler for logger
     :return: StreamHandler object
     """
     handler = logging.StreamHandler(dest)
     handler.setFormatter(set_formatter(msg_format))
+    if level is not None:
+        handler.setLevel(level)
     return handler

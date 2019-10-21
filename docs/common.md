@@ -32,16 +32,20 @@ This library add utilities for other packages.
 Devo commons gives you a function, with enough parameters for your personalization, to get a logging object:
 
 ```python
-def get_log(name="log", level=logging.DEBUG, handler=None)
+def get_log(name="log", level=None, handler=None)
 ```
 By default, handler will be a RotatingFileHandler, named history.log, 5 files, in work folder.
-You can use other Handler, by you own or using one of the common package
+You can use other Handler, by you own or using one of the common package.
+
+If you set level, all handlers has the same level, if you want different levels, pass level to handlers, 
+and not to logger.
 
 ##### StreamHandler
 
 ```python
 def get_stream_handler(dest=sys.stdout,
-                       msg_format='%(asctime)s|%(levelname)s|%(message)s')
+                       msg_format='%(asctime)s|%(levelname)s|%(message)s',
+                       level=logging.DEBUG)
 ```
 With this function you will obtain a StreamHandler, by default the whole log will be to stdout.
 
@@ -60,7 +64,8 @@ def get_rotating_file_handler(path="./",
                               file_name="history.log",
                               msg_format='%(asctime)s|%(levelname)s|%(message)s',
                               max_size=2097152,
-                              backup_count=5):
+                              backup_count=5, 
+                              level=logging.DEBUG):
 ```
 
 You can use this handler like in the StreamHandler example
