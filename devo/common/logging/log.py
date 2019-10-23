@@ -14,13 +14,13 @@ def get_log(name="log", level=None, handler=None):
     logger = logging.getLogger(name)
     if handler is None:
         handler = get_rotating_file_handler(level=None if level is None
-                                                       else level)
+                                            else level)
         logger.addHandler(handler)
     elif isinstance(handler, list):
-        for hd in handler:
+        for simple_handler in handler:
             if level is not None:
-                hd.setLevel(level)
-            logger.addHandler(hd)
+                simple_handler.setLevel(level)
+            logger.addHandler(simple_handler)
     else:
         logger.addHandler(handler)
 
@@ -71,4 +71,3 @@ def get_stream_handler(dest=sys.stdout,
     if level is not None:
         handler.setLevel(level)
     return handler
-
