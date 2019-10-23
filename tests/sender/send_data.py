@@ -161,7 +161,7 @@ class TestSender(unittest.TestCase):
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
-                                     level=1)
+                                     level=TEST_FACILITY)
             logger = get_log(name="DevoLogger", handler=con,
                              level=TEST_FACILITY)
             print("Testing logger info")
