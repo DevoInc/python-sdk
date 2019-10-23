@@ -4,6 +4,8 @@ from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
 from devo.common import get_log
 from .load_certs import *
 
+TEST_FACILITY = 1
+
 
 class TestSender(unittest.TestCase):
     def setUp(self):
@@ -161,27 +163,32 @@ class TestSender(unittest.TestCase):
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=1)
             logger = get_log(name="DevoLogger", handler=con,
-                             level=1)
+                             level=TEST_FACILITY)
+            print("Testing logger info")
             logger.info("Testing Sender inherit logging handler functio"
                         "nality... INFO - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger error")
             logger.error("Testing Sender inherit logging handler function"
                          "ality... ERROR - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger warning")
             logger.warning("Testing Sender inherit logging handler functio"
                            "nality... WARNING - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger debug")
             logger.debug("Testing Sender inherit logging handler functiona"
                          "lity... DEBUG - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger critical")
             logger.critical("Testing Sender inherit logging handler functio"
                             "nality... CRITICAL - log")
             if len(con.socket.recv(5000)) == 0:
@@ -203,7 +210,7 @@ class TestSender(unittest.TestCase):
                                             key=self.key, cert=self.cert,
                                             chain=self.chain)
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
-                                     level=1)
+                                     level=TEST_FACILITY)
             # NOTE: this logger logging traces will be visible in console
             con.logger.info("Testing Sender default handler functionality in "
                             "local console... INFO - log")
@@ -230,30 +237,35 @@ class TestSender(unittest.TestCase):
                              "chain": self.chain}
 
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
-                                     level=1)
+                                     level=TEST_FACILITY)
             logger = get_log(name="DevoLogger2", handler=con,
-                             level=1)
+                             level=TEST_FACILITY)
 
+            print("Testing logger info")
             logger.info("Testing Sender static handler functionality... "
                         "INFO - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger error")
             logger.error("Testing Sender static logging handler "
                          "functionality... ERROR - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger warning")
             logger.warning("Testing Sender static logging handler "
                            "functionality... WARNING - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger debug")
             logger.debug("Testing Sender static logging handler "
                          "functionality... DEBUG - log")
             if len(con.socket.recv(5000)) == 0:
                 raise Exception('Not msg sent!')
 
+            print("Testing logger critical")
             logger.critical("Testing Sender static logging handler "
                             "functionality... CRITICAL - log")
             if len(con.socket.recv(5000)) == 0:

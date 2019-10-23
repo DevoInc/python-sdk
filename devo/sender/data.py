@@ -169,7 +169,6 @@ class Sender(logging.Handler):
 
         try:
             if self._sender_config.pkcs is not None:
-                print("Entro aqui")
                 from .pfx_to_pem import pfx_to_pem
                 pkcs = self._sender_config.pkcs
                 key, cert, chain = pfx_to_pem(path=pkcs.get("path", None),

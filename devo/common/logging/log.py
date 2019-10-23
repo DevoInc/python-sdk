@@ -7,17 +7,26 @@ from logging.handlers import RotatingFileHandler
 
 
 def get_log(name="log", level=None, handler=None):
-    """Initialize logger for self process log
+    """Initialize logger for self process
+    :TODO v4.0.0: In version 4.0 delete level option for get_log
     :return: Log object
     """
     logger = logging.getLogger(name)
-    handler = get_rotating_file_handler() if not handler else handler
+    if handler is None:
+        handler = get_rotating_file_handler(level=None if level is None
+                                                       else level)
+        logger.addHandler(handler)
+    elif isinstance(handler, list):
+        for hd in handler:
+            if level is not None:
+                hd.setLevel(level)
+            logger.addHandler(hd)
+    else:
+        logger.addHandler(handler)
 
     if level is not None:
-        handler.setLevel(level)
         logger.setLevel(level)
 
-    logger.addHandler(handler)
     return logger
 
 
