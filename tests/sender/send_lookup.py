@@ -45,8 +45,14 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         p_headers = Lookup.list_to_headers(['KEY', 'HEX', 'COLOR'], 'KEY')
         lookup.send_control('START', p_headers, 'INC')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"])
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_control('END', p_headers, 'INC')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
 
         con.socket.shutdown(0)
 
@@ -60,8 +66,14 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         p_headers = Lookup.list_to_headers(['KEY', 'HEX', 'COLOR'], 'KEY')
         lookup.send_control('START', p_headers, 'FULL')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"])
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_control('END', p_headers, 'FULL')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
 
         con.socket.shutdown(0)
 
@@ -75,8 +87,15 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         p_headers = Lookup.list_to_headers(['KEY', 'HEX', 'COLOR'], 'KEY')
         lookup.send_control('START', p_headers, 'INC')
-        lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"], delete=True)
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
+        lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"],
+                              delete=True)
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_control('END', p_headers, 'INC')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
 
         con.socket.shutdown(0)
 
@@ -89,9 +108,15 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY',
                             action='START')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"])
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
         lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY',
                             action='END')
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception('Not msg sent!')
 
         con.socket.shutdown(0)
 
