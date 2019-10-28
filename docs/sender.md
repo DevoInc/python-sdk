@@ -47,12 +47,33 @@ Variable descriptions
 + logger **(_string_)**: logger. Default sys.console
 
 
+Class SenderConfigSSL accept various types of certificates, you has:
+
++ address **(_tuple_)**: (Server address, port)
++ key **(_str_)**: key src file
++ cert **(_str_)**: cert src file
++ chain **(_str_)**: chain src file
++ pkcs **(_dict_)**: (path: pfx src file, password: of cert)
+
+
+You can use the collector in some ways:
+
 - With certificates:
 	
 ```python
 from devo.sender import SenderConfigSSL, Sender
 engine_config = SenderConfigSSL(address=(SERVER, PORT), 
                                 key=KEY, cert=CERT,chain=CHAIN)
+con = Sender(engine_config)
+```
+
+or 
+
+```python
+from devo.sender import SenderConfigSSL, Sender
+engine_config = SenderConfigSSL(address=(SERVER, PORT), 
+                                pkcs={"path": "tmp/mycert.pfx",
+                                      "password": "certpassword"})
 con = Sender(engine_config)
 ```
 	
@@ -125,7 +146,7 @@ from devo.common import Configuration
 from devo.sender import Sender
 
 conf = Configuration("./config.json.example", 'sender')
-con = Sender.from_dict(conf)
+con = Sender(config=conf)
 ```
 
 #### Sending data 
@@ -400,7 +421,7 @@ from devo.sender import Sender, Lookup
 conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
 conf.load_config("./config.json.example", 'lookup')
-con = Sender.from_dict(conf.get("sender"))
+con = Sender(config=conf.get("sender"))
 lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
 
 lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START')

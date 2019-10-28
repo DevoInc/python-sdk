@@ -129,7 +129,6 @@ class Client:
         Initialize the API with this params, all optionals
         :param address: endpoint
         :param auth: object with auth params (key, secret, token, jwt)
-        :param options: options class for Client and queries
         :param retries: number of retries for a query
         :param timeout: timeout of socket
         """
@@ -293,7 +292,6 @@ class Client:
         """
         Make the call, select correct item to return
         :param payload: item with headers for request
-        :param stream: boolean, indicate if one call is a streaming call
         :return: Response from API
         """
         if self.config.stream:

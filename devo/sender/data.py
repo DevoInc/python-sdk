@@ -34,6 +34,7 @@ class SenderConfigSSL:
     :param key: (str) key src file
     :param cert:  (str) cert src file
     :param chain:  (str) chain src file
+    :param pkcs:  (dict) (path: pfx src file, password: of cert)
 
     >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
     ...                                cert=CERT, chain=CHAIN)
@@ -42,7 +43,8 @@ class SenderConfigSSL:
         Sender
 
     """
-    def __init__(self, address=None, key=None, cert=None, chain=None):
+    def __init__(self, address=None, key=None, cert=None, chain=None,
+                 pkcs=None):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -52,6 +54,7 @@ class SenderConfigSSL:
             self.key = key
             self.cert = cert
             self.chain = chain
+            self.pkcs = pkcs
             self.hostname = socket.gethostname()
         except Exception as error:
             raise DevoSenderException(
@@ -164,6 +167,22 @@ class Sender(logging.Handler):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(self.socket_timeout)
 
+        try:
+            if self._sender_config.pkcs is not None:
+                from .pfx_to_pem import pfx_to_pem
+                pkcs = self._sender_config.pkcs
+                key, cert, chain = pfx_to_pem(path=pkcs.get("path", None),
+                                              password=pkcs.get("password",
+                                                                None))
+
+                self._sender_config.key = key.name
+                self._sender_config.cert = cert.name
+                self._sender_config.chain = chain.name
+        except Exception as error:
+            self.close()
+            raise DevoSenderException(
+                "PFX Certificate read failed: %s" %
+                str(error))
         try:
             try:
                 if self._sender_config.key is not None \
@@ -436,7 +455,7 @@ class Sender(logging.Handler):
         elif isinstance(config, dict):
             con.logging['level'] = config.get("verbose_level", 10)
         else:
-            con.logging['level'] = 10
+            con.logging['level'] = logging.INFO
 
         return con
 
@@ -465,9 +484,10 @@ class Sender(logging.Handler):
 
         if connection_type == "SSL":
             return SenderConfigSSL(address=address,
-                                   key=config.get("key"),
-                                   cert=config.get("cert"),
-                                   chain=config.get("chain"))
+                                   key=config.get("key", None),
+                                   cert=config.get("cert", None),
+                                   chain=config.get("chain", None),
+                                   pkcs=config.get("pkcs", None))
 
         return SenderConfigTCP(address=address)
 
