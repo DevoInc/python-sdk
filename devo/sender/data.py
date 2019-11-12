@@ -191,7 +191,6 @@ class Sender(logging.Handler):
                         and self._sender_config.chain is not None \
                         and self._sender_config.cert is not None:
 
-                    print(self._sender_config.address[0])
                     context = ssl.create_default_context(
                         cafile=self._sender_config.chain)
 
