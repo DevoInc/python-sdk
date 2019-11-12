@@ -104,7 +104,8 @@ class Sender(logging.Handler):
     Class that manages the connection to the data collector
 
     :param config: SenderConfigSSL, SenderConfigTCP or dict object
-    :param con_type: TCP or SSL, default SSL, you can pass it in config object too
+    :param con_type: TCP or SSL, default SSL, you can pass it in
+    config object too
     :param timeout: timeout for socket
     :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
@@ -195,6 +196,11 @@ class Sender(logging.Handler):
                         cafile=self._sender_config.chain)
 
                     if self._sender_config.sec_level is not None:
+                        self.logger.warning("Openssl's default security "
+                                            "level has been overwritten to"
+                                            "{}.".format(self.
+                                                         _sender_config.
+                                                         sec_level))
                         context.set_ciphers(
                             "DEFAULT@SECLEVEL={!s}"
                             .format(self._sender_config.sec_level))
