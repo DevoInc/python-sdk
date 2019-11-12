@@ -53,7 +53,8 @@ Class SenderConfigSSL accept various types of certificates, you has:
 + key **(_str_)**: key src file
 + cert **(_str_)**: cert src file
 + chain **(_str_)**: chain src file
-+ pkcs **(_dict_)**: (path: pfx src file, password: of cert)
++ pkcs **(_dict_)**: (path: pfx src file, password: of cert
++ sec_level **(_int_)**: Security level to openssl launch
 
 
 You can use the collector in some ways:
@@ -209,6 +210,20 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
  (1, each time, if not zipped, 0..X if zipped)
  
  
+### CA_MD_TOO_WEAK
+Or CA signature digest algorithm too weak its a error with news versions of openssl>=1.1.0
+If you have problem with your certificates of Devo and devo-sdk you with this error you can add flag `sec_level=0` 
+on your configuration, SenderConfigSSL or CLI:
+
+```python
+from devo.sender import SenderConfigSSL
+
+engine_config = SenderConfigSSL(address=("devo.collector", 443),
+                                key="key.key", cert="cert.crt",
+                                chain="chain.crt", sec_level=0)
+```
+
+
 ## Sender as an Logging Handler
 In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
 
