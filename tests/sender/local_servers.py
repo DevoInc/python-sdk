@@ -29,7 +29,8 @@ class SSLServer:
                                 .format(self.file_path))
 
         server_key = os.getenv('DEVO_SENDER_SERVER_KEY',
-                               "{!s}local_certs/keys/server/private/server_key.pem"
+                               "{!s}local_certs/keys/server/"
+                               "private/server_key.pem"
                                .format(self.file_path))
         try:
             while not self.shutdown:

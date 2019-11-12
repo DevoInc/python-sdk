@@ -40,7 +40,7 @@ def cli(version):
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
-@click.option('--sec_level', help='Sec level for opensslsocket. Default: None.',
+@click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
               default=None)
 @click.option('--multiline/--no-multiline', help='Flag for multiline (With '
                                                  'break-line in msg). '
@@ -115,7 +115,7 @@ def data(**kwargs):
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
-@click.option('--sec_level', help='Sec level for opensslsocket. Default: None.',
+@click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
               default=None)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--name', '-n', help='Name for Lookup.')

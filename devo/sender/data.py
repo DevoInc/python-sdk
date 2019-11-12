@@ -202,9 +202,10 @@ class Sender(logging.Handler):
                     context.load_cert_chain(keyfile=self._sender_config.key,
                                             certfile=self._sender_config.cert)
                     self.socket = \
-                        context.wrap_socket(self.socket,
-                                            server_hostname=
-                                            self._sender_config.address[0])
+                        context.wrap_socket(
+                            self.socket,
+                            server_hostname=self._sender_config.address[0]
+                        )
                 else:
                     self.socket = ssl.wrap_socket(self.socket,
                                                   cert_reqs=ssl.CERT_NONE)
