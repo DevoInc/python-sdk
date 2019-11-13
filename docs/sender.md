@@ -211,8 +211,8 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
  
  
 ## CA_MD_TOO_WEAK - Openssl security level
-Or CA signature digest algorithm too weak its a error with news versions of openssl>=1.1.0
-If you have problem with your certificates of Devo and devo-sdk you with this error you can add flag `sec_level=0` 
+When CA signature digest algorithm too weak its a error with news versions of openssl>=1.1.0
+If you have problem with your certificates in devo-sdk with this error you can add flag `sec_level=0` 
 on your configuration, SenderConfigSSL or CLI:
 
 ```python
