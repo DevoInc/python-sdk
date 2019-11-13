@@ -35,16 +35,18 @@ class SenderConfigSSL:
     :param cert:  (str) cert src file
     :param chain:  (str) chain src file
     :param pkcs:  (dict) (path: pfx src file, password: of cert)
+    :param sec_level: (int) default None. If certs are too weak you can change
+    this param to work with it
 
     >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
-    ...                                cert=CERT, chain=CHAIN)
+    ...                                cert=CERT, chain=CHAIN, sec_level=None)
 
     See Also:
         Sender
 
     """
     def __init__(self, address=None, key=None, cert=None, chain=None,
-                 pkcs=None):
+                 pkcs=None, sec_level=None):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -56,6 +58,7 @@ class SenderConfigSSL:
             self.chain = chain
             self.pkcs = pkcs
             self.hostname = socket.gethostname()
+            self.sec_level = sec_level
         except Exception as error:
             raise DevoSenderException(
                 "Devo-SenderConfigSSL|Can't create SSL config: "
@@ -101,7 +104,8 @@ class Sender(logging.Handler):
     Class that manages the connection to the data collector
 
     :param config: SenderConfigSSL, SenderConfigTCP or dict object
-    :param con_type: TCP or SSL, default SSL, you can pass it in config object too
+    :param con_type: TCP or SSL, default SSL, you can pass it in
+    config object too
     :param timeout: timeout for socket
     :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
@@ -166,7 +170,6 @@ class Sender(logging.Handler):
         """
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.settimeout(self.socket_timeout)
-
         try:
             if self._sender_config.pkcs is not None:
                 from .pfx_to_pem import pfx_to_pem
@@ -188,12 +191,27 @@ class Sender(logging.Handler):
                 if self._sender_config.key is not None \
                         and self._sender_config.chain is not None \
                         and self._sender_config.cert is not None:
-                    self.socket = ssl.wrap_socket(
-                        self.socket,
-                        keyfile=self._sender_config.key,
-                        certfile=self._sender_config.cert,
-                        ca_certs=self._sender_config.chain,
-                        cert_reqs=ssl.CERT_REQUIRED)
+
+                    context = ssl.create_default_context(
+                        cafile=self._sender_config.chain)
+
+                    if self._sender_config.sec_level is not None:
+                        self.logger.warning("Openssl's default security "
+                                            "level has been overwritten to"
+                                            "{}.".format(self.
+                                                         _sender_config.
+                                                         sec_level))
+                        context.set_ciphers(
+                            "DEFAULT@SECLEVEL={!s}"
+                            .format(self._sender_config.sec_level))
+
+                    context.load_cert_chain(keyfile=self._sender_config.key,
+                                            certfile=self._sender_config.cert)
+                    self.socket = \
+                        context.wrap_socket(
+                            self.socket,
+                            server_hostname=self._sender_config.address[0]
+                        )
                 else:
                     self.socket = ssl.wrap_socket(self.socket,
                                                   cert_reqs=ssl.CERT_NONE)
@@ -487,7 +505,8 @@ class Sender(logging.Handler):
                                    key=config.get("key", None),
                                    cert=config.get("cert", None),
                                    chain=config.get("chain", None),
-                                   pkcs=config.get("pkcs", None))
+                                   pkcs=config.get("pkcs", None),
+                                   sec_level=config.get("sec_level", None))
 
         return SenderConfigTCP(address=address)
 

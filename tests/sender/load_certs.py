@@ -1,8 +1,8 @@
 import os
 
-CLIENT_KEY = "".join((os.path.dirname(os.path.abspath(__file__)),
-                      os.sep, 'local_server_files', os.sep, 'client.key'))
-CLIENT_CERT = "".join((os.path.dirname(os.path.abspath(__file__)),
-                       os.sep, 'local_server_files', os.sep, 'client.crt'))
-CLIENT_CHAIN = "".join((os.path.dirname(os.path.abspath(__file__)),
-                        os.sep, 'local_server_files', os.sep, 'ca.crt'))
+CLIENT_KEY = "{!s}/local_certs/keys/client/private/client_key.pem"\
+    .format(os.path.dirname(os.path.abspath(__file__)))
+CLIENT_CERT = "{!s}/local_certs/keys/client/client_cert.pem"\
+    .format(os.path.dirname(os.path.abspath(__file__)))
+CLIENT_CHAIN = "{!s}/local_certs/keys/ca/ca_cert.pem"\
+    .format(os.path.dirname(os.path.abspath(__file__)))

@@ -37,7 +37,7 @@ api = Client(key="myapikey",
 response = api.query("from siem.logtrust.web.activity select *", 
                      dates={"from":"yesterday()", "to": "now()"}, 
                      destination= { 
-                     "type":"email",
+                     "type":"s3",
                      "params":{
                             "aws.bucket": "blu-2223",
                             "aws.region": "eu-west-1",

@@ -54,6 +54,7 @@ Class SenderConfigSSL accept various types of certificates, you has:
 + cert **(_str_)**: cert src file
 + chain **(_str_)**: chain src file
 + pkcs **(_dict_)**: (path: pfx src file, password: of cert)
++ sec_level **(_int_)**: Security level to openssl launch
 
 
 You can use the collector in some ways:
@@ -209,6 +210,36 @@ compression_level is an integer from 0 to 9 or -1 controlling the level of compr
  (1, each time, if not zipped, 0..X if zipped)
  
  
+## CA_MD_TOO_WEAK - Openssl security level
+Or CA signature digest algorithm too weak its a error with news versions of openssl>=1.1.0
+If you have problem with your certificates of Devo and devo-sdk you with this error you can add flag `sec_level=0` 
+on your configuration, SenderConfigSSL or CLI:
+
+```python
+from devo.sender import SenderConfigSSL
+
+engine_config = SenderConfigSSL(address=("devo.collector", 443),
+                                key="key.key", cert="cert.crt",
+                                chain="chain.crt", sec_level=0)
+```
+
+#### Openssl security levels:
+
+- Level 0: 
+    - Everything is permitted. This retains compatibility with previous versions of OpenSSL.
+- Level 1: 
+    - The security level corresponds to a minimum of 80 bits of security. Any parameters offering below 80 bits of security are excluded. As a result RSA, DSA and DH keys shorter than 1024 bits and ECC keys shorter than 160 bits are prohibited. All export ciphersuites are prohibited since they all offer less than 80 bits of security. SSL version 2 is prohibited. Any ciphersuite using MD5 for the MAC is also prohibited.
+- Level 2: 
+    - Security level set to 112 bits of security. As a result RSA, DSA and DH keys shorter than 2048 bits and ECC keys shorter than 224 bits are prohibited. In addition to the level 1 exclusions any ciphersuite using RC4 is also prohibited. SSL version 3 is also not allowed. Compression is disabled.
+- Level 3: 
+    - Security level set to 128 bits of security. As a result RSA, DSA and DH keys shorter than 3072 bits and ECC keys shorter than 256 bits are prohibited. In addition to the level 2 exclusions ciphersuites not offering forward secrecy are prohibited. TLS versions below 1.1 are not permitted. Session tickets are disabled.
+- Level 4: 
+    - Security level set to 192 bits of security. As a result RSA, DSA and DH keys shorter than 7680 bits and ECC keys shorter than 384 bits are prohibited. Ciphersuites using SHA1 for the MAC are prohibited. TLS versions below 1.2 are not permitted.
+- Level 5: 
+    - Security level set to 256 bits of security. As a result RSA, DSA and DH keys shorter than 15360 bits and ECC keys shorter than 512 bits are prohibited.
+
+
+
 ## Sender as an Logging Handler
 In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
 

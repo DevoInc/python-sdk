@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [3.1.1] - 2019-11-12
+#### Added
+ * Support to CA_MD_TOO_WEAK problems with a new flag "sec_level"
+ * New flag documentation
+ 
+#### Changed
+ * SSL Socket in Sender creation with custom context
+ * Tests Sender certificates generation/files are updated
+ 
+#### Fixed
+ * Problems in documentation with API information
+
 ## [3.1.0] - 2019-10-21
 #### Fixed
  * Documentation with examples of version 2.0
