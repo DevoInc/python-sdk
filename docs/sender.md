@@ -131,7 +131,7 @@ This is a json example:
 This is a yaml example:
 
 ```yaml
-sender":
+sender:
   address: "devo-relay"
   port: 443
   key: "/devo/certs/key.key"
