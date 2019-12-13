@@ -19,7 +19,7 @@ class TestApi(unittest.TestCase):
         self.user = os.getenv('DEVO_API_USER', "python-sdk-user")
         self.comment = os.getenv('DEVO_API_COMMENT', None)
         self.ssl = os.getenv('DEVO_API_SSL_ENABLED', True)
- 
+
     def test_from_dict(self):
         api = Client(config=
             {'key': self.key, 'secret': self.secret, 'address': self.uri,

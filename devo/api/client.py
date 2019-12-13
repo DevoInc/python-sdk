@@ -64,7 +64,7 @@ class ClientConfig:
     Main class for configuration of Client class. With diferent configurations
     """
     def __init__(self, processor=DEFAULT, response="json/simple/compact",
-                 destination=None, stream=True, pragmas=None,ssl=True):
+                 destination=None, stream=True, pragmas=None, ssl=True):
         """
         Initialize the API with this params, all optionals
         :param processor: processor for response, default is None
@@ -73,7 +73,7 @@ class ClientConfig:
         :param stream: Stream queries or not
         :param pragmas: pragmas por query: user, app_name and comment
         """
-        self.ssl = ssl 
+        self.ssl = ssl
         self.stream = stream
         self.response = response
         self.destination = destination
@@ -340,13 +340,13 @@ class Client:
         while tries < self.retries:
             try:
                 protocol = "https" if self.config.ssl else "http"
-                response = requests.post("{}://{}"
-                                         .format(protocol, "/".join(self.address)),
-                                         data=payload,
-                                         headers=self._get_headers(payload),
-                                         verify=self.verify,
-                                         timeout=self.timeout,
-                                         stream=self.config.stream)
+                response = requests.post(
+                    "{}://{}".format(protocol, "/".join(self.address)),
+                    data=payload,
+                    headers=self._get_headers(payload),
+                    verify=self.verify,
+                    timeout=self.timeout,
+                    stream=self.config.stream)
                 if response.status_code != 200:
                     raise DevoClientException(response)
 
