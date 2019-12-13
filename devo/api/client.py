@@ -337,8 +337,9 @@ class Client:
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("http://{}"
-                                         .format("/".join(self.address)),
+                protocol = "https" if self.config.ssl else "http"
+                response = requests.post("{}://{}"
+                                         .format(protocol, "/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
                                          verify=false,
