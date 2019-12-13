@@ -343,7 +343,7 @@ class Client:
                                          .format(protocol, "/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
-                                         verify=false,
+                                         verify=False,
                                          timeout=self.timeout,
                                          stream=self.config.stream)
                 if response.status_code != 200:
