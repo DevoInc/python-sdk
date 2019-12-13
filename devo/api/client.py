@@ -64,7 +64,7 @@ class ClientConfig:
     Main class for configuration of Client class. With diferent configurations
     """
     def __init__(self, processor=DEFAULT, response="json/simple/compact",
-                 destination=None, stream=True, pragmas=None):
+                 destination=None, stream=True, pragmas=None,ssl=True):
         """
         Initialize the API with this params, all optionals
         :param processor: processor for response, default is None
@@ -73,6 +73,7 @@ class ClientConfig:
         :param stream: Stream queries or not
         :param pragmas: pragmas por query: user, app_name and comment
         """
+        self.ssl = true
         self.stream = stream
         self.response = response
         self.destination = destination
