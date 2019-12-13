@@ -73,7 +73,7 @@ class ClientConfig:
         :param stream: Stream queries or not
         :param pragmas: pragmas por query: user, app_name and comment
         """
-        self.ssl = True
+        self.ssl = ssl 
         self.stream = stream
         self.response = response
         self.destination = destination
@@ -164,7 +164,7 @@ class Client:
 
         self.retries = retries
         self.timeout = timeout
-        self.verify = True
+        self.verify = config.ssl
 
     @staticmethod
     def _from_dict(config):
@@ -343,7 +343,7 @@ class Client:
                                          .format(protocol, "/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
-                                         verify=False,
+                                         verify=self.verify,
                                          timeout=self.timeout,
                                          stream=self.config.stream)
                 if response.status_code != 200:
