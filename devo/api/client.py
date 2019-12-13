@@ -73,7 +73,7 @@ class ClientConfig:
         :param stream: Stream queries or not
         :param pragmas: pragmas por query: user, app_name and comment
         """
-        self.ssl = true
+        self.ssl = True
         self.stream = stream
         self.response = response
         self.destination = destination
