@@ -164,7 +164,7 @@ class Client:
 
         self.retries = retries
         self.timeout = timeout
-        self.verify = config.ssl
+        self.verify = self.config.ssl
 
     @staticmethod
     def _from_dict(config):
@@ -176,7 +176,8 @@ class Client:
                             response=config.get("response",
                                                 "json/simple/compact"),
                             destination=config.get("destination", None),
-                            stream=config.get("stream", True))
+                            stream=config.get("stream", True),
+                            ssl=config.get("ssl", True))
 
     def verify_certificates(self, option=True):
         """
