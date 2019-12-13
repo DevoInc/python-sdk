@@ -337,11 +337,11 @@ class Client:
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("https://{}"
+                response = requests.post("http://{}"
                                          .format("/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
-                                         verify=self.verify,
+                                         verify=false,
                                          timeout=self.timeout,
                                          stream=self.config.stream)
                 if response.status_code != 200:
