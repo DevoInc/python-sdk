@@ -125,10 +125,13 @@ def data(**kwargs):
 @click.option('--lkey', '-lk', help='Name of the column that contains the '
                                     'Lookup key. It has to be the exact name '
                                     'that appears in the header.')
-# @click.option('--akey', '-lk', help='Name of the column that contains the '
-#                                     'action key with add or delete. '
-#                                     'It has to be the exact name '
-#                                     'that appears in the header.')
+@click.option('--akey', '-ak', help='Name of the column that contains the '
+                                    'action key with add or delete. '
+                                    'It has to be the exact name '
+                                    'that appears in the header.')
+@click.option('--detect-types/--no-detect-types', '-dt/-ndt',
+              help='Detect types of fields.',
+              default=False)
 @click.option('--delimiter', '-d', help='CSV Delimiter char.', default=",")
 @click.option('--quotechar', '-qc', help='CSV Quote char.', default='"')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
@@ -145,8 +148,11 @@ def lookup(**kwargs):
                     quotechar=config['quotechar'],
                     has_header=True,
                     # headers=line.rstrip().split(config['delimiter']),
-                    key=config['lkey'], action=config.get("action",
-                                                          "FULL"))
+                    key=config['lkey'],
+                    action=config.get("action", "FULL"),
+                    action_field=config.get("akey", None),
+                    types=config.get("types", None),
+                    detect_types=config.get("detect_types", False))
 
 
 def configure(args):

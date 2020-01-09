@@ -430,15 +430,13 @@ A complete example to send a lookup row is:
 from devo.common import Configuration
 from devo.sender import Sender, Lookup
 
-conf = Configuration()
-conf.load_config("./config.json.example", 'sender')
-conf.load_config("./config.json.example", 'lookup')
-con = Sender.from_dict(conf.get("sender"))
+conf = Configuration(path="./config.json.example")
+con = Sender(config=conf.get("sender"))
 lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
-pHeaders = Lookup.list_to_headers(['KEY','HEX', 'COLOR'], 'KEY')
-lookup.send_control('START', pHeaders, 'INC')
+pHeaders = Lookup.list_to_headers(headers=['KEY','HEX', 'COLOR'], key='KEY')
+lookup.send_control(event='START', headers=pHeaders, action='INC')
 lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
-lookup.send_control('END', pHeaders, 'INC')
+lookup.send_control(event='END', headers=pHeaders, action='INC')
 
 con.socket.shutdown(0)
 ````
@@ -455,9 +453,9 @@ conf.load_config("./config.json.example", 'lookup')
 con = Sender(config=conf.get("sender"))
 lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
 
-lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START')
+lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START', action="INC")
 lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"], delete=True)
-lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='END')
+lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='END', action="INC")
 
 con.socket.shutdown(0)
 ````
@@ -578,22 +576,30 @@ Usage: devo-sender lookup [OPTIONS]
   Send csv lookups to devo
 
 Options:
-  -c, --config PATH      Optional JSON File with configuration info.
-  -a, --address TEXT     Devo relay address
-  -p, --port TEXT        Devo relay address port
-  --key TEXT             Devo user key cert file.
-  --cert TEXT            Devo user cert file.
-  --chain TEXT           Devo chain.crt file.
-  --type TEXT            Connection type: SSL or TCP
-  -n, --name TEXT        Name for Lookup.
-  -f, --file TEXT        The file that you want to send to Devo, which
-                         will be sent line by line.
-  -lk, --lkey TEXT       Name of the column that contains the Lookup key. It 
-                         has to be the exact name that appears in the header.
-  -d, --delimiter TEXT   CSV Delimiter char.
-  -qc, --quotechar TEXT  CSV Quote char.
-  --debug/--no-debug  For testing purposes
-  --help                 Show this message and exit.
+  -c, --config PATH          Optional JSON/Yaml File with configuration info.
+  -e, --env TEXT             Use env vars for configuration
+  -d, --default TEXT         Use default file for configuration
+  -a, --url, --address TEXT  Devo relay address
+  -p, --port INTEGER         Devo relay address port
+  --key TEXT                 Devo user key cert file.
+  --cert TEXT                Devo user cert file.
+  --chain TEXT               Devo chain.crt file.
+  --sec_level TEXT           Sec level for opensslsocket. Default: None
+  --type TEXT                Connection type: SSL or TCP
+  -n, --name TEXT            Name for Lookup.
+  -ac, --action TEXT         INC or FULL.
+  -f, --file TEXT            The file that you want to send to Devo, which
+                             will be sent line by line.
+  -lk, --lkey TEXT           Name of the column that contains the Lookup key.
+                             It has to be the exact name that appears in the
+                             header.
+  -ak, --akey TEXT           Name of the column that contains the action key
+                             with add or delete. It has to be the exact name
+                             that appears in the header.
+  -d, --delimiter TEXT       CSV Delimiter char.
+  -qc, --quotechar TEXT      CSV Quote char.
+  --debug / --no-debug       For testing purposes
+  --help                     Show this message and exit.
 ```
 
 
