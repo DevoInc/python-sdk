@@ -146,9 +146,7 @@ class Lookup:
         :param types: Dict with types of headers.
         """
         try:
-            print("Detect types", detect_types)
             if detect_types:
-                print("Entro a detect types")
                 with open(path, 'r') as csv_file:
                     spam_reader = csv.reader(csv_file, delimiter=delimiter,
                                              quotechar=quotechar)
@@ -163,7 +161,6 @@ class Lookup:
             with open(path, 'r') as csv_file:
                 spam_reader = csv.reader(csv_file, delimiter=delimiter,
                                          quotechar=quotechar)
-                print(1)
                 # Conform headers list
                 if has_header is False and headers is None:
                     raise Exception("No headers for fields")
@@ -172,12 +169,10 @@ class Lookup:
                 elif not isinstance(headers, list):
                     headers = headers.split(delimiter)
 
-                print(2)
                 this_action = self.ACTION_INC if action == "INC" \
                     else self.ACTION_FULL
                 counter = 0
 
-                print(3)
                 # Find key index
                 key_index = find_key_index(key, headers).__next__()
                 try:
@@ -187,29 +182,22 @@ class Lookup:
                 except StopIteration:
                     action_index = None
 
-                print(4)
                 # Send control START with ACTION (parsedHeaders)
                 p_headers = Lookup.list_to_headers(headers=headers,
                                                    key_index=key_index,
                                                    types=types)
 
-                print(5)
                 self.send_control(self.EVENT_START, p_headers, this_action)
 
                 action_result = get_action if action_index else get_none
 
-                print(6)
                 for fields in spam_reader:
                     # Send data
-                    print(7)
                     field_action = action_result(fields, action_index)
-                    print(8)
                     p_fields = Lookup.process_fields(fields=fields,
                                                      key_index=key_index)
-                    print(9)
                     self.send_data(row=p_fields, action=field_action)
 
-                    print(10)
                     # Send full log for historic
                     if historic_tag is not None:
                         self.send_full(historic_tag, ','.join(fields))
@@ -312,8 +300,6 @@ class Lookup:
         :result str:
         """
         # First the key
-        print("key", key)
-        print("key_index", key_index)
         if key is not None:
             out = '[{"%s":{"type":"%s","key":true}}' % (key, type_of_key)
         elif key_index is not None:
