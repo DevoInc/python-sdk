@@ -7,25 +7,24 @@ import re
 
 
 def find_key_index(value, headers):
+    """Find index of key value in a list"""
     for i in range(len(headers)):
         if headers[i] == value:
             yield i
 
 
 def find_action_index(value, headers):
+    """Find index of action value in a list"""
     for i in range(len(headers)):
         if headers[i] == value:
             yield i
 
 
 def get_action(my_list, index):
+    """Find delete action field from list before send"""
     aux = my_list[index]
-    del (my_list[index])
+    del my_list[index]
     return aux
-
-
-def get_none(my_list, index):
-    pass
 
 
 class Lookup:
@@ -185,7 +184,7 @@ class Lookup:
                 try:
                     action_index = find_action_index(action_field,
                                                      headers).__next__()
-                    del (headers[action_index])
+                    del headers[action_index]
                 except StopIteration:
                     action_index = None
 
@@ -196,19 +195,27 @@ class Lookup:
 
                 self.send_control(self.EVENT_START, p_headers, this_action)
 
-                action_result = get_action if action_index else get_none
+                if action_index is not None:
+                    for fields in spam_reader:
+                        field_action = get_action(fields, action_index)
+                        p_fields = Lookup.process_fields(fields=fields,
+                                                         key_index=key_index)
+                        self.send_data(row=p_fields, action=field_action)
 
-                for fields in spam_reader:
-                    # Send data
-                    field_action = action_result(fields, action_index)
-                    p_fields = Lookup.process_fields(fields=fields,
-                                                     key_index=key_index)
-                    self.send_data(row=p_fields, action=field_action)
+                        # Send full log for historic
+                        if historic_tag is not None:
+                            self.send_full(historic_tag, ','.join(fields))
+                        counter += 1
+                else:
+                    for fields in spam_reader:
+                        p_fields = Lookup.process_fields(fields=fields,
+                                                         key_index=key_index)
+                        self.send_data(row=p_fields)
 
-                    # Send full log for historic
-                    if historic_tag is not None:
-                        self.send_full(historic_tag, ','.join(fields))
-                    counter += 1
+                        # Send full log for historic
+                        if historic_tag is not None:
+                            self.send_full(historic_tag, ','.join(fields))
+                        counter += 1
 
                 # Send control END
                 self.send_control(self.EVENT_END, p_headers, this_action)
@@ -309,8 +316,8 @@ class Lookup:
         # First the key
         if key is not None:
             out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-                                                             if types
-                                                             else type_of_key)
+                                                        if types
+                                                        else type_of_key)
         elif key_index is not None:
             key = headers[key_index]
             out = '[{"%s":{"type":"%s","key":true}}' % (key,
@@ -342,7 +349,7 @@ class Lookup:
     def process_fields(fields=None, key_index=None):
         # First the key
         out = '%s' % Lookup.clean_field(fields[key_index])
-        del (fields[key_index])
+        del fields[key_index]
 
         # The rest of the fields
         for item in fields:
