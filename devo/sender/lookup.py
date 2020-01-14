@@ -46,6 +46,10 @@ class Lookup:
     # This is for avoid sync problem (In most cases not need)
     delay = 5
 
+    # Tables to send lookups
+    DATA_TABLE = "my.lookup.data"
+    CONTROL_TABLE = "my.lookup.control"
+
     def __init__(self, name="example", historic_tag=None,
                  con=None, delay=5):
 
@@ -66,7 +70,7 @@ class Lookup:
     # Helper methods
     # --------------------------------------------------------------------------
     def send_headers(self, headers=None, key="KEY", event='START',
-                     action='FULL', types=None):
+                     action='FULL', types=None, key_index=None):
         """
         Send only the headers
         :param headers:
@@ -77,11 +81,12 @@ class Lookup:
         :return:
         """
         p_headers = Lookup.list_to_headers(headers=headers, key=key,
-                                           types=types)
+                                           types=types, key_index=key_index)
         self.send_control(event=event, headers=p_headers, action=action)
 
-    def send_data_line(self, key="key", fields=None,
-                       delete=False, action=None):
+    def send_data_line(self, key=None, fields=None,
+                       delete=False, action=None,
+                       key_index=None):
         """
         Send only the data
         :param key:
@@ -90,7 +95,9 @@ class Lookup:
         :param action:
         :return:
         """
-        p_fields = Lookup.list_to_fields(fields, key)
+        # TODO: Deprecate this if with list_to_fields in v4
+        p_fields = Lookup.list_to_fields(fields=fields, key=key) if key_index is None \
+            else Lookup.process_fields(fields=fields, key_index=key_index)
         self.send_data(row=p_fields, delete=delete, action=action)
 
     def detect_types(self, reader=None):
@@ -129,7 +136,7 @@ class Lookup:
         return types
 
     # Send a whole CSV file
-    def send_csv(self, path, has_header=True, delimiter=',', quotechar='"',
+    def send_csv(self, path=None, has_header=True, delimiter=',', quotechar='"',
                  headers=None, key="KEY", historic_tag=None, action="FULL",
                  action_field=None, types=None, detect_types=False):
         """Send CSV file to lookup
@@ -215,7 +222,7 @@ class Lookup:
     # --------------------------------------------------------------------------
     def send_control(self, event=None, headers=None, action=None):
         """
-        Send data to my.lookup.control
+        Send data to table of lookup control data
 
         >>>header = Lookup.list_to_headers(headers, "KEY")
         >>>obj.send_start(EVENT_START, header, ACTION_FULL)
@@ -228,14 +235,14 @@ class Lookup:
         if event == self.EVENT_END:
             time.sleep(self.delay)
         line = "%s_%s|%s|%s" % (self.lookup_id, self.name, event, headers)
-        self.con.tag = "my.lookup.control2.%s.%s" % (self.name, action)
+        self.con.tag = "%s.%s.%s" % (self.CONTROL_TABLE, self.name, action)
         self.con.send(self.con.tag, line)
         if event == self.EVENT_START:
             time.sleep(self.delay)
 
     def send_data(self, row='', delete=False, action=None):
         """
-        Send data to my.lookup.data
+        Send data to table of lookup data
 
         >>>row = Lookup.list_to_fields(fields, "23")
         >>>obj.send_data(row)
@@ -245,7 +252,7 @@ class Lookup:
         :return:
         """
         line = "%s_%s|%s" % (self.lookup_id, self.name, row)
-        self.con.tag = "my.lookup.data2.%s" % self.name
+        self.con.tag = "%s.%s" % (self.DATA_TABLE, self.name)
         if delete or action == "delete":
             self.con.tag += '.DELETE'
         return self.con.send(tag=self.con.tag, msg=line)
@@ -301,7 +308,9 @@ class Lookup:
         """
         # First the key
         if key is not None:
-            out = '[{"%s":{"type":"%s","key":true}}' % (key, type_of_key)
+            out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
+                                                             if types
+                                                             else type_of_key)
         elif key_index is not None:
             key = headers[key_index]
             out = '[{"%s":{"type":"%s","key":true}}' % (key,
@@ -342,7 +351,7 @@ class Lookup:
 
     # TODO: Deprecated
     @staticmethod
-    def list_to_fields(fields=None, key=None):
+    def list_to_fields(fields=None, key="key"):
         """
         Transform list item to the object we need send to Devo for each row
         :param list fields: list of field names

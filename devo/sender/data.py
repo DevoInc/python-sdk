@@ -196,6 +196,7 @@ class Sender(logging.Handler):
                         cafile=self._sender_config.chain)
 
                     if self._sender_config.sec_level is not None:
+                        print("Seclevel", self._sender_config.sec_level)
                         self.logger.warning("Openssl's default security "
                                             "level has been overwritten to"
                                             "{}.".format(self.
@@ -207,6 +208,7 @@ class Sender(logging.Handler):
 
                     context.load_cert_chain(keyfile=self._sender_config.key,
                                             certfile=self._sender_config.cert)
+
                     self.socket = \
                         context.wrap_socket(
                             self.socket,

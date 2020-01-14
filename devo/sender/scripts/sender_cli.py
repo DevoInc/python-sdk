@@ -151,7 +151,9 @@ def lookup(**kwargs):
                     key=config['lkey'],
                     action=config.get("action", "FULL"),
                     action_field=config.get("akey", None),
-                    types=config.get("types", None),
+                    types=config.get(("lookup", "types"),
+                                     config.get("types", None)
+                                     ),
                     detect_types=config.get("detect_types", False))
 
 
