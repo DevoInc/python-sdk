@@ -125,8 +125,8 @@ def data(**kwargs):
 @click.option('--lkey', '-lk', help='Name of the column that contains the '
                                     'Lookup key. It has to be the exact name '
                                     'that appears in the header.')
-@click.option('--akey', '-ak', help='Name of the column that contains the '
-                                    'action key with add or delete. '
+@click.option('--dkey', '-dk', help='Name of the column that contains the '
+                                    'action/delete key with "add" or "delete". '
                                     'It has to be the exact name '
                                     'that appears in the header.')
 @click.option('--detect-types/--no-detect-types', '-dt/-ndt',
@@ -150,7 +150,7 @@ def lookup(**kwargs):
                     # headers=line.rstrip().split(config['delimiter']),
                     key=config['lkey'],
                     action=config.get("action", "FULL"),
-                    action_field=config.get("akey", None),
+                    delete_field=config.get("dkey", None),
                     types=config.get(("lookup", "types"),
                                      config.get("types", None)
                                      ),

@@ -6,24 +6,24 @@ import csv
 import re
 
 
-def find_key_index(value, headers):
+def find_key_index(value=None, headers=None):
     """Find index of key value in a list"""
-    for i in range(len(headers)):
-        if headers[i] == value:
-            yield i
+    for index, val in enumerate(headers):
+        if val == value:
+            yield index
 
 
-def find_action_index(value, headers):
+def find_delete_index(value=None, headers=None):
     """Find index of action value in a list"""
-    for i in range(len(headers)):
-        if headers[i] == value:
-            yield i
+    for index, val in enumerate(headers):
+        if val == value:
+            yield index
 
 
-def get_action(my_list, index):
+def get_action(fields=None, index=None):
     """Find delete action field from list before send"""
-    aux = my_list[index]
-    del my_list[index]
+    aux = fields[index]
+    del fields[index]
     return aux
 
 
@@ -72,11 +72,12 @@ class Lookup:
                      action='FULL', types=None, key_index=None):
         """
         Send only the headers
-        :param headers:
-        :param key:
-        :param event:
-        :param action:
-        :param types:
+        :param headers: list with headers names
+        :param key: key value, optional if you send 'key_index'
+        :param key_index: index of key in headers. Optional if you send 'key'
+        :param event: START or END
+        :param action: FULL or INC to send new full lookup or for update one
+        :param types: dict with types of each header
         :return:
         """
         p_headers = Lookup.list_to_headers(headers=headers, key=key,
@@ -84,22 +85,28 @@ class Lookup:
         self.send_control(event=event, headers=p_headers, action=action)
 
     def send_data_line(self, key=None, fields=None,
-                       delete=False, action=None,
-                       key_index=None):
+                       delete=False, key_index=None):
         """
         Send only the data
-        :param key:
-        :param fields:
-        :param delete:
-        :param action:
+        :param key: key value, optional if you send 'key_index'
+        :param key_index: index of key in headers. Optional if you send 'key'
+        :param fields: list with fields values
+        :param delete: action for field: 'delete' to delete field with this key
+                       or add to add value
         :return:
         """
         # TODO: Deprecate this if with list_to_fields in v4
         p_fields = Lookup.list_to_fields(fields=fields, key=key) if key_index is None \
             else Lookup.process_fields(fields=fields, key_index=key_index)
-        self.send_data(row=p_fields, delete=delete, action=action)
+        self.send_data(row=p_fields, delete=delete)
 
-    def detect_types(self, reader=None):
+    @staticmethod
+    def detect_types(reader=None):
+        """
+        Function to detect types of each column
+        :param reader: CSV Reader iterator
+        :return:
+        """
         reader.__next__()
         line = reader.__next__()
 
@@ -122,7 +129,8 @@ class Lookup:
             if not types[index]:
                 try:
                     ip_regex = re.compile(
-                        r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+                        r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+                        r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
                     )
                     result = ip_regex.match(item)
                     if result is not None:
@@ -137,7 +145,7 @@ class Lookup:
     # Send a whole CSV file
     def send_csv(self, path=None, has_header=True, delimiter=',', quotechar='"',
                  headers=None, key="KEY", historic_tag=None, action="FULL",
-                 action_field=None, types=None, detect_types=False):
+                 delete_field=None, types=None, detect_types=False):
         """Send CSV file to lookup
 
         :param path: The path to CSV file
@@ -148,8 +156,9 @@ class Lookup:
         :param historic_tag: .
         :param action: FULL or INC
         :param key: The key name in Headers.
-        :param action_field: The action_field name in Headers.
+        :param delete_field: The delete_field name in Headers.
         :param types: Dict with types of headers.
+        :param detect_types: True or False for autodetect types of each column
         """
         try:
             if detect_types:
@@ -182,11 +191,11 @@ class Lookup:
                 # Find key index
                 key_index = find_key_index(key, headers).__next__()
                 try:
-                    action_index = find_action_index(action_field,
+                    delete_index = find_delete_index(delete_field,
                                                      headers).__next__()
-                    del headers[action_index]
+                    del headers[delete_index]
                 except StopIteration:
-                    action_index = None
+                    delete_index = None
 
                 # Send control START with ACTION (parsedHeaders)
                 p_headers = Lookup.list_to_headers(headers=headers,
@@ -195,12 +204,13 @@ class Lookup:
 
                 self.send_control(self.EVENT_START, p_headers, this_action)
 
-                if action_index is not None:
+                if delete_index is not None:
                     for fields in spam_reader:
-                        field_action = get_action(fields, action_index)
+                        field_action = get_action(fields, delete_index)
                         p_fields = Lookup.process_fields(fields=fields,
                                                          key_index=key_index)
-                        self.send_data(row=p_fields, action=field_action)
+                        self.send_data(row=p_fields,
+                                       delete=field_action == "delete")
 
                         # Send full log for historic
                         if historic_tag is not None:
@@ -234,9 +244,9 @@ class Lookup:
         >>>header = Lookup.list_to_headers(headers, "KEY")
         >>>obj.send_start(EVENT_START, header, ACTION_FULL)
 
-        :param event:
-        :param headers:
-        :param action:
+        :param event: event to send
+        :param headers: header (list) names
+        :param action: action, can be START or END
         :return:
         """
         if event == self.EVENT_END:
@@ -247,30 +257,27 @@ class Lookup:
         if event == self.EVENT_START:
             time.sleep(self.delay)
 
-    def send_data(self, row='', delete=False, action=None):
+    def send_data(self, row='', delete=False):
         """
         Send data to table of lookup data
 
         >>>row = Lookup.list_to_fields(fields, "23")
         >>>obj.send_data(row)
-        :param row:
-        :param delete:
-        :param action:
+        :param row: row to send
+        :param delete: True or False. Its true, delete row with same key
         :return:
         """
         line = "%s_%s|%s" % (self.lookup_id, self.name, row)
         self.con.tag = "%s.%s" % (self.DATA_TABLE, self.name)
-        if delete or action == "delete":
+        if delete:
             self.con.tag += '.DELETE'
         return self.con.send(tag=self.con.tag, msg=line)
 
-    def send_full(self, historic_tag, row):
+    def send_full(self, historic_tag=None, row=None):
         """
         Send the full log in plain format for maintenance
-
-        >>>obj.send_data(line)
-        :param historic_tag:
-        :param row:
+        :param historic_tag: tag to send logs
+        :param row: row to send to Devo
         :return:
         """
         self.con.tag = historic_tag
@@ -343,10 +350,21 @@ class Lookup:
 
     @staticmethod
     def field_to_str(field):
+        """
+        Convert one value to STR, cleaning it
+        :param field: field to clean
+        :return:
+        """
         return ',%s' % Lookup.clean_field(field)
 
     @staticmethod
     def process_fields(fields=None, key_index=None):
+        """
+        Method to convert list with one row/fields to STR to send
+        :param fields: fields list
+        :param key_index: index of key in fields
+        :return:
+        """
         # First the key
         out = '%s' % Lookup.clean_field(fields[key_index])
         del fields[key_index]
@@ -363,7 +381,6 @@ class Lookup:
         Transform list item to the object we need send to Devo for each row
         :param list fields: list of field names
         :param str key: key name, optional
-        :param str key_index: key index, optional
         :result str
         """
         key = Lookup.clean_field(key)

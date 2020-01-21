@@ -12,6 +12,7 @@ from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 
+
 PYPY = hasattr(sys, 'pypy_version_info')
 
 
@@ -207,7 +208,6 @@ class Sender(logging.Handler):
 
                     context.load_cert_chain(keyfile=self._sender_config.key,
                                             certfile=self._sender_config.cert)
-
                     self.socket = \
                         context.wrap_socket(
                             self.socket,
