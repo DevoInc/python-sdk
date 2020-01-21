@@ -20,13 +20,6 @@ def find_delete_index(value=None, headers=None):
             yield index
 
 
-def get_action(fields=None, index=None):
-    """Find delete action field from list before send"""
-    aux = fields[index]
-    del fields[index]
-    return aux
-
-
 class Lookup:
     """ Main class Lookup for create and send the object from some sources """
     # Type of the header sent
@@ -206,7 +199,7 @@ class Lookup:
 
                 if delete_index is not None:
                     for fields in spam_reader:
-                        field_action = get_action(fields, delete_index)
+                        field_action = fields.pop(delete_index)
                         p_fields = Lookup.process_fields(fields=fields,
                                                          key_index=key_index)
                         self.send_data(row=p_fields,
@@ -366,8 +359,7 @@ class Lookup:
         :return:
         """
         # First the key
-        out = '%s' % Lookup.clean_field(fields[key_index])
-        del fields[key_index]
+        out = '%s' % Lookup.clean_field(fields.pop(key_index))
 
         # The rest of the fields
         for item in fields:
