@@ -119,11 +119,19 @@ def data(**kwargs):
               default=None)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--name', '-n', help='Name for Lookup.')
+@click.option('--action', '-ac', help='INC or FULL.', default="FULL")
 @click.option('--file', '-f', help='The file that you want to send to Devo,'
                                    ' which will be sent line by line.')
 @click.option('--lkey', '-lk', help='Name of the column that contains the '
                                     'Lookup key. It has to be the exact name '
                                     'that appears in the header.')
+@click.option('--dkey', '-dk', help='Name of the column that contains the '
+                                    'action/delete key with "add" or "delete". '
+                                    'It has to be the exact name '
+                                    'that appears in the header.')
+@click.option('--detect-types/--no-detect-types', '-dt/-ndt',
+              help='Detect types of fields.',
+              default=False)
 @click.option('--delimiter', '-d', help='CSV Delimiter char.', default=",")
 @click.option('--quotechar', '-qc', help='CSV Quote char.', default='"')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
@@ -133,13 +141,20 @@ def lookup(**kwargs):
     con = Sender(config=config)
     lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 
-    with open(config['file']) as file:
-        line = file.readline()
+    # with open(config['file']) as file:
+    #     line = file.readline()
 
-        lookup.send_csv(config['file'], delimiter=config['delimiter'],
-                         quotechar=config['quotechar'],
-                         headers=line.rstrip().split(config['delimiter']),
-                         key=config['lkey'])
+    lookup.send_csv(config['file'], delimiter=config['delimiter'],
+                    quotechar=config['quotechar'],
+                    has_header=True,
+                    # headers=line.rstrip().split(config['delimiter']),
+                    key=config['lkey'],
+                    action=config.get("action", "FULL"),
+                    delete_field=config.get("dkey", None),
+                    types=config.get(("lookup", "types"),
+                                     config.get("types", None)
+                                     ),
+                    detect_types=config.get("detect_types", False))
 
 
 def configure(args):

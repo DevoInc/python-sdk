@@ -12,6 +12,7 @@ from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 
+
 PYPY = hasattr(sys, 'pypy_version_info')
 
 

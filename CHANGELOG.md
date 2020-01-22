@@ -5,6 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [3.2.0] - 2020-01-13
+#### Added
+ * Support to Incremental lookups in CLI
+ * Support to types in lookups
+ * Auto-detect types for lookups
+ * Action field for lookups
+
+#### Changed
+ * The documentation of the devo-sender is now separated into data and lookups
+
+#### Deprecated
+ * list_to_fields function in lookups its deprecated and not in use by the internal code. To be deleted in v4 of Devo-sdk
+
 ## [3.1.1] - 2019-11-12
 #### Added
  * Support to CA_MD_TOO_WEAK problems with a new flag "sec_level"
