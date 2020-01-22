@@ -89,7 +89,8 @@ class Lookup:
         :return:
         """
         # TODO: Deprecate this if with list_to_fields in v4
-        p_fields = Lookup.list_to_fields(fields=fields, key=key) if key_index is None \
+        p_fields = Lookup.list_to_fields(fields=fields, key=key) \
+            if key_index is None \
             else Lookup.process_fields(fields=fields, key_index=key_index)
         self.send_data(row=p_fields, delete=delete)
 
@@ -136,8 +137,8 @@ class Lookup:
         return types
 
     # Send a whole CSV file
-    def send_csv(self, path=None, has_header=True, delimiter=',', quotechar='"',
-                 headers=None, key="KEY", historic_tag=None, action="FULL",
+    def send_csv(self, path=None, has_header=True, delimiter=',',
+                 quotechar='"', headers=None, key="KEY", historic_tag=None,
                  delete_field=None, types=None, detect_types=False):
         """Send CSV file to lookup
 
@@ -163,7 +164,8 @@ class Lookup:
         except IOError as error:
             print("I/O error({0}): {1}".format(error.errno, error.strerror))
         except Exception as error:
-            raise Exception("Unexpected error: %e \n" % error, sys.exc_info()[0])
+            raise Exception("Unexpected error: %e \n" % error,
+                            sys.exc_info()[0])
 
         try:
             with open(path, 'r') as csv_file:

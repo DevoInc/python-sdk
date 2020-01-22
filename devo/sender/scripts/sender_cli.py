@@ -126,7 +126,7 @@ def data(**kwargs):
                                     'Lookup key. It has to be the exact name '
                                     'that appears in the header.')
 @click.option('--dkey', '-dk', help='Name of the column that contains the '
-                                    'action/delete key with "add" or "delete". '
+                                    'action/delete key with "add" or "delete".'
                                     'It has to be the exact name '
                                     'that appears in the header.')
 @click.option('--detect-types/--no-detect-types', '-dt/-ndt',
