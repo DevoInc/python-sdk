@@ -57,6 +57,13 @@ Params
 + key_index **(_string_ optional)**: index of key. You can use this or key
 + types **(_dict_ optional')**: dict of type: {"header_name": "header_type", "head....} with types of columns
 
+Accepted types:
+ - String -> "str"
+ - Integer -> "int"
+ - Float -> "float"
+ - IP -> "ip4"
+
+
 Example: 
 
 ```python

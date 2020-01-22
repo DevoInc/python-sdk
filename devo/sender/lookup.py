@@ -139,7 +139,8 @@ class Lookup:
     # Send a whole CSV file
     def send_csv(self, path=None, has_header=True, delimiter=',',
                  quotechar='"', headers=None, key="KEY", historic_tag=None,
-                 delete_field=None, types=None, detect_types=False):
+                 action="FULL", delete_field=None,
+                 types=None, detect_types=False):
         """Send CSV file to lookup
 
         :param path: The path to CSV file
