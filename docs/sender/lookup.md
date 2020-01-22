@@ -1,8 +1,16 @@
-# Devo sender to send lookups
+#devo-sender lookup
+##Overview
 
+This library allows you to send lookups to the Devo platform.
+
+You have two types of uses, in script (This doc) or [send using shell](sender.md#devo-sender-lookup)
+
+You need to know how work [Sender](sender.md) and [Data](data.md) to use Lookup functions in script, but not for shell
+
+
+##Script usage
 Just like the send events case, to create a new lookup or send data to existent 
-lookup table we need to initialize the collector configuration 
-(as previously shown).
+lookup table we need to initialize the collector configuration.
 
 In case to initialize the collector configuration from a json/yaml file, you must include a new 
 object into the _lookup_ variable with the new parameters or add in the CLI flags:
@@ -23,7 +31,7 @@ Example:
 
 You can see more examples below
 
-##### Sending lookup data with your own script
+#####Sending lookup data with your own script
 
 After initializing the lookup, you can send data to the lookup. There are two ways to do this. 
 
@@ -77,7 +85,7 @@ Params
 Example:
 
 ```python
-lookup.send_control(event='START', headers=p_headers, action='INC')
+lookup.send_control(event='START', headers=["id", "name", "email"], action='INC')
 ```
 
 The other option is basically the same operations but with less instructions:
@@ -161,7 +169,7 @@ con.socket.shutdown(0)
 
 
 
-##### Send lookups from CSV file
+#####Send lookups from CSV file
 
 After initializing the lookup, you can upload a CSV file with the lookup data by _send_csv_ method from _LtLookup_ class.
 
@@ -197,108 +205,3 @@ lookup.send_csv(path=conf.get('lookup').get('file', "example.csv"),
                 has_header=True, key=conf.get('lkey', "ID"))
 con.socket.shutdown(0)
 ````
-
-
-## CLI use
-You can use one optional configuration file in the client commands
-
-#### devo-sender lookup
-`lookup` command is used to send lookups to Devo
-
-```
-Usage: devo-sender lookup [OPTIONS]
-
-  Send csv lookups to devo
-
-Options:
-  -c, --config PATH               Optional JSON/Yaml File with configuration
-                                  info.
-  -e, --env TEXT                  Use env vars for configuration
-  -d, --default TEXT              Use default file for configuration
-  -a, --url, --address TEXT       Devo relay address
-  -p, --port INTEGER              Devo relay address port
-  --key TEXT                      Devo user key cert file.
-  --cert TEXT                     Devo user cert file.
-  --chain TEXT                    Devo chain.crt file.
-  --sec_level TEXT                Sec level for opensslsocket. Default: None
-  --type TEXT                     Connection type: SSL or TCP
-  -n, --name TEXT                 Name for Lookup.
-  -ac, --action TEXT              INC or FULL.
-  -f, --file TEXT                 The file that you want to send to Devo,
-                                  which will be sent line by line.
-  -lk, --lkey TEXT                Name of the column that contains the Lookup
-                                  key. It has to be the exact name that
-                                  appears in the header.
-  -ak, --akey TEXT                Name of the column that contains the action
-                                  key with add or delete. It has to be the
-                                  exact name that appears in the header.
-  -dt, --detect-types / -ndt, --no-detect-types
-                                  Detect types of fields.
-  -d, --delimiter TEXT            CSV Delimiter char.
-  -qc, --quotechar TEXT           CSV Quote char.
-  --debug / --no-debug            For testing purposes
-  --help                          Show this message and exit.
-```
-
-
-Example
-```
-#Send lookup when all Devo data is in config file
-devo-sender lookup -c ~/certs/config.json -n "Test Lookup" -f "~/tests/test_lookup.csv -lk "KEY"
-```
-
-
-To send info us the "sender" key, with information to send to Devo.
-If you want to add lookup info, you need use the "lookup" key.
-
-A configuration file does not require all the keys, you can pass
-the common values: url, port, certificates. After that you can send the tag, the upload file, and
-so on, along with the function call.
-
-Both things are combined at runtime, prevailing the values that are sent as 
-arguments of the call over the configuration file
-
-Priority order:
-1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
-2. params in CLI call: He can complete values not in configuration file, but does not overrides it
-3. Environment vars: if you send the key, secrkey or token in config file or params cli, this option will not be called
-4. ~/.devo.json: if you send the key, secrey or token in other ways, this option will not be called
- 
-**Config file example:** 
-
-
-```json
-  {
-    "sender": {
-      "address":"devo-relay",
-      "port": 443,
-      "key": "/devo/certs/key.key",
-      "cert": "/devo/certs/cert.crt",
-      "chain": "/devo/certs/chain.crt"
-    },
-    "lookup": {
-      "name": "Test lookup",
-      "file": "/lookups/lookup.csv",
-      "lkey": "KEY"
-    }
-  }
-```
-```yaml
-sender:
-  address: "devo-relay"
-  port: 443
-  key: "/devo/certs/key.key"
-  cert: "/devo/certs/cert.crt"
-  chain: "/devo/certs/chain.crt"
-lookup: 
-  name: "Test lookup"
-  file: "/lookups/lookup.csv"
-  lkey: "ID"
-  types:
-    id: "int"
-    name: "str"
-    building: "str"
-    subnet: "192.168.17.1"
-```
-
-You can see another example in docs/common/config.example.json

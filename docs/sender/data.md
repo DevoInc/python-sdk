@@ -1,5 +1,7 @@
 # Devo sender to send data
 
+You have two types of uses, in script (This doc) or [send using shell](sender.md#devo-sender-data)
+
 ## Usage in script
 Before sending the data it is necessary to initialize the collector configuration
 
@@ -240,57 +242,3 @@ config = {"address": "devo.collertor", "port": 443,
 con = Sender.for_logging(config=config, tag="my.app.test.logging")
 logger = get_log(name="devo_logger", handler=con)
 ```
-
-
-## CLI use
-You can use shell to send data without creation of scripts
-
-
-#### devo-sender data
-`data` command is used to send logs to Devo
-
-```
-Usage: devo-sender data [OPTIONS]
-
-  Send to devo
-
-Options:
-  -c, --config PATH   Optional JSON File with configuration info.
-  -a, --address TEXT  Devo relay address
-  -p, --port TEXT     Devo relay address port
-  --key TEXT          Devo user key cert file.
-  --cert TEXT         Devo user cert file.
-  --chain TEXT        Devo chain.crt file.
-  --multiline/
-  --no-multiline BOOL Flag for multiline (With break-line in msg). Default is False.
-  --type TEXT         Connection type: SSL or TCP
-  -t, --tag TEXT      Tag / Table to which the data will be sent in Devo.
-  -l, --line TEXT     For shipments of only one line, the text you want to
-                      send.
-  -f, --file TEXT     The file that you want to send to Devo, which will
-                      be sent line by line.
-  -h, --header TEXT   This option is used to indicate if the file has headers
-                      or not, they will not be send.
-  --raw               Send raw events from file when using --file
-  --debug/--no-debug  For testing purposes
-  --help              Show help message and exit.
-```
-
-Examples
-```
-#Send test line to table "test.drop.ltsender"
-devo-sender data -c ~/certs/config.json
-
-#Send line to table "unknown.unknown"
-devo-sender data -c ~/certs/config.json -l "True Survivor - https://www.youtube.com/watch?v=ZTidn2dBYbY"
-
-#Send all file malware.csv (With header) to table "my.app.test.malware"
-devo-sender data -c ~/certs/config.json -t my.app.test.films -f "/SecureInfo/my-favorite-disney-films.csv" -h True
-
-#Send file malware.csv (Without header) to table "my.app.test.malware" without config file, using the call to put all info directly
-devo-sender data -a app.devo.com -p 10000 --key ~/certs/key.key --cert ~/certs/cert.crt --chain ~/certs/chain.crt  -t my.app.test.films -f "/SecureInfo/my-favorite-disney-films.csv" -h True
-
-```
-
-You have example file in the "tests" folder of the project for a simple, and most useful example).
-All the values must be at the same level and without "-"

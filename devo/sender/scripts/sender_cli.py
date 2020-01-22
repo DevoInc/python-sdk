@@ -130,7 +130,7 @@ def data(**kwargs):
                                     'It has to be the exact name '
                                     'that appears in the header.')
 @click.option('--detect-types/--no-detect-types', '-dt/-ndt',
-              help='Detect types of fields.',
+              help='Detect types of fields. Default: False',
               default=False)
 @click.option('--delimiter', '-d', help='CSV Delimiter char.', default=",")
 @click.option('--quotechar', '-qc', help='CSV Quote char.', default='"')

@@ -45,8 +45,8 @@ You can use sources files, clonning the project too:
 ### Documentation
 
 You has specific documentation in _[docs](docs)_ folder for each part of SDK:
-* [Sender](docs/sender.md)
-* [Lookups](docs/sender.md#Lookups)
+* [Sender](docs/sender/sender.md)
+* [Lookups](docs/sender/lookup.md)
 * [Common](docs/common.md)
 * API:
     * [Api query](docs/api/api.md)
