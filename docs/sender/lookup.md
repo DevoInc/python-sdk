@@ -1,0 +1,207 @@
+#devo-sender lookup
+##Overview
+
+This library allows you to send lookups to the Devo platform.
+
+You have two types of uses, in script (This doc) or [send using shell](sender.md#devo-sender-lookup)
+
+You need to know how work [Sender](sender.md) and [Data](data.md) to use Lookup functions in script, but not for shell
+
+
+##Script usage
+Just like the send events case, to create a new lookup or send data to existent 
+lookup table we need to initialize the collector configuration.
+
+In case to initialize the collector configuration from a json/yaml file, you must include a new 
+object into the _lookup_ variable with the new parameters or add in the CLI flags:
+
+Example:
+
+```
+{   sender": {
+        ...
+    },
+    "lookup": {
+        "name": "Test_Lookup_of_180306_02",
+        "file": "test_lookup.csv",
+        "lkey": "KEY"
+    }
+}
+```
+
+You can see more examples below
+
+#####Sending lookup data with your own script
+
+After initializing the lookup, you can send data to the lookup. There are two ways to do this. 
+
+The first option is to generate a string with the headers structure and then send a control
+ instruction to indicate the start or the end of operation over the lookup. 
+ Between those control instructions must be the operations over every row of the lookup.
+
+The header structure is an object list with values and data types of the lookup data.
+
+Example:
+
+```
+[{"KEY":{"type":"str","key":true}},{"HEX":{"type":"str"}},{"COLOR":{"type":"str"}}]
+```
+
+To facilitate the creation of this string we can call _list_to_headers_ method of _Lookup_ class.
+
+Params
+
++ headers **(_list_ required)**: column names list of the lookup
++ type_of_key **(_string_ optional)**: specify a concrete type for the key (Default string)
++ key **(_string_ optional)**: name of key
++ key_index **(_string_ optional)**: index of key. You can use this or key
++ types **(_dict_ optional')**: dict of type: {"header_name": "header_type", "head....} with types of columns
+
+Example: 
+
+```python
+from devo.sender import Lookup
+pHeaders = Lookup.list_to_headers( 
+                                   headers=list, #List with all headers names
+                                   type_of_key="str",
+                                   key=None,  #Name of the Key
+                                   key_index=None, #Or index of key in headers list, you can use whatever you want
+                                   types=dict #Dict with {"headername": "hadertype", "headern....}
+                                  )
+```
+
+With this string we can call _send_control_ method of _Sender_ class to send the control instruction.
+
+Params
+
++ event **(_string_ required 'START'|'END')**: header type
+    - START: start of header
+    - END: end of header
++ headers **(_string_ required)**: header structure
++ action **(_string_ required 'FULL'|'INC')**: action type
+    - FULL: delete previous lookup data and then add the new
+    - INC: add new row to lookup table
+
+Example:
+
+```python
+lookup.send_control(event='START', headers=["id", "name", "email"], action='INC')
+```
+
+The other option is basically the same operations but with less instructions:
+You can use _send_headers_ method of _LtLookup_ class we can unify _list_to_headers_ + _send_control_.
+
+
+_send_headers_ Params
++ headers **(_list_ default: [] )**: column name list of lookup 
++ key **(_string_ default 'KEY')**: column name of key
++ key_index **(_string_ default 'KEY')**: column name of key
++ event **(_string_ default: 'START')**: header event
+    - START: start of header
+    - END: end of header
++ headers **(_string_ required)**: header structure
++ action **(_string_ required 'FULL'|'INC')**: action type
+    - FULL: delete previous lookup data and then add the new
+    - INC: add new row to lookup table
+
+Example:
+```python
+lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START', action='FULL')
+```
+
+Finally, to send a new row we can use _send_data_line_ method from _LtLooup_ class.
+
+Params
+
++ key **(_string_ optional default: None)**: key value
++ key_index **(_string_ optional default: None)**: or key index in list fields
++ fields **(_list_ default: [])**: values list
++ delete **(_boolean_ default: False)**: row must be deleted
+
+Example:
+
+````python
+lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
+````
+
+A complete example to send a lookup row is:
+
+````python
+from devo.common import Configuration
+from devo.sender import Sender, Lookup
+
+conf = Configuration(path="./config.json.example")
+con = Sender(config=conf.get("sender"))
+lookup = Lookup(name=conf.get('lookup').get('name', "default"), historic_tag=None, con=con)
+pHeaders = Lookup.list_to_headers(headers=['KEY','HEX', 'COLOR'], key='KEY')
+lookup.send_control(event='START', headers=pHeaders, action='INC')
+# You can use key value
+lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
+# Or you can use key_index (Position in list)
+lookup.send_data_line(key_index=0, fields=["22", "HEX22", "COLOR22" ])
+lookup.send_control(event='END', headers=pHeaders, action='INC')
+
+con.socket.shutdown(0)
+````
+
+A simplify complete example to send a row of lookup is:
+
+````python
+from devo.common import Configuration
+from devo.sender import Sender, Lookup
+
+conf = Configuration()
+conf.load_config("./config.json.example", 'sender')
+conf.load_config("./config.json.example", 'lookup')
+con = Sender(config=conf.get("sender"))
+lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
+
+lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START', action="INC")
+lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"], delete=True)
+lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='END', action="INC")
+
+con.socket.shutdown(0)
+````
+
+**NOTE:**
+- The start and end control instructions should have the list of the names of the columns in the same order in which the lookup was created. 
+- Keep in mind that the sockets must be closed at the end
+
+
+
+#####Send lookups from CSV file
+
+After initializing the lookup, you can upload a CSV file with the lookup data by _send_csv_ method from _LtLookup_ class.
+
+Params
+
++ path **(_string_ required)**: CSV file path
++ has_header **(_boolean_ default: True)**: CSV has header
++ delimiter **(_string_ default: ',')**: CSV delimiter
++ quotechar **(_string_ default: '"')**: CSV quote char
++ headers **(_list_ default: [])**: header array
++ key **(_string_ default: 'KEY')**: lookup key
++ historic_tag **(_string_ default: None)**: tag
++ action **(_string_ default: None)**: FULL (Delete old if exist) or INC (Update if exist), action for the lookup
++ action_field **(_string_ default: None)**: field name (Name in header) with the field of action for the row (add or delete)
++ types **(_string_ default: None)**: Dict with type of fields
++ detect_types **(_string_ default: False)**: Detect types of fields reading first line
+
+Example
+
+```python
+    lookup.send_csv(config['file'], headers=['KEY', 'COLOR', 'HEX'], key=config['lkey'])
+```
+    
+Complete example
+
+````python
+from devo.common import Configuration
+from devo.sender import Sender, Lookup
+conf = Configuration("./config.json.example")
+con = Sender(config=conf.get("sender"))
+lookup = Lookup(name=conf.get('lookup').get('name', "default"), historic_tag=None, con=con)
+lookup.send_csv(path=conf.get('lookup').get('file', "example.csv"), 
+                has_header=True, key=conf.get('lkey', "ID"))
+con.socket.shutdown(0)
+````
