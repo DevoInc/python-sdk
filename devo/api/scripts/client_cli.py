@@ -14,12 +14,12 @@ from devo.__version__ import __version__
 @click.option('--version', "-v", is_flag=True, default=False)
 def cli(version):
     """ Initialize click """
-    pkg_dir =  os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "..", "..",
-    ))
-    click.echo("devo-sdk {!s} from {!s} (python {!s})".format(__version__,
-                                                              pkg_dir,
-                                                              sys.version[:3]))
+    if version:
+        pkg_dir = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), "..", "..",
+        ))
+        click.echo("devo-sdk {!s} from {!s} (python {!s})"
+                   .format(__version__, pkg_dir, sys.version[:3]))
 
 # Commands
 # ------------------------------------------------------------------------------
