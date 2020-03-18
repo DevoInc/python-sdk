@@ -18,9 +18,8 @@ def cli(version):
         pkg_dir = os.path.abspath(os.path.join(
             os.path.dirname(__file__), "..", "..",
         ))
-        click.echo("devo-sdk {!s} from {!s} (python {!s})".format(__version__,
-                                                                  pkg_dir,
-                                                                  sys.version[:3]))
+        click.echo("devo-sdk {!s} from {!s} (python {!s})"
+                   .format(__version__, pkg_dir, sys.version[:3]))
 
 # Commands
 # ------------------------------------------------------------------------------

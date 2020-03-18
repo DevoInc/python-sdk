@@ -23,7 +23,7 @@ from devo.__version__ import __version__
 def cli(version):
     """ Initialize click """
     if version:
-        pkg_dir =  os.path.abspath(os.path.join(
+        pkg_dir = os.path.abspath(os.path.join(
             os.path.dirname(__file__), "..", "..",
         ))
         click.echo("devo-sdk {!s} from {!s} (python {!s})"
