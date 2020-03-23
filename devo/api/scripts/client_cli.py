@@ -124,6 +124,8 @@ def configure(args):
             config.set("address", os.environ.get('DEVO_API_ADDRESS', None))
             config.set("user", os.environ.get('DEVO_API_USER', None))
             config.set("comment", os.environ.get('DEVO_API_COMMENT', None))
+            config.set("retries", os.environ.get('DEVO_API_RETRIES', None))
+            config.set("timeout", os.environ.get('DEVO_API_TIMEOUT', None))
 
         if args.get('default'):
             config.load_default_config(section="api")
