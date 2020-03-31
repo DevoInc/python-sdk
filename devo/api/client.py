@@ -147,11 +147,11 @@ class Client:
                                                                      None)})
 
             retries = retries if retries else config.get("retries", 3)
-            timeout = timeout if retries else config.get("retries", 30)
+            timeout = timeout if timeout else config.get("timeout", 30)
             self.config = self._from_dict(config)
 
-        retries = retries if retries else 3
-        timeout = timeout if timeout else 30
+        retries = int(retries) if retries else 3
+        timeout = int(timeout) if timeout else 30
 
         self.auth = auth
         if not address:

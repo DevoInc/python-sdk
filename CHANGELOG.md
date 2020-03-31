@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.2.2] - 2020-03-23
+#### Fixed
+ * wrongly assigned timeout from configuration
+
+#### Added
+ * "timeout" and "retries" parameters are able to be assigned from environment (DEVO_API_TIMEOUT, DEVO_API_RETRIES)
+
 ## [3.2.1] - 2020-03-17
 ### Changed
  * Changed version info in CLI for show only when asked
