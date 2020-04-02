@@ -200,6 +200,8 @@ except Exception as error:
 - SIMPLECOMPACT_TO_ARRAY: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
 
 
+You can change the processor in any moment
+
 ######- DEFAULT example in Python 3, response csv: 
 ```python
 b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
