@@ -200,7 +200,18 @@ except Exception as error:
 - SIMPLECOMPACT_TO_ARRAY: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
 
 
-You can change the processor in any moment
+You can change the processor in any moment with one default processor or custom with the function:
+
+```python
+from devo.api import Client, ClientConfig, JSON_SIMPLE
+
+config = ClientConfig(response="json/simple", processor=JSON_SIMPLE, stream=True)
+
+api = Client(auth={"key":"myapikey", "secret":"myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query",
+             config=config)
+api.config.set_processor(processor)
+```
 
 ######- DEFAULT example in Python 3, response csv: 
 ```python
