@@ -47,7 +47,8 @@ class SenderConfigSSL:
 
     """
     def __init__(self, address=None, key=None, cert=None, chain=None,
-                 pkcs=None, sec_level=None):
+                 pkcs=None, sec_level=None, check_hostname=True,
+                 verify_mode=None):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -60,6 +61,8 @@ class SenderConfigSSL:
             self.pkcs = pkcs
             self.hostname = socket.gethostname()
             self.sec_level = sec_level
+            self.check_hostname = check_hostname
+            self.verify_mode = verify_mode
         except Exception as error:
             raise DevoSenderException(
                 "Devo-SenderConfigSSL|Can't create SSL config: "
@@ -206,6 +209,11 @@ class Sender(logging.Handler):
                             "DEFAULT@SECLEVEL={!s}"
                             .format(self._sender_config.sec_level))
 
+                    context.check_hostname = self._sender_config.check_hostname
+
+                    if self._sender_config.verify_mode is not None:
+                        context.verify_mode = self._sender_config.verify_mode
+
                     context.load_cert_chain(keyfile=self._sender_config.key,
                                             certfile=self._sender_config.cert)
                     self.socket = \
@@ -241,6 +249,9 @@ class Sender(logging.Handler):
         :return:
         """
         self.send(tag=self.logging.get("tag"), msg=msg)
+
+    def cert_none(self):
+        self._sender_config.verify_mode = ssl.CERT_NONE
 
     def __status(self):
         """
@@ -507,7 +518,10 @@ class Sender(logging.Handler):
                                    cert=config.get("cert", None),
                                    chain=config.get("chain", None),
                                    pkcs=config.get("pkcs", None),
-                                   sec_level=config.get("sec_level", None))
+                                   sec_level=config.get("sec_level", None),
+                                   verify_mode=config.get("verify_mode", None),
+                                   check_hostname=config.get("check_hostname",
+                                                             True))
 
         return SenderConfigTCP(address=address)
 

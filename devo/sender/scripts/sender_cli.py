@@ -41,7 +41,15 @@ def cli(version):
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
 @click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
-              default=None)
+              default=None, type=int)
+@click.option('--verify_mode', help='Verify mode for SSL Socket. '
+                                    'Default: SSL default.'
+                                    'You need use int "0" (CERT_NONE), '
+                                    '"1" (CERT_OPTIONAL) or '
+                                    '"2" (CERT_REQUIRED)',
+              default=None, type=int)
+@click.option('--check_hostname', help='Verify cert hostname. Default: True',
+              default=True, type=bool)
 @click.option('--multiline/--no-multiline', help='Flag for multiline (With '
                                                  'break-line in msg). '
                                                  'Default False', default=False)
@@ -56,10 +64,14 @@ def cli(version):
               default="")
 @click.option('--header', '-h', help='This option is used to indicate if the'
                                      ' file has headers or not, not to send '
-                                     'them.', default=False)
+                                     'them.', default=False, type=bool)
 @click.option('--raw', is_flag=True, help='Send raw events from a '
                                           'file when using --file')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
+@click.option('--env', '-e', help='Use env vars for configuration',
+              default=False, type=bool)
+@click.option('--default', '-d', help='Use default file for configuration',
+              default=False, type=bool)
 def data(**kwargs):
     """Send data to devo"""
     config = configure(kwargs)
@@ -107,16 +119,24 @@ def data(**kwargs):
 @click.option('--config', '-c', type=click.Path(exists=True),
               help='Optional JSON/Yaml File with configuration info.')
 @click.option('--env', '-e', help='Use env vars for configuration',
-              default=False)
+              default=False, type=bool)
 @click.option('--default', '-d', help='Use default file for configuration',
-              default=False)
+              default=False, type=bool)
 @click.option('--url', '--address', '-a', help='Devo relay address')
 @click.option('--port', '-p', default=443, help='Devo relay address port')
 @click.option('--key', help='Devo user key cert file.')
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
 @click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
-              default=None)
+              default=None, type=int)
+@click.option('--verify_mode', help='Verify mode for SSL Socket. '
+                                    'Default: SSL default.'
+                                    'You need use int "0" (CERT_NONE), '
+                                    '"1" (CERT_OPTIONAL) or '
+                                    '"2" (CERT_REQUIRED)',
+              default=None, type=int)
+@click.option('--check_hostname', help='Verify cert hostname. Default: True',
+              default=True, type=bool)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--name', '-n', help='Name for Lookup.')
 @click.option('--action', '-ac', help='INC or FULL.', default="FULL")
