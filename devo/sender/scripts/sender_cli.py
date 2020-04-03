@@ -41,15 +41,14 @@ def cli(version):
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
 @click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
-              default=None, type=int)
+              type=int)
 @click.option('--verify_mode', help='Verify mode for SSL Socket. '
                                     'Default: SSL default.'
                                     'You need use int "0" (CERT_NONE), '
                                     '"1" (CERT_OPTIONAL) or '
-                                    '"2" (CERT_REQUIRED)',
-              default=None, type=int)
+                                    '"2" (CERT_REQUIRED)', type=int)
 @click.option('--check_hostname', help='Verify cert hostname. Default: True',
-              default=True, type=bool)
+              type=bool)
 @click.option('--multiline/--no-multiline', help='Flag for multiline (With '
                                                  'break-line in msg). '
                                                  'Default False', default=False)
@@ -128,15 +127,14 @@ def data(**kwargs):
 @click.option('--cert', help='Devo user cert file.')
 @click.option('--chain', help='Devo chain.crt file.')
 @click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
-              default=None, type=int)
+              type=int)
 @click.option('--verify_mode', help='Verify mode for SSL Socket. '
                                     'Default: SSL default.'
                                     'You need use int "0" (CERT_NONE), '
                                     '"1" (CERT_OPTIONAL) or '
-                                    '"2" (CERT_REQUIRED)',
-              default=None, type=int)
+                                    '"2" (CERT_REQUIRED)', type=int)
 @click.option('--check_hostname', help='Verify cert hostname. Default: True',
-              default=True, type=bool)
+              type=bool)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--name', '-n', help='Name for Lookup.')
 @click.option('--action', '-ac', help='INC or FULL.', default="FULL")
