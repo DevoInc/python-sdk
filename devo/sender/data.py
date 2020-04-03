@@ -40,7 +40,8 @@ class SenderConfigSSL:
     this param to work with it
 
     >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
-    ...                                cert=CERT, chain=CHAIN, sec_level=None)
+    ...                                cert=CERT, chain=CHAIN, sec_level=None,
+                                       check_hostname=True, verify_mode=None)
 
     See Also:
         Sender
@@ -263,9 +264,9 @@ class Sender(logging.Handler):
         """
         Set verify_mode of SSL Context:
 
-        sss.CERT_NONE = 0
-        sss.CERT_OPTIONAL = 1
-        sss.CERT_REQUIRED = 2
+        ssl.CERT_NONE = 0
+        ssl.CERT_OPTIONAL = 1
+        ssl.CERT_REQUIRED = 2
 
         :param verify_mode: verify mode value
         :return
@@ -279,7 +280,7 @@ class Sender(logging.Handler):
         :param check_hostname: check_hostname value. Default True
         :return
         """
-        self._sender_config.verify_mode = check_hostname
+        self._sender_config.check_hostname = check_hostname
 
     def __status(self):
         """
