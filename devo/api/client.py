@@ -76,8 +76,10 @@ class ClientConfig:
         self.stream = stream
         self.response = response
         self.destination = destination
-        self.proc = processor
-        self.processor = processors()[self.proc]()
+        self.proc = None
+        self.processor = None
+        self.set_processor(processor)
+
         if pragmas:
             self.pragmas = pragmas
             if "user" not in self.pragmas.keys():
@@ -94,9 +96,18 @@ class ClientConfig:
         :param processor: lambda function
         :return:
         """
-        if processor:
+        if isinstance(processor, (str, bytes)):
             self.proc = processor
-            self.processor = processors()[self.proc]()
+            try:
+                self.processor = processors()[self.proc]()
+            except KeyError:
+                raise_exception("Processor not found")
+        elif isinstance(processor, (type(lambda x: 0))):
+            self.proc = "CUSTOM"
+            self.processor = processor
+        else:
+            raise_exception("processor must be lambda/function or one of"
+                            "the defaults API processors.")
         return True
 
     def set_user(self, user=CLIENT_DEFAULT_USER):
