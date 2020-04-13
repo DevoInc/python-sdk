@@ -11,7 +11,7 @@ from .dateutils import test_date_format, to_millis, trunc_time
 from .dateoperations import parse_functions
 
 
-def parse(date_string=None, default='now()'):
+def parse(date_string=None, default='now'):
     """
     Parse a date string and return the result
     :param date_string: Date in string format
@@ -46,7 +46,13 @@ def parse_expression(date_string):
     """
     ops = parse_functions()
     try:
-        return eval(date_string, None, ops)
+        try:
+            result = eval(date_string, None, ops)
+        except:
+            return date_string
+        if isinstance(result, type(lambda x: 0)):
+            return date_string
+        return result
     except SyntaxError as err:
         sys.exit('ERROR: Syntax error on parse dates: ' + str(err))
     except TypeError as err:

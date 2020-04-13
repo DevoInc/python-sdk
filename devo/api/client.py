@@ -40,16 +40,14 @@ def raise_exception(error):
     try:
         if isinstance(error, str):
             raise DevoClientException(proc_json()(error))
-        elif isinstance(error, DevoClientException):
+        if isinstance(error, DevoClientException):
             if isinstance(error.args[0], str):
                 raise DevoClientException(proc_json()(error.args[0]))
-            else:
-                raise DevoClientException(error.args[0])
-        elif isinstance(error, dict):
+            raise DevoClientException(error.args[0])
+        if isinstance(error, dict):
             raise DevoClientException(error)
-        else:
-            response_text = proc_json()(error.text)
-            raise DevoClientException(response_text)
+        response_text = proc_json()(error.text)
+        raise DevoClientException(response_text)
     except json.decoder.JSONDecodeError:
         raise DevoClientException(_format_error(error))
 
@@ -387,11 +385,18 @@ class Client:
         :param opts: destination -> Destination for the results
         :return: Return the formed payload
         """
-        payload = {"from": int(default_from(dates['from']) / 1000),
-                   "to": int(default_to(dates['to']) / 1000) if dates['to']
-                         is not None
-                         else None,
+        date_from = default_from(dates['from'])
+        date_to = default_to(dates['to'])
+        payload = {"from": int(date_from / 1000)
+                           if isinstance(date_from, (int, float))
+                           else date_from,
+                   "to": int(date_to / 1000)
+                         if isinstance(date_to, (int, float))
+                         else date_to,
                    "mode": {"type": opts['response']}}
+        if dates.get("timeZone"):
+            payload['timeZone'] = dates.get("timezone")
+
         if query:
             payload['query'] = query
 
