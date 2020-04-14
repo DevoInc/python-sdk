@@ -86,7 +86,6 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain,
-                                            sec_level=0,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
             con = Sender(engine_config)
@@ -108,7 +107,6 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain,
-                                            sec_level=0,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
             con = Sender(engine_config, timeout=15)
@@ -132,7 +130,6 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain,
-                                            sec_level=0,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
             con = Sender(engine_config)
@@ -157,7 +154,6 @@ class TestSender(unittest.TestCase):
             try:
                 engine_config = SenderConfigSSL(address=(self.server,
                                                          self.port),
-                                                sec_level=0,
                                                 check_hostname=False,
                                                 verify_mode=CERT_NONE)
                 con = Sender(engine_config)
@@ -178,7 +174,6 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain,
-                                            sec_level=0,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
@@ -240,7 +235,6 @@ class TestSender(unittest.TestCase):
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
                                             chain=self.chain,
-                                            sec_level=0,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
@@ -271,7 +265,7 @@ class TestSender(unittest.TestCase):
             engine_config = {"address": self.server, "port": self.port,
                              "key": self.key, "cert": self.cert,
                              "chain": self.chain, "check_hostname": False,
-                             "verify_mode": CERT_NONE, "sec_level": 0}
+                             "verify_mode": CERT_NONE}
 
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)

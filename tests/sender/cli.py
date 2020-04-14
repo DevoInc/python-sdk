@@ -38,7 +38,7 @@ class TestSender(unittest.TestCase):
         configuration = Configuration()
         configuration.set("sender", {
             "key": self.key, "cert": self.cert, "chain": self.chain,
-            "address": self.address, "port": self.port, "sec_level": 0,
+            "address": self.address, "port": self.port,
             "verify_mode": 0, "check_hostname": False
         })
 
@@ -68,7 +68,6 @@ class TestSender(unittest.TestCase):
                                        "--key", self.local_key,
                                        "--cert", self.cert,
                                        "--chain", self.chain,
-                                      "--sec_level", 0,
                                       "--verify_mode", 0,
                                       '--check_hostname', False])
         self.assertIsInstance(result.exception, DevoSenderException)
@@ -84,7 +83,6 @@ class TestSender(unittest.TestCase):
                                       "--cert", self.cert,
                                       "--chain", self.chain,
                                       "--tag", self.my_app,
-                                      "--sec_level", 0,
                                       "--verify_mode", 0,
                                       '--check_hostname', False,
                                       "--line", "Test line"])

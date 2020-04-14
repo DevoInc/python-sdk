@@ -24,7 +24,6 @@ class TestLookup(unittest.TestCase):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
                                         chain=self.chain,
-                                        sec_level=0,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE)
         con = Sender(engine_config)
@@ -44,7 +43,6 @@ class TestLookup(unittest.TestCase):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
                                         chain=self.chain,
-                                        sec_level=0,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE)
         con = Sender(engine_config)
@@ -68,7 +66,6 @@ class TestLookup(unittest.TestCase):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
                                         chain=self.chain,
-                                        sec_level=0,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE)
         con = Sender(engine_config)
@@ -92,7 +89,6 @@ class TestLookup(unittest.TestCase):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
                                         chain=self.chain,
-                                        sec_level=0,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE)
         con = Sender(engine_config)
@@ -116,7 +112,6 @@ class TestLookup(unittest.TestCase):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
                                         chain=self.chain,
-                                        sec_level=0,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE)
         con = Sender(engine_config)
