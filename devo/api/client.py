@@ -218,7 +218,7 @@ class Client:
         :param dates: object with options for query, see doc
         :return: updated opts
         """
-        default = {'from': 'yesterday()', 'to': None}
+        default = {'from': '1h', 'to': None}
         if not dates:
             return default
 

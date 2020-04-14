@@ -47,12 +47,13 @@ def cli(version):
                                'stdout')
 @click.option('--response', '-r', default="json/simple/compact",
               help='The output format. Default is json/simple/compact')
-@click.option('--from', default=None,
-              help='From date, and time for the query (YYYY-MM-DD hh:mm:ss). '
-                   'For valid formats see lt-common README')
-@click.option('--to', default=None,
-              help='To date, and time for the query (YYYY-MM-DD hh:mm:ss). '
-                   'For valid formats see lt-common README')
+@click.option('--from',
+              help='From date. For valid formats see API README.'
+                   ' Default if now - 1 hour')
+@click.option('--to',
+              help='To date. For valid formats see API README')
+@click.option('--timeZone',
+              help='Timezone info. For valid formats see API README')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def query(**kwargs):
     """Perform query by query string"""
@@ -69,10 +70,16 @@ def query(**kwargs):
         if config['debug']:
             return
         exit()
-    reponse = api.query(query=config['query'],
-                        dates={"from": config['from'],
-                               "to": config['to'] if "to" in config.keys()
-                               else None})
+
+    dates = {}
+    if "to" in config.keys():
+        dates["from"] = config['from']
+    if "to" in config.keys():
+        dates["to"] = config['to']
+    if "timeZone" in config.keys():
+        dates['timeZone'] = config['timeZone']
+
+    reponse = api.query(query=config['query'], dates=dates)
 
     process_response(reponse, config)
 
