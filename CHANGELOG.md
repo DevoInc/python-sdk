@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Testing in Travis for python 3.6, 3.7 and 3.8
  * Support in API to timeZone flag for Devo API
  * Support in API for new devo custom formats
+ * Documentation for new date formats
  * Functions to change buffer size and compression_level of Sender
  * Support for zip, buffer and compression_level flags in Sender CLI
 
