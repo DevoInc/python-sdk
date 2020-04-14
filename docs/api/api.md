@@ -277,6 +277,33 @@ From                                                                          To
     `For all the examples that don't use a timestamp to specify a date, we assume that the moment of execution is 08-10-2018, 14:33:12 UTC.`
     This is a copy of official Devo docs you can see [HERE](https://docs.devo.com/confluence/ndt/api-reference/rest-api/running-queries-with-the-rest-api)
 
+ ###____**_Dates_**
+    
+|Operator|Description||
+| ------------- | ------------- |---------|
+|today|	|Get the current day at 00:00:00. Note that the timeZone parameter affects the date settings.|
+| |  `"from": "today"` | This sets the starting date to 08-10-2018, 00:00:00 UTC
+| |  `"to": "today"` | This sets the ending date to 08-10-2018, 00:00:00 UTC
+| |  `"from": "today", "timeZone": "GMT+2"` | This sets the starting date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
+| |  `"to": "today", "timeZone": "GMT+2"` | This sets the ending date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
+| | | |
+|now| | Get the current day and time
+| |  `"from": "now"` | This sets the starting date to 08-10-2018, 14:33:12 UTC
+| |  `"to": "now"` | This sets the ending date to 08-10-2018, 14:33:12 UTC
+| | | |
+|endday | | If you use this in the from field you will get the current day and the last second of the day. If you use it in the to field you will get the from date and the last second of that day. Note that the timeZone parameter affects the date settings.
+| |  `"from": "endday"` |  This sets the starting date to 08-10-2018, 23:59:59 UTC
+| |  `"from": 1515500531, "to": "endday"` |  This sets the ending date to 01-09-2018, 23:59:59 UTC.
+| |  `"from": "endday", "timeZone": "GMT+2"` |  This sets the ending date to 08-10-2018, 23:59:59 GMT+2 (08-10-2018, 21:59:59 UTC)
+| |  `"from": 1515493331,  "to": "endday", "timeZone": "GMT+2"` |  This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
+| |  `"from": 1515452400, "to": "endday", "timeZone": "GMT+2"` |  This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
+| | | |
+|endmonth| | If you use this in the from field you will get the last day of the current month and the last second of that day. If you use it in the to field, you will get last day of the month indicated in the date field and the last second of that day. Note that the timeZone parameter affects the date settings.
+| |  `"from": "endmonth"` |  This sets the starting date to 31-10-2018, 23:59:59 UTC
+| |  `"to": "endmonth"` |  This sets the ending date to 30-09-2018, 23:59:59 UTC.
+| |  `"from": 1536150131, "to": "endmonth"` |  This sets the ending date to 30-09-2018, 23:59:59 UTC
+| |  `"from": 1536142931, "to": "endmonth", "timeZone": "GMT+2"` |  This sets the ending date to 30-09-2018 23:59:59 GMT+2 (30-09-2018, 21:59:59 UTC)
+
 
 ## CLI USAGE
 
