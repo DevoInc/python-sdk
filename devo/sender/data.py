@@ -282,6 +282,19 @@ class Sender(logging.Handler):
         """
         self._sender_config.check_hostname = check_hostname
 
+    def buffer_size(self, size=19500):
+        """
+        Set buffer size for Sender:
+
+        :param size: New size of buffer. Default 19500
+        :return True or False
+        """
+        try:
+            self.buffer.length = size
+            return True
+        except Exception:
+            return False
+
     def __status(self):
         """
         View Socket status, check if it's open

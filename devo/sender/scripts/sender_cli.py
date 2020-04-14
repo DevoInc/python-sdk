@@ -80,6 +80,9 @@ def data(**kwargs):
     sended = 0
     try:
         con = Sender(config=config)
+        if config.get("buffer", None) is not None:
+            con.buffer_size(size=config.get("buffer"))
+
         if config['file']:
             if not os.path.isfile(config['file']):
                 print_error(str("File not exist"))
@@ -89,10 +92,12 @@ def data(**kwargs):
                     content = file.read()
                     if not config['raw']:
                         sended += con.send(tag=config['tag'], msg=content,
-                                           multiline=config['multiline'])
+                                           multiline=config['multiline'],
+                                           zip=config.get("zip", False))
                     else:
                         sended += con.send_raw(content,
-                                               multiline=config['multiline'])
+                                               multiline=config['multiline'],
+                                               zip=config.get("zip", False))
             else:
                 with open(config['file']) as file:
                     if config['header']:
@@ -101,9 +106,11 @@ def data(**kwargs):
                         if config['raw']:
                             sended += con.send_raw(line)
                         else:
-                            sended += con.send(tag=config['tag'], msg=line)
+                            sended += con.send(tag=config['tag'], msg=line,
+                                               zip=config.get("zip", False))
         else:
-            sended += con.send(tag=config['tag'], msg=config['line'])
+            sended += con.send(tag=config['tag'], msg=config['line'],
+                               zip=config.get("zip", False))
 
         con.close()
         if config.get("debug", False):

@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2020-04-14
+### Added
+ * Support for Python 3.8
+ * Testing in Travis for python 3.6, 3.7 and 3.8
+ * Support in API to timeZone flag for Devo API
+ * Support in API for new devo custom formats
+ * Support for zip and buffer flags in Sender CLI
+ * Functions to change buffer size of Sender
+ 
+### Changed
+ * SSL Server support to adapt it from python 3.5 to python 3.8
+ * SSL Send data tests 
+ * Requirements, updated.
+ 
+#### Removed
+ * unnecessary elifs in code following PEP8 recomendations
+ 
 ## [3.2.5] - 2020-04-02
 ### Added
  * Added new security flags to Sender SSL Sender
