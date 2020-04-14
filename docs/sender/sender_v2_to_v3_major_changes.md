@@ -35,7 +35,7 @@ You can use too:
 ```
 from devo.sender import Sender, SenderConfigSSL, SenderConfigTCP
 
-config = SenderConfigSSL = (address=("url", 444), key="key_path", cert="cert_path", chain="chain_path")
+config = SenderConfigSSL(address=("url", 444), key="key_path", cert="cert_path", chain="chain_path")
 con_ssl = Sender(config=config)
 
 
