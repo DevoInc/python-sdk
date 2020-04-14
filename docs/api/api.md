@@ -282,57 +282,57 @@ From                                                                          To
 |Operator|Example|Description|
 | ------------- | ------------- |---------|
 |today|	|Get the current day at 00:00:00. Note that the timeZone parameter affects the date settings.|
-| |  `"from": "today"` | This sets the starting date to 08-10-2018, 00:00:00 UTC
-| |  `"to": "today"` | This sets the ending date to 08-10-2018, 00:00:00 UTC
-| |  `"from": "today", "timeZone": "GMT+2"` | This sets the starting date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
-| |  `"to": "today", "timeZone": "GMT+2"` | This sets the ending date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
+| |`"from": "today"`|This sets the starting date to 08-10-2018, 00:00:00 UTC
+| |`"to": "today"`|This sets the ending date to 08-10-2018, 00:00:00 UTC
+| |`"from": "today", "timeZone": "GMT+2"`|This sets the starting date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
+| |`"to": "today", "timeZone": "GMT+2"`|This sets the ending date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
 | | | |
-|now| | Get the current day and time
-| |  `"from": "now"` | This sets the starting date to 08-10-2018, 14:33:12 UTC
-| |  `"to": "now"` | This sets the ending date to 08-10-2018, 14:33:12 UTC
+|now| |Get the current day and time
+| |`"from": "now"`|This sets the starting date to 08-10-2018, 14:33:12 UTC
+| |`"to": "now"`|This sets the ending date to 08-10-2018, 14:33:12 UTC
 | | | |
-|endday | | If you use this in the from field you will get the current day and the last second of the day. If you use it in the to field you will get the from date and the last second of that day. Note that the timeZone parameter affects the date settings.
-| |  `"from": "endday"` |  This sets the starting date to 08-10-2018, 23:59:59 UTC
-| |  `"from": 1515500531, "to": "endday"` |  (this timestamp corresponds to 01/09/2018 12:22:11 UTC) This sets the ending date to 01-09-2018, 23:59:59 UTC.
-| |  `"from": "endday", "timeZone": "GMT+2"` |  This sets the ending date to 08-10-2018, 23:59:59 GMT+2 (08-10-2018, 21:59:59 UTC)
-| |  `"from": 1515493331,  "to": "endday", "timeZone": "GMT+2"` | (this timestamp corresponds to 01/09/2018, 12:22:11 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
-| |  `"from": 1515452400, "to": "endday", "timeZone": "GMT+2"` | (this timestamp corresponds to 01/09/2018, 01:00:00 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
+|endday | |If you use this in the from field you will get the current day and the last second of the day. If you use it in the to field you will get the from date and the last second of that day. Note that the timeZone parameter affects the date settings.
+| |`"from": "endday"`|This sets the starting date to 08-10-2018, 23:59:59 UTC
+| |`"from": 1515500531, "to": "endday"`|(this timestamp corresponds to 01/09/2018 12:22:11 UTC) This sets the ending date to 01-09-2018, 23:59:59 UTC.
+| |`"from": "endday", "timeZone": "GMT+2"`|This sets the ending date to 08-10-2018, 23:59:59 GMT+2 (08-10-2018, 21:59:59 UTC)
+| |`"from": 1515493331,  "to": "endday", "timeZone": "GMT+2"`|(this timestamp corresponds to 01/09/2018, 12:22:11 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
+| |`"from": 1515452400, "to": "endday", "timeZone": "GMT+2"`|(this timestamp corresponds to 01/09/2018, 01:00:00 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
 | | | |
-|endmonth| | If you use this in the from field you will get the last day of the current month and the last second of that day. If you use it in the to field, you will get last day of the month indicated in the date field and the last second of that day. Note that the timeZone parameter affects the date settings.
-| |  `"from": "endmonth"` |  This sets the starting date to 31-10-2018, 23:59:59 UTC
-| |  `"to": "endmonth"` |  This sets the ending date to 30-09-2018, 23:59:59 UTC.
-| |  `"from": 1536150131, "to": "endmonth"` | (this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 30-09-2018, 23:59:59 UTC
-| |  `"from": 1536142931, "to": "endmonth", "timeZone": "GMT+2"` | (this timestamp corresponds to 05/09/2018, 12:22:11 GMT+2) This sets the ending date to 30-09-2018 23:59:59 GMT+2 (30-09-2018, 21:59:59 UTC)
+|endmonth| |If you use this in the from field you will get the last day of the current month and the last second of that day. If you use it in the to field, you will get last day of the month indicated in the date field and the last second of that day. Note that the timeZone parameter affects the date settings.
+| |`"from": "endmonth"`|This sets the starting date to 31-10-2018, 23:59:59 UTC
+| |`"to": "endmonth"`|This sets the ending date to 30-09-2018, 23:59:59 UTC.
+| |`"from": 1536150131, "to": "endmonth"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 30-09-2018, 23:59:59 UTC
+| |`"from": 1536142931, "to": "endmonth", "timeZone": "GMT+2"`|(this timestamp corresponds to 05/09/2018, 12:22:11 GMT+2) This sets the ending date to 30-09-2018 23:59:59 GMT+2 (30-09-2018, 21:59:59 UTC)
  ### ____**_Days_**
 |Operator|Example|Description|
 | ------------- | ------------- |------------- |
-|d	| | Enter a number followed by d in the from parameter to substract N days from the current date. If you use it in the to field you will get the from date plus the indicated number of days.
-| |  `"from": "2d"` |  This sets the starting date to 06-10-2018, 14:33:12 UTC
-| |  `"from": 1536150131, "to": "2d"` |  This sets the ending date to 07-09-2018, 12:22:11 UTC
-| |  `"from": "5d",  "to": "2d"` | This sets the starting date to 03-10-2018, 14:33:12 UTC and the ending date to 05-10-2018, 14:33:12 UTC
+|d	| |Enter a number followed by d in the from parameter to substract N days from the current date. If you use it in the to field you will get the from date plus the indicated number of days.
+| |`"from": "2d"`|This sets the starting date to 06-10-2018, 14:33:12 UTC
+| |`"from": 1536150131, "to": "2d"`|This sets the ending date to 07-09-2018, 12:22:11 UTC
+| |`"from": "5d",  "to": "2d"`|This sets the starting date to 03-10-2018, 14:33:12 UTC and the ending date to 05-10-2018, 14:33:12 UTC
 | | | |
-|ad| | Enter a number followed by ad in the from parameter to subtract N days from the current date and set time to 00:00:00. If you use it in the to field you will get the from date plus the indicated number of days and set time to 00:00:00. Note that the timeZone parameter affects the date settings.
-| |  `"from": "2ad"` |  This sets the starting date to 06-10-2018, 00:00:00 UTC
-| |  `"from": 1536150131, "to": "2ad"` |  (this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 UTC
-| |  `"from":"5ad", "to": "2ad"` |  This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC
-| |  `"from": "5ad", "to": "2ad"` | This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC
-| |  `"from": 1536142931, "to": "2ad", "timeZone": "GMT+2"` |  (this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 GMT+2 (06-09-2018, 22:00:00 UTC)
-| | `"from": "5ad", "to": "2ad", "timeZone": "GMT+2"` | This sets the starting date to 03-10-2018, 00:00:00 GMT+2 (02-10-2018, 22:00:00 UTC), and the ending date to 05-10-2018, 00:00:00 GMT+2 (04-10-2018, 22:00:00 UTC)
+|ad| |Enter a number followed by ad in the from parameter to subtract N days from the current date and set time to 00:00:00. If you use it in the to field you will get the from date plus the indicated number of days and set time to 00:00:00. Note that the timeZone parameter affects the date settings.
+| |`"from": "2ad"`|This sets the starting date to 06-10-2018, 00:00:00 UTC
+| |`"from": 1536150131, "to": "2ad"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 UTC
+| |`"from":"5ad", "to": "2ad"`|This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC
+| |`"from": "5ad", "to": "2ad"`|This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC
+| |`"from": 1536142931, "to": "2ad", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 GMT+2 (06-09-2018, 22:00:00 UTC)
+| |`"from": "5ad", "to": "2ad", "timeZone": "GMT+2"`|This sets the starting date to 03-10-2018, 00:00:00 GMT+2 (02-10-2018, 22:00:00 UTC), and the ending date to 05-10-2018, 00:00:00 GMT+2 (04-10-2018, 22:00:00 UTC)
 
  ### ____**_Hours_**
 |Operator|Example|Description|
 | ------------- | ------------- |------------- |
 |h| |Enter a number followed by h in the from parameter to subtract N hours from the current time. If you use it in the to field you will get the from time plus the indicated number of hours.
-| |  `"from": "2h"` | This sets the starting date to 08-10-2018, 12:33:12 UTC
-| |  `"from": "16h"` | This sets the starting date to 07-10-2018, 22:33:12 UTC
-| |  `"from": 1536150131, "to": "2h"` | (this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 05-09-2018, 14:22:11 UTC
-| |  `"from": "5h", "to": "2h"` | This sets the starting date to 08-10-2018, 09:33:12 UTC and the ending date to 08-10-2018, 11:33:12 UTC
-|ah| | Enter a number followed by ah in the from parameter to subtract N hours from the current date at 00:00:00. If you use it in the to field you will add the indicated number of hours to the from date at 00:00:00. Note that the timeZone parameter affects the date settings.
-| |  `"from": "2ah"` | This sets the starting date to 07-10-2018, 22:00:00 UTC
-| |  `"from": "2ah", "timeZone": "GMT+2"` | This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC)
-| |  `"from": 1536114131, "to": "12ah"` | (this timestamp corresponds to 05-09-2018, 02:22:11 UTC) This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC)
-| |  `"from": 1536106931, "to": "12aH", "timeZone": "GMT+2"` | (this timestamp corresponds to 05-09-2018, 12:22:11 GMT+2) This sets the ending date to 05-09-2018, 12:00:00 GMT+2 (05-09-2018, 10:00:00 UTC)
-| |  `"from": "5ah", "to": "21ah"` | This sets the starting date to 07-10-2018, 19:00:00 UTC and the ending date to 07-10-2018, 21:00:00 UTC
+| |`"from": "2h"`|This sets the starting date to 08-10-2018, 12:33:12 UTC
+| |`"from": "16h"`|This sets the starting date to 07-10-2018, 22:33:12 UTC
+| |`"from": 1536150131, "to": "2h"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 05-09-2018, 14:22:11 UTC
+| |`"from": "5h", "to": "2h"`|This sets the starting date to 08-10-2018, 09:33:12 UTC and the ending date to 08-10-2018, 11:33:12 UTC
+|ah| |Enter a number followed by ah in the from parameter to subtract N hours from the current date at 00:00:00. If you use it in the to field you will add the indicated number of hours to the from date at 00:00:00. Note that the timeZone parameter affects the date settings.
+| |`"from": "2ah"`|This sets the starting date to 07-10-2018, 22:00:00 UTC
+| |`"from": "2ah", "timeZone": "GMT+2"`|This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC)
+| |`"from": 1536114131, "to": "12ah"`|(this timestamp corresponds to 05-09-2018, 02:22:11 UTC) This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC)
+| |`"from": 1536106931, "to": "12aH", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 GMT+2) This sets the ending date to 05-09-2018, 12:00:00 GMT+2 (05-09-2018, 10:00:00 UTC)
+| |`"from": "5ah", "to": "21ah"`|This sets the starting date to 07-10-2018, 19:00:00 UTC and the ending date to 07-10-2018, 21:00:00 UTC
 
 
 ## CLI USAGE
