@@ -394,8 +394,9 @@ class Client:
                          if isinstance(date_to, (int, float))
                          else date_to,
                    "mode": {"type": opts['response']}}
+
         if dates.get("timeZone"):
-            payload['timeZone'] = dates.get("timezone")
+            payload['timeZone'] = dates.get("timeZone")
 
         if query:
             payload['query'] = query
