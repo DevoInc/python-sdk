@@ -1,4 +1,4 @@
-# devo-sender data
+# devo-sender
 ## Overview
 
 This library allows you to send logs to the Devo platform.
@@ -8,6 +8,10 @@ This library allows you to send logs to the Devo platform.
 - Allows to send real time data
 - Logger integration and logging handler capacity for Sender
 - Send lookups to Devo
+
+You have info about usage in scripts here:
+- [Data](docs/sender/data.md)
+- [Lookups](docs/sender/lookup.md)
 
 ## Endpoints
 ##### Sender
@@ -33,7 +37,7 @@ You have a special README to quickly show the important changes suffered from ve
 
 [You can go read it here](sender_v2_to_v3_major_changes.md)
 
-
+## CLI usages
 ####devo-sender data
 This command is used to send logs to Devo
 
