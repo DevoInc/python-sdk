@@ -48,7 +48,7 @@ def parse_expression(date_string):
     try:
         try:
             result = eval(date_string, None, ops)
-        except:
+        except Exception:
             return date_string
         if isinstance(result, type(lambda x: 0)):
             return date_string

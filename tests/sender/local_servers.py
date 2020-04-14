@@ -16,7 +16,7 @@ class SSLServer:
                                   os.sep))
         self.loop = asyncio.get_event_loop()
         self.server_process = multiprocessing.Process(target=self.server,
-                                                 name='sslserver')
+                                                      name='sslserver')
         self.server_process.start()
 
     def server(self):
@@ -30,7 +30,7 @@ class SSLServer:
                     assert len(data) > 0, repr(data)
                     writer.write(data)
                     yield from writer.drain()
-            except:
+            except Exception:
                 writer.close()
 
         server_cert = os.getenv('DEVO_SENDER_SERVER_CRT',

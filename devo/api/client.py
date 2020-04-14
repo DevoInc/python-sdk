@@ -387,13 +387,14 @@ class Client:
         """
         date_from = default_from(dates['from'])
         date_to = default_to(dates['to'])
-        payload = {"from": int(date_from / 1000)
-                           if isinstance(date_from, (int, float))
-                           else date_from,
-                   "to": int(date_to / 1000)
-                         if isinstance(date_to, (int, float))
-                         else date_to,
-                   "mode": {"type": opts['response']}}
+        payload = {
+            "from":
+                int(date_from / 1000) if isinstance(date_from, (int, float))
+                else date_from,
+            "to":
+                int(date_to / 1000) if isinstance(date_to, (int, float))
+                else date_to,
+            "mode": {"type": opts['response']}}
 
         if dates.get("timeZone"):
             payload['timeZone'] = dates.get("timeZone")
