@@ -67,6 +67,9 @@ def cli(version):
 @click.option('--raw', is_flag=True, help='Send raw events from a '
                                           'file when using --file')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
+@click.option('--zip/--no-zip', help='For testing purposes', default=False,
+              type=bool)
+@click.option('--buffer', help='Buffer size for zipped data.', type=int)
 @click.option('--env', '-e', help='Use env vars for configuration',
               default=False, type=bool)
 @click.option('--default', '-d', help='Use default file for configuration',

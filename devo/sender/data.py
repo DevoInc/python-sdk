@@ -202,7 +202,7 @@ class Sender(logging.Handler):
 
                     if self._sender_config.sec_level is not None:
                         self.logger.warning("Openssl's default security "
-                                            "level has been overwritten to"
+                                            "level has been overwritten to "
                                             "{}.".format(self.
                                                          _sender_config.
                                                          sec_level))
@@ -515,6 +515,9 @@ class Sender(logging.Handler):
             con.logging['level'] = config.get("verbose_level", 10)
         else:
             con.logging['level'] = logging.INFO
+
+        con.logger.setLevel(con.logging.get("level"))
+
 
         return con
 

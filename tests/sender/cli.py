@@ -13,9 +13,9 @@ except ImportError:
 
 class TestSender(unittest.TestCase):
     def setUp(self):
-        self.address = os.getenv('DEVO_SENDER_SERVER', "0.0.0.0")
+        self.address = os.getenv('DEVO_SENDER_SERVER', "127.0.0.1")
         self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
-        self.tcp_address = os.getenv('DEVO_SENDER_TCP_SERVER', "0.0.0.0")
+        self.tcp_address = os.getenv('DEVO_SENDER_TCP_SERVER', "127.0.0.1")
         self.tcp_port = int(os.getenv('DEVO_SENDER_TCP_PORT', 4489))
 
         self.key = os.getenv('DEVO_SENDER_KEY', CLIENT_KEY)
@@ -38,7 +38,8 @@ class TestSender(unittest.TestCase):
         configuration = Configuration()
         configuration.set("sender", {
             "key": self.key, "cert": self.cert, "chain": self.chain,
-            "address": self.address, "port": self.port,
+            "address": self.address, "port": self.port, "sec_level": 0,
+            "verify_mode": 0, "check_hostname": False
         })
 
         self.config_path = "/tmp/devo_sender_tests_config.json"
@@ -66,7 +67,10 @@ class TestSender(unittest.TestCase):
                                        "--port", "443",
                                        "--key", self.local_key,
                                        "--cert", self.cert,
-                                       "--chain", self.chain])
+                                       "--chain", self.chain,
+                                      "--sec_level", 0,
+                                      "--verify_mode", 0,
+                                      '--check_hostname', False])
         self.assertIsInstance(result.exception, DevoSenderException)
         self.assertIn("SSL conn establishment socket error",
                       result.exception.args[0])
@@ -80,6 +84,9 @@ class TestSender(unittest.TestCase):
                                       "--cert", self.cert,
                                       "--chain", self.chain,
                                       "--tag", self.my_app,
+                                      "--sec_level", 0,
+                                      "--verify_mode", 0,
+                                      '--check_hostname', False,
                                       "--line", "Test line"])
 
         self.assertIsNone(result.exception)
