@@ -295,6 +295,30 @@ class Sender(logging.Handler):
         except Exception:
             return False
 
+    def compression_level(self, cl=-1):
+        """
+        Set compression level for zipped data
+
+        compression_level is an integer from 0 to 9 or -1
+        controlling the level of compression;
+        1 (Z_BEST_SPEED) is the fastest and produces the lower compression,
+        9 (Z_BEST_COMPRESSION) is the slowest and produces the highest
+        compression.
+        0 (Z_NO_COMPRESSION) has no compression.
+        The default value is -1 (Z_DEFAULT_COMPRESSION).
+
+        Z_DEFAULT_COMPRESSION represents a default compromise between
+        speed and compression (currently equivalent to level 6).
+        :param cl: (Compression_level). Default -1
+
+        :return True or False
+        """
+        try:
+            self.buffer.compression_level = cl
+            return True
+        except Exception:
+            return False
+
     def __status(self):
         """
         View Socket status, check if it's open

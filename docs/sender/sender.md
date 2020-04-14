@@ -45,6 +45,7 @@ Usage: devo-sender data [OPTIONS]
 Options:
   -c, --config PATH             Optional JSON/Yaml File with configuration
                                 info.
+
   -a, --address TEXT            Devo relay address
   -p, --port TEXT               Devo relay address port
   --key TEXT                    Devo user key cert file.
@@ -54,24 +55,34 @@ Options:
   --verify_mode INTEGER         Verify mode for SSL Socket. Default: SSL
                                 default.You need use int "0" (CERT_NONE), "1"
                                 (CERT_OPTIONAL) or "2" (CERT_REQUIRED)
+
   --check_hostname BOOLEAN      Verify cert hostname. Default: True
   --multiline / --no-multiline  Flag for multiline (With break-line in msg).
                                 Default False
+
   --type TEXT                   Connection type: SSL or TCP
   -t, --tag TEXT                Tag / Table to which the data will be sent in
                                 Devo.
+
   -l, --line TEXT               For shipments of only one line, the text you
                                 want to send.
+
   -f, --file TEXT               The file that you want to send to Devo, which
                                 will be sent line by line.
+
   -h, --header BOOLEAN          This option is used to indicate if the file
                                 has headers or not, not to send them.
+
   --raw                         Send raw events from a file when using --file
   --debug / --no-debug          For testing purposes
+  --zip / --no-zip              For testing purposes
+  --buffer INTEGER              Buffer size for zipped data.
+  --compression_level INTEGER   Compression level for zipped data. Read readme
+                                for more info
+
   -e, --env BOOLEAN             Use env vars for configuration
   -d, --default BOOLEAN         Use default file for configuration
   --help                        Show this message and exit.
-
 ```
 
 Examples
@@ -106,6 +117,7 @@ Usage: devo-sender lookup [OPTIONS]
 Options:
   -c, --config PATH               Optional JSON/Yaml File with configuration
                                   info.
+
   -e, --env BOOLEAN               Use env vars for configuration
   -d, --default BOOLEAN           Use default file for configuration
   -a, --url, --address TEXT       Devo relay address
@@ -117,19 +129,23 @@ Options:
   --verify_mode INTEGER           Verify mode for SSL Socket. Default: SSL
                                   default.You need use int "0" (CERT_NONE),
                                   "1" (CERT_OPTIONAL) or "2" (CERT_REQUIRED)
+
   --check_hostname BOOLEAN        Verify cert hostname. Default: True
   --type TEXT                     Connection type: SSL or TCP
   -n, --name TEXT                 Name for Lookup.
   -ac, --action TEXT              INC or FULL.
   -f, --file TEXT                 The file that you want to send to Devo,
                                   which will be sent line by line.
+
   -lk, --lkey TEXT                Name of the column that contains the Lookup
                                   key. It has to be the exact name that
                                   appears in the header.
+
   -dk, --dkey TEXT                Name of the column that contains the
                                   action/delete key with "add" or "delete".It
                                   has to be the exact name that appears in the
                                   header.
+
   -dt, --detect-types / -ndt, --no-detect-types
                                   Detect types of fields. Default: False
   -d, --delimiter TEXT            CSV Delimiter char.

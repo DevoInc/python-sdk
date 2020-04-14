@@ -78,7 +78,7 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 `def query(self, **kwargs)`
 - query: Query to perform
 - query_id: Query ID to perform the query
-- dates: Dict with "from" and "to" keys
+- dates: Dict with "from" and "to" keys for date rangue, and "timeZone" for define timezone, if you want
 - limit: Max number of rows
 - offset: start of needle for query
 - comment: comment for query pragmas
@@ -116,7 +116,7 @@ print(response)
 api.config.response = "json/compact"
 
 response = api.query(query="from my.app.web.activityAll select * limit 10",
-                     dates= {'from': "2018-02-06 12:42:00"})
+                     dates= {'from': "2018-02-06 12:42:00", 'timeZone': "GMT+2"})
                      
 print(response)
 
@@ -179,7 +179,7 @@ api = Client(auth={"key":"myapikey", "secret":"myapisecret"},
              config=config)
              
 response = api.query(query="from my.app.web.activityAll select * limit 10",
-                     dates= {'from': "2018-02-06 12:42:00"})
+                     dates= {'from': "2018-02-06 12:42:00", 'timeZone': "GMT-2"})
 
 try:
     for item in response:
@@ -250,11 +250,13 @@ From                                                                          To
 ```
 
 ### Date Formats
-- Fixed format: As described on [Official Python Docs](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior). Accepted formats are:
+- **Fixed format:** As described on [Official Python Docs](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior). Accepted formats are:
     - '%Y-%m-%d %H:%M:%S'
     - '%Y-%m-%d', the time will be truncated to 00:00:00
-- Timestamp: From epoch in millis
-- Dynamic expression: Using the LinQ sintax we can use several functions
+    
+- **Timestamp:** From epoch in millis
+
+- **Dynamic expression:** Using the LinQ sintax we can use several functions. **timeZone can be wrong with this syntax**
     - Relative functions:
         - now(): Current date and time
         - today(): Current date and time fixed to 00:00:00
@@ -266,6 +268,14 @@ From                                                                          To
         - day(): Return 24 * 60 * 60
         - week(): Return 7 * 24 * 60 * 60
         - month(): Return 30 * 24 * 60 * 60
+        
+    With this sintax you can use expressions like: `from="now()-2*day()` equivalent to now minus two days.
+    Or `from=today()-6*month()`, etc.
+    
+- **New REST API dinamyc dates**: 
+
+    `For all the examples that don't use a timestamp to specify a date, we assume that the moment of execution is 08-10-2018, 14:33:12 UTC.`
+    This is a copy of official Devo docs you can see [HERE](https://docs.devo.com/confluence/ndt/api-reference/rest-api/running-queries-with-the-rest-api)
 
 
 ## CLI USAGE

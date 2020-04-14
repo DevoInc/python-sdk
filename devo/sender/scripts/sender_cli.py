@@ -70,6 +70,9 @@ def cli(version):
 @click.option('--zip/--no-zip', help='For testing purposes', default=False,
               type=bool)
 @click.option('--buffer', help='Buffer size for zipped data.', type=int)
+@click.option('--compression_level', help='Compression level for zipped data. '
+                                          'Read readme for more info',
+              type=int)
 @click.option('--env', '-e', help='Use env vars for configuration',
               default=False, type=bool)
 @click.option('--default', '-d', help='Use default file for configuration',
@@ -82,6 +85,8 @@ def data(**kwargs):
         con = Sender(config=config)
         if config.get("buffer", None) is not None:
             con.buffer_size(size=config.get("buffer"))
+        if config.get("compression_level", None) is not None:
+            con.compression_level(cl=config.get("compression_level"))
 
         if config['file']:
             if not os.path.isfile(config['file']):
@@ -167,6 +172,7 @@ def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
     con = Sender(config=config)
+
     lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 
     # with open(config['file']) as file:
