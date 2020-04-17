@@ -67,6 +67,12 @@ def cli(version):
 @click.option('--raw', is_flag=True, help='Send raw events from a '
                                           'file when using --file')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
+@click.option('--zip/--no-zip', help='For testing purposes', default=False,
+              type=bool)
+@click.option('--buffer', help='Buffer size for zipped data.', type=int)
+@click.option('--compression_level', help='Compression level for zipped data. '
+                                          'Read readme for more info',
+              type=int)
 @click.option('--env', '-e', help='Use env vars for configuration',
               default=False, type=bool)
 @click.option('--default', '-d', help='Use default file for configuration',
@@ -77,6 +83,11 @@ def data(**kwargs):
     sended = 0
     try:
         con = Sender(config=config)
+        if config.get("buffer", None) is not None:
+            con.buffer_size(size=config.get("buffer"))
+        if config.get("compression_level", None) is not None:
+            con.compression_level(cl=config.get("compression_level"))
+
         if config['file']:
             if not os.path.isfile(config['file']):
                 print_error(str("File not exist"))
@@ -86,10 +97,12 @@ def data(**kwargs):
                     content = file.read()
                     if not config['raw']:
                         sended += con.send(tag=config['tag'], msg=content,
-                                           multiline=config['multiline'])
+                                           multiline=config['multiline'],
+                                           zip=config.get("zip", False))
                     else:
                         sended += con.send_raw(content,
-                                               multiline=config['multiline'])
+                                               multiline=config['multiline'],
+                                               zip=config.get("zip", False))
             else:
                 with open(config['file']) as file:
                     if config['header']:
@@ -98,9 +111,11 @@ def data(**kwargs):
                         if config['raw']:
                             sended += con.send_raw(line)
                         else:
-                            sended += con.send(tag=config['tag'], msg=line)
+                            sended += con.send(tag=config['tag'], msg=line,
+                                               zip=config.get("zip", False))
         else:
-            sended += con.send(tag=config['tag'], msg=config['line'])
+            sended += con.send(tag=config['tag'], msg=config['line'],
+                               zip=config.get("zip", False))
 
         con.close()
         if config.get("debug", False):
@@ -157,6 +172,7 @@ def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
     con = Sender(config=config)
+
     lookup = Lookup(name=config['name'], historic_tag=None, con=con)
 
     # with open(config['file']) as file:

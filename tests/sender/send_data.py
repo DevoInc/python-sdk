@@ -1,10 +1,11 @@
 import unittest
 import socket
+from ssl import CERT_NONE
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL
 from devo.common import get_log
 from .load_certs import *
 
-TEST_FACILITY = 1
+TEST_FACILITY = 10
 
 
 class TestSender(unittest.TestCase):
@@ -15,9 +16,9 @@ class TestSender(unittest.TestCase):
         to set it else the vars will need to be set
         up in any other way.
         """
-        self.server = os.getenv('DEVO_SENDER_SERVER', "0.0.0.0")
+        self.server = os.getenv('DEVO_SENDER_SERVER', "127.0.0.1")
         self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
-        self.tcp_server = os.getenv('DEVO_SENDER_TCP_SERVER', "0.0.0.0")
+        self.tcp_server = os.getenv('DEVO_SENDER_TCP_SERVER', "127.0.0.1")
         self.tcp_port = int(os.getenv('DEVO_SENDER_TCP_PORT', 4489))
 
         self.key = os.getenv('DEVO_SENDER_KEY', CLIENT_KEY)
@@ -84,11 +85,15 @@ class TestSender(unittest.TestCase):
         try:
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
-                                            chain=self.chain)
+                                            chain=self.chain,
+                                            check_hostname=False,
+                                            verify_mode=CERT_NONE)
             con = Sender(engine_config)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_app, msg=self.test_msg)
-                if len(con.socket.recv(5000)) == 0:
+                data_received = con.socket.recv(5000)
+                print(b"\n" + data_received)
+                if len(data_received) == 0:
                     raise Exception('Not msg sent!')
             con.close()
         except Exception as error:
@@ -101,13 +106,17 @@ class TestSender(unittest.TestCase):
         try:
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
-                                            chain=self.chain)
+                                            chain=self.chain,
+                                            check_hostname=False,
+                                            verify_mode=CERT_NONE)
             con = Sender(engine_config, timeout=15)
             for i in range(self.default_numbers_sendings):
-                con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8")
-                         , zip=True)
+                con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8"),
+                         zip=True)
                 con.flush_buffer()
-                if len(con.socket.recv(1000)) == 0:
+                data_received = con.socket.recv(5000)
+                print(b"\n" + data_received)
+                if len(data_received) == 0:
                     raise Exception('Not msg sent!')
             con.close()
         except Exception as error:
@@ -120,15 +129,18 @@ class TestSender(unittest.TestCase):
         try:
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
-                                            chain=self.chain)
+                                            chain=self.chain,
+                                            check_hostname=False,
+                                            verify_mode=CERT_NONE)
             con = Sender(engine_config)
             with open(self.test_file, 'r') as file:
                 content = file.read()
 
             con.send(tag=self.my_app, msg=content, multiline=True)
             con.flush_buffer()
-
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
             con.close()
         except Exception as error:
@@ -141,7 +153,9 @@ class TestSender(unittest.TestCase):
         if self.test_tcp == "True":
             try:
                 engine_config = SenderConfigSSL(address=(self.server,
-                                                         self.port))
+                                                         self.port),
+                                                check_hostname=False,
+                                                verify_mode=CERT_NONE)
                 con = Sender(engine_config)
                 for i in range(self.default_numbers_sendings):
                     con.send(tag=self.my_app, msg=self.test_msg)
@@ -159,7 +173,9 @@ class TestSender(unittest.TestCase):
         try:
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
-                                            chain=self.chain)
+                                            chain=self.chain,
+                                            check_hostname=False,
+                                            verify_mode=CERT_NONE)
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)
             logger = get_log(name="DevoLogger", handler=con,
@@ -167,31 +183,41 @@ class TestSender(unittest.TestCase):
             print("Testing logger info")
             logger.info("Testing Sender inherit logging handler functio"
                         "nality... INFO - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger error")
             logger.error("Testing Sender inherit logging handler function"
                          "ality... ERROR - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger warning")
             logger.warning("Testing Sender inherit logging handler functio"
                            "nality... WARNING - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger debug")
             logger.debug("Testing Sender inherit logging handler functiona"
                          "lity... DEBUG - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger critical")
             logger.critical("Testing Sender inherit logging handler functio"
                             "nality... CRITICAL - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             con.close()
@@ -208,7 +234,9 @@ class TestSender(unittest.TestCase):
 
             engine_config = SenderConfigSSL(address=(self.server, self.port),
                                             key=self.key, cert=self.cert,
-                                            chain=self.chain)
+                                            chain=self.chain,
+                                            check_hostname=False,
+                                            verify_mode=CERT_NONE)
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)
             # NOTE: this logger logging traces will be visible in console
@@ -218,7 +246,9 @@ class TestSender(unittest.TestCase):
             # table
             con.info("Testing Sender default handler functionality in remote "
                      "table... INFO - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             con.close()
@@ -234,7 +264,8 @@ class TestSender(unittest.TestCase):
         try:
             engine_config = {"address": self.server, "port": self.port,
                              "key": self.key, "cert": self.cert,
-                             "chain": self.chain}
+                             "chain": self.chain, "check_hostname": False,
+                             "verify_mode": CERT_NONE}
 
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)
@@ -244,31 +275,41 @@ class TestSender(unittest.TestCase):
             print("Testing logger info")
             logger.info("Testing Sender static handler functionality... "
                         "INFO - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger error")
             logger.error("Testing Sender static logging handler "
                          "functionality... ERROR - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger warning")
             logger.warning("Testing Sender static logging handler "
                            "functionality... WARNING - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger debug")
             logger.debug("Testing Sender static logging handler "
                          "functionality... DEBUG - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             print("Testing logger critical")
             logger.critical("Testing Sender static logging handler "
                             "functionality... CRITICAL - log")
-            if len(con.socket.recv(5000)) == 0:
+            data_received = con.socket.recv(5000)
+            print(b"\n" + data_received)
+            if len(data_received) == 0:
                 raise Exception('Not msg sent!')
 
             con.close()

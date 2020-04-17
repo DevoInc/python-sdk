@@ -202,7 +202,7 @@ class Sender(logging.Handler):
 
                     if self._sender_config.sec_level is not None:
                         self.logger.warning("Openssl's default security "
-                                            "level has been overwritten to"
+                                            "level has been overwritten to "
                                             "{}.".format(self.
                                                          _sender_config.
                                                          sec_level))
@@ -281,6 +281,43 @@ class Sender(logging.Handler):
         :return
         """
         self._sender_config.check_hostname = check_hostname
+
+    def buffer_size(self, size=19500):
+        """
+        Set buffer size for Sender:
+
+        :param size: New size of buffer. Default 19500
+        :return True or False
+        """
+        try:
+            self.buffer.length = size
+            return True
+        except Exception:
+            return False
+
+    def compression_level(self, cl=-1):
+        """
+        Set compression level for zipped data
+
+        compression_level is an integer from 0 to 9 or -1
+        controlling the level of compression;
+        1 (Z_BEST_SPEED) is the fastest and produces the lower compression,
+        9 (Z_BEST_COMPRESSION) is the slowest and produces the highest
+        compression.
+        0 (Z_NO_COMPRESSION) has no compression.
+        The default value is -1 (Z_DEFAULT_COMPRESSION).
+
+        Z_DEFAULT_COMPRESSION represents a default compromise between
+        speed and compression (currently equivalent to level 6).
+        :param cl: (Compression_level). Default -1
+
+        :return True or False
+        """
+        try:
+            self.buffer.compression_level = cl
+            return True
+        except Exception:
+            return False
 
     def __status(self):
         """
@@ -515,6 +552,9 @@ class Sender(logging.Handler):
             con.logging['level'] = config.get("verbose_level", 10)
         else:
             con.logging['level'] = logging.INFO
+
+        con.logger.setLevel(con.logging.get("level"))
+
 
         return con
 

@@ -164,16 +164,26 @@ The compressed delivery will store the messages in a buffer that, when it is fil
 The default buffer length its _19500_ and you can change it with:
 
 ```python
-con.max_zip_buffer = 19500
+con.buffer_size(size=19500)
 ```
 
 You can change the default compression level with:
 
 ```python
-con.compression_level = 6
+con.compression_level(cl=6)
 ```
 
-compression_level is an integer from 0 to 9 or -1 controlling the level of compression; 1 (Z_BEST_SPEED) is the fastest and produces the lower compression, 9 (Z_BEST_COMPRESSION) is the slowest and produces the highest compression. 0 (Z_NO_COMPRESSION) has no compression. The default value is -1 (Z_DEFAULT_COMPRESSION). Z_DEFAULT_COMPRESSION represents a default compromise between speed and compression (currently equivalent to level 6).
+compression_level is an integer from 0 to 9 or -1 controlling the level of compression. 
+
+* 1 (Z_BEST_SPEED) is the fastest and produces the lower compression.
+
+* 9 (Z_BEST_COMPRESSION) is the slowest and produces the 
+highest compression. 
+
+* 0 (Z_NO_COMPRESSION) has no compression. 
+
+* The default value is -1 (Z_DEFAULT_COMPRESSION). 
+  * Z_DEFAULT_COMPRESSION represents a default compromise between speed and compression (currently equivalent to level 6).
 
 
 ### Extra info when send: 

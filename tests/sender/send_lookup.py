@@ -1,11 +1,12 @@
 import unittest
+from ssl import CERT_NONE
 from devo.sender import Sender, SenderConfigSSL, Lookup
 from .load_certs import *
 
 
 class TestLookup(unittest.TestCase):
     def setUp(self):
-        self.server = os.getenv('DEVO_SENDER_SERVER', "0.0.0.0")
+        self.server = os.getenv('DEVO_SENDER_SERVER', "127.0.0.1")
         self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
 
         self.key = os.getenv('DEVO_SENDER_KEY', CLIENT_KEY)
@@ -22,7 +23,9 @@ class TestLookup(unittest.TestCase):
 
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
-                                        chain=self.chain)
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE)
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
 
@@ -39,7 +42,9 @@ class TestLookup(unittest.TestCase):
     def test_ssl_lookup_new_line(self):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
-                                        chain=self.chain)
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE)
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -60,7 +65,9 @@ class TestLookup(unittest.TestCase):
     def test_ssl_lookup_override(self):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
-                                        chain=self.chain)
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE)
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -81,7 +88,9 @@ class TestLookup(unittest.TestCase):
     def test_ssl_lookup_delete_line(self):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
-                                        chain=self.chain)
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE)
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -102,7 +111,9 @@ class TestLookup(unittest.TestCase):
     def test_ssl_lookup_simplify(self):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
                                         key=self.key, cert=self.cert,
-                                        chain=self.chain)
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE)
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
