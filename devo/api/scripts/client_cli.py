@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """CLI for use Devo API from shell command line."""
 import os
 import click
