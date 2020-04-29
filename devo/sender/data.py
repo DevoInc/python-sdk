@@ -555,7 +555,6 @@ class Sender(logging.Handler):
 
         con.logger.setLevel(con.logging.get("level"))
 
-
         return con
 
     @staticmethod
