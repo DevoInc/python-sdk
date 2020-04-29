@@ -22,4 +22,3 @@ with open(file) as f:
         con.send(tag="my.app.sdk.example", msg=line)
 
 con.close()
-

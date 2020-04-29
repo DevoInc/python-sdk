@@ -9,7 +9,7 @@ chain = os.getenv('DEVO_SENDER_CHAIN')
 
 lookup_name = 'Test_Lookup_Line_By_Line'
 
-engine_config = SenderConfigSSL(address=(server,port),
+engine_config = SenderConfigSSL(address=(server, port),
                                 key=key, cert=cert,
                                 chain=chain)
 con = Sender(engine_config)
