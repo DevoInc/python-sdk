@@ -424,7 +424,13 @@ Priority order:
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
 4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
-Environment vars are: `DEVO_API_ADDRESS`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
+Environment vars are: 
+- `DEVO_API_ADDRESS`
+- `DEVO_API_KEY`
+- `DEVO_API_SECRET`
+- `DEVO_API_USER`
+- `DEVO_API_TOKEN`
+- `DEVO_API_JWT`
 
 ## Choosing Fomat
 The default response format (`response`) is `json`, to change the default value, it can be established directly:
