@@ -26,7 +26,8 @@ Class SenderConfigSSL accept various types of certificates, you has:
 + chain **(_str_)**: chain src file
 + pkcs **(_dict_)**: (path: pfx src file, password: of cert)
 + sec_level **(_int_)**: Security level to openssl launch
-
++ check_hostname **(_bool_)**: Verify cert hostname. Default: True
++ verify_mode **(_int_)**: Verify mode for SSL Socket. Default: SSL default.You need use int "0" (CERT_NONE), "1" (CERT_OPTIONAL) or "2" (CERT_REQUIRED)
 
 You can use the collector in some ways:
 

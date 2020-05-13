@@ -251,6 +251,7 @@ class Sender(logging.Handler):
         """
         self.send(tag=self.logging.get("tag"), msg=msg)
 
+    # TODO: Deprecated
     def set_sec_level(self, sec_level=None):
         """
         Set sec_level of SSL Context:
@@ -260,6 +261,7 @@ class Sender(logging.Handler):
         """
         self._sender_config.sec_level = sec_level
 
+    # TODO: Deprecated
     def set_verify_mode(self, verify_mode=None):
         """
         Set verify_mode of SSL Context:
@@ -273,6 +275,7 @@ class Sender(logging.Handler):
         """
         self._sender_config.verify_mode = verify_mode
 
+    # TODO: Deprecated
     def set_check_hostname(self, check_hostname=True):
         """
         Set check_hostname of SSL Context:

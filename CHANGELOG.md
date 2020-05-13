@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  * env vars JWT and TOKEN for API shell client
  * verify certs in API creation and cli calls
+ 
+### Fixed
+ * Documentation about SSLConfigSender
+ 
+### Deprecated
+ * Unnecesary setters
 
 ## [No version upgraded] - 2020-04-29
 ### Added
