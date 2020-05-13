@@ -56,6 +56,7 @@ def cli(version):
               help='To date. For valid formats see API README')
 @click.option('--timeZone',
               help='Timezone info. For valid formats see API README')
+@click.option('--verify', type=bool, help='Verify certificates')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def query(**kwargs):
     """Perform query by query string"""

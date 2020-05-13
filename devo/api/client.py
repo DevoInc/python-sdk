@@ -133,7 +133,7 @@ class Client:
     The Devo seach rest api main class
     """
     def __init__(self, address=None, auth=None, config=None,
-                 retries=None, timeout=None):
+                 retries=None, timeout=None, verify=None):
         """
         Initialize the API with this params, all optionals
         :param address: endpoint
@@ -155,12 +155,10 @@ class Client:
                                                  "token": config.get("token",
                                                                      None)})
 
+            verify = verify if verify else config.get("verify", True)
             retries = retries if retries else config.get("retries", 3)
             timeout = timeout if timeout else config.get("timeout", 30)
             self.config = self._from_dict(config)
-
-        retries = int(retries) if retries else 3
-        timeout = int(timeout) if timeout else 30
 
         self.auth = auth
         if not address:
@@ -170,9 +168,9 @@ class Client:
 
         self.address = self.__get_address_parts(address)
 
-        self.retries = retries
-        self.timeout = timeout
-        self.verify = True
+        self.retries = int(retries) if retries else 3
+        self.timeout = int(timeout) if timeout else 30
+        self.verify = verify if verify else True
 
     @staticmethod
     def _from_dict(config):
