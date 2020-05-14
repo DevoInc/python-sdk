@@ -206,7 +206,8 @@ class Lookup:
                         p_fields = Lookup.process_fields(fields=fields,
                                                          key_index=key_index)
                         self.send_data(row=p_fields,
-                                       delete=field_action == "delete")
+                                       delete=field_action == "delete"
+                                       or field_action == "DELETE")
 
                         # Send full log for historic
                         if historic_tag is not None:

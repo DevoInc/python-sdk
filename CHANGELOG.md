@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.3.1] - 2020-05-11
+### Added
+ * env vars JWT and TOKEN for API shell client
+ * verify certs in API creation and cli calls
+ 
+### Fixed
+ * Documentation about SSLConfigSender
+ 
+### Deprecated
+ * Unnecesary setters
+
 ## [No version upgraded] - 2020-04-29
 ### Added
  * Added examples

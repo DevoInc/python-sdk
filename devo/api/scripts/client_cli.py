@@ -40,6 +40,7 @@ def cli(version):
 @click.option('--key', help='Key for the api.')
 @click.option('--secret', help='Secret for the api.')
 @click.option('--token', help='Secret for the api.')
+@click.option('--jwt', help='JWT auth for the api.')
 @click.option('--query', '-q', help='Query.', default="")
 @click.option('--stream/--no-stream',
               help='Flag for make streaming query or full query with '
@@ -55,6 +56,7 @@ def cli(version):
               help='To date. For valid formats see API README')
 @click.option('--timeZone',
               help='Timezone info. For valid formats see API README')
+@click.option('--verify', type=bool, help='Verify certificates')
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def query(**kwargs):
     """Perform query by query string"""
@@ -129,6 +131,8 @@ def configure(args):
         if args.get('env'):
             config.set("key", os.environ.get('DEVO_API_KEY', None))
             config.set("secret", os.environ.get('DEVO_API_SECRET', None))
+            config.set("token", os.environ.get('DEVO_API_TOKEN', None))
+            config.set("jwt", os.environ.get('DEVO_API_JWT', None))
             config.set("address", os.environ.get('DEVO_API_ADDRESS', None))
             config.set("user", os.environ.get('DEVO_API_USER', None))
             config.set("comment", os.environ.get('DEVO_API_COMMENT', None))

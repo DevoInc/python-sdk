@@ -343,25 +343,31 @@ Usage: `devo-api query [OPTIONS]`
 
 ```
 Options:
-  -c, --config PATH                            JSON/YAML File with configuration, you can put all options here
-  -e, --env                                    Use env vars for configuration
-  -a, --address TEXT                           Endpoint for the api.
-  --key TEXT                                   Key for the api.
-  --secret TEXT     Secret for the api.
-  --token TEXT      Token auth for query.
-  --jwt TEXT                                   jwt auth for query.
-  -q, --query TEXT                             Query.
-  --stream / --no-stream                       Flag for make streaming query or full query with start and end. Default is true
-  --output TEXT                                File path to store query response if not want stdout
-  -r, --response TEXT                          The output format. Default is json/simple/compact
-  --from TEXT                                  From date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
-  --to TEXT                                    To date, and time for the query (YYYY-MM-DD hh:mm:ss). For valid formats see lt-common README
-  --help                                       Show this message and exit.
-  --user                                       User for the api.
-  --app_name                                   App Name for the api.
-  --comment                                    Comment for pragma in query
-  --debug/--no-debug  For testing purposes
-  --help                 Show this message and exit.
+  -c, --config PATH       Optional JSON/Yaml File with configuration info.
+  -e, --env TEXT          Use env vars for configuration
+  -d, --default TEXT      Use default file for configuration
+  -a, --address TEXT      Endpoint for the api.
+  --user TEXT             User for the api.
+  --app_name TEXT         Application name for the api.
+  --comment TEXT          Comment for the queries.
+  --key TEXT              Key for the api.
+  --secret TEXT           Secret for the api.
+  --token TEXT            Secret for the api.
+  --jwt TEXT              JWT auth for the api.
+  -q, --query TEXT        Query.
+  --stream / --no-stream  Flag for make streaming query or full query with
+                          start and end. Default is true
+
+  --output TEXT           File path to store query response if not want stdout
+  -r, --response TEXT     The output format. Default is json/simple/compact
+  --from TEXT             From date. For valid formats see API README. Default
+                          if now - 1 hour
+
+  --to TEXT               To date. For valid formats see API README
+  --timeZone TEXT         Timezone info. For valid formats see API README
+  --verify BOOLEAN        Verify certificates
+  --debug / --no-debug    For testing purposes
+  --help                  Show this message and exit.
 ```
 
 A configuration file does not have to have all the necessary keys, you can have 
@@ -424,7 +430,13 @@ Priority order:
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
 4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
-Environment vars are: `DEVO_API_ADDRESS`, `DEVO_API_KEY`, `DEVO_API_SECRET`, `DEVO_API_USER`.
+Environment vars are: 
+- `DEVO_API_ADDRESS`
+- `DEVO_API_KEY`
+- `DEVO_API_SECRET`
+- `DEVO_API_USER`
+- `DEVO_API_TOKEN`
+- `DEVO_API_JWT`
 
 ## Choosing Fomat
 The default response format (`response`) is `json`, to change the default value, it can be established directly:

@@ -85,7 +85,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertIn('{"m":{"timestamp":{"type":"str","index":0}}}',
+        self.assertIn('{"m":{"timestamp":{"type":"str","index":0',
                       result.output)
 
     def test_with_config_file(self):
@@ -100,7 +100,7 @@ class TestApi(unittest.TestCase):
 
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
-            self.assertIn('{"m":{"timestamp":{"type":"str","index":0}}}',
+            self.assertIn('{"m":{"timestamp":{"type":"str","index":0',
                           result.output)
 
 
