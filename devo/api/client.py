@@ -155,9 +155,12 @@ class Client:
                                                  "token": config.get("token",
                                                                      None)})
 
-            verify = verify if verify else config.get("verify", True)
-            retries = retries if retries else config.get("retries", 3)
-            timeout = timeout if timeout else config.get("timeout", 30)
+            verify = verify if verify is not None \
+                else config.get("verify", True)
+            retries = retries if retries is not None \
+                else config.get("retries", 3)
+            timeout = timeout if timeout is not None \
+                else config.get("timeout", 30)
             self.config = self._from_dict(config)
 
         self.auth = auth
