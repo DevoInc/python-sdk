@@ -387,9 +387,7 @@ class Client:
         :return: Return the formed payload
         """
         date_from = default_from(dates['from'])
-
-        if dates['to'] is not None:
-            date_to = default_to(dates['to'])
+        date_to = default_to(dates['to']) if dates['to'] is not None else None
 
         payload = {
             "from":
