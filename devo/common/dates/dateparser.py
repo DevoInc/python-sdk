@@ -80,8 +80,6 @@ def default_to(date=None):
     :param date: Date in the accepted formats
     :return: Millis for the API
     """
-    if date is None:
-        return None
 
     if isinstance(date, int):
         if len(str(abs(date))) == 10:

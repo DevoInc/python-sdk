@@ -387,7 +387,10 @@ class Client:
         :return: Return the formed payload
         """
         date_from = default_from(dates['from'])
-        date_to = default_to(dates['to'])
+
+        if dates['to'] is not None:
+            date_to = default_to(dates['to'])
+
         payload = {
             "from":
                 int(date_from / 1000) if isinstance(date_from, (int, float))
