@@ -173,7 +173,7 @@ class Client:
 
         self.retries = int(retries) if retries else 3
         self.timeout = int(timeout) if timeout else 30
-        self.verify = verify if verify else True
+        self.verify = verify if verify is not None else True
 
     @staticmethod
     def _from_dict(config):
