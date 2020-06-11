@@ -9,17 +9,3 @@ install:
 - pip install pyyaml
 script:
 - python run_tests.py
-deploy:
-  - provider: pypi
-    user: worvast
-    password:
-      secure: "YkRREwI/8aEU+l++YY12WNMPatxtP6Y4J+SpWoxB8hYpNDaKSgd70eZFoyAvjbsGs740i16l4yRFuzEITdKWS99XL34V3w6dBiK+H1a8b5wuoxgWp/Y9plOrXK4sfCHTMVa4h1I3N2ZISrR0kZIFtsXlUp5Rqlu3x+pNd46mDjuwlrMBVtZiQagI43k8+G8eogzMF0CsIgEpu+gvYQQ5O8xb4naDbQfDa1DhmoDfT78QY/7dsNN/p/dUr46I7eqAeBoZq04gR7jvYI2TRPTH/tFBkNyMvW7aLCH3Rm8NUI61rQlOj86ZAPFkSkM73hL9s1Sj8HDW7dUxT14inRy047USksu4XnQ+HM0/VsqeFxwvMgwnXJxygHuDgegd0e+K+BMMenzcPUpZWb/2JAvXJD4s/RliZ0zI7OkWy/CkEahTO6cpaIuCnwx/A9pWVsHcL/8x98vShQze6IiTQVW1lcOerDEx/L2ieZs2xLTNSVch5QhKIANy8prvdypTfJsjoRUlwQEZHKMLREjR7rhRMk0JDBM8ATwBN7jgOgf7OBhwG8SC8Geu6EzUkdD/MAgCplWTUB2tXXKaPagqlEF3opEweYBhw6/BCwtWb8pk8kD4PTyM/fI8035hBN8fh8qZfJ5c3aOkGJ9Ix8SXINoRbTrg0oWbV5+rKJQJ/1D3WiA="
-    on:
-      tags: true
-      python: 3.5
-      distributions: sdist bdist_wheel
-      repo: DevoInc/python-sdk
-      branch: master
-    distributions: sdist bdist_wheel
-    skip_existing: true
-    skip_cleanup: true
