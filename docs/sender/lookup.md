@@ -1,5 +1,5 @@
-#devo-sender lookup
-##Overview
+# devo-sender lookup
+## Overview
 
 This library allows you to send lookups to the Devo platform.
 
@@ -8,7 +8,7 @@ You have two types of uses, in script (This doc) or [send using shell](sender.md
 You need to know how work [Sender](sender.md) and [Data](data.md) to use Lookup functions in script, but not for shell
 
 
-##Script usage
+## Script usage
 Just like the send events case, to create a new lookup or send data to existent 
 lookup table we need to initialize the collector configuration.
 
@@ -31,7 +31,7 @@ Example:
 
 You can see more examples below
 
-#####Sending lookup data with your own script
+##### Sending lookup data with your own script
 
 After initializing the lookup, you can send data to the lookup. There are two ways to do this. 
 
@@ -176,7 +176,7 @@ con.socket.shutdown(0)
 
 
 
-#####Send lookups from CSV file
+##### Send lookups from CSV file
 
 After initializing the lookup, you can upload a CSV file with the lookup data by _send_csv_ method from _LtLookup_ class.
 
@@ -191,7 +191,7 @@ Params
 + historic_tag **(_string_ default: None)**: tag
 + action **(_string_ default: None)**: FULL (Delete old if exist) or INC (Update if exist), action for the lookup
 + action_field **(_string_ default: None)**: field name (Name in header) with the field of action for the row (add or delete)
-+ types **(_string_ default: None)**: List with type of fields
++ types **(_list_ default: None)**: List with type of fields
 + detect_types **(_string_ default: False)**: Detect types of fields reading first line
 
 Example
