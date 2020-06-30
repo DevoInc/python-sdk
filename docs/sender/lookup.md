@@ -55,7 +55,7 @@ Params
 + type_of_key **(_string_ optional)**: specify a concrete type for the key (Default string)
 + key **(_string_ optional)**: name of key
 + key_index **(_string_ optional)**: index of key. You can use this or key
-+ types **(_dict_ optional')**: dict of type: {"header_name": "header_type", "head....} with types of columns
++ types **(_list_ optional')**: list of type:  with types of columns in order
 
 Accepted types:
  - String -> "str"
@@ -73,7 +73,7 @@ pHeaders = Lookup.list_to_headers(
                                    type_of_key="str",
                                    key=None,  #Name of the Key
                                    key_index=None, #Or index of key in headers list, you can use whatever you want
-                                   types=dict #Dict with {"headername": "hadertype", "headern....}
+                                   types=list 
                                   )
 ```
 
@@ -191,7 +191,7 @@ Params
 + historic_tag **(_string_ default: None)**: tag
 + action **(_string_ default: None)**: FULL (Delete old if exist) or INC (Update if exist), action for the lookup
 + action_field **(_string_ default: None)**: field name (Name in header) with the field of action for the row (add or delete)
-+ types **(_string_ default: None)**: Dict with type of fields
++ types **(_string_ default: None)**: List with type of fields
 + detect_types **(_string_ default: False)**: Detect types of fields reading first line
 
 Example
