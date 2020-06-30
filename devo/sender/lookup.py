@@ -315,6 +315,8 @@ class Lookup:
         :param list headers: list of headers names
         :param str key: key name (Must be in headers)
         :param str type_of_key: type of the key field
+        :param int key_index: index number instead of key name
+        :param list types: types of each row
         :result str:
         """
         # First the key
@@ -340,7 +342,7 @@ class Lookup:
             # If file is the key don't add
             if item == key:
                 continue
-            field_type = "str" if not isinstance(types, dict) else types[aux]
+            field_type = "str" if not isinstance(types, list) else types[aux]
             out += ',{"%s":{"type":"%s"}}' % (item, field_type)
         out += ']'
         return out
