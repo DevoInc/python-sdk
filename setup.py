@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 import codecs
 import os
-import sys
 import re
 from setuptools import setup, find_packages
-from run_tests import TestCommand
 
 META_PATH = os.path.join("devo", "__version__.py")
 HERE = os.path.abspath(os.path.dirname(__file__))
