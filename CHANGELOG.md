@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [3.3.7] - 
+### Fixed
+ * Fix problem in list_to_headers when pass key but not key_index
+
+
 ## [3.3.6] - 2020-06-30
 ### Fixed
  * Fixed problem with row types in Lookup creation
