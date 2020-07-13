@@ -167,7 +167,7 @@ api.verify_certificates(True)
 ## Processors flags:
 
 By default, you receive response in str/bytes (Depends of your python version) direct from Socket, and you need manipulate the data.
-But you can specify one default processor for data, soo you receive in diferente format:
+But you can specify one default processor for data, soo you receive in diferents format:
 
 ```python
 from devo.api import Client, ClientConfig, JSON_SIMPLE
@@ -199,6 +199,8 @@ except Exception as error:
 - SIMPLECOMPACT_TO_OBJ: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
 - SIMPLECOMPACT_TO_ARRAY: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
 
+
+**JSON_SIMPLE, COMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ and SIMPLECOMPACT_TO_ARRAY only work with the api in mode `stream=True`**
 
 You can change the processor in any moment with one default processor or custom with the function:
 
