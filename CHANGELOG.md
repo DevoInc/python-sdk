@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [3.3.7] - 
 ### Fixed
- * Fix problem in list_to_headers when pass key but not key_index
-
+ * Problem in list_to_headers when pass key but not key_index
+ * Count of sended events when zip=True
+ * Problems with key instead of key_index in lookups
 
 ## [3.3.6] - 2020-06-30
 ### Fixed
