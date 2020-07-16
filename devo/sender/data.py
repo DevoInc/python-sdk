@@ -503,10 +503,9 @@ class Sender(logging.Handler):
             msg += b"\n"
 
         self.buffer.text_buffer += msg
+        self.buffer.events += 1
         if len(self.buffer.text_buffer) > self.buffer.length:
             return self.flush_buffer()
-
-        self.buffer.events += 1
         return 0
 
     def flush_buffer(self):

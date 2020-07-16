@@ -322,7 +322,7 @@ class Lookup:
         # First the key
         if key is not None:
             out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-                                                        if types
+                                                        if key_index and types
                                                         else type_of_key)
         elif key_index is not None:
             key = headers[key_index]
