@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [3.3.7] - 
+## [3.4.0] - 2020-08-06
+### Added
+ * Support to use in lookup fields lists: ints, booleans and floats. Not necessary send all with str type.
+ * More documentation in lookup readme
+ 
+## [3.3.7] - 2020-07-16
 ### Fixed
  * Problem in list_to_headers when pass key but not key_index
  * Count of sended events when zip=True

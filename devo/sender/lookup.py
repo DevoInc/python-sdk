@@ -404,10 +404,14 @@ class Lookup:
         :param str field: field for clean
         :return str: cleaned field
         """
+        if not isinstance(field, (str, bytes)):
+            return field
+
         field = field.strip()
-        if not Lookup.is_number(field):
-            field = '"%s"' % field
-        return field
+        if Lookup.is_number(field):
+            return field
+
+        return '"%s"' % field
 
     @staticmethod
     def is_number(text=""):
