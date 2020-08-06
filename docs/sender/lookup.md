@@ -53,7 +53,7 @@ Params
 
 + headers **(_list_ required)**: column names list of the lookup
 + type_of_key **(_string_ optional)**: specify a concrete type for the key (Default string)
-+ key **(_string_ optional)**: name of key **deprecated, not recommended, use key_index**
++ key **(_string_ optional)**: name of key **deprecated, not recommended. Use key_index instead**
 + key_index **(_string_ optional)**: index of key. You can use this or key
 + types **(_list_ optional')**: list of type:  with types of columns in order
 
@@ -104,7 +104,7 @@ You can use _send_headers_ method of _LtLookup_ class we can unify _list_to_head
 
 _send_headers_ Params
 + headers **(_list_ default: [] )**: column name list of lookup 
-+ key **(_string_ default 'KEY')**: column name of key **deprecated, not recommended, use key_index**
++ key **(_string_ default 'KEY')**: column name of key **deprecated, not recommended. Use key_index instead**
 + key_index **(_string_ default 'KEY')**: column name of key
 + event **(_string_ default: 'START')**: header event
     - START: start of header
