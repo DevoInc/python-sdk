@@ -24,28 +24,27 @@ To use 's3' destination you must add destination parameter with type 's3' (see e
 
 ## Example
 
-```python
-from devo.api import Client
 
-api = Client(key="myapikey",
-              secret="myapisecret",
-              url="https://apiv2-eu.devo.com/search/query",
-              user="user@devo.com",
-              app_name="testing app")
-              
-              
-response = api.query("from siem.logtrust.web.activity select *", 
-                     dates={"from":"yesterday()", "to": "now()"}, 
-                     destination= { 
-                     "type":"s3",
-                     "params":{
-                            "aws.bucket": "blu-2223",
-                            "aws.region": "eu-west-1",
-                            "aws.accesskey": "AKI*************",
-                            "aws.secretkey": "T********/**********15tpn3***V2UZ",
-                            "format": "zip"
-                        },
-                     })
+```pyton
+api = Client(auth={"key": "myapikey",
+                   "secret": "myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query",
+             config=ClientConfig(response="json", stream=False, processor=JSON,
+                                 destination= { 
+                                     "type":"s3",
+                                     "params":{
+                                            "aws.bucket": "blu-2223",
+                                            "aws.region": "eu-west-1",
+                                            "aws.accesskey": "AKI*************",
+                                            "aws.secretkey": "T********/**********15tpn3***V2UZ",
+                                            "format": "zip"
+                                        },
+                                     }))
+
+
+response = api.query("from siem.logtrust.web.activity select * limit 10",
+                     dates={"from": "yesterday()", "to": "now()"})
+
 ```
 
 ## Results

@@ -4,7 +4,9 @@ API have a email destination to send query results by email.
 
 ## How to use
 
-As any query you must to add 'query', 'from' and 'to' date params. But It's not necessary add mode.type parameter because all response format will be csv. In a future will have support for more format, **if you need more format please request us**.
+As any query you must to add 'query', 'from' and 'to' date params. But It's not necessary add mode.type parameter 
+because all response format will be csv. In a future will have support for more format, 
+**if you need more format please request us**.
 
 To use 'email' destination you must add destination parameter with type 'email' (see example).
 
@@ -29,28 +31,26 @@ To use 'email' destination you must add destination parameter with type 'email' 
 
 ## Example
 
-```python
-from devo.api import Client
+```pyton
+api = Client(auth={"key": "myapikey",
+                   "secret": "myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query",
+             config=ClientConfig(response="json", stream=False, processor=JSON,
+                                 destination={
+                                     "type": "email",
+                                     "params": {
+                                         "email.to": "user@devo.com",
+                                         "email.subject": "Api v2 Test",
+                                         "format": "gzip",
+                                     },
+                                 }))
 
-api = Client(key="myapikey",
-              secret="myapisecret",
-              url="https://apiv2-eu.devo.com/search/query",
-              user="user@devo.com",
-              app_name="testing app")
-              
-              
-response = api.query("from siem.logtrust.web.activity select *", 
-                     dates={"from":"yesterday()", "to": "now()"}, 
-                     destination= { 
-                     "type":"email",
-                     "params":{
-                       "email.to":"email@domain.com",
-                       "email.subject":"Api v2 Test",
-                       "retention.time":300000,
-                       "format":"gzip",
-                       },
-                     })
+
+response = api.query("from siem.logtrust.web.activity select * limit 10",
+                     dates={"from": "yesterday()", "to": "now()"})
+
 ```
+
 
 ## Result 
 
