@@ -131,8 +131,16 @@ class Sender(logging.Handler):
             get_log(handler=get_stream_handler(
                 msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
 
-        self.socket = None
         self._sender_config = config
+
+        if self._sender_config.sec_level is not None:
+            self.logger.warning("Openssl's default security "
+                                "level has been overwritten to "
+                                "{}.".format(self.
+                                             _sender_config.
+                                             sec_level))
+
+        self.socket = None
         self.reconnection = 0
         self.debug = debug
         self.socket_timeout = timeout
@@ -201,11 +209,6 @@ class Sender(logging.Handler):
                         cafile=self._sender_config.chain)
 
                     if self._sender_config.sec_level is not None:
-                        self.logger.warning("Openssl's default security "
-                                            "level has been overwritten to "
-                                            "{}.".format(self.
-                                                         _sender_config.
-                                                         sec_level))
                         context.set_ciphers(
                             "DEFAULT@SECLEVEL={!s}"
                             .format(self._sender_config.sec_level))

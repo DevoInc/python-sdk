@@ -6,9 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [3.4.1] - 2020-11-03
+### Added
+ * Info about use custom CA for verify certificates in client
+ 
 ### Fixed
  * Client problems with default "From" key for queries
  * Socket closes are more gently now, fixed problems with loss events
+ 
+### Changed
+ * Updated message when overwrite sec_level to show only when create Sender
 
 ## [3.4.0] - 2020-08-06
 ### Added
@@ -64,7 +70,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Functions to change buffer size and compression_level of Sender
  * Support for zip, buffer and compression_level flags in Sender CLI
 
- 
 ### Changed
  * SSL Server support to adapt it from python 3.5 to python 3.8
  * SSL Send data tests 
