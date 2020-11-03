@@ -260,7 +260,7 @@ class Lookup:
 
         >>>row = Lookup.list_to_fields(fields, "23")
         >>>obj.send_data(row)
-        :param row: row to send
+        :param row: row t   o send
         :param delete: True or False. Its true, delete row with same key
         :return:
         """

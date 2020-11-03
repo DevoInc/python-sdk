@@ -340,6 +340,7 @@ class Sender(logging.Handler):
         Forces socket closure
         """
         if self.socket is not None:
+            self.socket.shuwdown(2)
             self.socket.close()
             self.socket = None
 

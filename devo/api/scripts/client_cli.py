@@ -74,13 +74,20 @@ def query(**kwargs):
             return
         exit()
 
-    dates = {}
-    if "to" in config.keys():
-        dates["from"] = config['from']
-    if "to" in config.keys():
-        dates["to"] = config['to']
-    if "timeZone" in config.keys():
-        dates['timeZone'] = config['timeZone']
+    if "from" in config.keys():
+        dates = {'from': config['from']}
+        if "to" in config.keys():
+            dates["to"] = config['to']
+        if "timeZone" in config.keys():
+            dates['timeZone'] = config['timeZone']
+    elif "to" in config.keys():
+        print_error(ERROR_MSGS['to_but_no_from'], show_help=True)
+        exit()
+    else:
+        if "timeZone" in config.keys():
+            dates = {'timeZone': config['timeZone']}
+        else:
+            dates = None
 
     reponse = api.query(query=config['query'], dates=dates)
 
