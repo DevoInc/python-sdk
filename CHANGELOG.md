@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## [3.4.1] - 2020-11-03
+### Fixed
+ * Client problems with default "From" key for queries
+ * Socket closes are more gently now, fixed problems with loss events
+
 ## [3.4.0] - 2020-08-06
 ### Added
  * Support to use in lookup fields lists: ints, booleans and floats. Not necessary send all with str type.
