@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  
 ### Changed
  * Updated message when overwrite sec_level to show only when create Sender
+ * Updated test for bad credentials. Now api returns error in signature validation
 
 ## [3.4.0] - 2020-08-06
 ### Added
