@@ -89,6 +89,7 @@ class SenderConfigTCP:
         try:
             self.address = address
             self.hostname = socket.gethostname()
+            self.sec_level = None
         except Exception as error:
             raise DevoSenderException(
                 "DevoSenderConfigTCP|Can't create TCP config: "
