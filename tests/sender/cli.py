@@ -50,14 +50,14 @@ class TestSender(unittest.TestCase):
         result = runner.invoke(data, [])
         self.assertIn('No address', result.stdout)
 
-    def test_bad_address(self):
-        runner = CliRunner()
-        result = runner.invoke(data, ["--debug",
-                                      "--address", self.address + "asd"])
-
-        self.assertIsInstance(result.exception, DevoSenderException)
-        self.assertIn("Name or service not known",
-                         result.exception.args[0])
+    # def test_bad_address(self):
+    #     runner = CliRunner()
+    #     result = runner.invoke(data, ["--debug",
+    #                                   "--address", self.address + "asd"])
+    #
+    #     self.assertIsInstance(result.exception, DevoSenderException)
+    #     self.assertIn("Name or service not known",
+    #                      result.exception.args[0])
 
     # def test_bad_address(self):
     #     runner = CliRunner()
