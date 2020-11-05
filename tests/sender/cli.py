@@ -59,6 +59,22 @@ class TestSender(unittest.TestCase):
         self.assertIn("Name or service not known",
                          result.exception.args[0])
 
+    # def test_bad_address(self):
+    #     runner = CliRunner()
+    #     result = runner.invoke(data, ["--debug",
+    #                                   "--address", "us.devoasd.com",
+    #                                   "--port", self.port,
+    #                                   "--key", self.key,
+    #                                   "--cert", self.cert,
+    #                                   "--chain", self.chain,
+    #                                   "--tag", self.my_app,
+    #                                   "--verify_mode", 0,
+    #                                   '--check_hostname', False,
+    #                                   "--line", "Test line"])
+    #
+    #     self.assertIsNone(result.exception)
+    #     self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
+
     def test_bad_certs(self):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",
