@@ -27,7 +27,9 @@ SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 ERROR_MSGS = {
     "no_query": "Error: Not query provided.",
     "no_auth": "Client dont have key&secret or auth token/jwt",
-    "no_endpoint": "Endpoint 'address' not found"
+    "no_endpoint": "Endpoint 'address' not found",
+    "to_but_no_from": "If you use end dates for the query 'to' it is "
+                      "necessary to use start date 'from'"
 }
 
 

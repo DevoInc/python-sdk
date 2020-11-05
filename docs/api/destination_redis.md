@@ -31,40 +31,39 @@ This destination have 2 modes:
 
 ### Example
 
-```python
-from devo.api import Client
 
-api = Client(key="myapikey",
-              secret="myapisecret",
-              url="https://apiv2-eu.devo.com/search/query",
-              user="user@devo.com",
-              app_name="testing app")
-              
-              
-response = api.query("from siem.logtrust.web.activity select *", 
-                     dates={"from":"yesterday()", "to": "now()"}, 
-                     destination= { 
-                     "type":"email",
-                     "params":{
-                          "friendlyName":"redis-rresino-154q", 
-                            "description": "description of task",
-                            "expireIn": 30000,
-                            "keyFields": [{
-                                "name": "domain",
-                                "type": "str"
-                            }, {
-                                "name": "username",
-                                "type": "str"
-                            }],
-                            "valueFields": [{
-                                "name": "domain",
-                                "type": "str"
-                            }, {
-                                "name": "username",
-                                "type": "str"
-                            }]
-                        },
-                     })
+```pyton
+api = Client(auth={"key": "myapikey",
+                   "secret": "myapisecret"},
+             address="https://apiv2-eu.devo.com/search/query",
+             config=ClientConfig(response="json", stream=False, processor=JSON,
+                                 destination= { 
+                                     "type":"redis",
+                                     "params":{
+                                          "friendlyName":"redis-rresino-154q", 
+                                            "description": "description of task",
+                                            "expireIn": 30000,
+                                            "keyFields": [{
+                                                "name": "domain",
+                                                "type": "str"
+                                            }, {
+                                                "name": "username",
+                                                "type": "str"
+                                            }],
+                                            "valueFields": [{
+                                                "name": "domain",
+                                                "type": "str"
+                                            }, {
+                                                "name": "username",
+                                                "type": "str"
+                                            }]
+                                        },
+                                     }))
+
+
+response = api.query("from siem.logtrust.web.activity select * limit 10",
+                     dates={"from": "yesterday()", "to": "now()"})
+
 ```
 
 ## Results

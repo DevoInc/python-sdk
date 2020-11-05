@@ -5,7 +5,24 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
-## [3.3.7] - 
+## [3.4.1] - 2020-11-03
+### Added
+ * Info about use custom CA for verify certificates in client
+ 
+### Fixed
+ * Client problems with default "From" key for queries
+ * Socket closes are more gently now, fixed problems with loss events
+ 
+### Changed
+ * Updated message when overwrite sec_level to show only when create Sender
+ * Updated test for bad credentials. Now api returns error in signature validation
+
+## [3.4.0] - 2020-08-06
+### Added
+ * Support to use in lookup fields lists: ints, booleans and floats. Not necessary send all with str type.
+ * More documentation in lookup readme
+ 
+## [3.3.7] - 2020-07-16
 ### Fixed
  * Problem in list_to_headers when pass key but not key_index
  * Count of sended events when zip=True
@@ -54,7 +71,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Functions to change buffer size and compression_level of Sender
  * Support for zip, buffer and compression_level flags in Sender CLI
 
- 
 ### Changed
  * SSL Server support to adapt it from python 3.5 to python 3.8
  * SSL Send data tests 

@@ -53,14 +53,17 @@ Params
 
 + headers **(_list_ required)**: column names list of the lookup
 + type_of_key **(_string_ optional)**: specify a concrete type for the key (Default string)
-+ key **(_string_ optional)**: name of key
++ key **(_string_ optional)**: name of key **deprecated, not recommended. Use key_index instead**
 + key_index **(_string_ optional)**: index of key. You can use this or key
 + types **(_list_ optional')**: list of type:  with types of columns in order
 
 Accepted types:
  - String -> "str"
- - Integer -> "int"
+ - Integer -> "int" (default int type: int8)
+ - Integer4 -> "int4"
+ - Integer8 -> "int8"
  - Float -> "float"
+ - Boolean -> "bool"
  - IP -> "ip4"
 
 
@@ -101,7 +104,7 @@ You can use _send_headers_ method of _LtLookup_ class we can unify _list_to_head
 
 _send_headers_ Params
 + headers **(_list_ default: [] )**: column name list of lookup 
-+ key **(_string_ default 'KEY')**: column name of key
++ key **(_string_ default 'KEY')**: column name of key **deprecated, not recommended. Use key_index instead**
 + key_index **(_string_ default 'KEY')**: column name of key
 + event **(_string_ default: 'START')**: header event
     - START: start of header
@@ -120,9 +123,9 @@ Finally, to send a new row we can use _send_data_line_ method from _LtLooup_ cla
 
 Params
 
-+ key **(_string_ optional default: None)**: key value
++ key **(_string_ optional default: None)**: key value **deprecated, not recommended, use key_index**
 + key_index **(_string_ optional default: None)**: or key index in list fields
-+ fields **(_list_ default: [])**: values list
++ fields **(_list_ default: [])**: values list: can be str, int, float and bool
 + delete **(_boolean_ default: False)**: row must be deleted
 
 Example:
@@ -145,7 +148,7 @@ lookup.send_control(event='START', headers=pHeaders, action='INC')
 # You can use key value
 lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
 # Or you can use key_index (Position in list)
-lookup.send_data_line(key_index=0, fields=["22", "HEX22", "COLOR22" ])
+lookup.send_data_line(key_index=0, fields=[22, "HEX22", "COLOR22"])
 lookup.send_control(event='END', headers=pHeaders, action='INC')
 
 con.socket.shutdown(0)
@@ -212,3 +215,13 @@ lookup.send_csv(path=conf.get('lookup').get('file', "example.csv"),
                 has_header=True, key=conf.get('lkey', "ID"))
 con.socket.shutdown(0)
 ````
+
+You can use config file to send types list:
+
+```
+{
+ 'lookup' : {
+    'types': ["int", "str", "int4", "bool", "int8"]
+    ....
+ }}
+```

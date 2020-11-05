@@ -71,7 +71,7 @@ class TestApi(unittest.TestCase):
                                        "--secret", self.secret])
 
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(result.exception.args[0]['status'], 401)
+        self.assertEqual(result.exception.args[0]['error']['code'], 12)
 
     def test_normal_query(self):
         runner = CliRunner()

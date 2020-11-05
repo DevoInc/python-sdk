@@ -164,6 +164,25 @@ You can revert it with:
 api.verify_certificates(True)
 ```  
 
+## Use custom CA to verify
+For customs servers, and custom certificates, you can use custom CA for verity that certificates. 
+You can put CA cert path instead of "False" or "True"
+
+```python
+from devo.api import Client, ClientConfig
+
+
+api = Client(auth= {"key":"myapikey", "secret":"myapisecret"}, 
+             address="https://apiv2-eu.devo.com/search/query")
+api.verify_certificates("/path/to/cafile.ca")
+```
+
+You can revert it with:
+
+```python
+api.verify_certificates(True)
+```  
+
 ## Processors flags:
 
 By default, you receive response in str/bytes (Depends of your python version) direct from Socket, and you need manipulate the data.
