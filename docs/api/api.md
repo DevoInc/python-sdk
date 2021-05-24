@@ -5,10 +5,13 @@ This library performs queries to the Client API (Search rest api) of Devo.
 ## Endpoints
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	https://apiv2-us.devo.com/search/query
- * **EU:**   	https://apiv2-eu.devo.com/search/query
- * **VDC:**   	https://apiv2-es.devo.com/search/query
- * **SA:**   	https://apiv2-sa.devo.com/search/query
+
+| Region 	| Endpoint                               	|
+|--------	|----------------------------------------	|
+| USA    	| https://apiv2-us.devo.com/search/query 	|
+| Canada 	| https://apiv2-ca.devo.com/search/query 	|
+| Europe 	| https://apiv2-eu.devo.com/search/query 	|
+| VDC    	| https://apiv2-es.devo.com/search/query 	|
 
 You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 

@@ -16,18 +16,13 @@ You have info about usage in scripts here:
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	
-    * **url**: us.elb.relay.logtrust.net
-    * **port**: 443
- * **EU:**
-    * **url**: eu.elb.relay.logtrust.net
-    * **port**: 443
- * **VDC:**
-    * **url**: es.elb.relay.logtrust.net
-    * **port**: 443
- * **SA:**
-    * **url**: sa.elb.relay.logtrust.net
-    * **port**: 443
+
+| Region 	| Endpoint                  	| Port 	|
+|--------	|---------------------------	|------	|
+| USA    	| us.elb.relay.logtrust.net 	| 443  	|
+| Canada 	| ca.elb.relay.logtrust.net 	| 443  	|
+| Europe 	| eu.elb.relay.logtrust.net 	| 443  	|
+| VDC    	| es.elb.relay.logtrust.net 	| 443  	|
     
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
