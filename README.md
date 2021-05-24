@@ -64,23 +64,25 @@ Pull and merge requests are welcome ☺
 ## Endpoints
 ##### Sender
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	
-    * **url**: us.elb.relay.logtrust.net
-    * **port**: 443
- * **EU:**
-    * **url**: eu.elb.relay.logtrust.net
-    * **port**: 443
- * **VDC:**
-    * **url**: es.elb.relay.logtrust.net
-    * **port**: 443
+
+| Region 	| Endpoint                  	| Port 	|
+|--------	|---------------------------	|------	|
+| USA    	| us.elb.relay.logtrust.net 	| 443  	|
+| Canada 	| ca.elb.relay.logtrust.net 	| 443  	|
+| Europe 	| eu.elb.relay.logtrust.net 	| 443  	|
+| VDC    	| es.elb.relay.logtrust.net 	| 443  	|
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
 
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
- * **USA:** 	https://apiv2-us.devo.com/search/query
- * **EU:**   	https://apiv2-eu.devo.com/search/query
- * **VDC:**   	https://apiv2-es.devo.com/search/query
+
+| Region 	| Endpoint                               	|
+|--------	|----------------------------------------	|
+| USA    	| https://apiv2-us.devo.com/search/query 	|
+| Canada 	| https://apiv2-ca.devo.com/search/query 	|
+| Europe 	| https://apiv2-eu.devo.com/search/query 	|
+| VDC    	| https://apiv2-es.devo.com/search/query 	|
 
 You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
 
@@ -140,7 +142,7 @@ You can contact with us at _support@devo.com_.
 ## License
 MIT License
 
-(C) 2020 Devo, Inc.
+(C) 2021 Devo, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the 'Software'), to deal in

@@ -4,4 +4,4 @@ __version__ = "3.4.2"
 __author__ = 'Devo'
 __author_email__ = 'support@devo.com'
 __license__ = 'MIT'
-__copyright__ = 'Copyright 2020 Devo'
+__copyright__ = 'Copyright 2021 Devo'
