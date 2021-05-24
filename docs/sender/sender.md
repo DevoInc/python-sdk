@@ -33,7 +33,7 @@ You have a special README to quickly show the important changes suffered from ve
 [You can go read it here](sender_v2_to_v3_major_changes.md)
 
 ## CLI usages
-####devo-sender data
+#### devo-sender data
 This command is used to send logs to Devo
 
 ```
@@ -105,7 +105,7 @@ All the values must be at the same level and without "-"
 
 
 
-####devo-sender lookup
+#### devo-sender lookup
 `lookup` command is used to send lookups to Devo
 
 ```

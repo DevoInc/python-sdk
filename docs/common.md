@@ -73,7 +73,7 @@ You can use this handler like in the StreamHandler example
 
 ##### DevoHandler
 
-You can use this Devo Sender like handler, you can see more info in ['Sender readme'](sender.md######Third example)
+You can use this Devo Sender like handler, you can see more info in ['Sender readme'](sender/sender.md)
 
 
 ## Standard Devo configuration file
