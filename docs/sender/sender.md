@@ -20,7 +20,6 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
 | Region 	| Endpoint                  	| Port 	|
 |--------	|---------------------------	|------	|
 | USA    	| us.elb.relay.logtrust.net 	| 443  	|
-| Canada 	| ca.elb.relay.logtrust.net 	| 443  	|
 | Europe 	| eu.elb.relay.logtrust.net 	| 443  	|
 | VDC    	| es.elb.relay.logtrust.net 	| 443  	|
     
