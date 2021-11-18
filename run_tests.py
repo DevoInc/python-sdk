@@ -5,12 +5,10 @@ import argparse
 from devo.common import load_env_file
 from tests.sender.local_servers import SSLServer, TCPServer
 
-failed = False
-
 
 def run_test_suite():
     def mark_failed():
-        global failed
+        nonlocal failed
         failed = True
 
     class _TrackingTextTestResult(unittest._TextTestResult):
@@ -27,6 +25,7 @@ def run_test_suite():
             return _TrackingTextTestResult(
                 self.stream, self.descriptions, self.verbosity)
 
+    failed = False
     load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
     original_cwd = os.path.abspath(os.getcwd())
     os.chdir('.%stests%s' % (os.sep, os.sep))
@@ -48,17 +47,16 @@ class CoverageCommand():
             exit(1)
         cov = coverage.coverage(source=['devo'])
         cov.start()
-        run_test_suite()
+        failed = run_test_suite()
         cov.stop()
         cov.html_report(directory='coverage_report')
+        return failed
 
 
 class TestCommand():
     def run(self):
         """setup.py command to run the whole test suite."""
-        failed = run_test_suite()
-        if failed:
-            sys.exit(1)
+        return run_test_suite()
 
 
 if __name__ == '__main__':
@@ -69,9 +67,10 @@ if __name__ == '__main__':
     local_ssl_server = SSLServer()
     local_tcp_server = TCPServer()
     if args.coverage:
-        CoverageCommand().run()
+        failed = CoverageCommand().run()
     else:
-        TestCommand().run()
+        failed = TestCommand().run()
 
     local_ssl_server.close_server()
     local_tcp_server.close_server()
+    sys.exit(failed)
