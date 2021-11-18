@@ -22,7 +22,7 @@ class TestSender(unittest.TestCase):
         self.cert = os.getenv('DEVO_SENDER_CERT', CLIENT_CERT)
         self.chain = os.getenv('DEVO_SENDER_CHAIN', CLIENT_CHAIN)
 
-        self.local_key = os.getenv(CLIENT_KEY)
+        self.local_key = CLIENT_KEY
         self.test_tcp = os.getenv('DEVO_TEST_TCP', "True")
         self.my_app = 'test.drop.free'
         self.my_bapp = b'test.drop.free'
@@ -84,8 +84,8 @@ class TestSender(unittest.TestCase):
                                        "--key", self.local_key,
                                        "--cert", self.cert,
                                        "--chain", self.chain,
-                                      "--verify_mode", 0,
-                                      '--check_hostname', False])
+                                      "--verify_mode", 1,
+                                      '--check_hostname', True])
         self.assertIsInstance(result.exception, DevoSenderException)
         self.assertIn("SSL conn establishment socket error",
                       result.exception.args[0])
@@ -99,8 +99,8 @@ class TestSender(unittest.TestCase):
                                       "--cert", self.cert,
                                       "--chain", self.chain,
                                       "--tag", self.my_app,
-                                      "--verify_mode", 0,
-                                      '--check_hostname', False,
+                                      "--verify_mode", 1,
+                                      '--check_hostname', True,
                                       "--line", "Test line"])
 
         self.assertIsNone(result.exception)
