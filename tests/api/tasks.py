@@ -15,6 +15,7 @@ class TestApi(unittest.TestCase):
                              "params": {"friendlyName": "devo-sdk-api-test"}}
              })
 
+    @unittest.skip("temporarily disabled due to Query API bug")
     def test_jobs_cycle(self):
         self.client.query(
             query="from demo.ecommerce.data select *",
