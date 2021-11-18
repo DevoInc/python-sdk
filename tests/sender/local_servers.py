@@ -12,7 +12,9 @@ class SSLServer:
 
     def __init__(self):
         self.shutdown = False
-        self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
+        self.file_path = "".join(
+            (os.path.dirname(os.path.abspath(__file__)), os.sep)
+        )
         self.server_process = multiprocessing.Process(
             target=self.server, name="sslserver"
         )
@@ -34,7 +36,9 @@ class SSLServer:
 
         server_cert = os.getenv(
             "DEVO_SENDER_SERVER_CRT",
-            "{!s}local_certs/keys/server/server_cert.pem".format(self.file_path),
+            "{!s}local_certs/keys/server/server_cert.pem".format(
+                self.file_path
+            ),
         )
 
         server_key = os.getenv(
@@ -65,7 +69,9 @@ class TCPServer:
     def __init__(self, ip="127.0.0.1", port=4489):
         self.shutdown = False
         self.server = None
-        self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
+        self.file_path = "".join(
+            (os.path.dirname(os.path.abspath(__file__)), os.sep)
+        )
         self.server = threading.Thread(
             target=self.start_server, kwargs={"ip": ip, "port": port}
         )
