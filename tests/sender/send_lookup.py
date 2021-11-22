@@ -1,5 +1,7 @@
 import unittest
 from ssl import CERT_NONE
+from unittest import mock
+
 from devo.sender import Sender, SenderConfigSSL, Lookup
 from .load_certs import *
 
@@ -60,6 +62,38 @@ class TestLookup(unittest.TestCase):
             raise Exception('Not msg sent!')
 
         con.socket.shutdown(0)
+
+    def test_create_lookup_key_index_preserves_structure(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+        )
+        con = Sender(engine_config)
+        lookup = Lookup(name=self.lookup_name, con=con)
+        headers = ["col1", "col2", "col3"]
+        fields = ["a", "b", "c"]
+
+        expected_headers = Lookup.list_to_headers(headers, key_index=0)
+        with mock.patch.object(
+                lookup, "send_control", wraps=lookup.send_control
+        ) as lookup_spy:
+            lookup.send_headers(
+                headers=headers, key_index=0, event="START", action="FULL"
+            )
+            lookup_spy.assert_called_with(
+                action="FULL", event="START", headers=expected_headers
+            )
+            lookup.send_data_line(key_index=0, fields=fields)
+            lookup.send_headers(
+                headers=headers, key_index=0, event="END", action="FULL"
+            )
+            lookup_spy.assert_called_with(
+                action="FULL", event="END", headers=expected_headers
+            )
 
     # add new line deleting previous data
     def test_ssl_lookup_override(self):

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """ File with utils for send Lookups to Devo """
-import time
-import sys
 import csv
 import re
+import sys
+import time
 
 
 def find_key_index(value=None, headers=None):
@@ -320,15 +320,15 @@ class Lookup:
         :result str:
         """
         # First the key
-        if key is not None:
-            out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-                                                        if key_index and types
-                                                        else type_of_key)
-        elif key_index is not None:
+        if key_index is not None:
             key = headers[key_index]
             out = '[{"%s":{"type":"%s","key":true}}' % (key,
                                                         types[key_index]
                                                         if types
+                                                        else type_of_key)
+        elif key is not None:
+            out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
+                                                        if key_index and types
                                                         else type_of_key)
         else:
             raise Exception("Not key identified")
