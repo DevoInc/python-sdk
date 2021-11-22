@@ -62,7 +62,8 @@ class Lookup:
     # Helper methods
     # --------------------------------------------------------------------------
     def send_headers(self, headers=None, key="KEY", event='START',
-                     action='FULL', types=None, key_index=None):
+                     action='FULL', types=None, key_index=None,
+                     type_of_key="str"):
         """
         Send only the headers
         :param headers: list with headers names
@@ -71,10 +72,12 @@ class Lookup:
         :param event: START or END
         :param action: FULL or INC to send new full lookup or for update one
         :param types: dict with types of each header
+        :param type_of_key: the key's type (str by default)
         :return:
         """
         p_headers = Lookup.list_to_headers(headers=headers, key=key,
-                                           types=types, key_index=key_index)
+                                           types=types, key_index=key_index,
+                                           type_of_key=type_of_key)
         self.send_control(event=event, headers=p_headers, action=action)
 
     def send_data_line(self, key=None, fields=None,

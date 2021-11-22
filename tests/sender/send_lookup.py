@@ -95,6 +95,31 @@ class TestLookup(unittest.TestCase):
                 action="FULL", event="END", headers=expected_headers
             )
 
+    def test_send_headers_with_type_of_key(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+        )
+        con = Sender(engine_config)
+        lookup = Lookup(name=self.lookup_name, con=con)
+        headers = ["col1", "col2", "col3"]
+
+        expected_headers = '[{"col1":{"type":"int4","key":true}},{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        with mock.patch.object(
+                lookup, "send_control", wraps=lookup.send_control
+        ) as lookup_spy:
+            lookup.send_headers(
+                headers=headers, key_index=0, type_of_key="int4", event="START", action="FULL"
+            )
+            lookup_spy.assert_called_with(
+                action="FULL", event="START", headers=expected_headers
+            )
+        con.socket.shutdown(0)
+
     # add new line deleting previous data
     def test_ssl_lookup_override(self):
         engine_config = SenderConfigSSL(address=(self.server, self.port),
