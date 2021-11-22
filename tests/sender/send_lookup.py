@@ -176,6 +176,14 @@ class TestLookup(unittest.TestCase):
         self.assertFalse(Lookup.is_number('5.'))
         self.assertFalse(Lookup.is_number('5,0'))
 
+    def test_process_fields_does_not_modify_arguments(self):
+        fields = ["a", "b", "c"]
+
+        processed_fields = Lookup.process_fields(fields, key_index=1)
+
+        self.assertEqual(fields, ["a", "b", "c"])
+        self.assertEqual(processed_fields, '"b","a","c"')
+
 
 if __name__ == '__main__':
     unittest.main()

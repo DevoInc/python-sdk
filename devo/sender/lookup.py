@@ -365,10 +365,10 @@ class Lookup:
         :return:
         """
         # First the key
-        out = '%s' % Lookup.clean_field(fields.pop(key_index))
+        out = '%s' % Lookup.clean_field(fields[key_index])
 
         # The rest of the fields
-        for item in fields:
+        for item in fields[:key_index] + fields[key_index + 1:]:
             out += Lookup.field_to_str(item)
         return out
 
