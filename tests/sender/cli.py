@@ -99,8 +99,8 @@ class TestSender(unittest.TestCase):
                                       "--cert", self.cert,
                                       "--chain", self.chain,
                                       "--tag", self.my_app,
-                                      "--verify_mode", 1,
-                                      '--check_hostname', True,
+                                      "--verify_mode", 0,
+                                      '--check_hostname', False,
                                       "--line", "Test line"])
 
         self.assertIsNone(result.exception)
