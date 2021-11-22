@@ -77,7 +77,7 @@ class TestLookup(unittest.TestCase):
         headers = ["col1", "col2", "col3"]
         fields = ["a", "b", "c"]
 
-        expected_headers = Lookup.list_to_headers(headers, key_index=0)
+        expected_headers = '[{"col1":{"type":"str","key":true}},{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         with mock.patch.object(
                 lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
@@ -94,6 +94,7 @@ class TestLookup(unittest.TestCase):
             lookup_spy.assert_called_with(
                 action="FULL", event="END", headers=expected_headers
             )
+        con.socket.shutdown(0)
 
     def test_send_headers_with_type_of_key(self):
         engine_config = SenderConfigSSL(
