@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """ File with utils for send Lookups to Devo """
-import time
-import sys
 import csv
 import re
+import sys
+import time
 
 
 def find_key_index(value=None, headers=None):
@@ -62,7 +62,8 @@ class Lookup:
     # Helper methods
     # --------------------------------------------------------------------------
     def send_headers(self, headers=None, key="KEY", event='START',
-                     action='FULL', types=None, key_index=None):
+                     action='FULL', types=None, key_index=None,
+                     type_of_key="str"):
         """
         Send only the headers
         :param headers: list with headers names
@@ -71,10 +72,12 @@ class Lookup:
         :param event: START or END
         :param action: FULL or INC to send new full lookup or for update one
         :param types: dict with types of each header
+        :param type_of_key: the key's type (str by default)
         :return:
         """
         p_headers = Lookup.list_to_headers(headers=headers, key=key,
-                                           types=types, key_index=key_index)
+                                           types=types, key_index=key_index,
+                                           type_of_key=type_of_key)
         self.send_control(event=event, headers=p_headers, action=action)
 
     def send_data_line(self, key=None, fields=None,
@@ -320,15 +323,15 @@ class Lookup:
         :result str:
         """
         # First the key
-        if key is not None:
-            out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-                                                        if key_index and types
-                                                        else type_of_key)
-        elif key_index is not None:
+        if key_index is not None:
             key = headers[key_index]
             out = '[{"%s":{"type":"%s","key":true}}' % (key,
                                                         types[key_index]
                                                         if types
+                                                        else type_of_key)
+        elif key is not None:
+            out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
+                                                        if key_index and types
                                                         else type_of_key)
         else:
             raise Exception("Not key identified")
@@ -365,10 +368,10 @@ class Lookup:
         :return:
         """
         # First the key
-        out = '%s' % Lookup.clean_field(fields.pop(key_index))
+        out = '%s' % Lookup.clean_field(fields[key_index])
 
         # The rest of the fields
-        for item in fields:
+        for item in fields[:key_index] + fields[key_index + 1:]:
             out += Lookup.field_to_str(item)
         return out
 
