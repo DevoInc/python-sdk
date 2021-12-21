@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 META_PATH = os.path.join("devo", "__version__.py")
 HERE = os.path.abspath(os.path.dirname(__file__))
-PACKAGES = find_packages()
+PACKAGES = find_packages(exclude=["tests*"])
 KEYWORDS = ["devo", "sdk", "developers"]
 CLASSIFIERS = [
     "Programming Language :: Python",
