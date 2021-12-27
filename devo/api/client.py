@@ -323,7 +323,7 @@ class Client:
         try:
             first = next(response)
         except StopIteration:
-            first = None
+            return None  # The query did not return any result
         except TypeError:
             raise_exception(response)
 

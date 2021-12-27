@@ -1,14 +1,18 @@
 import json
 import os
-import unittest
 import types
+import unittest
 from time import gmtime, strftime
-from devo.api import Client, ClientConfig
+
+import stopit
+
+from devo.api import Client, ClientConfig, DevoClientException
 
 
 class TestApi(unittest.TestCase):
     def setUp(self):
         self.query = 'from demo.ecommerce.data select * limit 1'
+        self.query_no_results = 'from demo.ecommerce.data where method = "TEST" select * limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
@@ -46,7 +50,6 @@ class TestApi(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
 
-    test_token
     def test_query_id(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
@@ -94,6 +97,30 @@ class TestApi(unittest.TestCase):
         self.assertTrue(isinstance(result, types.GeneratorType))
         result = list(result)
         self.assertEqual(len(result), 1)
+
+    def test_stream_query_no_results_bounded_dates(self):
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="json/simple"))
+        result = api.query(
+            query=self.query_no_results,
+            dates={'from': '1h', 'to': 'now()'}
+        )
+        self.assertTrue(isinstance(result, types.GeneratorType))
+        result = list(result)
+        self.assertEqual(len(result), 0)
+
+    def test_stream_query_no_results_unbounded_dates(self):
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="json/simple"))
+        result = api.query(query=self.query_no_results)
+        self.assertTrue(isinstance(result, types.GeneratorType))
+        try:
+            with stopit.ThreadingTimeout(3) as to_ctx_mgr:
+                result = list(result)
+        except DevoClientException:
+            self.assertEqual(to_ctx_mgr.state, to_ctx_mgr.TIMED_OUT)
 
     def test_pragmas(self):
         """Test the api when the pragma comment.free is used"""
