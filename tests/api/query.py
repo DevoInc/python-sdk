@@ -12,7 +12,8 @@ from devo.api import Client, ClientConfig, DevoClientException
 class TestApi(unittest.TestCase):
     def setUp(self):
         self.query = 'from demo.ecommerce.data select * limit 1'
-        self.query_no_results = 'from demo.ecommerce.data where method = "TEST" select * limit 1'
+        self.query_no_results = \
+            'from demo.ecommerce.data where method = "TEST" select * limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
@@ -120,8 +121,9 @@ class TestApi(unittest.TestCase):
             with stopit.ThreadingTimeout(3) as to_ctx_mgr:
                 result = list(result)
         except DevoClientException:
-            # This exception is sent because devo.api.client.Client._make_request
-            # catches the stopit.TimeoutException, but the latter is not
+            # This exception is sent because
+            # devo.api.client.Client._make_request catches the
+            # stopit.TimeoutException, but the latter is not
             # wrapped, so we cannot obtain it from here.
             self.assertEqual(to_ctx_mgr.state, to_ctx_mgr.TIMED_OUT)
 
