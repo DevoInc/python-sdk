@@ -6,10 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased - 2021-11-18
 ### Fixed
-* Fix and skip some non-working tests
-* `Lookup.send_headers` method not working as expected with key_index parameter
-* Add `type_of_key` parameter to `Lookup.send_headers` method
+* Fix and skip some non-working tests.
+* `Lookup.send_headers` method not working as expected with key_index parameter.
+* Add `type_of_key` parameter to `Lookup.send_headers` method.
 * Avoid lookups' key element to be deleted when `Lookup.send_data_line` is invoked.
+* **api-query**: return `None` when the query response has no results. 
 
 
 ## [3.4.2] - 2021-05-18
