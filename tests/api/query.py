@@ -120,6 +120,9 @@ class TestApi(unittest.TestCase):
             with stopit.ThreadingTimeout(3) as to_ctx_mgr:
                 result = list(result)
         except DevoClientException:
+            # This exception is sent because devo.api.client.Client._make_request
+            # catches the stopit.TimeoutException, but the latter is not
+            # wrapped, so we cannot obtain it from here.
             self.assertEqual(to_ctx_mgr.state, to_ctx_mgr.TIMED_OUT)
 
     def test_pragmas(self):
