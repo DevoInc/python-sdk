@@ -6,6 +6,7 @@ import sys
 import time
 
 
+
 def find_key_index(value=None, headers=None):
     """Find index of key value in a list"""
     for index, val in enumerate(headers):
@@ -81,7 +82,7 @@ class Lookup:
         self.send_control(event=event, headers=p_headers, action=action)
 
     def send_data_line(self, key=None, fields=None,
-                       delete=False, key_index=None):
+                       delete=False, key_index=None, escape_quotes=False):
         """
         Send only the data
         :param key: key value, optional if you send 'key_index'
@@ -92,7 +93,7 @@ class Lookup:
         :return:
         """
         # TODO: Deprecate this if with list_to_fields in v4
-        p_fields = Lookup.list_to_fields(fields=fields, key=key) \
+        p_fields = Lookup.list_to_fields(fields=fields, key=key, escape_quotes=escape_quotes) \
             if key_index is None \
             else Lookup.process_fields(fields=fields, key_index=key_index)
         self.send_data(row=p_fields, delete=delete)
@@ -351,16 +352,16 @@ class Lookup:
         return out
 
     @staticmethod
-    def field_to_str(field):
+    def field_to_str(field, escape_quotes=False):
         """
         Convert one value to STR, cleaning it
         :param field: field to clean
         :return:
         """
-        return ',%s' % Lookup.clean_field(field)
+        return ',%s' % Lookup.clean_field(field, escape_quotes)
 
     @staticmethod
-    def process_fields(fields=None, key_index=None):
+    def process_fields(fields=None, key_index=None, escape_quotes=False):
         """
         Method to convert list with one row/fields to STR to send
         :param fields: fields list
@@ -372,12 +373,12 @@ class Lookup:
 
         # The rest of the fields
         for item in fields[:key_index] + fields[key_index + 1:]:
-            out += Lookup.field_to_str(item)
+            out += Lookup.field_to_str(item, escape_quotes)
         return out
 
     # TODO: Deprecated
     @staticmethod
-    def list_to_fields(fields=None, key="key"):
+    def list_to_fields(fields=None, key="key", escape_quotes=False):
         """
         Transform list item to the object we need send to Devo for each row
         :param list fields: list of field names
@@ -393,7 +394,7 @@ class Lookup:
 
         # The rest of the fields
         for item in fields:
-            item = Lookup.clean_field(item)
+            item = Lookup.clean_field(item, escape_quotes)
             # If file is the key don't add
             if item == key:
                 continue
@@ -401,7 +402,7 @@ class Lookup:
         return out
 
     @staticmethod
-    def clean_field(field=None):
+    def clean_field(field=None, escape_quotes=False):
         """
         Strip and quotechar the fields
         :param str field: field for clean
@@ -413,6 +414,9 @@ class Lookup:
         field = field.strip()
         if Lookup.is_number(field):
             return field
+
+        if escape_quotes:
+            field = field.replace('"', '""')
 
         return '"%s"' % field
 
