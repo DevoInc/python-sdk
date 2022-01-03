@@ -210,9 +210,10 @@ class Lookup:
                 if delete_index is not None:
                     for fields in spam_reader:
                         field_action = fields.pop(delete_index)
-                        p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index,
-                                                         escape_quotes=self.escape_quotes)
+                        p_fields = Lookup.process_fields(
+                            fields=fields,
+                            key_index=key_index,
+                            escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields,
                                        delete=field_action == "delete"
                                        or field_action == "DELETE")
@@ -223,9 +224,10 @@ class Lookup:
                         counter += 1
                 else:
                     for fields in spam_reader:
-                        p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index,
-                                                         escape_quotes=self.escape_quotes)
+                        p_fields = Lookup.process_fields(
+                            fields=fields,
+                            key_index=key_index,
+                            escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields)
 
                         # Send full log for historic
