@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Add `type_of_key` parameter to `Lookup.send_headers` method
 * Avoid lookups' key element to be deleted when `Lookup.send_data_line` is invoked.
 
+## [3.4.3] - 2022-01-03
+### Added
+ * Double quotes on lookups can be escaped by adding `"escape_quotes": true` to the config file.
 
 ## [3.4.2] - 2021-05-18
 ### Added

@@ -44,7 +44,7 @@ class Lookup:
     CONTROL_TABLE = "my.lookup.control"
 
     def __init__(self, name="example", historic_tag=None,
-                 con=None, delay=5):
+                 con=None, delay=5, escape_quotes=False):
 
         if not re.match(r"^[A-Za-z0-9_]+$", name):
             raise Exception('Devo Lookup: The name of the lookup is incorrect,'
@@ -59,6 +59,7 @@ class Lookup:
         self.historic_tag = historic_tag
         self.name = name.replace(" ", "_")
         self.delay = delay
+        self.escape_quotes = escape_quotes
 
     # Helper methods
     # --------------------------------------------------------------------------
@@ -82,7 +83,7 @@ class Lookup:
         self.send_control(event=event, headers=p_headers, action=action)
 
     def send_data_line(self, key=None, fields=None,
-                       delete=False, key_index=None, escape_quotes=False):
+                       delete=False, key_index=None):
         """
         Send only the data
         :param key: key value, optional if you send 'key_index'
@@ -93,7 +94,7 @@ class Lookup:
         :return:
         """
         # TODO: Deprecate this if with list_to_fields in v4
-        p_fields = Lookup.list_to_fields(fields=fields, key=key, escape_quotes=escape_quotes) \
+        p_fields = Lookup.list_to_fields(fields=fields, key=key, escape_quotes=self.escape_quotes) \
             if key_index is None \
             else Lookup.process_fields(fields=fields, key_index=key_index)
         self.send_data(row=p_fields, delete=delete)
@@ -208,7 +209,7 @@ class Lookup:
                     for fields in spam_reader:
                         field_action = fields.pop(delete_index)
                         p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index)
+                                                         key_index=key_index, escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields,
                                        delete=field_action == "delete"
                                        or field_action == "DELETE")
@@ -220,7 +221,7 @@ class Lookup:
                 else:
                     for fields in spam_reader:
                         p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index)
+                                                         key_index=key_index, escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields)
 
                         # Send full log for historic
@@ -369,7 +370,7 @@ class Lookup:
         :return:
         """
         # First the key
-        out = '%s' % Lookup.clean_field(fields[key_index])
+        out = '%s' % Lookup.clean_field(fields[key_index], escape_quotes)
 
         # The rest of the fields
         for item in fields[:key_index] + fields[key_index + 1:]:
@@ -385,7 +386,7 @@ class Lookup:
         :param str key: key name, optional
         :result str
         """
-        key = Lookup.clean_field(key)
+        key = Lookup.clean_field(key, escape_quotes)
         # First the key
         out = '%s' % key
 

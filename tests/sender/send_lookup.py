@@ -243,6 +243,31 @@ class TestLookup(unittest.TestCase):
         self.assertEqual(fields, ["a", "b", "c"])
         self.assertEqual(processed_fields, '"b","a","c"')
 
+    # Add new line with double quotes to lookup
+    def test_ssl_lookup_new_line_with_double_quotes(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+        )
+        con = Sender(engine_config)
+
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
+        p_headers = Lookup.list_to_headers(["KEY", "Value"], "KEY")
+        lookup.send_control("START", p_headers, "INC")
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception("Not msg sent!")
+        lookup.send_data_line(key="11", fields=["11", 'If double quotes are not escaped the send fails"'])
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception("Not msg sent!")
+        lookup.send_control("END", p_headers, "INC")
+        if len(con.socket.recv(1000)) == 0:
+            raise Exception("Not msg sent!")
+
+        con.socket.shutdown(0)
 
 if __name__ == "__main__":
     unittest.main()

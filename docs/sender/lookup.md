@@ -25,6 +25,7 @@ Example:
         "name": "Test_Lookup_of_180306_02",
         "file": "test_lookup.csv",
         "lkey": "KEY"
+        "escape_quotes": true
     }
 }
 ```
@@ -225,3 +226,31 @@ You can use config file to send types list:
     ....
  }}
 ```
+##### Double quotes in the field value
+
+Any double quotes inside the field value can cause trouble when sending the lookup if not escaped 
+and example of this can be seen below:
+
+`lookup.send_data_line(key="11", fields=["11", 'double quotes must escaped"'])`
+
+That lookup will fail to be sent, to avoid this, add `"escape_quotes": true` to the lookup config
+file and `escape_quotes=True` to the constructor, below both examples are shown:
+
+```
+{   sender": {
+        ...
+    },
+    "lookup": {
+        "name": "Test_Lookup_of_180306_02",
+        "file": "test_lookup.csv",
+        "lkey": "KEY"
+        "escape_quotes": true
+    }
+}
+```
+
+`lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)`
+
+This will escape ALL double quotes in the field value by adding a second double quote to it.
+
+The default behavior is to NOT escape any double quotes. 
