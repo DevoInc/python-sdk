@@ -94,9 +94,11 @@ class Lookup:
         :return:
         """
         # TODO: Deprecate this if with list_to_fields in v4
-        p_fields = Lookup.list_to_fields(fields=fields, key=key, escape_quotes=self.escape_quotes) \
+        p_fields = Lookup.list_to_fields(fields=fields, key=key,
+                                         escape_quotes=self.escape_quotes) \
             if key_index is None \
-            else Lookup.process_fields(fields=fields, key_index=key_index)
+            else Lookup.process_fields(fields=fields, key_index=key_index,
+                                       escape_quotes=self.escape_quotes)
         self.send_data(row=p_fields, delete=delete)
 
     @staticmethod
@@ -209,7 +211,8 @@ class Lookup:
                     for fields in spam_reader:
                         field_action = fields.pop(delete_index)
                         p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index, escape_quotes=self.escape_quotes)
+                                                         key_index=key_index,
+                                                         escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields,
                                        delete=field_action == "delete"
                                        or field_action == "DELETE")
@@ -221,7 +224,8 @@ class Lookup:
                 else:
                     for fields in spam_reader:
                         p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index, escape_quotes=self.escape_quotes)
+                                                         key_index=key_index,
+                                                         escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields)
 
                         # Send full log for historic

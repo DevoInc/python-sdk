@@ -243,31 +243,106 @@ class TestLookup(unittest.TestCase):
         self.assertEqual(fields, ["a", "b", "c"])
         self.assertEqual(processed_fields, '"b","a","c"')
 
-    # Add new line with double quotes to lookup
-    def test_ssl_lookup_new_line_with_double_quotes(self):
+    # Standard behavior for clean_field
+    def test_clean_field_standard(self):
         engine_config = SenderConfigSSL(
             address=(self.server, self.port),
             key=self.key,
             cert=self.cert,
-            chain=self.chain,
-            check_hostname=False,
-            verify_mode=CERT_NONE,
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
-        p_headers = Lookup.list_to_headers(["KEY", "Value"], "KEY")
-        lookup.send_control("START", p_headers, "INC")
-        if len(con.socket.recv(1000)) == 0:
-            raise Exception("Not msg sent!")
-        lookup.send_data_line(key="11", fields=["11", 'If double quotes are not escaped the send fails"'])
-        if len(con.socket.recv(1000)) == 0:
-            raise Exception("Not msg sent!")
-        lookup.send_control("END", p_headers, "INC")
-        if len(con.socket.recv(1000)) == 0:
-            raise Exception("Not msg sent!")
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
+        result = lookup.clean_field("No double quotes", False)
 
-        con.socket.shutdown(0)
+        self.assertEqual(result, '"No double quotes"')
+
+    # Standard behavior is expected since no double quotes are present
+    def test_clean_field_no_quotes(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+        )
+        con = Sender(engine_config)
+
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
+        result = lookup.clean_field("No double quotes", True)
+
+        self.assertEqual(result, '"No double quotes"')
+
+    # Double quotes are present but they will not be escaped
+    def test_clean_field_double_quotes(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+        )
+        con = Sender(engine_config)
+
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
+        result = lookup.clean_field('Double quotes"', False)
+
+        self.assertEqual(result, '"Double quotes""')
+
+    # Double quotes are present ane they will be escaped
+    def test_clean_field_escape_quotes(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+        )
+        con = Sender(engine_config)
+
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
+        result = lookup.clean_field('Double quotes"', True)
+
+        self.assertEqual(result, '"Double quotes"""')
+
+    # Test to make sure escape_quotes is propagated correctly
+    def test_escape_quotes_in_constructor(self):
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+        )
+        con = Sender(engine_config)
+
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
+                        escape_quotes=True)
+
+        with mock.patch.object(Lookup, 'clean_field',
+                               wraps=Lookup.clean_field) as clean_field:
+            lookup.send_data_line(key="11", fields=["11", 'Double quotes"'])
+            clean_field.assert_called_with('Double quotes"', True)
+
+        with mock.patch.object(Lookup, 'clean_field',
+                               wraps=Lookup.clean_field) as constructor:
+            lookup.send_data_line(fields=["11", 'Double quotes"'])
+            constructor.assert_called_with('Double quotes"', True)
+
+        with open(self.lookup_file) as f:
+            line = f.readline()
+
+        lookup.send_csv(
+            self.lookup_file,
+            headers=line.rstrip().split(","),
+            key=self.lookup_key,
+        )
+
+        with mock.patch.object(Lookup, 'clean_field',
+                               wraps=Lookup.clean_field) as constructor:
+            lookup.send_csv(path=self.lookup_file,
+                            headers=line.rstrip().split(","),
+                            key=self.lookup_key)
+            constructor.assert_called_with('ffffff', True)
+
+        with mock.patch.object(Lookup, 'clean_field',
+                               wraps=Lookup.clean_field) as constructor:
+            lookup.send_csv(path=self.lookup_file,
+                            headers=line.rstrip().split(","),
+                            key=self.lookup_key, delete_field="Green")
+            constructor.assert_called_with('ffffff', True)
 
 if __name__ == "__main__":
     unittest.main()
