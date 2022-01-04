@@ -6,6 +6,7 @@ import sys
 import time
 
 
+
 def find_key_index(value=None, headers=None):
     """Find index of key value in a list"""
     for index, val in enumerate(headers):
@@ -43,7 +44,7 @@ class Lookup:
     CONTROL_TABLE = "my.lookup.control"
 
     def __init__(self, name="example", historic_tag=None,
-                 con=None, delay=5):
+                 con=None, delay=5, escape_quotes=False):
 
         if not re.match(r"^[A-Za-z0-9_]+$", name):
             raise Exception('Devo Lookup: The name of the lookup is incorrect,'
@@ -58,6 +59,7 @@ class Lookup:
         self.historic_tag = historic_tag
         self.name = name.replace(" ", "_")
         self.delay = delay
+        self.escape_quotes = escape_quotes
 
     # Helper methods
     # --------------------------------------------------------------------------
@@ -92,9 +94,11 @@ class Lookup:
         :return:
         """
         # TODO: Deprecate this if with list_to_fields in v4
-        p_fields = Lookup.list_to_fields(fields=fields, key=key) \
+        p_fields = Lookup.list_to_fields(fields=fields, key=key,
+                                         escape_quotes=self.escape_quotes) \
             if key_index is None \
-            else Lookup.process_fields(fields=fields, key_index=key_index)
+            else Lookup.process_fields(fields=fields, key_index=key_index,
+                                       escape_quotes=self.escape_quotes)
         self.send_data(row=p_fields, delete=delete)
 
     @staticmethod
@@ -206,8 +210,10 @@ class Lookup:
                 if delete_index is not None:
                     for fields in spam_reader:
                         field_action = fields.pop(delete_index)
-                        p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index)
+                        p_fields = Lookup.process_fields(
+                            fields=fields,
+                            key_index=key_index,
+                            escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields,
                                        delete=field_action == "delete"
                                        or field_action == "DELETE")
@@ -218,8 +224,10 @@ class Lookup:
                         counter += 1
                 else:
                     for fields in spam_reader:
-                        p_fields = Lookup.process_fields(fields=fields,
-                                                         key_index=key_index)
+                        p_fields = Lookup.process_fields(
+                            fields=fields,
+                            key_index=key_index,
+                            escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields)
 
                         # Send full log for historic
@@ -351,16 +359,16 @@ class Lookup:
         return out
 
     @staticmethod
-    def field_to_str(field):
+    def field_to_str(field, escape_quotes=False):
         """
         Convert one value to STR, cleaning it
         :param field: field to clean
         :return:
         """
-        return ',%s' % Lookup.clean_field(field)
+        return ',%s' % Lookup.clean_field(field, escape_quotes)
 
     @staticmethod
-    def process_fields(fields=None, key_index=None):
+    def process_fields(fields=None, key_index=None, escape_quotes=False):
         """
         Method to convert list with one row/fields to STR to send
         :param fields: fields list
@@ -368,23 +376,23 @@ class Lookup:
         :return:
         """
         # First the key
-        out = '%s' % Lookup.clean_field(fields[key_index])
+        out = '%s' % Lookup.clean_field(fields[key_index], escape_quotes)
 
         # The rest of the fields
         for item in fields[:key_index] + fields[key_index + 1:]:
-            out += Lookup.field_to_str(item)
+            out += Lookup.field_to_str(item, escape_quotes)
         return out
 
     # TODO: Deprecated
     @staticmethod
-    def list_to_fields(fields=None, key="key"):
+    def list_to_fields(fields=None, key="key", escape_quotes=False):
         """
         Transform list item to the object we need send to Devo for each row
         :param list fields: list of field names
         :param str key: key name, optional
         :result str
         """
-        key = Lookup.clean_field(key)
+        key = Lookup.clean_field(key, escape_quotes)
         # First the key
         out = '%s' % key
 
@@ -393,7 +401,7 @@ class Lookup:
 
         # The rest of the fields
         for item in fields:
-            item = Lookup.clean_field(item)
+            item = Lookup.clean_field(item, escape_quotes)
             # If file is the key don't add
             if item == key:
                 continue
@@ -401,7 +409,7 @@ class Lookup:
         return out
 
     @staticmethod
-    def clean_field(field=None):
+    def clean_field(field=None, escape_quotes=False):
         """
         Strip and quotechar the fields
         :param str field: field for clean
@@ -413,6 +421,9 @@ class Lookup:
         field = field.strip()
         if Lookup.is_number(field):
             return field
+
+        if escape_quotes:
+            field = field.replace('"', '""')
 
         return '"%s"' % field
 
