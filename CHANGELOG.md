@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased - 2022-01-12
+## [3.5.0] - 2022-01-20
 ### Added
  * Double quotes on lookups can be escaped by adding `"escape_quotes": true` to the config file.
 
@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * Add `type_of_key` parameter to `Lookup.send_headers` method.
 * Avoid lookups' key element to be deleted when `Lookup.send_data_line` is invoked.
 * **api-query**: return `None` when the query response has no results. 
+* Remove `tests` folder from distribution package.
 
 ## [3.4.2] - 2021-05-18
 ### Added
