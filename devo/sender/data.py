@@ -11,7 +11,7 @@ from devo.common import get_stream_handler, get_log, Configuration
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
-
+from pathlib import Path
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -121,6 +121,14 @@ class Sender(logging.Handler):
         if config is None:
             raise DevoSenderException("Problems with args passed to Sender")
 
+        self.socket = None
+        self.reconnection = 0
+        self.debug = debug
+        self.socket_timeout = timeout
+        self.socket_max_connection = 3600 * 1000
+        self.buffer = SenderBuffer()
+        self.logging = {}
+
         self.timestart = time.time()
         if isinstance(config, (dict, Configuration)):
             timeout = config.get("timeout", timeout)
@@ -132,7 +140,8 @@ class Sender(logging.Handler):
             get_log(handler=get_stream_handler(
                 msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
 
-        self._sender_config = config
+        if self.check_configuration(config):
+            self._sender_config = config
 
         if self._sender_config.sec_level is not None:
             self.logger.warning("Openssl's default security "
@@ -140,14 +149,6 @@ class Sender(logging.Handler):
                                 "{}.".format(self.
                                              _sender_config.
                                              sec_level))
-
-        self.socket = None
-        self.reconnection = 0
-        self.debug = debug
-        self.socket_timeout = timeout
-        self.socket_max_connection = 3600 * 1000
-        self.buffer = SenderBuffer()
-        self.logging = {}
 
         if isinstance(config, SenderConfigSSL):
             self.__connect_ssl()
@@ -625,3 +626,34 @@ class Sender(logging.Handler):
                       severity=severity)
         except Exception:
             self.handleError(record)
+
+    def check_configuration(self, config):
+        """
+        Verifies that the configuration used to send events
+        is correct.
+
+        The address, port and certificates must be valid and
+        the certificates must exist in the path.
+        """
+
+        if Path(config.key).is_file() is False:
+            raise DevoSenderException("Error in config, Key path does not exist")
+
+        if Path(config.cert).is_file() is False:
+            raise DevoSenderException("Error in config, Cert path does not exist")
+
+        if Path(config.chain).is_file() is False:
+            raise DevoSenderException("Error in config, Chain path does not exist")
+
+        try:
+            test_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            test_connect.settimeout(self.socket_timeout)
+            test_connect.connect(config.address)
+            test_connect.close()
+        except socket.error as message:
+            if "Name or service not known" in message.args:
+                raise DevoSenderException("Error in config, incorrect address")
+            elif "timed out" in message.args:
+                raise DevoSenderException("Error in config, incorrect port")
+
+        return True
