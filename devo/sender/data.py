@@ -2,16 +2,22 @@
 """ File to group all the classes and functions related to the connection
 and sending of data to Devo """
 import logging
-import socket
-import ssl
 import sys
 import time
 import zlib
+from OpenSSL import crypto
+from OpenSSL import SSL
+import pem
 from devo.common import get_stream_handler, get_log, Configuration
 from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 from pathlib import Path
+import ssl, socket
+
+
+
+
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -49,7 +55,7 @@ class SenderConfigSSL:
     """
     def __init__(self, address=None, key=None, cert=None, chain=None,
                  pkcs=None, sec_level=None, check_hostname=True,
-                 verify_mode=None):
+                 verify_config=True, verify_mode=None):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -63,6 +69,7 @@ class SenderConfigSSL:
             self.hostname = socket.gethostname()
             self.sec_level = sec_level
             self.check_hostname = check_hostname
+            self.verify_config = verify_config
             self.verify_mode = verify_mode
         except Exception as error:
             raise DevoSenderException(
@@ -140,7 +147,13 @@ class Sender(logging.Handler):
             get_log(handler=get_stream_handler(
                 msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
 
-        if self.check_configuration(config):
+        if config.verify_config:
+            if self.check_config_files_path(config) \
+                    and self.check_config_certificate_key(config) \
+                    and self.check_config_certificate_chain(config) \
+                    and self.check_config_certificate_address(config):
+                self._sender_config = config
+        else:
             self._sender_config = config
 
         if self._sender_config.sec_level is not None:
@@ -596,6 +609,7 @@ class Sender(logging.Handler):
                                    pkcs=config.get("pkcs", None),
                                    sec_level=config.get("sec_level", None),
                                    verify_mode=config.get("verify_mode", None),
+                                   verify_config=config.get("verify_config", True),
                                    check_hostname=config.get("check_hostname",
                                                              True))
 
@@ -627,33 +641,128 @@ class Sender(logging.Handler):
         except Exception:
             self.handleError(record)
 
-    def check_configuration(self, config):
+    @staticmethod
+    def check_config_files_path(config):
         """
-        Verifies that the configuration used to send events
-        is correct.
+        Check if the certificate files
+        in the configurations are path correct.
 
-        The address, port and certificates must be valid and
-        the certificates must exist in the path.
+        :param config -> Configuration object.
+        :return: Boolean true or raises an exception
         """
-
         if Path(config.key).is_file() is False:
-            raise DevoSenderException("Error in config, Key path does not exist")
+            raise DevoSenderException(
+                "Error in the configuration, "
+                + config.key + " path does not exist")
 
         if Path(config.cert).is_file() is False:
-            raise DevoSenderException("Error in config, Cert path does not exist")
+            raise DevoSenderException(
+                "Error in the configuration, "
+                + config.cert + " path does not exist")
 
         if Path(config.chain).is_file() is False:
-            raise DevoSenderException("Error in config, Chain path does not exist")
-
-        try:
-            test_connect = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            test_connect.settimeout(self.socket_timeout)
-            test_connect.connect(config.address)
-            test_connect.close()
-        except socket.error as message:
-            if "Name or service not known" in message.args:
-                raise DevoSenderException("Error in config, incorrect address")
-            elif "timed out" in message.args:
-                raise DevoSenderException("Error in config, incorrect port")
-
+            raise DevoSenderException(
+                "Error in the configuration, "
+                + config.chain + " path does not exist")
         return True
+
+    @staticmethod
+    def check_config_certificate_key(config):
+        """
+        Check if both the certificate and the key
+        in the configuration are compatible with each other.
+
+        :param config -> Configuration object.
+        :return: Boolean true or raises an exception
+        """
+        certificate_raw = open(config.cert, "r").read()
+        key_raw = open(config.key, "r").read()
+        certificate_obj = crypto.load_certificate\
+            (crypto.FILETYPE_PEM, certificate_raw)
+        private_key_obj = crypto.load_privatekey(crypto.FILETYPE_PEM, key_raw)
+        context = SSL.Context(SSL.TLSv1_METHOD)
+        context.use_privatekey(private_key_obj)
+        context.use_certificate(certificate_obj)
+        try:
+            context.check_privatekey()
+        except SSL.Error:
+            raise DevoSenderException(
+                "Error in the configuration, the key: " + config.key +
+                " is not compatible with the cert: " + config.cert)
+        return True
+
+    @staticmethod
+    def check_config_certificate_chain(config):
+        """
+        Check if both the certificate and the chain
+        in the configuration are compatible with each other.
+
+        :param config -> Configuration object.
+        :return: Boolean true or raises an exception
+        """
+        try:
+            certificate_raw = open(config.cert, "rb").read()
+            chain_raw = open(config.chain, "rb").read()
+            certificate_obj = crypto.load_certificate\
+                (crypto.FILETYPE_PEM, certificate_raw)
+            certificates_chain = crypto.X509Store()
+            for certificate in pem.parse(chain_raw):
+                certificates_chain.add_cert\
+                    (crypto.load_certificate
+                     (crypto.FILETYPE_PEM, str(certificate)))
+            store_ctx = crypto.X509StoreContext\
+                (certificates_chain, certificate_obj)
+            store_ctx.verify_certificate()
+        except crypto.X509StoreContextError:
+            raise DevoSenderException(
+                "Error in config, the chain: " + config.chain +
+                " is not compatible with the certificate: " + config.cert)
+        return True
+
+    @staticmethod
+    def check_config_certificate_address(config):
+        """
+        Check if the certificate is compatible with the
+        address, also check is the address and port are
+        valid.
+
+        :param config -> Configuration object.
+        :return: Boolean true or raises an exception
+        """
+        sock = socket.socket()
+        context = SSL.Context(SSL.SSLv23_METHOD)
+        sock.settimeout(10)
+        connection = SSL.Connection(context, sock)
+        try:
+            connection.connect((config.address[0], config.address[1]))
+        except socket.timeout:
+            raise DevoSenderException(
+                "Error in config, the port: "
+                + str(config.address[1]) +
+                " is incorrect")
+        sock.setblocking(True)
+        connection.do_handshake()
+        server_certs = connection.get_peer_cert_chain()
+
+        chain = open(config.chain, "rb").read()
+        chain_certs = []
+        for _ca in pem.parse(chain):
+            chain_certs.append(
+                crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
+        try:
+            server_common_name = \
+                server_certs[1].get_issuer().get_components()[5][1]
+            client_common_name = \
+                chain_certs[0].get_subject().get_components()[5][1]
+
+            if server_common_name == client_common_name:
+                return True
+            else:
+                raise DevoSenderException(
+                    "Error in config, the chain: " + config.address +
+                    " is incorrect")
+        except Exception:
+            raise DevoSenderException(
+                "Error in config, the address: " + config.address[0] +
+                " is incorrect")
+

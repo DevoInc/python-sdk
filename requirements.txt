@@ -1,3 +1,4 @@
 click==7.1.1
 PyYAML==5.4.1
 requests==2.27.1
+pyopenssl==22.0.0
