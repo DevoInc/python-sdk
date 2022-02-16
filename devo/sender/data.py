@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ File to group all the classes and functions related to the connection
 and sending of data to Devo """
+import errno
 import logging
 import sys
 import time
@@ -55,7 +56,7 @@ class SenderConfigSSL:
     """
     def __init__(self, address=None, key=None, cert=None, chain=None,
                  pkcs=None, sec_level=None, check_hostname=True,
-                 verify_config=True, verify_mode=None):
+                 verify_config=False, verify_mode=None):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -97,6 +98,7 @@ class SenderConfigTCP:
             self.address = address
             self.hostname = socket.gethostname()
             self.sec_level = None
+            self.verify_config = False
         except Exception as error:
             raise DevoSenderException(
                 "DevoSenderConfigTCP|Can't create TCP config: "
@@ -609,7 +611,7 @@ class Sender(logging.Handler):
                                    pkcs=config.get("pkcs", None),
                                    sec_level=config.get("sec_level", None),
                                    verify_mode=config.get("verify_mode", None),
-                                   verify_config=config.get("verify_config", True),
+                                   verify_config=config.get("verify_config", False),
                                    check_hostname=config.get("check_hostname",
                                                              True))
 
@@ -650,20 +652,36 @@ class Sender(logging.Handler):
         :param config -> Configuration object.
         :return: Boolean true or raises an exception
         """
-        if Path(config.key).is_file() is False:
-            raise DevoSenderException(
-                "Error in the configuration, "
-                + config.key + " path does not exist")
-
-        if Path(config.cert).is_file() is False:
-            raise DevoSenderException(
-                "Error in the configuration, "
-                + config.cert + " path does not exist")
-
-        if Path(config.chain).is_file() is False:
-            raise DevoSenderException(
-                "Error in the configuration, "
-                + config.chain + " path does not exist")
+        try:
+            if not Path(config.key).is_file():
+                raise DevoSenderException(
+                    "Error in the configuration, "
+                    + config.key + " path does not exist")
+        except IOError as message:
+            if message.errno == errno.EACCES:
+                raise DevoSenderException(
+                    "Error in the configuration, "
+                    + config.key + " can't be read")
+        try:
+            if not Path(config.cert).is_file():
+                raise DevoSenderException(
+                    "Error in the configuration, "
+                    + config.cert + " path does not exist")
+        except IOError as message:
+            if message.errno == errno.EACCES:
+                raise DevoSenderException(
+                    "Error in the configuration, "
+                    + config.cert + " can't be read")
+        try:
+            if not Path(config.chain).is_file():
+                raise DevoSenderException(
+                    "Error in the configuration, "
+                    + config.chain + " path does not exist")
+        except IOError as message:
+            if message.errno == errno.EACCES:
+                raise DevoSenderException(
+                    "Error in the configuration, "
+                    + config.chain + " can't be read")
         return True
 
     @staticmethod
@@ -740,6 +758,10 @@ class Sender(logging.Handler):
                 "Error in config, the port: "
                 + str(config.address[1]) +
                 " is incorrect")
+        except ConnectionRefusedError:
+            raise DevoSenderException(
+                "Error in config, incorrect address: "
+                + str(config.address))
         sock.setblocking(True)
         connection.do_handshake()
         server_certs = connection.get_peer_cert_chain()
@@ -749,11 +771,18 @@ class Sender(logging.Handler):
         for _ca in pem.parse(chain):
             chain_certs.append(
                 crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
+
         try:
-            server_common_name = \
-                server_certs[1].get_issuer().get_components()[5][1]
-            client_common_name = \
-                chain_certs[0].get_subject().get_components()[5][1]
+            server_elements = {}
+            for key, value in server_certs[1].get_issuer().get_components():
+                server_elements[key.decode("utf-8")] = value
+
+            client_elements = {}
+            for key, value in chain_certs[0].get_subject().get_components():
+                client_elements[key.decode("utf-8")] = value
+
+            server_common_name = server_elements["CN"]
+            client_common_name = client_elements["CN"]
 
             if server_common_name == client_common_name:
                 return True

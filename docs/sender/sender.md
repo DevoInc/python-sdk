@@ -186,7 +186,8 @@ Priority order:
       "port": 443,
       "key": "/devo/certs/key.key",
       "cert": "/devo/certs/cert.crt",
-      "chain": "/devo/certs/chain.crt"
+      "chain": "/devo/certs/chain.crt",
+      "verify_config": true
     },
     "lookup": {
       "name": "Test lookup",
@@ -202,6 +203,7 @@ sender:
   key: "/devo/certs/key.key"
   cert: "/devo/certs/cert.crt"
   chain: "/devo/certs/chain.crt"
+  verify_config: true
 lookup: 
   name: "Test lookup"
   file: "/lookups/lookup.csv"

@@ -27,6 +27,7 @@ Class SenderConfigSSL accept various types of certificates, you has:
 + pkcs **(_dict_)**: (path: pfx src file, password: of cert)
 + sec_level **(_int_)**: Security level to openssl launch
 + check_hostname **(_bool_)**: Verify cert hostname. Default: True
++ verify_config **(_bool_)**: Verify the configuration file. Default: False
 + verify_mode **(_int_)**: Verify mode for SSL Socket. Default: SSL default.You need use int "0" (CERT_NONE), "1" (CERT_OPTIONAL) or "2" (CERT_REQUIRED)
 
 You can use the collector in some ways:
@@ -252,4 +253,36 @@ config = {"address": "devo.collertor", "port": 443,
 #Static Sender
 con = Sender.for_logging(config=config, tag="my.app.test.logging")
 logger = get_log(name="devo_logger", handler=con)
+```
+## Enabling verification for SenderConfigSSL configuration file
+
+To help troubleshoot any problems with the configuration file the variables:
+
++ address **(_tuple_)**: (Server address, port)
++ key **(_str_)**: key src file
++ cert **(_str_)**: cert src file
++ chain **(_str_)**: chain src file
+
+Can be verify by adding "verify_config": true to the configuration file, in case any of the variables is invalid or incompatible with each other a DevoSenderException will be raised indicating the variable that’s causing the trouble, below an example of the file and an exception:
+
+```json
+  {
+    "sender": {
+      "address":"devo-relay",
+      "port": 443,
+      "key": "/devo/certs/key.key",
+      "cert": "/devo/certs/cert.crt",
+      "chain": "/devo/certs/chain.crt",
+      "verify_config": true
+    },
+    "lookup": {
+      "name": "Test lookup",
+      "file": "/lookups/lookup.csv",
+      "lkey": "KEY"
+    }
+  }
+```
+
+```
+devo.sender.data.DevoSenderException: Error in the configuration, the key: /devo/certs/key.key is not compatible with the cert: /devo/certs/cert.crt
 ```
