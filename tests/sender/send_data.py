@@ -544,6 +544,6 @@ class TestSender(unittest.TestCase):
             Sender.check_config_certificate_address(engine_config)
 
         self.assertEqual(
-            "Error in config, the port: " + 
+            "Error in config, the port: " +
             str(engine_config.address[1]) +
             " is incorrect", str(result.exception))
