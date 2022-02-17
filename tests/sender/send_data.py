@@ -3,7 +3,8 @@ import socket
 from ssl import CERT_NONE
 
 import devo.sender.data
-from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, DevoSenderException
+from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, \
+    DevoSenderException
 from devo.common import get_log
 from .load_certs import *
 from unittest import mock
@@ -329,12 +330,12 @@ class TestSender(unittest.TestCase):
         """
 
         engine_config = SenderConfigSSL(address=(self.server, self.port),
-                                            key=self.key,
-                                            cert=self.cert,
-                                            chain=self.chain,
-                                            check_hostname=False,
-                                            verify_mode=CERT_NONE,
-                                            verify_config=True)
+                                        key=self.key,
+                                        cert=self.cert,
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE,
+                                        verify_config=True)
         result = Sender.check_config_files_path(engine_config)
         self.assertEqual(result, True)
 
@@ -344,36 +345,36 @@ class TestSender(unittest.TestCase):
         configuration raises an exception.
         """
         wrong_key = SenderConfigSSL(address=(self.server, self.port),
-                                        key="Incorrect key",
-                                        cert=self.cert,
-                                        chain=self.chain,
-                                        check_hostname=False,
-                                        verify_mode=CERT_NONE,
-                                        verify_config=True)
+                                    key="Incorrect key",
+                                    cert=self.cert,
+                                    chain=self.chain,
+                                    check_hostname=False,
+                                    verify_mode=CERT_NONE,
+                                    verify_config=True)
 
         wrong_key_message = "Error in the configuration, " \
                             + wrong_key.key \
                             + " path does not exist"
 
         wrong_cert = SenderConfigSSL(address=(self.server, self.port),
-                                    key=self.key,
-                                    cert="Incorrect cert",
-                                    chain=self.chain,
-                                    check_hostname=False,
-                                    verify_mode=CERT_NONE,
-                                    verify_config=True)
+                                     key=self.key,
+                                     cert="Incorrect cert",
+                                     chain=self.chain,
+                                     check_hostname=False,
+                                     verify_mode=CERT_NONE,
+                                     verify_config=True)
 
         wrong_cert_message = "Error in the configuration, " \
                             + wrong_cert.cert \
                             + " path does not exist"
 
         wrong_chain = SenderConfigSSL(address=(self.server, self.port),
-                                    key=self.chain,
-                                    cert=self.cert,
-                                    chain="Incorrect chain",
-                                    check_hostname=False,
-                                    verify_mode=CERT_NONE,
-                                    verify_config=True)
+                                      key=self.chain,
+                                      cert=self.cert,
+                                      chain="Incorrect chain",
+                                      check_hostname=False,
+                                      verify_mode=CERT_NONE,
+                                      verify_config=True)
         wrong_chain_message = "Error in the configuration, " \
                             + wrong_chain.chain \
                             + " path does not exist"
@@ -397,12 +398,12 @@ class TestSender(unittest.TestCase):
         """
 
         engine_config = SenderConfigSSL(address=(self.server, self.port),
-                                            key=self.key,
-                                            cert=self.cert,
-                                            chain=self.chain,
-                                            check_hostname=False,
-                                            verify_mode=CERT_NONE,
-                                            verify_config=True)
+                                        key=self.key,
+                                        cert=self.cert,
+                                        chain=self.chain,
+                                        check_hostname=False,
+                                        verify_mode=CERT_NONE,
+                                        verify_config=True)
         result = Sender.check_config_certificate_key(engine_config)
         self.assertEqual(result, True)
 
@@ -473,7 +474,6 @@ class TestSender(unittest.TestCase):
             + engine_config.cert,
             str(result.exception))
 
-
     def test_config_cert_address_standard_case(self):
         """
         Test that verifies that a compatible certificate
@@ -533,12 +533,12 @@ class TestSender(unittest.TestCase):
         """
         engine_config = SenderConfigSSL(
             address=("eu.elb.relay.logtrust.net", 442),
-                                        key=self.key,
-                                        cert=self.cert,
-                                        chain=self.chain,
-                                        check_hostname=False,
-                                        verify_mode=CERT_NONE,
-                                        verify_config=True)
+            key=self.key,
+            cert=self.cert,
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+            verify_config=True)
 
         with self.assertRaises(DevoSenderException) as result:
             Sender.check_config_certificate_address(engine_config)

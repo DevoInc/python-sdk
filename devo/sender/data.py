@@ -612,8 +612,8 @@ class Sender(logging.Handler):
                                    pkcs=config.get("pkcs", None),
                                    sec_level=config.get("sec_level", None),
                                    verify_mode=config.get("verify_mode", None),
-                                   verify_config=
-                                   config.get("verify_config", False),
+                                   verify_config=config.get(
+                                       "verify_config", False),
                                    check_hostname=config.get("check_hostname",
                                                              True))
 
@@ -723,13 +723,13 @@ class Sender(logging.Handler):
         try:
             certificate_raw = open(config.cert, "rb").read()
             chain_raw = open(config.chain, "rb").read()
-            certificate_obj = crypto.load_certificate\
-                (crypto.FILETYPE_PEM, certificate_raw)
+            certificate_obj = crypto.load_certificate(
+                crypto.FILETYPE_PEM, certificate_raw)
             certificates_chain = crypto.X509Store()
             for certificate in pem.parse(chain_raw):
                 certificates_chain.add_cert(
-                    crypto.load_certificate
-                     (crypto.FILETYPE_PEM, str(certificate)))
+                    crypto.load_certificate(
+                        crypto.FILETYPE_PEM, str(certificate)))
             store_ctx = crypto.X509StoreContext(
                 certificates_chain, certificate_obj)
             store_ctx.verify_certificate()
