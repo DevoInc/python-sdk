@@ -14,7 +14,8 @@ from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
     FACILITY_USER, SEVERITY_INFO, COMPOSE, \
     COMPOSE_BYTES, priority_map
 from pathlib import Path
-import ssl, socket
+import ssl
+import socket
 
 
 
@@ -611,7 +612,8 @@ class Sender(logging.Handler):
                                    pkcs=config.get("pkcs", None),
                                    sec_level=config.get("sec_level", None),
                                    verify_mode=config.get("verify_mode", None),
-                                   verify_config=config.get("verify_config", False),
+                                   verify_config=
+                                   config.get("verify_config", False),
                                    check_hostname=config.get("check_hostname",
                                                              True))
 
@@ -695,8 +697,8 @@ class Sender(logging.Handler):
         """
         certificate_raw = open(config.cert, "r").read()
         key_raw = open(config.key, "r").read()
-        certificate_obj = crypto.load_certificate\
-            (crypto.FILETYPE_PEM, certificate_raw)
+        certificate_obj = crypto.load_certificate(
+            crypto.FILETYPE_PEM, certificate_raw)
         private_key_obj = crypto.load_privatekey(crypto.FILETYPE_PEM, key_raw)
         context = SSL.Context(SSL.TLSv1_METHOD)
         context.use_privatekey(private_key_obj)
@@ -725,11 +727,11 @@ class Sender(logging.Handler):
                 (crypto.FILETYPE_PEM, certificate_raw)
             certificates_chain = crypto.X509Store()
             for certificate in pem.parse(chain_raw):
-                certificates_chain.add_cert\
-                    (crypto.load_certificate
+                certificates_chain.add_cert(
+                    crypto.load_certificate
                      (crypto.FILETYPE_PEM, str(certificate)))
-            store_ctx = crypto.X509StoreContext\
-                (certificates_chain, certificate_obj)
+            store_ctx = crypto.X509StoreContext(
+                certificates_chain, certificate_obj)
             store_ctx.verify_certificate()
         except crypto.X509StoreContextError:
             raise DevoSenderException(
@@ -794,4 +796,3 @@ class Sender(logging.Handler):
             raise DevoSenderException(
                 "Error in config, the address: " + config.address[0] +
                 " is incorrect")
-
