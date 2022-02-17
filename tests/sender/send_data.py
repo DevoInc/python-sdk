@@ -352,9 +352,9 @@ class TestSender(unittest.TestCase):
                                     verify_mode=CERT_NONE,
                                     verify_config=True)
 
-        wrong_key_message = "Error in the configuration, " \
-                            + wrong_key.key \
-                            + " path does not exist"
+        wrong_key_message = "Error in the configuration, " + \
+                            wrong_key.key + \
+                            " path does not exist"
 
         wrong_cert = SenderConfigSSL(address=(self.server, self.port),
                                      key=self.key,
@@ -364,9 +364,9 @@ class TestSender(unittest.TestCase):
                                      verify_mode=CERT_NONE,
                                      verify_config=True)
 
-        wrong_cert_message = "Error in the configuration, " \
-                            + wrong_cert.cert \
-                            + " path does not exist"
+        wrong_cert_message = "Error in the configuration, " + \
+                             wrong_cert.cert + \
+                             " path does not exist"
 
         wrong_chain = SenderConfigSSL(address=(self.server, self.port),
                                       key=self.chain,
@@ -375,9 +375,9 @@ class TestSender(unittest.TestCase):
                                       check_hostname=False,
                                       verify_mode=CERT_NONE,
                                       verify_config=True)
-        wrong_chain_message = "Error in the configuration, " \
-                            + wrong_chain.chain \
-                            + " path does not exist"
+        wrong_chain_message = "Error in the configuration, " + \
+                              wrong_chain.chain + \
+                              " path does not exist"
         test_params = [
             (wrong_key, wrong_key_message),
             (wrong_cert, wrong_cert_message),
@@ -470,8 +470,8 @@ class TestSender(unittest.TestCase):
 
         self.assertEqual(
             "Error in config, the chain: " + engine_config.chain +
-                " is not compatible with the certificate: "
-            + engine_config.cert,
+            " is not compatible with the certificate: " +
+            engine_config.cert,
             str(result.exception))
 
     def test_config_cert_address_standard_case(self):
@@ -544,6 +544,6 @@ class TestSender(unittest.TestCase):
             Sender.check_config_certificate_address(engine_config)
 
         self.assertEqual(
-            "Error in config, the port: "
-                + str(engine_config.address[1]) +
-                " is incorrect", str(result.exception))
+            "Error in config, the port: " + 
+            str(engine_config.address[1]) +
+            " is incorrect", str(result.exception))
