@@ -263,7 +263,7 @@ To help troubleshoot any problems with the configuration file the variables:
 + cert **(_str_)**: cert src file
 + chain **(_str_)**: chain src file
 
-Can be verify by adding "verify_config": true to the configuration file, in case any of the variables is invalid or incompatible with each other a DevoSenderException will be raised indicating the variable that’s causing the trouble, below an example of the file and an exception:
+Can be verified by adding `"verify_config": true` to the configuration file, in case any of the variables is invalid or incompatible with each other a `DevoSenderException` will be raised indicating the variable that’s causing the trouble, below an example of the file and an exception:
 
 ```json
   {

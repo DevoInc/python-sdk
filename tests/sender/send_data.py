@@ -335,9 +335,10 @@ class TestSender(unittest.TestCase):
                                         chain=self.chain,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE,
-                                        verify_config=True)
-        result = Sender.check_config_files_path(engine_config)
-        self.assertEqual(result, True)
+                                        verify_config=False)
+
+        result = engine_config.check_config_files_path()
+        self.assertTrue(result)
 
     def test_config_files_path_incorrect_key(self):
         """
@@ -350,11 +351,18 @@ class TestSender(unittest.TestCase):
                                     chain=self.chain,
                                     check_hostname=False,
                                     verify_mode=CERT_NONE,
-                                    verify_config=True)
+                                    verify_config=False)
 
         wrong_key_message = "Error in the configuration, " + \
                             wrong_key.key + \
-                            " path does not exist"
+                            " is not a file or the path does not exist"
+
+        with self.assertRaises(DevoSenderException) as result:
+            wrong_key.check_config_files_path()
+
+        self.assertEqual(wrong_key_message, str(result.exception))
+
+    def test_config_files_path_incorrect_cert(self):
 
         wrong_cert = SenderConfigSSL(address=(self.server, self.port),
                                      key=self.key,
@@ -362,34 +370,33 @@ class TestSender(unittest.TestCase):
                                      chain=self.chain,
                                      check_hostname=False,
                                      verify_mode=CERT_NONE,
-                                     verify_config=True)
+                                     verify_config=False)
 
         wrong_cert_message = "Error in the configuration, " + \
                              wrong_cert.cert + \
-                             " path does not exist"
+                             " is not a file or the path does not exist"
 
+        with self.assertRaises(DevoSenderException) as result:
+            wrong_cert.check_config_files_path()
+
+        self.assertEqual(wrong_cert_message, str(result.exception))
+
+    def test_config_files_path_incorrect_chain(self):
         wrong_chain = SenderConfigSSL(address=(self.server, self.port),
                                       key=self.chain,
                                       cert=self.cert,
                                       chain="Incorrect chain",
                                       check_hostname=False,
                                       verify_mode=CERT_NONE,
-                                      verify_config=True)
+                                      verify_config=False)
         wrong_chain_message = "Error in the configuration, " + \
                               wrong_chain.chain + \
-                              " path does not exist"
-        test_params = [
-            (wrong_key, wrong_key_message),
-            (wrong_cert, wrong_cert_message),
-            (wrong_chain, wrong_chain_message),
-        ]
+                              " is not a file or the path does not exist"
 
-        for config, expected_result in test_params:
+        with self.assertRaises(DevoSenderException) as result:
+            wrong_chain.check_config_files_path()
 
-            with self.assertRaises(DevoSenderException) as result:
-                Sender.check_config_files_path(config)
-
-            self.assertEqual(expected_result, str(result.exception))
+        self.assertEqual(wrong_chain_message, str(result.exception))
 
     def test_config_cert_key_standard_case(self):
         """
@@ -403,9 +410,9 @@ class TestSender(unittest.TestCase):
                                         chain=self.chain,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE,
-                                        verify_config=True)
-        result = Sender.check_config_certificate_key(engine_config)
-        self.assertEqual(result, True)
+                                        verify_config=False)
+        result = engine_config.check_config_certificate_key()
+        self.assertTrue(result)
 
     def test_config_cert_key_incompatible_case(self):
         """
@@ -413,24 +420,29 @@ class TestSender(unittest.TestCase):
         certificate with a key raises an exception.
         """
 
-        engine_config = SenderConfigSSL(address=(self.server, self.port),
-                                        key=self.key,
-                                        cert=self.cert,
-                                        chain=self.chain,
-                                        check_hostname=False,
-                                        verify_mode=CERT_NONE,
-                                        verify_config=False)
-        incompatible_cert = \
-            "{!s}/local_certs/keys/server/server_cert.pem" \
-            .format(os.path.dirname(os.path.abspath(__file__)))
-        engine_config.cert = incompatible_cert
-        with self.assertRaises(DevoSenderException) as result:
-            Sender.check_config_certificate_key(engine_config)
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert="{!s}/local_certs/keys/server/server_cert.pem".
+            format(os.path.dirname(os.path.abspath(__file__))),
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+            verify_config=False)
 
-        self.assertEqual(
-            "Error in the configuration, the key: " + engine_config.key +
-            " is not compatible with the cert: " + engine_config.cert,
-            str(result.exception))
+        with self.assertRaises(DevoSenderException) as result:
+            engine_config.check_config_certificate_key()
+
+        expected_exceptions = "Error in the configuration, the key: " + \
+                              engine_config.key \
+                              + " is not compatible with the cert: " +\
+                              engine_config.cert
+
+        if expected_exceptions not in str(result.exception):
+            self.fail("Problems with test, expected message:"
+                      " %s is not in the exception"
+                      % str(expected_exceptions))
+
 
     def test_config_cert_chain_standard_case(self):
         """
@@ -444,9 +456,9 @@ class TestSender(unittest.TestCase):
                                         chain=self.chain,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE,
-                                        verify_config=True)
-        result = Sender.check_config_certificate_chain(engine_config)
-        self.assertEqual(result, True)
+                                        verify_config=False)
+        result = engine_config.check_config_certificate_chain()
+        self.assertTrue(result)
 
     def test_config_cert_chain_incompatible_case(self):
         """
@@ -454,25 +466,28 @@ class TestSender(unittest.TestCase):
         certificate with a chain raises an exception.
         """
 
-        engine_config = SenderConfigSSL(address=(self.server, self.port),
-                                        key=self.key,
-                                        cert=self.cert,
-                                        chain=self.chain,
-                                        check_hostname=False,
-                                        verify_mode=CERT_NONE,
-                                        verify_config=False)
-        incompatible_cert = \
-            "{!s}/local_certs/keys/server/server_cert.pem" \
-            .format(os.path.dirname(os.path.abspath(__file__)))
-        engine_config.chain = incompatible_cert
-        with self.assertRaises(DevoSenderException) as result:
-            Sender.check_config_certificate_chain(engine_config)
+        engine_config = SenderConfigSSL(
+            address=(self.server, self.port),
+            key=self.key,
+            cert=self.cert,
+            chain="{!s}/local_certs/keys/server/server_cert.pem".
+            format(os.path.dirname(os.path.abspath(__file__))),
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+            verify_config=False)
 
-        self.assertEqual(
-            "Error in config, the chain: " + engine_config.chain +
-            " is not compatible with the certificate: " +
-            engine_config.cert,
-            str(result.exception))
+        with self.assertRaises(DevoSenderException) as result:
+            engine_config.check_config_certificate_chain()
+
+        expected_exceptions = "Error in config, " \
+                              "the chain: " + engine_config.chain +\
+                              " is not compatible with " \
+                              "the certificate: " + engine_config.cert
+
+        if expected_exceptions not in str(result.exception):
+            self.fail("Problems with test, expected message:"
+                      " %s is not in the exception"
+                      % str(expected_exceptions))
 
     def test_config_cert_address_standard_case(self):
         """
@@ -485,7 +500,7 @@ class TestSender(unittest.TestCase):
                                         chain=self.chain,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE,
-                                        verify_config=True)
+                                        verify_config=False)
 
         def fake_get_peer_cert_chain():
             chain = open(engine_config.chain, "rb").read()
@@ -501,11 +516,10 @@ class TestSender(unittest.TestCase):
 
         with mock.patch.object(
                 SSL.Connection, 'get_peer_cert_chain',
-                mock.MagicMock(side_effect=fake_get_peer_cert_chain))\
+                mock.MagicMock(side_effect=fake_get_peer_cert_chain)) \
                 as fake_get_peer_cert_chain_mock:
-            result = Sender.check_config_certificate_address(
-                engine_config)
-            self.assertEqual(result, True)
+            result = engine_config.check_config_certificate_address()
+            self.assertTrue(result)
 
     def test_config_cert_address_incompatible_address(self):
         """
@@ -518,14 +532,20 @@ class TestSender(unittest.TestCase):
                                         chain=self.chain,
                                         check_hostname=False,
                                         verify_mode=CERT_NONE,
-                                        verify_config=True)
+                                        verify_config=False)
 
         with self.assertRaises(DevoSenderException) as result:
-            Sender.check_config_certificate_address(engine_config)
+            engine_config.check_config_certificate_address()
 
-        self.assertEqual(
-            "Error in config, the address: " + engine_config.address[0]
-            + " is incorrect", str(result.exception))
+        expected_exceptions = "Error in config, the certificate in the address: " +\
+                              engine_config.address[0] +\
+                              " is not compatible with: " +\
+                              engine_config.chain
+
+        if expected_exceptions not in str(result.exception):
+            self.fail("Problems with test, expected message:"
+                      " %s is not in the exception"
+                      % str(expected_exceptions))
 
     def test_config_cert_address_incompatible_port(self):
         """
@@ -538,12 +558,19 @@ class TestSender(unittest.TestCase):
             chain=self.chain,
             check_hostname=False,
             verify_mode=CERT_NONE,
-            verify_config=True)
+            verify_config=False)
 
         with self.assertRaises(DevoSenderException) as result:
-            Sender.check_config_certificate_address(engine_config)
+            engine_config.check_config_certificate_address()
 
-        self.assertEqual(
-            "Error in config, the port: " +
-            str(engine_config.address[1]) +
-            " is incorrect", str(result.exception))
+        expected_exceptions = "Possible error in config, a timeout could be related " + \
+                              "to an incorrect address/port: " + \
+                              str(engine_config.address)
+
+        if expected_exceptions not in str(result.exception):
+            self.fail("Problems with test, expected message:"
+                      " %s is not in the exception"
+                      % str(expected_exceptions))
+
+
+

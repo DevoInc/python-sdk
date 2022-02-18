@@ -3,23 +3,19 @@
 and sending of data to Devo """
 import errno
 import logging
+import socket
+import ssl
 import sys
 import time
 import zlib
-from OpenSSL import crypto
-from OpenSSL import SSL
-import pem
-from devo.common import get_stream_handler, get_log, Configuration
-from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
-    FACILITY_USER, SEVERITY_INFO, COMPOSE, \
-    COMPOSE_BYTES, priority_map
 from pathlib import Path
-import ssl
-import socket
 
+import pem
+from devo.common import Configuration, get_log, get_stream_handler
+from OpenSSL import SSL, crypto
 
-
-
+from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
+                              FORMAT_MY_BYTES, SEVERITY_INFO, priority_map)
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -46,10 +42,11 @@ class SenderConfigSSL:
     :param pkcs:  (dict) (path: pfx src file, password: of cert)
     :param sec_level: (int) default None. If certs are too weak you can change
     this param to work with it
+    :param verify_mode:  (bool) Verification for the configuration
 
     >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
     ...                                cert=CERT, chain=CHAIN, sec_level=None,
-                                       check_hostname=True, verify_mode=None)
+    ...                                   check_hostname=True, verify_mode=None, verify_config=False)
 
     See Also:
         Sender
@@ -57,7 +54,7 @@ class SenderConfigSSL:
     """
     def __init__(self, address=None, key=None, cert=None, chain=None,
                  pkcs=None, sec_level=None, check_hostname=True,
-                 verify_config=False, verify_mode=None):
+                 verify_mode=None, verify_config=False):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -77,6 +74,160 @@ class SenderConfigSSL:
             raise DevoSenderException(
                 "Devo-SenderConfigSSL|Can't create SSL config: "
                 "%s" % str(error))
+
+        if self.verify_config:
+            self.check_config_files_path()
+            self.check_config_certificate_key()
+            self.check_config_certificate_chain()
+            self.check_config_certificate_address()
+
+    def check_config_files_path(self):
+        """
+        Check if the certificate files
+        in the configurations are path correct.
+
+        :return: Boolean true or raises an exception
+        """
+        certificates = [self.key, self.chain, self.cert]
+        for file in certificates:
+            try:
+                if not Path(file).is_file():
+                    raise DevoSenderException(
+                        "Error in the configuration, "
+                        + file +
+                        " is not a file or the path does not exist")
+            except IOError as message:
+                if message.errno == errno.EACCES:
+                    raise DevoSenderException(
+                        "Error in the configuration, "
+                        + file + " can't be read" +
+                        "\noriginal error: " +
+                        str(message))
+                else:
+                    raise DevoSenderException(
+                        "Error in the configuration, "
+                        + file + " problem related to: " + str(message))
+
+        return True
+
+    def check_config_certificate_key(self):
+        """
+        Check if both the certificate and the key
+        in the configuration are compatible with each other.
+
+        :return: Boolean true or raises an exception
+        """
+
+        with open(self.cert, "rb") as certificate_file, open(self.key, "rb") as key_file:
+
+            certificate_raw = certificate_file.read()
+            key_raw = key_file.read()
+            certificate_obj = crypto.load_certificate(
+                crypto.FILETYPE_PEM, certificate_raw)
+            private_key_obj = crypto.load_privatekey(crypto.FILETYPE_PEM, key_raw)
+            context = SSL.Context(SSL.TLS_CLIENT_METHOD)
+            context.use_privatekey(private_key_obj)
+            context.use_certificate(certificate_obj)
+        try:
+            context.check_privatekey()
+        except SSL.Error as message:
+            raise DevoSenderException(
+                "Error in the configuration, the key: " + self.key +
+                " is not compatible with the cert: " + self.cert +
+                "\noriginal error: " + str(message))
+        return True
+
+    def check_config_certificate_chain(self):
+        """
+        Check if both the certificate and the chain
+        in the configuration are compatible with each other.
+
+        :return: Boolean true or raises an exception
+        """
+        with open(self.cert, "rb") as certificate_file, open(self.chain, "rb") as chain_file:
+
+            certificate_raw = certificate_file.read()
+            chain_raw = chain_file.read()
+            certificate_obj = crypto.load_certificate(
+                crypto.FILETYPE_PEM, certificate_raw)
+            certificates_chain = crypto.X509Store()
+            for certificate in pem.parse(chain_raw):
+                certificates_chain.add_cert(
+                    crypto.load_certificate(
+                        crypto.FILETYPE_PEM, str(certificate)))
+            store_ctx = crypto.X509StoreContext(
+                certificates_chain, certificate_obj)
+        try:
+            store_ctx.verify_certificate()
+        except crypto.X509StoreContextError as message:
+            raise DevoSenderException(
+                "Error in config, the chain: " + self.chain +
+                " is not compatible with the certificate: " + self.cert +
+                "\noriginal error: " + str(message))
+        return True
+
+    def check_config_certificate_address(self):
+        """
+        Check if the certificate is compatible with the
+        address, also check is the address and port are
+        valid.
+
+        :return: Boolean true or raises an exception
+        """
+        sock = socket.socket()
+        context = SSL.Context(SSL.TLS_CLIENT_METHOD)
+        sock.settimeout(10)
+        connection = SSL.Connection(context, sock)
+        try:
+            connection.connect((self.address[0], self.address[1]))
+        except socket.timeout as message:
+            raise DevoSenderException(
+                "Possible error in config, a timeout could be related " +
+                "to an incorrect address/port: " + str(self.address) +
+                "\noriginal error: " + str(message))
+        except ConnectionRefusedError as message:
+            raise DevoSenderException(
+                "Error in config, incorrect address/port: "
+                + str(self.address) +
+                "\noriginal error: " + str(message))
+        sock.setblocking(True)
+        connection.do_handshake()
+        try:
+            server_chain = connection.get_peer_cert_chain()
+        except Exception as message:
+            raise DevoSenderException(
+                "Error in config, the address: "
+                + str(self.address) + " has no certificates" +
+                "\noriginal error: " + str(message))
+
+        with open(self.chain, "rb") as chain_file:
+            chain = chain_file.read()
+            chain_certs = []
+            for _ca in pem.parse(chain):
+                chain_certs.append(
+                    crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
+
+        server_common_names = {}
+        client_common_names = {}
+        for temp_cert in server_chain:
+            for key, value in temp_cert.get_subject().get_components():
+                if key.decode("utf-8") == "CN":
+                    server_common_names[value] = ""
+
+        for temp_cert in chain_certs:
+            for key, value in temp_cert.get_issuer().get_components():
+                if key.decode("utf-8") == "CN":
+                    client_common_names[value] = ""
+
+        for common_name in client_common_names:
+            if common_name in server_common_names:
+                return True
+
+        raise DevoSenderException(
+            "Error in config, the certificate in the address: "
+            + self.address[0] +
+            " is not compatible with: " +
+            self.chain)
 
 
 class SenderConfigTCP:
@@ -99,7 +250,6 @@ class SenderConfigTCP:
             self.address = address
             self.hostname = socket.gethostname()
             self.sec_level = None
-            self.verify_config = False
         except Exception as error:
             raise DevoSenderException(
                 "DevoSenderConfigTCP|Can't create TCP config: "
@@ -150,14 +300,8 @@ class Sender(logging.Handler):
             get_log(handler=get_stream_handler(
                 msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
 
-        if config.verify_config:
-            if self.check_config_files_path(config) \
-                    and self.check_config_certificate_key(config) \
-                    and self.check_config_certificate_chain(config) \
-                    and self.check_config_certificate_address(config):
-                self._sender_config = config
-        else:
-            self._sender_config = config
+
+        self._sender_config = config
 
         if self._sender_config.sec_level is not None:
             self.logger.warning("Openssl's default security "
@@ -644,155 +788,3 @@ class Sender(logging.Handler):
                       severity=severity)
         except Exception:
             self.handleError(record)
-
-    @staticmethod
-    def check_config_files_path(config):
-        """
-        Check if the certificate files
-        in the configurations are path correct.
-
-        :param config -> Configuration object.
-        :return: Boolean true or raises an exception
-        """
-        try:
-            if not Path(config.key).is_file():
-                raise DevoSenderException(
-                    "Error in the configuration, "
-                    + config.key + " path does not exist")
-        except IOError as message:
-            if message.errno == errno.EACCES:
-                raise DevoSenderException(
-                    "Error in the configuration, "
-                    + config.key + " can't be read")
-        try:
-            if not Path(config.cert).is_file():
-                raise DevoSenderException(
-                    "Error in the configuration, "
-                    + config.cert + " path does not exist")
-        except IOError as message:
-            if message.errno == errno.EACCES:
-                raise DevoSenderException(
-                    "Error in the configuration, "
-                    + config.cert + " can't be read")
-        try:
-            if not Path(config.chain).is_file():
-                raise DevoSenderException(
-                    "Error in the configuration, "
-                    + config.chain + " path does not exist")
-        except IOError as message:
-            if message.errno == errno.EACCES:
-                raise DevoSenderException(
-                    "Error in the configuration, "
-                    + config.chain + " can't be read")
-        return True
-
-    @staticmethod
-    def check_config_certificate_key(config):
-        """
-        Check if both the certificate and the key
-        in the configuration are compatible with each other.
-
-        :param config -> Configuration object.
-        :return: Boolean true or raises an exception
-        """
-        certificate_raw = open(config.cert, "r").read()
-        key_raw = open(config.key, "r").read()
-        certificate_obj = crypto.load_certificate(
-            crypto.FILETYPE_PEM, certificate_raw)
-        private_key_obj = crypto.load_privatekey(crypto.FILETYPE_PEM, key_raw)
-        context = SSL.Context(SSL.TLSv1_METHOD)
-        context.use_privatekey(private_key_obj)
-        context.use_certificate(certificate_obj)
-        try:
-            context.check_privatekey()
-        except SSL.Error:
-            raise DevoSenderException(
-                "Error in the configuration, the key: " + config.key +
-                " is not compatible with the cert: " + config.cert)
-        return True
-
-    @staticmethod
-    def check_config_certificate_chain(config):
-        """
-        Check if both the certificate and the chain
-        in the configuration are compatible with each other.
-
-        :param config -> Configuration object.
-        :return: Boolean true or raises an exception
-        """
-        try:
-            certificate_raw = open(config.cert, "rb").read()
-            chain_raw = open(config.chain, "rb").read()
-            certificate_obj = crypto.load_certificate(
-                crypto.FILETYPE_PEM, certificate_raw)
-            certificates_chain = crypto.X509Store()
-            for certificate in pem.parse(chain_raw):
-                certificates_chain.add_cert(
-                    crypto.load_certificate(
-                        crypto.FILETYPE_PEM, str(certificate)))
-            store_ctx = crypto.X509StoreContext(
-                certificates_chain, certificate_obj)
-            store_ctx.verify_certificate()
-        except crypto.X509StoreContextError:
-            raise DevoSenderException(
-                "Error in config, the chain: " + config.chain +
-                " is not compatible with the certificate: " + config.cert)
-        return True
-
-    @staticmethod
-    def check_config_certificate_address(config):
-        """
-        Check if the certificate is compatible with the
-        address, also check is the address and port are
-        valid.
-
-        :param config -> Configuration object.
-        :return: Boolean true or raises an exception
-        """
-        sock = socket.socket()
-        context = SSL.Context(SSL.SSLv23_METHOD)
-        sock.settimeout(10)
-        connection = SSL.Connection(context, sock)
-        try:
-            connection.connect((config.address[0], config.address[1]))
-        except socket.timeout:
-            raise DevoSenderException(
-                "Error in config, the port: "
-                + str(config.address[1]) +
-                " is incorrect")
-        except ConnectionRefusedError:
-            raise DevoSenderException(
-                "Error in config, incorrect address: "
-                + str(config.address))
-        sock.setblocking(True)
-        connection.do_handshake()
-        server_certs = connection.get_peer_cert_chain()
-
-        chain = open(config.chain, "rb").read()
-        chain_certs = []
-        for _ca in pem.parse(chain):
-            chain_certs.append(
-                crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
-
-        try:
-            server_elements = {}
-            for key, value in server_certs[1].get_issuer().get_components():
-                server_elements[key.decode("utf-8")] = value
-
-            client_elements = {}
-            for key, value in chain_certs[0].get_subject().get_components():
-                client_elements[key.decode("utf-8")] = value
-
-            server_common_name = server_elements["CN"]
-            client_common_name = client_elements["CN"]
-
-            if server_common_name == client_common_name:
-                return True
-            else:
-                raise DevoSenderException(
-                    "Error in config, the chain: " + config.address +
-                    " is incorrect")
-        except Exception:
-            raise DevoSenderException(
-                "Error in config, the address: " + config.address[0] +
-                " is incorrect")

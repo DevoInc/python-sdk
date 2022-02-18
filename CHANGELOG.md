@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## Unreleased - 2021-11-18
 ### Added
- * Configuration files can now be verified by adding `"verify_config": true` to the config file.
+ * Sender: certificate files can now be verified with `verify_config=True` or `"verify_config": true` from the config file.
 
 ## [3.5.0] - 2022-01-20
 ### Added
