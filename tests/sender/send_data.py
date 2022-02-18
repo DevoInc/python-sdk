@@ -443,7 +443,6 @@ class TestSender(unittest.TestCase):
                       " %s is not in the exception"
                       % str(expected_exceptions))
 
-
     def test_config_cert_chain_standard_case(self):
         """
         Test that verifies that a compatible certificate
@@ -537,7 +536,8 @@ class TestSender(unittest.TestCase):
         with self.assertRaises(DevoSenderException) as result:
             engine_config.check_config_certificate_address()
 
-        expected_exceptions = "Error in config, the certificate in the address: " +\
+        expected_exceptions = "Error in config, " \
+                              "the certificate in the address: " +\
                               engine_config.address[0] +\
                               " is not compatible with: " +\
                               engine_config.chain
@@ -563,7 +563,8 @@ class TestSender(unittest.TestCase):
         with self.assertRaises(DevoSenderException) as result:
             engine_config.check_config_certificate_address()
 
-        expected_exceptions = "Possible error in config, a timeout could be related " + \
+        expected_exceptions = "Possible error in config, " \
+                              "a timeout could be related " + \
                               "to an incorrect address/port: " + \
                               str(engine_config.address)
 
@@ -571,6 +572,3 @@ class TestSender(unittest.TestCase):
             self.fail("Problems with test, expected message:"
                       " %s is not in the exception"
                       % str(expected_exceptions))
-
-
-

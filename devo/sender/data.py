@@ -46,7 +46,9 @@ class SenderConfigSSL:
 
     >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
     ...                                cert=CERT, chain=CHAIN, sec_level=None,
-    ...                                   check_hostname=True, verify_mode=None, verify_config=False)
+    ...                                check_hostname=True,
+    ...                                verify_mode=None,
+    ...                                verify_config=False)
 
     See Also:
         Sender
@@ -118,13 +120,15 @@ class SenderConfigSSL:
         :return: Boolean true or raises an exception
         """
 
-        with open(self.cert, "rb") as certificate_file, open(self.key, "rb") as key_file:
+        with open(self.cert, "rb") as certificate_file, \
+                open(self.key, "rb") as key_file:
 
             certificate_raw = certificate_file.read()
             key_raw = key_file.read()
             certificate_obj = crypto.load_certificate(
                 crypto.FILETYPE_PEM, certificate_raw)
-            private_key_obj = crypto.load_privatekey(crypto.FILETYPE_PEM, key_raw)
+            private_key_obj = crypto.load_privatekey(
+                crypto.FILETYPE_PEM, key_raw)
             context = SSL.Context(SSL.TLS_CLIENT_METHOD)
             context.use_privatekey(private_key_obj)
             context.use_certificate(certificate_obj)
@@ -144,7 +148,8 @@ class SenderConfigSSL:
 
         :return: Boolean true or raises an exception
         """
-        with open(self.cert, "rb") as certificate_file, open(self.chain, "rb") as chain_file:
+        with open(self.cert, "rb") as certificate_file, \
+                open(self.chain, "rb") as chain_file:
 
             certificate_raw = certificate_file.read()
             chain_raw = chain_file.read()
@@ -192,13 +197,7 @@ class SenderConfigSSL:
                 "\noriginal error: " + str(message))
         sock.setblocking(True)
         connection.do_handshake()
-        try:
-            server_chain = connection.get_peer_cert_chain()
-        except Exception as message:
-            raise DevoSenderException(
-                "Error in config, the address: "
-                + str(self.address) + " has no certificates" +
-                "\noriginal error: " + str(message))
+        server_chain = connection.get_peer_cert_chain()
 
         with open(self.chain, "rb") as chain_file:
             chain = chain_file.read()
