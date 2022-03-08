@@ -10,8 +10,8 @@ This library allows you to send logs to the Devo platform.
 - Send lookups to Devo
 
 You have info about usage in scripts here:
-- [Data](docs/sender/data.md)
-- [Lookups](docs/sender/lookup.md)
+- [Data](data.md)
+- [Lookups](lookup.md)
 
 ## Endpoints
 ##### Sender
