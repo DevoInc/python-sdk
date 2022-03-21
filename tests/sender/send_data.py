@@ -565,8 +565,6 @@ class TestSender(unittest.TestCase):
 
         self.assertEqual(subject, issuer)
 
-
-
     def fake_get_peer_cert_chain(self):
         engine_config = SenderConfigSSL(
             address=("eu.elb.relay.logtrust.net", 442),
