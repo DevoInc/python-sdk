@@ -101,7 +101,7 @@ class SenderConfigSSL:
             except IOError as message:
                 if message.errno == errno.EACCES:
                     raise DevoSenderException(
-                        "Error in the configuration, "
+                        "Error in the configuration "
                         + file + " can't be read" +
                         "\noriginal error: " +
                         str(message))
@@ -184,7 +184,7 @@ class SenderConfigSSL:
         sock.settimeout(10)
         connection = SSL.Connection(context, sock)
         try:
-            connection.connect((self.address[0], self.address[1]))
+            connection.connect(self.address)
         except socket.timeout as message:
             raise DevoSenderException(
                 "Possible error in config, a timeout could be related " +
@@ -198,35 +198,48 @@ class SenderConfigSSL:
         sock.setblocking(True)
         connection.do_handshake()
         server_chain = connection.get_peer_cert_chain()
+        connection.close()
 
         with open(self.chain, "rb") as chain_file:
             chain = chain_file.read()
             chain_certs = []
             for _ca in pem.parse(chain):
-                chain_certs.append(
-                    crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
+                chain_certs.append(crypto.load_certificate
+                                   (crypto.FILETYPE_PEM, str(_ca)))
 
-        server_common_names = {}
-        client_common_names = {}
-        for temp_cert in server_chain:
-            for key, value in temp_cert.get_subject().get_components():
-                if key.decode("utf-8") == "CN":
-                    server_common_names[value] = ""
+        server_common_names = \
+            self.get_common_names(server_chain, "get_subject")
+        client_common_names = \
+            self.get_common_names(chain_certs, "get_issuer")
 
-        for temp_cert in chain_certs:
-            for key, value in temp_cert.get_issuer().get_components():
-                if key.decode("utf-8") == "CN":
-                    client_common_names[value] = ""
-
-        for common_name in client_common_names:
-            if common_name in server_common_names:
-                return True
+        if server_common_names & client_common_names:
+            return True
 
         raise DevoSenderException(
             "Error in config, the certificate in the address: "
             + self.address[0] +
             " is not compatible with: " +
             self.chain)
+
+    @staticmethod
+    def get_common_names(cert_chain, components_type):
+        result = set()
+        for temp_cert in cert_chain:
+            for key, value in getattr(temp_cert, components_type)()\
+                    .get_components():
+                if key.decode("utf-8") == "CN":
+                    result.add(value)
+        return result
+
+    @staticmethod
+    def fake_get_peer_cert_chain(chain):
+        with open(chain, "rb") as chain_file:
+            chain_certs = []
+            for _ca in pem.parse(chain_file.read()):
+                chain_certs.append(
+                    crypto.load_certificate(
+                        crypto.FILETYPE_PEM, str(_ca)))
+            return chain_certs
 
 
 class SenderConfigTCP:

@@ -433,15 +433,12 @@ class TestSender(unittest.TestCase):
         with self.assertRaises(DevoSenderException) as result:
             engine_config.check_config_certificate_key()
 
-        expected_exceptions = "Error in the configuration, the key: " + \
-                              engine_config.key \
-                              + " is not compatible with the cert: " +\
-                              engine_config.cert
+        expected_exception = "Error in the configuration, the key: " + \
+                             engine_config.key + \
+                             " is not compatible with the cert: " +\
+                             engine_config.cert
 
-        if expected_exceptions not in str(result.exception):
-            self.fail("Problems with test, expected message:"
-                      " %s is not in the exception"
-                      % str(expected_exceptions))
+        self.assertIn(expected_exception, str(result.exception))
 
     def test_config_cert_chain_standard_case(self):
         """
@@ -478,15 +475,12 @@ class TestSender(unittest.TestCase):
         with self.assertRaises(DevoSenderException) as result:
             engine_config.check_config_certificate_chain()
 
-        expected_exceptions = "Error in config, " \
-                              "the chain: " + engine_config.chain +\
-                              " is not compatible with " \
-                              "the certificate: " + engine_config.cert
+        expected_exception = "Error in config, " \
+                             "the chain: " + engine_config.chain +\
+                             " is not compatible with " \
+                             "the certificate: " + engine_config.cert
 
-        if expected_exceptions not in str(result.exception):
-            self.fail("Problems with test, expected message:"
-                      " %s is not in the exception"
-                      % str(expected_exceptions))
+        self.assertIn(expected_exception, str(result.exception))
 
     def test_config_cert_address_standard_case(self):
         """
@@ -500,23 +494,10 @@ class TestSender(unittest.TestCase):
                                         check_hostname=False,
                                         verify_mode=CERT_NONE,
                                         verify_config=False)
-
-        def fake_get_peer_cert_chain():
-            chain = open(engine_config.chain, "rb").read()
-            chain_certs = []
-            for _ca in pem.parse(chain):
-                chain_certs.append(
-                    crypto.load_certificate(
-                        crypto.FILETYPE_PEM, str(_ca)))
-                chain_certs.append(
-                    crypto.load_certificate(
-                        crypto.FILETYPE_PEM, str(_ca)))
-            return chain_certs
-
+        chain = engine_config.fake_get_peer_cert_chain(self.chain)
         with mock.patch.object(
                 SSL.Connection, 'get_peer_cert_chain',
-                mock.MagicMock(side_effect=fake_get_peer_cert_chain)) \
-                as fake_get_peer_cert_chain_mock:
+                mock.MagicMock(return_value=chain)):
             result = engine_config.check_config_certificate_address()
             self.assertTrue(result)
 
@@ -536,16 +517,13 @@ class TestSender(unittest.TestCase):
         with self.assertRaises(DevoSenderException) as result:
             engine_config.check_config_certificate_address()
 
-        expected_exceptions = "Error in config, " \
-                              "the certificate in the address: " +\
-                              engine_config.address[0] +\
-                              " is not compatible with: " +\
-                              engine_config.chain
+        expected_exception = "Error in config, " + \
+                             "the certificate in the address: " + \
+                             engine_config.address[0] +\
+                             " is not compatible with: " +\
+                             engine_config.chain
 
-        if expected_exceptions not in str(result.exception):
-            self.fail("Problems with test, expected message:"
-                      " %s is not in the exception"
-                      % str(expected_exceptions))
+        self.assertIn(expected_exception, str(result.exception))
 
     def test_config_cert_address_incompatible_port(self):
         """
@@ -563,12 +541,48 @@ class TestSender(unittest.TestCase):
         with self.assertRaises(DevoSenderException) as result:
             engine_config.check_config_certificate_address()
 
-        expected_exceptions = "Possible error in config, " \
-                              "a timeout could be related " + \
-                              "to an incorrect address/port: " + \
-                              str(engine_config.address)
+        expected_exception = "Possible error in config, " \
+                             "a timeout could be related " + \
+                             "to an incorrect address/port: " + \
+                             str(engine_config.address)
 
-        if expected_exceptions not in str(result.exception):
-            self.fail("Problems with test, expected message:"
-                      " %s is not in the exception"
-                      % str(expected_exceptions))
+        self.assertIn(expected_exception, str(result.exception))
+
+    def test_get_common_names(self):
+
+        engine_config = SenderConfigSSL(
+            address=("eu.elb.relay.logtrust.net", 442),
+            key=self.key,
+            cert=self.cert,
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+            verify_config=False)
+        cert_1 = engine_config.fake_get_peer_cert_chain(self.chain)
+        cert_2 = engine_config.fake_get_peer_cert_chain(self.chain)
+        subject = engine_config.get_common_names(cert_1, "get_subject")
+        issuer = engine_config.get_common_names(cert_2, "get_issuer")
+
+        self.assertEqual(subject, issuer)
+
+
+
+    def fake_get_peer_cert_chain(self):
+        engine_config = SenderConfigSSL(
+            address=("eu.elb.relay.logtrust.net", 442),
+            key=self.key,
+            cert=self.cert,
+            chain=self.chain,
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+            verify_config=False)
+
+        fake_chain_cert = \
+            engine_config.fake_get_peer_cert_chain(self.chain)
+        with open(self.chain, "rb") as chain_file:
+            chain_certs = []
+            for _ca in pem.parse(chain_file.read()):
+                chain_certs.append(
+                    crypto.load_certificate(
+                        crypto.FILETYPE_PEM, str(_ca)))
+        self.assertEqual(chain_certs, fake_chain_cert)
