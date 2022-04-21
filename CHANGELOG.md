@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.6.0] - 2022-04-22
+### Added
+* Add a new command-line option for escaping double quotes with `-eq True` or `--escape_quotes True`.
+* Add a check and shows a warning if the file contains double quotes and the option `-eq` is not used.
+* Add a new command-line option for testing just one module with `-m <module_name>` or `--module <module_name>`.
+* Add wait for servers in send_data and send_lookup tests.
+### Fixed
+* Fix environment variable in provided example file.
+* Fix minor formatting.
+
 ## [3.5.0] - 2022-01-20
 ### Added
  * Double quotes on lookups can be escaped by adding `"escape_quotes": true` to the config file.

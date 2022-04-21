@@ -2,7 +2,7 @@ import unittest
 import socket
 from click.testing import CliRunner
 from devo.common import Configuration
-from devo.sender.scripts.sender_cli import data
+from devo.sender.scripts.sender_cli import data, lookup
 from devo.sender import DevoSenderException
 
 try:
@@ -30,6 +30,10 @@ class TestSender(unittest.TestCase):
         self.test_file = "".join((os.path.dirname(os.path.abspath(__file__)),
                                   os.sep, "testfile_multiline.txt"))
 
+        self.lookup_file = "".join((os.path.dirname(os.path.abspath(
+            __file__)), os.sep, "testfile_lookup_with_quotes.csv"))
+        self.lookup_name = "TEST_LOOKUP"
+
         self.test_msg = 'Test send msg\n'
         self.localhost = socket.gethostname()
         # change this value if you want to send another number of test string
@@ -45,52 +49,34 @@ class TestSender(unittest.TestCase):
         self.config_path = "/tmp/devo_sender_tests_config.json"
         configuration.save(path=self.config_path)
 
-    def test_sender_args(self):
+    def test_cli_args(self):
         runner = CliRunner()
         result = runner.invoke(data, [])
         self.assertIn('No address', result.stdout)
 
-    # def test_bad_address(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(data, ["--debug",
-    #                                   "--address", self.address + "asd"])
-    #
-    #     self.assertIsInstance(result.exception, DevoSenderException)
-    #     self.assertIn("Name or service not known",
-    #                      result.exception.args[0])
-
-    # def test_bad_address(self):
-    #     runner = CliRunner()
-    #     result = runner.invoke(data, ["--debug",
-    #                                   "--address", "us.devoasd.com",
-    #                                   "--port", self.port,
-    #                                   "--key", self.key,
-    #                                   "--cert", self.cert,
-    #                                   "--chain", self.chain,
-    #                                   "--tag", self.my_app,
-    #                                   "--verify_mode", 0,
-    #                                   '--check_hostname', False,
-    #                                   "--line", "Test line"])
-    #
-    #     self.assertIsNone(result.exception)
-    #     self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
-
-    def test_bad_certs(self):
+    def test_cli_bad_address(self):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",
-                                       "--address",
-                                       "collector-us.devo.io",
-                                       "--port", "443",
-                                       "--key", self.local_key,
-                                       "--cert", self.cert,
-                                       "--chain", self.chain,
+                                      "--address", self.address + "asd"])
+        self.assertIsNone(result.exception)
+        self.assertIn("Socket is not connected", result.stdout)
+
+    def test_cli_bad_certs(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address",
+                                      "collector-us.devo.io",
+                                      "--port", "443",
+                                      "--key", self.local_key,
+                                      "--cert", self.cert,
+                                      "--chain", self.chain,
                                       "--verify_mode", 1,
                                       '--check_hostname', True])
         self.assertIsInstance(result.exception, DevoSenderException)
         self.assertIn("SSL conn establishment socket error",
                       result.exception.args[0])
 
-    def test_normal_send(self):
+    def test_cli_normal_send(self):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",
                                       "--address", self.address,
@@ -106,7 +92,7 @@ class TestSender(unittest.TestCase):
         self.assertIsNone(result.exception)
         self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
 
-    def test_with_config_file(self):
+    def test_cli_with_config_file(self):
         if self.config_path:
             runner = CliRunner()
             result = runner.invoke(data, ["--debug",
@@ -114,6 +100,25 @@ class TestSender(unittest.TestCase):
 
             self.assertIsNone(result.exception)
             self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
+
+    def test_cli_escape_quotes(self):
+        runner = CliRunner()
+        result = runner.invoke(lookup, ["--debug",
+                                        "--address", self.address,
+                                        "--port", self.port,
+                                        "--key", self.key,
+                                        "--cert", self.cert,
+                                        "--chain", self.chain,
+                                        "--verify_mode", 0,
+                                        "--check_hostname", False,
+                                        "-n", self.lookup_name,
+                                        "-ac", "FULL",
+                                        "-f", self.lookup_file,
+                                        "-lk", "KEY",
+                                        "-eq", True])
+
+        self.assertIsNone(result.exception)
+        self.assertEquals(result.output, '')
 
 
 if __name__ == '__main__':

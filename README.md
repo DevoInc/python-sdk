@@ -1,7 +1,7 @@
 
 [![master Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=master)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
 
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.5.0-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8-blue.svg)](https://pypi.org/project/devo-sdk/)
+[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.6.0-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8-blue.svg)](https://pypi.org/project/devo-sdk/)
 
 
 # Devo Python SDK
@@ -104,20 +104,49 @@ To launch this script, you need either the environment variables loaded in the s
 
 Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
 
-```bash
-~/projects/devo-python-sdk > python setup.py test 
+```
+python setup.py test 
 ```
 
-```bash
-~/projects/devo-python-sdk > python run_tests.py
+```
+python run_tests.py
 ```
 
 You can add option "Coverage" for create HTML report about tests.
 
-```bash
-~/projects/devo-python-sdk > python run_tests.py --coverage
+```
+python run_tests.py --coverage
 ```
 
+You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
+
+```
+python run_tests.py -m SEND_CLI
+```
+
+Using the --help flag prints the available modules to use:
+
+```
+python run_tests.py --help
+usage: run_tests.py [-h] [--coverage [COVERAGE]] [-m [MODULE]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --coverage [COVERAGE]
+                        Generate coverage
+  -m [MODULE], --module [MODULE]
+                        Select a module to test [API_CLI | API_QUERY | API_TASKS | COMMON_CONFIGURATION | COMMON_DATE_PARSER | SENDER_CLI | SENDER_NUMBER_LOOKUP | SENDER_SEND_DATA | SENDER_SEND_LOOKUP]
+```
+
+* API_CLI: API Command-line interface tests.
+* API_QUERY: Query API tests.
+* API_TASKS: Task API tests.
+* COMMON_CONFIGURATION: Configuration tests.
+* COMMON_DATE_PARSER: Date parser tests.
+* SENDER_CLI: Lookup command-line interface tests.
+* SENDER_NUMBER_LOOKUP: Numbers in lookup tests
+* SENDER_SEND_DATA: Data sending tests.
+* SENDER_SEND_LOOKUP: Lookup sending tests.
 
 ### Run using Unittest command
 
@@ -125,7 +154,7 @@ You can see references in [unittest documentation](https://docs.python.org/3/lib
 
 For commands like:
 
-```bash
+```
 python -m unittest discover -p "*.py" 
 ```
 
@@ -141,7 +170,7 @@ You can contact with us at _support@devo.com_.
 ## License
 MIT License
 
-(C) 2021 Devo, Inc.
+(C) 2022 Devo, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the 'Software'), to deal in

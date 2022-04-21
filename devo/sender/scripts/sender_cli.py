@@ -168,18 +168,20 @@ def data(**kwargs):
               default=False)
 @click.option('--delimiter', '-d', help='CSV Delimiter char.', default=",")
 @click.option('--quotechar', '-qc', help='CSV Quote char.', default='"')
+@click.option('--escapequotes', '-eq', help='Escape Quotes.', type=bool, default=False)
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
     con = Sender(config=config)
 
-    lookup = Lookup(name=config['name'], historic_tag=None, con=con)
+    lookup = Lookup(name=config['name'], historic_tag=None, con=con, escape_quotes=config['escapequotes'])
 
-    # with open(config['file']) as file:
-    #     line = file.readline()
+    if lookup.check_quotes(config['file']):
+        print_warning("Some field contains double quotes in this file. If you do not use -eq or --escapequotes it might not work.")
 
-    lookup.send_csv(config['file'], delimiter=config['delimiter'],
+    lookup.send_csv(config['file'], 
+                    delimiter=config['delimiter'],
                     quotechar=config['quotechar'],
                     has_header=True,
                     # headers=line.rstrip().split(config['delimiter']),
@@ -237,3 +239,11 @@ def print_error(error, show_help=False):
         click.echo("")
         click.echo(click.get_current_context().get_help())
     click.echo(click.style(error, fg='red'), err=True)
+
+
+def print_warning(warning, show_help=False):
+    """Class for print warning in shell"""
+    if show_help:
+        click.echo("")
+        click.echo(click.get_current_context().get_help())
+    click.echo(click.style(warning, fg='yellow'), err=True)
