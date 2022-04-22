@@ -55,7 +55,8 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
 
@@ -80,7 +81,8 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -106,13 +108,16 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, con=con)
         headers = ["col1", "col2", "col3"]
         fields = ["a", "b", "c"]
 
-        expected_headers = '[{"col1":{"type":"str","key":true}},{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        expected_headers = '[{"col1":{"type":"str","key":true}},'\
+            '{"col2":{"type":"str"}},'\
+            '{"col3":{"type":"str"}}]'
         with mock.patch.object(
             lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
@@ -140,12 +145,15 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, con=con)
         headers = ["col1", "col2", "col3"]
 
-        expected_headers = '[{"col1":{"type":"int4","key":true}},{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        expected_headers = '[{"col1":{"type":"int4","key":true}},'\
+                            '{"col2":{"type":"str"}},'\
+                            '{"col3":{"type":"str"}}]'
         with mock.patch.object(
             lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
@@ -171,7 +179,8 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -198,7 +207,8 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -226,7 +236,8 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -293,7 +304,8 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
@@ -311,7 +323,8 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
@@ -330,7 +343,8 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
@@ -351,7 +365,8 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0], engine_config.address[1])
+        self.wait_for_ready_server(engine_config.address[0],
+                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,

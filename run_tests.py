@@ -31,9 +31,9 @@ def run_test_suite(selected_module):
     os.chdir('.%stests%s' % (os.sep, os.sep))
 
     # Run tests for selected module
-    if selected_module in ['API_CLI', 'API_QUERY', 'API_TASKS', 'COMMON_CONFIGURATION',
-                           'COMMON_DATE_PARSER', 'SENDER_CLI', 'SENDER_NUMBER_LOOKUP',
-                           'SENDER_SEND_DATA', 'SENDER_SEND_LOOKUP']:
+    if selected_module in ['API_CLI', 'API_QUERY', 'API_TASKS', \
+        'COMMON_CONFIGURATION', 'COMMON_DATE_PARSER', 'SENDER_CLI', \
+        'SENDER_NUMBER_LOOKUP', 'SENDER_SEND_DATA', 'SENDER_SEND_LOOKUP']:
         dir_paths = {
             'API_CLI': ['api', 'cli.py'],
             'API_QUERY': ['api', 'query.py'],
@@ -76,7 +76,9 @@ if __name__ == '__main__':
                         default=None,
                         nargs='?',
                         help="Select a module to test \
-        [API_CLI | API_QUERY | API_TASKS | COMMON_CONFIGURATION | COMMON_DATE_PARSER | SENDER_CLI | SENDER_NUMBER_LOOKUP | SENDER_SEND_DATA | SENDER_SEND_LOOKUP]"
+        [API_CLI | API_QUERY | API_TASKS | COMMON_CONFIGURATION | \
+        COMMON_DATE_PARSER | SENDER_CLI | SENDER_NUMBER_LOOKUP | \
+        SENDER_SEND_DATA | SENDER_SEND_LOOKUP]"
                         )
     args = parser.parse_args()
     local_ssl_server = SSLServer()
@@ -86,7 +88,7 @@ if __name__ == '__main__':
             import coverage
         except ImportError:
             print("Could not import coverage. Please install it and try again.")
-            exit(1)
+            sys.exit(1)
         cov = coverage.coverage(source=['devo'])
         cov.start()
         failed = run_test_suite(args.module)
