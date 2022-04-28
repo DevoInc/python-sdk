@@ -41,19 +41,6 @@ class TestSender(unittest.TestCase):
         # change this value if you want to send another number of test string
         self.default_numbers_sendings = 10
 
-    def wait_for_ready_server(self, address, port):
-        num_tries = 3
-
-        while num_tries > 0:
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.settimeout(3)
-                sock.connect((address, port))
-                sock.close()
-                break
-            except socket.error:
-                num_tries -= 1
-                time.sleep(1)
 
     def test_compose_mem(self):
         self.assertEqual(Sender.compose_mem("test.tag"),
@@ -107,8 +94,7 @@ class TestSender(unittest.TestCase):
                                             chain=self.chain,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
-            self.wait_for_ready_server(engine_config.address[0],
-                                       engine_config.address[1])
+
             con = Sender(engine_config)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_app, msg=self.test_msg)
@@ -130,8 +116,7 @@ class TestSender(unittest.TestCase):
                                             chain=self.chain,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
-            self.wait_for_ready_server(engine_config.address[0],
-                                       engine_config.address[1])
+
             con = Sender(engine_config, timeout=15)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8"),
@@ -155,8 +140,6 @@ class TestSender(unittest.TestCase):
                                             chain=self.chain,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
-            self.wait_for_ready_server(engine_config.address[0], 
-                                       engine_config.address[1])
             con = Sender(engine_config)
             with open(self.test_file, 'r') as file:
                 content = file.read()
@@ -181,8 +164,6 @@ class TestSender(unittest.TestCase):
                                                          self.port),
                                                 check_hostname=False,
                                                 verify_mode=CERT_NONE)
-                self.wait_for_ready_server(engine_config.address[0],
-                                           engine_config.address[1])
                 con = Sender(engine_config)
                 for i in range(self.default_numbers_sendings):
                     con.send(tag=self.my_app, msg=self.test_msg)
@@ -204,8 +185,7 @@ class TestSender(unittest.TestCase):
                                             chain=self.chain,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
-            self.wait_for_ready_server(engine_config.address[0],
-                                       engine_config.address[1])
+
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)
             logger = get_log(name="DevoLogger", handler=con,
@@ -267,8 +247,7 @@ class TestSender(unittest.TestCase):
                                             chain=self.chain,
                                             check_hostname=False,
                                             verify_mode=CERT_NONE)
-            self.wait_for_ready_server(engine_config.address[0],
-                                       engine_config.address[1])
+
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)
             # NOTE: this logger logging traces will be visible in console
@@ -299,8 +278,6 @@ class TestSender(unittest.TestCase):
                              "chain": self.chain, "check_hostname": False,
                              "verify_mode": CERT_NONE}
 
-            self.wait_for_ready_server(engine_config['address'],
-                                       engine_config['port'])
             con = Sender.for_logging(config=engine_config, tag=self.my_app,
                                      level=TEST_FACILITY)
             logger = get_log(name="DevoLogger2", handler=con,

@@ -1,6 +1,4 @@
 import unittest
-import socket
-import time
 from ssl import CERT_NONE
 from unittest import mock
 from devo.sender import Sender, SenderConfigSSL, Lookup
@@ -31,20 +29,6 @@ class TestLookup(unittest.TestCase):
 
         self.lookup_key = "KEY"
 
-    def wait_for_ready_server(self, address, port):
-        num_tries = 3
-
-        while num_tries > 0:
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                sock.settimeout(3)
-                sock.connect((address, port))
-                sock.close()
-                break
-            except socket.error:
-                num_tries -= 1
-                time.sleep(1)
-
     def test_ssl_lookup_csv_send(self):
 
         engine_config = SenderConfigSSL(
@@ -55,8 +39,6 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
 
@@ -81,8 +63,7 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
+
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -108,8 +89,6 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, con=con)
         headers = ["col1", "col2", "col3"]
@@ -145,8 +124,6 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
         lookup = Lookup(name=self.lookup_name, con=con)
         headers = ["col1", "col2", "col3"]
@@ -179,8 +156,6 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -207,8 +182,6 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -236,8 +209,6 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -304,8 +275,6 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
@@ -323,8 +292,6 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
@@ -343,8 +310,6 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
@@ -365,8 +330,6 @@ class TestLookup(unittest.TestCase):
             key=self.key,
             cert=self.cert,
         )
-        self.wait_for_ready_server(engine_config.address[0],
-                                   engine_config.address[1])
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,

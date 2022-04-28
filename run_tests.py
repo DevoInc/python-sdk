@@ -1,10 +1,23 @@
 import os
+import socket
 import sys
+import time
 import unittest
 import argparse
 from devo.common import load_env_file
 from tests.sender.local_servers import SSLServer, TCPServer
 
+module_paths = {
+    'API_CLI': ['api', 'cli.py'],
+    'API_QUERY': ['api', 'query.py'],
+    'API_TASKS': ['api', 'tasks.py'],
+    'COMMON_CONFIGURATION': ['common', 'configuration.py'],
+    'COMMON_DATE_PARSER': ['common', 'date_parser.py'],
+    'SENDER_CLI': ['sender', 'cli.py'],
+    'SENDER_NUMBER_LOOKUP': ['sender', 'number_lookup.py'],
+    'SENDER_SEND_DATA': ['sender', 'send_data.py'],
+    'SENDER_SEND_LOOKUP': ['sender', 'send_lookup.py']
+}
 
 def run_test_suite(selected_module):
     def mark_failed():
@@ -31,22 +44,9 @@ def run_test_suite(selected_module):
     os.chdir('.%stests%s' % (os.sep, os.sep))
 
     # Run tests for selected module
-    if selected_module in ['API_CLI', 'API_QUERY', 'API_TASKS', \
-        'COMMON_CONFIGURATION', 'COMMON_DATE_PARSER', 'SENDER_CLI', \
-        'SENDER_NUMBER_LOOKUP', 'SENDER_SEND_DATA', 'SENDER_SEND_LOOKUP']:
-        dir_paths = {
-            'API_CLI': ['api', 'cli.py'],
-            'API_QUERY': ['api', 'query.py'],
-            'API_TASKS': ['api', 'tasks.py'],
-            'COMMON_CONFIGURATION': ['common', 'configuration.py'],
-            'COMMON_DATE_PARSER': ['common', 'date_parser.py'],
-            'SENDER_CLI': ['sender', 'cli.py'],
-            'SENDER_NUMBER_LOOKUP': ['sender', 'number_lookup.py'],
-            'SENDER_SEND_DATA': ['sender', 'send_data.py'],
-            'SENDER_SEND_LOOKUP': ['sender', 'send_lookup.py']
-        }
-        configured_path = '.' + os.sep + dir_paths[selected_module][0]
-        configured_pattern = dir_paths[selected_module][1]
+    if selected_module in module_paths.keys():
+        configured_path = '.' + os.sep + module_paths[selected_module][0]
+        configured_pattern = module_paths[selected_module][1]
     else:
         configured_path = '.'
         configured_pattern = '*.py'
@@ -59,6 +59,20 @@ def run_test_suite(selected_module):
     os.chdir(original_cwd)
 
     return failed
+
+def wait_for_ready_server(address, port):
+    num_tries = 3
+
+    while num_tries > 0:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(3)
+            sock.connect((address, port))
+            sock.close()
+            break
+        except socket.error:
+            num_tries -= 1
+            time.sleep(1)
 
 
 if __name__ == '__main__':
@@ -75,14 +89,20 @@ if __name__ == '__main__':
                         const=True,
                         default=None,
                         nargs='?',
-                        help="Select a module to test \
-        [API_CLI | API_QUERY | API_TASKS | COMMON_CONFIGURATION | \
-        COMMON_DATE_PARSER | SENDER_CLI | SENDER_NUMBER_LOOKUP | \
-        SENDER_SEND_DATA | SENDER_SEND_LOOKUP]"
-                        )
+                        help="Run tests for selected module: " + 
+                        ', '.join(module_paths.keys()))
     args = parser.parse_args()
+
+    if args.module and args.module not in module_paths.keys():
+        print('Invalid module name.\n\nPlease use one of the following: ' + 
+              ', '.join(module_paths.keys()))
+        sys.exit(1)
+
     local_ssl_server = SSLServer()
     local_tcp_server = TCPServer()
+    
+    wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
+
     if args.coverage:
         try:
             import coverage
