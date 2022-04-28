@@ -104,30 +104,30 @@ To launch this script, you need either the environment variables loaded in the s
 
 Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
 
-```
-python setup.py test 
+```console
+~/projects/devo-python-sdk > python setup.py test 
 ```
 
-```
-python run_tests.py
+```console
+~/projects/devo-python-sdk > python run_tests.py
 ```
 
 You can add option "Coverage" for create HTML report about tests.
 
-```
-python run_tests.py --coverage
+```console
+~/projects/devo-python-sdk > python run_tests.py --coverage
 ```
 
 You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
 
-```
-python run_tests.py -m SEND_CLI
+```console
+~/projects/devo-python-sdk > python run_tests.py -m SEND_CLI
 ```
 
 Using the --help flag prints the available modules to use:
 
-```
-python run_tests.py --help
+```console
+~/projects/devo-python-sdk > python run_tests.py --help
 usage: run_tests.py [-h] [--coverage [COVERAGE]] [-m [MODULE]]
 
 optional arguments:
@@ -135,7 +135,8 @@ optional arguments:
   --coverage [COVERAGE]
                         Generate coverage
   -m [MODULE], --module [MODULE]
-                        Select a module to test [API_CLI | API_QUERY | API_TASKS | COMMON_CONFIGURATION | COMMON_DATE_PARSER | SENDER_CLI | SENDER_NUMBER_LOOKUP | SENDER_SEND_DATA | SENDER_SEND_LOOKUP]
+                        Run tests for selected module: API_CLI, API_QUERY, API_TASKS, COMMON_CONFIGURATION,
+                        COMMON_DATE_PARSER, SENDER_CLI, SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
 ```
 
 * API_CLI: API Command-line interface tests.
@@ -154,8 +155,8 @@ You can see references in [unittest documentation](https://docs.python.org/3/lib
 
 For commands like:
 
-```
-python -m unittest discover -p "*.py" 
+```console
+~/projects/devo-python-sdk > python -m unittest discover -p "*.py" 
 ```
 
 If you launch this command from the root directory of the SDK, you need to have the environment variables in your 
