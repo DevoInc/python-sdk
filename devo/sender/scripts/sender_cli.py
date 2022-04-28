@@ -168,20 +168,29 @@ def data(**kwargs):
               default=False)
 @click.option('--delimiter', '-d', help='CSV Delimiter char.', default=",")
 @click.option('--quotechar', '-qc', help='CSV Quote char.', default='"')
-@click.option('--escapequotes', '-eq', help='Escape Quotes.', type=bool,
-                default=False)
+@click.option('--escapequotes', '-eq', is_flag=True, 
+              help='Escape Quotes. Default: False',
+              default=False)
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
+    warning_st = 0
+
+    # Exit errors by https://tldp.org/LDP/abs/html/exitcodes.html
+    status_msg = {
+        64: "Some field contains double quotes in this file."
+            "If you do not use -eq or --escapequotes it might not work."
+    }
+
     con = Sender(config=config)
 
     lookup = Lookup(name=config['name'], historic_tag=None,
                     con=con, escape_quotes=config['escapequotes'])
 
     if lookup.check_quotes(config['file']):
-        print_warning("Some field contains double quotes in this file. \
-            If you do not use -eq or --escapequotes it might not work.")
+        warning_st = 64
+
 
     lookup.send_csv(config['file'],
                     delimiter=config['delimiter'],
@@ -195,6 +204,10 @@ def lookup(**kwargs):
                                      config.get("types", None)
                                      ),
                     detect_types=config.get("detect_types", False))
+
+    if warning_st != 0:
+        print_warning(status_msg[warning_st])
+        exit(warning_st)
 
 
 def configure(args):

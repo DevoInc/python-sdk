@@ -115,10 +115,30 @@ class TestSender(unittest.TestCase):
                                         "-ac", "FULL",
                                         "-f", self.lookup_file,
                                         "-lk", "KEY",
-                                        "-eq", True])
+                                        "-eq"
+                                        ])
 
         self.assertIsNone(result.exception)
-        self.assertEquals(result.output, '')
+        self.assertEquals(result.exit_code , 0)   
+
+    def test_cli_not_escape_quotes(self):
+        runner = CliRunner()
+        result = runner.invoke(lookup, ["--debug",
+                                        "--address", self.address,
+                                        "--port", self.port,
+                                        "--key", self.key,
+                                        "--cert", self.cert,
+                                        "--chain", self.chain,
+                                        "--verify_mode", 0,
+                                        "--check_hostname", False,
+                                        "-n", self.lookup_name,
+                                        "-ac", "FULL",
+                                        "-f", self.lookup_file,
+                                        "-lk", "KEY"
+                                        ])
+
+        self.assertIsNotNone(result.exception)
+        self.assertEquals(result.exit_code , 64)   
 
 
 if __name__ == '__main__':

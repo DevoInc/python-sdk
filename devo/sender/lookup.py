@@ -143,7 +143,7 @@ class Lookup:
                 types[index] = "str"
         return types
 
-    def check_quotes(self, file_path=None) -> bool:
+    def check_quotes(self, file_path) -> bool:
         """
         Check if there are quotes in CSV file
         :param file_path: path to CSV file
@@ -152,13 +152,10 @@ class Lookup:
         if self.escape_quotes:
             return False
 
-        with open(file_path, 'r') as csv_file:
-            reader = csv.reader(csv_file, delimiter=',')
-            for row in reader:
-                for item in row:
-                    if '"' in item:
-                        return True  # Quotes found
-        return False
+        with open(file_path) as f:
+            line = next((l for l in f if '"' in l), None)
+
+        return True if line is not None else False
 
     # Send a whole CSV file
     def send_csv(self, path=None, has_header=True, delimiter=',',
