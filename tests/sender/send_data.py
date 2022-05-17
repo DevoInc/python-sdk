@@ -563,7 +563,7 @@ class TestSender(unittest.TestCase):
         subject = engine_config.get_common_names(cert_1, "get_subject")
         issuer = engine_config.get_common_names(cert_2, "get_issuer")
 
-        self.assertEqual(subject, issuer)
+        self.assertTrue(issuer.issubset(subject))
 
     def fake_get_peer_cert_chain(self):
         engine_config = SenderConfigSSL(
