@@ -9,6 +9,7 @@ import sys
 import time
 import zlib
 from pathlib import Path
+from _socket import SHUT_RDWR
 
 import pem
 from devo.common import Configuration, get_log, get_stream_handler
@@ -517,7 +518,10 @@ class Sender(logging.Handler):
         Forces socket closure
         """
         if self.socket is not None:
-            self.socket.shutdown(2)
+            try:
+                self.socket.shutdown(SHUT_RDWR)
+            except:  # Try else continue
+                pass
             self.socket.close()
             self.socket = None
 
