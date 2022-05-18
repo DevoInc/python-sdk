@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Some environment vars for testing were wrong in the sample file.
  * `pem` module added to depedencies
 
+
 ## [3.5.0] - 2022-01-20
 ### Added
  * Double quotes on lookups can be escaped by adding `"escape_quotes": true` to the config file.
