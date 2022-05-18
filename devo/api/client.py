@@ -2,6 +2,7 @@
 """Main class for pull data from Devo API (Client)."""
 import hmac
 import hashlib
+import os
 import time
 import json
 import requests
@@ -177,6 +178,9 @@ class Client:
         self.timeout = int(timeout) if timeout else 30
         self.verify = verify if verify is not None else True
 
+        # For internal testing purposes, Devo will never expose a REST service in an unsecure manner
+        self.unsecure_http = True if os.getenv("UNSECURE_HTTP", "False").upper() == "TRUE" else False
+
     @staticmethod
     def _from_dict(config):
         """
@@ -349,8 +353,9 @@ class Client:
         tries = 0
         while tries < self.retries:
             try:
-                response = requests.post("https://{}"
-                                         .format("/".join(self.address)),
+                response = requests.post("{}://{}".format(
+                    "http" if self.unsecure_http else "https",
+                    "/".join(self.address)),
                                          data=payload,
                                          headers=self._get_headers(payload),
                                          verify=self.verify,

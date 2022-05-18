@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 """ File to group all the classes and functions related to the connection
 and sending of data to Devo """
+import errno
 import logging
 import socket
 import ssl
 import sys
 import time
 import zlib
-from devo.common import get_stream_handler, get_log, Configuration
-from .transformsyslog import FORMAT_MY, FORMAT_MY_BYTES, \
-    FACILITY_USER, SEVERITY_INFO, COMPOSE, \
-    COMPOSE_BYTES, priority_map
+from pathlib import Path
+from _socket import SHUT_RDWR
 
+import pem
+from devo.common import Configuration, get_log, get_stream_handler
+from OpenSSL import SSL, crypto
+
+from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
+                              FORMAT_MY_BYTES, SEVERITY_INFO, priority_map)
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -38,10 +43,13 @@ class SenderConfigSSL:
     :param pkcs:  (dict) (path: pfx src file, password: of cert)
     :param sec_level: (int) default None. If certs are too weak you can change
     this param to work with it
+    :param verify_mode:  (bool) Verification for the configuration
 
     >>>sender_config = SenderConfigSSL(address=(SERVER, int(PORT)), key=KEY,
     ...                                cert=CERT, chain=CHAIN, sec_level=None,
-                                       check_hostname=True, verify_mode=None)
+    ...                                check_hostname=True,
+    ...                                verify_mode=None,
+    ...                                verify_config=False)
 
     See Also:
         Sender
@@ -49,7 +57,7 @@ class SenderConfigSSL:
     """
     def __init__(self, address=None, key=None, cert=None, chain=None,
                  pkcs=None, sec_level=None, check_hostname=True,
-                 verify_mode=None):
+                 verify_mode=None, verify_config=False):
         if not isinstance(address, tuple):
             raise DevoSenderException(
                 "Devo-SenderConfigSSL| address must be a tuple "
@@ -63,11 +71,176 @@ class SenderConfigSSL:
             self.hostname = socket.gethostname()
             self.sec_level = sec_level
             self.check_hostname = check_hostname
+            self.verify_config = verify_config
             self.verify_mode = verify_mode
         except Exception as error:
             raise DevoSenderException(
                 "Devo-SenderConfigSSL|Can't create SSL config: "
                 "%s" % str(error))
+
+        if self.verify_config:
+            self.check_config_files_path()
+            self.check_config_certificate_key()
+            self.check_config_certificate_chain()
+            self.check_config_certificate_address()
+
+    def check_config_files_path(self):
+        """
+        Check if the certificate files
+        in the configurations are path correct.
+
+        :return: Boolean true or raises an exception
+        """
+        certificates = [self.key, self.chain, self.cert]
+        for file in certificates:
+            try:
+                if not Path(file).is_file():
+                    raise DevoSenderException(
+                        "Error in the configuration, "
+                        + file +
+                        " is not a file or the path does not exist")
+            except IOError as message:
+                if message.errno == errno.EACCES:
+                    raise DevoSenderException(
+                        "Error in the configuration "
+                        + file + " can't be read" +
+                        "\noriginal error: " +
+                        str(message))
+                else:
+                    raise DevoSenderException(
+                        "Error in the configuration, "
+                        + file + " problem related to: " + str(message))
+
+        return True
+
+    def check_config_certificate_key(self):
+        """
+        Check if both the certificate and the key
+        in the configuration are compatible with each other.
+
+        :return: Boolean true or raises an exception
+        """
+
+        with open(self.cert, "rb") as certificate_file, \
+                open(self.key, "rb") as key_file:
+
+            certificate_raw = certificate_file.read()
+            key_raw = key_file.read()
+            certificate_obj = crypto.load_certificate(
+                crypto.FILETYPE_PEM, certificate_raw)
+            private_key_obj = crypto.load_privatekey(
+                crypto.FILETYPE_PEM, key_raw)
+            context = SSL.Context(SSL.TLS_CLIENT_METHOD)
+            context.use_privatekey(private_key_obj)
+            context.use_certificate(certificate_obj)
+        try:
+            context.check_privatekey()
+        except SSL.Error as message:
+            raise DevoSenderException(
+                "Error in the configuration, the key: " + self.key +
+                " is not compatible with the cert: " + self.cert +
+                "\noriginal error: " + str(message))
+        return True
+
+    def check_config_certificate_chain(self):
+        """
+        Check if both the certificate and the chain
+        in the configuration are compatible with each other.
+
+        :return: Boolean true or raises an exception
+        """
+        with open(self.cert, "rb") as certificate_file, \
+                open(self.chain, "rb") as chain_file:
+
+            certificate_raw = certificate_file.read()
+            chain_raw = chain_file.read()
+            certificate_obj = crypto.load_certificate(
+                crypto.FILETYPE_PEM, certificate_raw)
+            certificates_chain = crypto.X509Store()
+            for certificate in pem.parse(chain_raw):
+                certificates_chain.add_cert(
+                    crypto.load_certificate(
+                        crypto.FILETYPE_PEM, str(certificate)))
+            store_ctx = crypto.X509StoreContext(
+                certificates_chain, certificate_obj)
+        try:
+            store_ctx.verify_certificate()
+        except crypto.X509StoreContextError as message:
+            raise DevoSenderException(
+                "Error in config, the chain: " + self.chain +
+                " is not compatible with the certificate: " + self.cert +
+                "\noriginal error: " + str(message))
+        return True
+
+    def check_config_certificate_address(self):
+        """
+        Check if the certificate is compatible with the
+        address, also check is the address and port are
+        valid.
+
+        :return: Boolean true or raises an exception
+        """
+        sock = socket.socket()
+        context = SSL.Context(SSL.TLS_CLIENT_METHOD)
+        sock.settimeout(10)
+        connection = SSL.Connection(context, sock)
+        try:
+            connection.connect(self.address)
+        except socket.timeout as message:
+            raise DevoSenderException(
+                "Possible error in config, a timeout could be related " +
+                "to an incorrect address/port: " + str(self.address) +
+                "\noriginal error: " + str(message))
+        except ConnectionRefusedError as message:
+            raise DevoSenderException(
+                "Error in config, incorrect address/port: "
+                + str(self.address) +
+                "\noriginal error: " + str(message))
+        sock.setblocking(True)
+        connection.do_handshake()
+        server_chain = connection.get_peer_cert_chain()
+        connection.close()
+
+        with open(self.chain, "rb") as chain_file:
+            chain = chain_file.read()
+            chain_certs = []
+            for _ca in pem.parse(chain):
+                chain_certs.append(crypto.load_certificate
+                                   (crypto.FILETYPE_PEM, str(_ca)))
+
+        server_common_names = \
+            self.get_common_names(server_chain, "get_subject")
+        client_common_names = \
+            self.get_common_names(chain_certs, "get_issuer")
+
+        if server_common_names & client_common_names:
+            return True
+
+        raise DevoSenderException(
+            "Error in config, the certificate in the address: "
+            + self.address[0] +
+            " is not compatible with: " +
+            self.chain)
+
+    @staticmethod
+    def get_common_names(cert_chain, components_type):
+        result = set()
+        for temp_cert in cert_chain:
+            for key, value in getattr(temp_cert, components_type)()\
+                    .get_components():
+                if key.decode("utf-8") == "CN":
+                    result.add(value)
+        return result
+
+    @staticmethod
+    def fake_get_peer_cert_chain(chain):
+        with open(chain, "rb") as chain_file:
+            chain_certs = []
+            for _ca in pem.parse(chain_file.read()):
+                chain_certs.append(
+                    crypto.load_certificate(
+                        crypto.FILETYPE_PEM, str(_ca)))
+            return chain_certs
 
 
 class SenderConfigTCP:
@@ -121,6 +294,14 @@ class Sender(logging.Handler):
         if config is None:
             raise DevoSenderException("Problems with args passed to Sender")
 
+        self.socket = None
+        self.reconnection = 0
+        self.debug = debug
+        self.socket_timeout = timeout
+        self.socket_max_connection = 3600 * 1000
+        self.buffer = SenderBuffer()
+        self.logging = {}
+
         self.timestart = time.time()
         if isinstance(config, (dict, Configuration)):
             timeout = config.get("timeout", timeout)
@@ -132,6 +313,7 @@ class Sender(logging.Handler):
             get_log(handler=get_stream_handler(
                 msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
 
+
         self._sender_config = config
 
         if self._sender_config.sec_level is not None:
@@ -140,14 +322,6 @@ class Sender(logging.Handler):
                                 "{}.".format(self.
                                              _sender_config.
                                              sec_level))
-
-        self.socket = None
-        self.reconnection = 0
-        self.debug = debug
-        self.socket_timeout = timeout
-        self.socket_max_connection = 3600 * 1000
-        self.buffer = SenderBuffer()
-        self.logging = {}
 
         if isinstance(config, SenderConfigSSL):
             self.__connect_ssl()
@@ -344,7 +518,10 @@ class Sender(logging.Handler):
         Forces socket closure
         """
         if self.socket is not None:
-            self.socket.shutdown(2)
+            try:
+                self.socket.shutdown(SHUT_RDWR)
+            except:  # Try else continue
+                pass
             self.socket.close()
             self.socket = None
 
@@ -595,6 +772,8 @@ class Sender(logging.Handler):
                                    pkcs=config.get("pkcs", None),
                                    sec_level=config.get("sec_level", None),
                                    verify_mode=config.get("verify_mode", None),
+                                   verify_config=config.get(
+                                       "verify_config", False),
                                    check_hostname=config.get("check_hostname",
                                                              True))
 

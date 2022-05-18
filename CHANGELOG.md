@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.6.0] - 2022-05-17
+### Added
+ * Sender: certificate files can now be verified with `verify_config=True` or `"verify_config": true` from the config file.
+ * Internal support for HTTP unsecure API REST endpoint.
+
+### Fixed
+ * Sender: bad error management when `socker.shutdown` is called and the connection was not established.
+ * test `test_get_common_names` not running.
+ * Some environment vars for testing were wrong in the sample file.
+ * `pem` module added to depedencies
+
+
 ## [3.5.0] - 2022-01-20
 ### Added
  * Double quotes on lookups can be escaped by adding `"escape_quotes": true` to the config file.
