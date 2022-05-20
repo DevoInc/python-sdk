@@ -1,7 +1,7 @@
 
 [![master Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=master)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
 
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.5.0-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8-blue.svg)](https://pypi.org/project/devo-sdk/)
+[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.6.1-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://pypi.org/project/devo-sdk/)
 
 
 # Devo Python SDK
@@ -16,7 +16,7 @@ This is the SDK to access Devo directly from Python. It can be used to:
 The Devo SDK for Python requires Python 3.5+
 
 ## Compatibility 
-- Tested compatibility for python 3.5, 3.6 and 3.7
+- Tested compatibility for python 3.5, 3.6, 3.7, 3.8 and 3.9
 
 ## Quick Start
 ### Installing the SDK
