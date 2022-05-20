@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.6.1] - 2022-05-19
+### Fixed
+ * Dependencies added to `setup.py`
+
+
 ## [3.6.0] - 2022-05-17
 ### Added
  * Sender: certificate files can now be verified with `verify_config=True` or `"verify_config": true` from the config file.
