@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [3.6.1] - 2022-05-19
 ### Fixed
  * Dependencies added to `setup.py`
+ * Some documentation fixes, mostly related to dependencies and compatibilities with Python versions
 
 
 ## [3.6.0] - 2022-05-17
