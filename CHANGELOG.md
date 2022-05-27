@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [3.6.1] - 2022-05-19
 ### Fixed
+ * Some events are not sent completely due to the use of `socket.send()` instead of `socket.sendall()` [#141]
+
+
+## [3.6.1] - 2022-05-19
+### Fixed
  * Dependencies added to `setup.py`
  * Some documentation fixes, mostly related to dependencies and compatibilities with Python versions
 
