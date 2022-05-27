@@ -551,9 +551,11 @@ class Sender(logging.Handler):
         if msg_size % 4096 > 0:
             total += 1
         for iteration in range(0, total):
-            sent += self.socket.send(
-                record[int(iteration * 4096):
-                       int((iteration + 1) * 4096)])
+            part = record[int(iteration * 4096):
+                          int((iteration + 1) * 4096)]
+            if self.socket.sendall(part) is not None:
+                raise DevoSenderException("Send error")
+            sent += len(part)
         if sent == 0:
             raise DevoSenderException("Send error")
         return sent
@@ -573,7 +575,10 @@ class Sender(logging.Handler):
             if self.socket:
                 try:
                     if not multiline and not zip:
-                        sent = self.socket.send(self.__encode_record(record))
+                        msg = self.__encode_record(record)
+                        sent = len(msg)
+                        if self.socket.sendall(msg) is not None:
+                            raise DevoSenderException("Send error")
                         return 1
                     if multiline:
                         record = self.__encode_multiline(record)
