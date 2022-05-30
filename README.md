@@ -1,7 +1,7 @@
 
 [![master Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=master)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
 
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.6.1-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://pypi.org/project/devo-sdk/)
+[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.6.2-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://pypi.org/project/devo-sdk/)
 
 
 # Devo Python SDK
@@ -83,7 +83,7 @@ To perform a request with API, first choose the required endpoint depending on t
 | Europe 	| https://apiv2-eu.devo.com/search/query 	|
 | VDC    	| https://apiv2-es.devo.com/search/query 	|
 
-You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
+You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/latest/api-reference/query-api) .
 
 ## Credentials
 To obtain the access credentials necessary to use this SDK, you must have an account in [DEVO](https://www.devo.com/).<br/>
