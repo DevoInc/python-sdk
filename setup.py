@@ -58,7 +58,10 @@ def find_meta(meta):
 
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    long_description = re.sub(r'\[([^\[\]]+)\]\s?\(((?!http)[^\(\)]+)\)',
+                              r'[\1](https://github.com/DevoInc/python-sdk/tree/master/\2)',
+                              fh.read(),
+                              flags=re.MULTILINE)
 
 setup(
     author="Devo, Inc.",
