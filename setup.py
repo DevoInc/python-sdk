@@ -59,8 +59,10 @@ def find_meta(meta):
 
 with open("README.md", "r") as fh:
     # Replacement needed for relative links be available in PyPi
-    long_description = re.sub(r'\[([^\[\]]+)\]\s?\(((?!http)[^\(\)]+)\)',
-                              r'[\1](https://github.com/DevoInc/python-sdk/tree/master/\2)',
+    pattern = r'\[([^\[\]]+)\]\s?\(((?!http)[^\(\)]+)\)'
+    replace = r'[\1](https://github.com/DevoInc/python-sdk/tree/master/\2)'
+    long_description = re.sub(pattern,
+                              replace,
                               fh.read(),
                               flags=re.MULTILINE)
 
