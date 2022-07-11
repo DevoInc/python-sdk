@@ -26,7 +26,7 @@ CLASSIFIERS = [
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-INSTALL_REQUIRES = ['requests==2.27.1', 'click==7.1.1', 'PyYAML==5.4.1',
+INSTALL_REQUIRES = ['requests==2.27.1', 'click==8.1.3', 'PyYAML==6.0',
                     'pem==21.2.0', 'pyopenssl==22.0.0']
 CLI = ['devo-sender=devo.sender.scripts.sender_cli:cli',
        'devo-api=devo.api.scripts.client_cli:cli']
@@ -58,7 +58,13 @@ def find_meta(meta):
 
 
 with open("README.md", "r") as fh:
-    long_description = fh.read()
+    # Replacement needed for relative links be available in PyPi
+    pattern = r'\[([^\[\]]+)\]\s?\(((?!http)[^\(\)]+)\)'
+    replace = r'[\1](https://github.com/DevoInc/python-sdk/tree/master/\2)'
+    long_description = re.sub(pattern,
+                              replace,
+                              fh.read(),
+                              flags=re.MULTILINE)
 
 setup(
     author="Devo, Inc.",

@@ -9,14 +9,15 @@ To use 's3' destination you must add destination parameter with type 's3' (see e
 
 - **Parameters:**
 
-| Key | Type | Required | Description |
-| --- | --- | --- | --- |
-| aws.bucket | string | No*, nice to have | AWS bucket name. By default uses a enviroment.properties/s3-delivery.properties value with the same key.  |
-| aws.region | string | No*, nice to have | AWS region. [Regions](https://docs.aws.amazon.com/es_es/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions)  |
+| Key | Type   | Required          | Description                                                                                                                                       |
+| --- |--------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| aws.bucket | string | No*, nice to have | AWS bucket name. By default uses a enviroment.properties/s3-delivery.properties value with the same key. |
+| aws.region | string | No*, nice to have | AWS region. [Regions](https://docs.aws.amazon.com/es_es/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions) |
 | aws.accesskey | string | No*, nice to have | AWS access key credential |
 | aws.secretkey | string | No*, nice to have | AWS access password credential |
-| format | string | Optional | It's format of file compressed. (zip or gzip) by default zip |
-| file.password | Optional | No | Add a password for file compressed. Only for zip format. |
+| format | string | No | It's format of file compressed. It may be `zip`, `gzip` or `plain`. If not specified, the default format will be `zip` |
+| file.password | string | No | Add a password for file compressed. Only for zip format. |
+| s3.fileName | string | No | Filename to be used for files sent via S3. |
 
 
 

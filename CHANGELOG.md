@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.6.2] - 2022-05-19
+### Fixed
+ * Dependencies updated for `click` and `PyYAML`
+ * Some small fixes in documentation
+
+
 ## [3.6.1] - 2022-05-19
 ### Fixed
  * Some events are not sent completely due to the use of `socket.send()` instead of `socket.sendall()` [#141]

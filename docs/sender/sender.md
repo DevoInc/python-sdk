@@ -171,7 +171,7 @@ Both things are combined at runtime, prevailing the values that are sent as
 arguments of the call over the configuration file
 
 Priority order:
-1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
+1. -c configuration file option: if you use it, params in the file
 2. params in CLI call: He can complete values not in configuration file, but does not overrides it
 3. Environment vars: if you send the key, secrkey or token in config file or params cli, this option will not be called
 4. ~/.devo.json: if you send the key, secrey or token in other ways, this option will not be called
