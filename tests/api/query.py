@@ -11,7 +11,8 @@ from devo.api import Client, ClientConfig, DevoClientException
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.query = 'from demo.ecommerce.data select * limit 1'
+        self.query = os.getenv('DEVO_API_QUERY',
+                               'from demo.ecommerce.data select * limit 1')
         self.query_no_results = \
             'from demo.ecommerce.data where method = "TEST" select * limit 1'
         self.app_name = "testing-app_name"
@@ -26,9 +27,9 @@ class TestApi(unittest.TestCase):
 
     def test_from_dict(self):
         api = Client(config=
-            {'key': self.key, 'secret': self.secret, 'address': self.uri,
-             'user': self.user, 'app_name': self.app_name}
-            )
+                     {'key': self.key, 'secret': self.secret, 'address': self.uri,
+                      'user': self.user, 'app_name': self.app_name}
+                     )
 
         self.assertTrue(isinstance(api, Client))
 
