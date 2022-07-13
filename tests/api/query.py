@@ -27,7 +27,8 @@ class TestApi(unittest.TestCase):
 
     def test_from_dict(self):
         api = Client(config=
-                     {'key': self.key, 'secret': self.secret, 'address': self.uri,
+                     {'key': self.key, 'secret': self.secret,
+                      'address': self.uri,
                       'user': self.user, 'app_name': self.app_name}
                      )
 
