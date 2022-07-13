@@ -4,13 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.6.2] - 2022-05-19
+## [3.6.3] - 2022-07-12
 ### Fixed
  * Dependencies updated for `click` and `PyYAML`
  * Some small fixes in documentation
+ * `urllib3` dependencies forced for [CVE-2021-33503](https://nvd.nist.gov/vuln/detail/CVE-2021-33503)
+ * Query in REST API test to be configurable by environment variable
 
 
-## [3.6.1] - 2022-05-19
+## [3.6.2] - 2022-05-30
 ### Fixed
  * Some events are not sent completely due to the use of `socket.send()` instead of `socket.sendall()` [#141]
 
