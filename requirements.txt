@@ -3,3 +3,4 @@ PyYAML==6.0
 requests==2.27.1
 pem==21.2.0
 pyopenssl==22.0.0
+urllib3>=1.26.5
