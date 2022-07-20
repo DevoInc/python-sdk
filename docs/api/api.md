@@ -11,9 +11,10 @@ To perform a request with API, first choose the required endpoint depending on t
 | USA    	| https://apiv2-us.devo.com/search/query 	|
 | Canada 	| https://apiv2-ca.devo.com/search/query 	|
 | Europe 	| https://apiv2-eu.devo.com/search/query 	|
-| VDC    	| https://apiv2-es.devo.com/search/query 	|
+| Spain  	| https://apiv2-es.devo.com/search/query 	|
+| APAC  	| https://api-apac.devo.com/search/query 	|
 
-You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/api-reference/rest-api) .
+You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/space/latest/95128275/Query%20API).
 
 #### Differences in use from version 2 to 3:
 
