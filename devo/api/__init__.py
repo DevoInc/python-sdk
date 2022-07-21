@@ -1,3 +1,3 @@
-from .client import Client, DevoClientException, DEFAULT, TO_STR, \
-    TO_BYTES, JSON, JSON_SIMPLE, COMPACT_TO_ARRAY, \
-    SIMPLECOMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ, ClientConfig
+from .client import (COMPACT_TO_ARRAY, DEFAULT, JSON, JSON_SIMPLE,
+                     SIMPLECOMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ, TO_BYTES,
+                     TO_STR, Client, ClientConfig, DevoClientException)
