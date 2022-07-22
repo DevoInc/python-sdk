@@ -1,7 +1,7 @@
 
 [![master Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=master)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
 
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.6.3-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://pypi.org/project/devo-sdk/)
+[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-3.6.4-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.5%20%7C%203.6%20%7C%203.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://pypi.org/project/devo-sdk/)
 
 
 # Devo Python SDK
@@ -69,9 +69,9 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
 |--------	|---------------------------	|------	|
 | USA    	| us.elb.relay.logtrust.net 	| 443  	|
 | Europe 	| eu.elb.relay.logtrust.net 	| 443  	|
-| VDC    	| es.elb.relay.logtrust.net 	| 443  	|
+| Spain  	| es.elb.relay.logtrust.net 	| 443  	|
 
-You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
+You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/space/latest/94652410/Sending%20data%20to%20Devo).
 
 ##### API
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
@@ -81,13 +81,14 @@ To perform a request with API, first choose the required endpoint depending on t
 | USA    	| https://apiv2-us.devo.com/search/query 	|
 | Canada 	| https://apiv2-ca.devo.com/search/query 	|
 | Europe 	| https://apiv2-eu.devo.com/search/query 	|
-| VDC    	| https://apiv2-es.devo.com/search/query 	|
+| Spain  	| https://apiv2-es.devo.com/search/query 	|
+| APAC  	| https://api-apac.devo.com/search/query 	|
 
-You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/confluence/ndt/latest/api-reference/query-api) .
+You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/space/latest/95128275/Query%20API).
 
 ## Credentials
 To obtain the access credentials necessary to use this SDK, you must have an account in [DEVO](https://www.devo.com/).<br/>
-Check the [security credentials](https://docs.devo.com/confluence/ndt/domain-administration/security-credentials) info for more details. 
+Check the [security credentials](https://docs.devo.com/space/latest/94763701/Security%20credentials) info for more details. 
 
 ##### Certificates
 You need use a three files (Cert, key and chain) to secure send data to Devo. 

@@ -1,12 +1,14 @@
-import unittest
 import os
+import unittest
+
 from click.testing import CliRunner
-from devo.common import Configuration
-from devo.api.scripts.client_cli import query
 from devo.api.client import ERROR_MSGS, DevoClientException
+from devo.api.scripts.client_cli import query
+from devo.common import Configuration
 
 
 class TestApi(unittest.TestCase):
+
     def setUp(self):
         self.query = 'from demo.ecommerce.data select * limit 1'
         self.app_name = "testing-app_name"
@@ -20,12 +22,18 @@ class TestApi(unittest.TestCase):
         self.comment = os.getenv('DEVO_API_COMMENT', None)
 
         configuration = Configuration()
-        configuration.set("api", {
-            "query": self.query, "address": self.uri,
-            "key": self.key, "secret": self.secret, "token": self.token,
-            "query_id": self.query_id, "user": self.user,
-            "comment": self.comment, "app_name": self.app_name
-        })
+        configuration.set(
+            "api", {
+                "query": self.query,
+                "address": self.uri,
+                "key": self.key,
+                "secret": self.secret,
+                "token": self.token,
+                "query_id": self.query_id,
+                "user": self.user,
+                "comment": self.comment,
+                "app_name": self.app_name
+            })
         self.config_path = "/tmp/devo_api_tests_config.json"
         configuration.save(path=self.config_path)
 
@@ -36,11 +44,11 @@ class TestApi(unittest.TestCase):
 
     def test_not_credentials(self):
         runner = CliRunner()
-        result = runner.invoke(query, ["--debug",
-                                       "--from", "2018-01-01",
-                                       "--query", "from demo.ecommerce.data "
-                                                  "select timestamp limit 1",
-                                       "--address", self.uri])
+        result = runner.invoke(query, [
+            "--debug", "--from", "2018-01-01", "--query",
+            "from demo.ecommerce.data "
+            "select timestamp limit 1", "--address", self.uri
+        ])
 
         self.assertIsInstance(result.exception, DevoClientException)
         self.assertEqual(result.exception.args[0]['status'], 500)
@@ -49,39 +57,35 @@ class TestApi(unittest.TestCase):
 
     def test_bad_url(self):
         runner = CliRunner()
-        result = runner.invoke(query, ["--debug",
-                                       "--from", "2018-01-01",
-                                       "--query", "from demo.ecommerce.data "
-                                                  "select timestamp limit 1",
-                                       "--address", "error-apiv2-us.logtrust"
-                                                ".com/search/query",
-                                       "--key", self.key,
-                                       "--secret", self.secret])
+        result = runner.invoke(query, [
+            "--debug", "--from", "2018-01-01", "--query",
+            "from demo.ecommerce.data "
+            "select timestamp limit 1", "--address", "error-apiv2-us.logtrust"
+            ".com/search/query", "--key", self.key, "--secret", self.secret
+        ])
         self.assertIsInstance(result.exception, DevoClientException)
         self.assertEqual(result.exception.args[0]['status'], 500)
 
     def test_bad_credentials(self):
         runner = CliRunner()
-        result = runner.invoke(query, ["--debug",
-                                       "--from", "2018-01-01",
-                                       "--query", "from demo.ecommerce.data "
-                                                  "select timestamp limit 1",
-                                       "--address", self.uri,
-                                       "--key", "aaa",
-                                       "--secret", self.secret])
+        result = runner.invoke(query, [
+            "--debug", "--from", "2018-01-01", "--query",
+            "from demo.ecommerce.data "
+            "select timestamp limit 1", "--address", self.uri, "--key", "aaa",
+            "--secret", self.secret
+        ])
 
         self.assertIsInstance(result.exception, DevoClientException)
         self.assertEqual(result.exception.args[0]['error']['code'], 12)
 
     def test_normal_query(self):
         runner = CliRunner()
-        result = runner.invoke(query, ["--debug",
-                                       "--from", "2018-01-01",
-                                       "--query", "from demo.ecommerce.data "
-                                                  "select timestamp limit 1",
-                                       "--address", self.uri,
-                                       "--key", self.key,
-                                       "--secret", self.secret])
+        result = runner.invoke(query, [
+            "--debug", "--from", "2018-01-01", "--query",
+            "from demo.ecommerce.data "
+            "select timestamp limit 1", "--address", self.uri, "--key",
+            self.key, "--secret", self.secret
+        ])
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
@@ -91,12 +95,11 @@ class TestApi(unittest.TestCase):
     def test_with_config_file(self):
         if self.config_path:
             runner = CliRunner()
-            result = runner.invoke(query, ["--debug",
-                                           "--from", "2018-01-01",
-                                           "--query",
-                                           "from demo.ecommerce.data "
-                                           "select timestamp limit 1",
-                                           "--config", self.config_path])
+            result = runner.invoke(query, [
+                "--debug", "--from", "2018-01-01", "--query",
+                "from demo.ecommerce.data "
+                "select timestamp limit 1", "--config", self.config_path
+            ])
 
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)

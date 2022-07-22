@@ -21,9 +21,9 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
 |--------	|---------------------------	|------	|
 | USA    	| us.elb.relay.logtrust.net 	| 443  	|
 | Europe 	| eu.elb.relay.logtrust.net 	| 443  	|
-| VDC    	| es.elb.relay.logtrust.net 	| 443  	|
+| Spain  	| es.elb.relay.logtrust.net 	| 443  	|
     
-You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/confluence/ndt/sending-data-to-devo).
+You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/space/latest/94652410/Sending%20data%20to%20Devo).
 
 #### Differences in use from version 2 to 3:
 

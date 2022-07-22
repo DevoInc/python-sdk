@@ -26,9 +26,10 @@ def proc_json():
     Return json object processor
     :return: json object
     """
-    return lambda data: json.loads(data if isinstance(data, str)
-                                   else data.decode("utf-8"))\
-        if data else None
+    return lambda data: json.loads(data
+                                   if isinstance(data, str) else data.decode(
+                                       "utf-8")) if data and proc_bytes_to_str(
+                                       )(data) != '' else None
 
 
 def proc_json_simple():
@@ -42,22 +43,30 @@ def proc_json_compact_to_array():
     """
     :return: json object
     """
-    return lambda data: proc_json()(data)['object']['d'] if data else None
+    return lambda data: proc_json()(data)['object']['d'] \
+        if data and isinstance(
+            data, bytes) and proc_bytes_to_str()(data) != '' else None
 
 
 def json_compact_simple_names(data):
-    return [item for item in sorted(data, key=lambda x: data[x]['index'])]
+    if isinstance(data, bytes) and proc_bytes_to_str()(data) == '':
+        return []
+    else:
+        return [item for item in sorted(data, key=lambda x: data[x]['index'])]
 
 
 def proc_json_compact_simple_to_jobj(names=None):
     return proc_json_compact_simple_to_array() if not names else \
         lambda data: dict(zip(names,
-                              proc_json_compact_simple_to_array()(data))) \
-            if data else {}
+                              proc_json_compact_simple_to_array()(
+                                data))) if data and isinstance(
+                                data, bytes) and proc_bytes_to_str()(
+                                    data) != '' else {}
 
 
 def proc_json_compact_simple_to_array():
-    return lambda data: proc_json()(data)['d'] if data else []
+    return lambda data: proc_json()(data)['d'] if data and isinstance(
+        data, bytes) and proc_bytes_to_str()(data) != '' else []
 
 
 def processors():

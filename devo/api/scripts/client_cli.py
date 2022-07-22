@@ -14,7 +14,7 @@ from devo.__version__ import __version__
 @click.group(invoke_without_command=True)
 @click.option('--version', "-v", is_flag=True, default=False)
 def cli(version):
-    """ Initialize click """
+    """Devo API Command-line Interface"""
     if version:
         pkg_dir = os.path.abspath(os.path.join(
             os.path.dirname(__file__), "..", "..",
