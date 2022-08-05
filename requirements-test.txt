@@ -1,1 +1,2 @@
 stopit==1.1.2
+msgpack==1.0.4

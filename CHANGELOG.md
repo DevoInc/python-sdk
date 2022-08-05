@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [3.6.5] - 2022-08-03
+## [4.0.0] - 2022-08-05
+### Changed
+ * Default retries now are 0. Therefore, no retry mechanism is enabled by default in query API
+ * msgpack and xls response mode know return bytes type in query API
 ### Fixed
- * Refactor processor functionality in query component in order to support token queries
+ * KeepAlive functionality provided by server now is supported by query API
+ * Stream modes only supported for csv, tsv, json/simple, json/simple/compact modes in query API
 
 
 ## [3.6.4] - 2022-07-21
