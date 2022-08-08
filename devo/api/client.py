@@ -72,12 +72,13 @@ class ClientConfig:
     """
 
     def __init__(self, processor=DEFAULT, response="json/simple/compact",
-                 destination=None, stream=True, pragmas=None, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
+                 destination=None, stream=True, pragmas=None,
+                 keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
         """
         Initialize the API with this params, all optionals
         :param processor: processor for response, default is None
         :param response: format of response
-        :param destination: Destination options, see Documentation for more info
+        :param destination: Destination options, see Documentation
         :param stream: Stream queries or not
         :param pragmas: pragmas por query: user, app_name and comment
         :param keepAliveToken: KeepAlive token for long responses queries
@@ -148,18 +149,24 @@ class ClientConfig:
         if self.response in ['xls']:
             self.keepAliveToken = DEFAULT_KEEPALIVE_TOKEN
             if keepAliveToken not in [DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' only supports default KeepAlive Token")
+                logging.warning(f"Mode '{self.response}' only supports default"
+                                f" KeepAlive Token")
         elif self.response in ['msgpack']:
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
+                                      DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(f"Mode '{self.response}' does not support"
+                                f" KeepAlive Token")
         elif self.response not in ['csv', 'tsv']:
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' does not support custom KeepAlive Token")
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
+                                      DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(f"Mode '{self.response}' does not support"
+                                f" custom KeepAlive Token")
         elif keepAliveToken == NO_KEEPALIVE_TOKEN:
             self.keepAliveToken = DEFAULT_KEEPALIVE_TOKEN
-            logging.warning(f"Mode '{self.response}' requires KeepAlive Token, default token configured")
+            logging.warning(f"Mode '{self.response}' requires KeepAlive Token,"
+                            f" default token configured")
         else:
             self.keepAliveToken = keepAliveToken
         return True
@@ -178,7 +185,8 @@ class Client:
         :param auth: object with auth params (key, secret, token, jwt)
         :param retries: number of retries for a query
         :param timeout: timeout of socket
-        :param verify: Whether enable or disable the TLS authentication of endpoint
+        :param verify: Whether enable or disable the TLS authentication of
+         endpoint
         """
         if config is None:
             self.config = ClientConfig()
@@ -186,13 +194,12 @@ class Client:
             self.config = config
         else:
             address = address if address else config.get("address", None)
-            auth = auth if auth else config.get("auth",
-                                                {"key": config.get("key", None),
-                                                 "secret": config.get("secret",
-                                                                      None),
-                                                 "jwt": config.get("jwt", None),
-                                                 "token": config.get("token",
-                                                                     None)})
+            auth = auth if auth else \
+                config.get("auth",
+                           {"key": config.get("key", None),
+                            "secret": config.get("secret", None),
+                            "jwt": config.get("jwt", None),
+                            "token": config.get("token", None)})
 
             verify = verify if verify is not None \
                 else config.get("verify", True)
@@ -214,8 +221,10 @@ class Client:
         self.timeout = int(timeout) if timeout else 30
         self.verify = verify if verify is not None else True
 
-        # For internal testing purposes, Devo will never expose a REST service in an unsecure manner
-        self.unsecure_http = True if os.getenv("UNSECURE_HTTP", "False").upper() == "TRUE" else False
+        # For internal testing purposes, Devo will never expose a REST service
+        # in an unsecure manner
+        self.unsecure_http = True if \
+            os.getenv("UNSECURE_HTTP", "False").upper() == "TRUE" else False
 
     @staticmethod
     def _from_dict(config):
@@ -228,7 +237,8 @@ class Client:
                                                 "json/simple/compact"),
                             destination=config.get("destination", None),
                             stream=config.get("stream", True),
-                            keepAliveToken=config.get("keepAliveToken", DEFAULT_KEEPALIVE_TOKEN))
+                            keepAliveToken=config.get("keepAliveToken",
+                                                      DEFAULT_KEEPALIVE_TOKEN))
 
     def verify_certificates(self, option=True):
         """
@@ -290,7 +300,8 @@ class Client:
             return False
 
     def configurate(self, processor=None, response=None,
-                    destination=None, stream=True, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
+                    destination=None, stream=True,
+                    keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
         """
         Method for fill Configuration options easier
         :param processor: processor for response, default is None
@@ -339,7 +350,8 @@ class Client:
             if not dates['to']:
                 dates['to'] = "now()"
             if self.config.stream:
-                logging.warning(f"Mode '{self.config.response}' does not support stream mode")
+                logging.warning(f"Mode '{self.config.response}' does not"
+                                f" support stream mode")
             self.config.stream = False
 
         return self._call(
@@ -361,7 +373,8 @@ class Client:
         if self.config.response in ["msgpack", "xls"]:
             return self.config.processor(response.content)
         else:
-            return self.config.processor(self._keepalive_content_sanitize(response.text))
+            return self.config.processor(
+                self._keepalive_content_sanitize(response.text))
 
     def _return_stream(self, payload):
         """If it's a stream call, return yield lines
@@ -370,8 +383,9 @@ class Client:
         """
         raw_response = self._make_request(payload)
 
-        response = filter(lambda l: self._empty_lines_sanitize(l), map(lambda l: self._keepalive_stream_sanitize(l),
-                                                                       map(lambda l: l.decode('utf-8'), raw_response)))
+        response = filter(lambda l: self._empty_lines_sanitize(l),
+                          map(lambda l: self._keepalive_stream_sanitize(l),
+                              map(lambda l: l.decode('utf-8'), raw_response)))
         try:
             first = next(response)
         except StopIteration:
@@ -396,13 +410,15 @@ class Client:
         return line.strip()
 
     def _keepalive_content_sanitize(self, response):
-        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or self.config.keepAliveToken is None:
+        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or\
+                self.config.keepAliveToken is None:
             return response
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
             if self.config.response.startswith("json"):
                 return response
             elif self.config.response in ["csv", "tsv"]:
-                return re.sub(rf'{DEFAULT_KEEPALIVE_TOKEN}{{2,}}', f'{DEFAULT_KEEPALIVE_TOKEN}', response)
+                return re.sub(rf'{DEFAULT_KEEPALIVE_TOKEN}{{2,}}',
+                              f'{DEFAULT_KEEPALIVE_TOKEN}', response)
             else:
                 return response
         elif self.config.keepAliveToken == EMPTY_EVENT_KEEPALIVE_TOKEN:
@@ -416,7 +432,8 @@ class Client:
             return response.replace(f'{self.config.keepAliveToken}', '')
 
     def _keepalive_stream_sanitize(self, line):
-        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or self.config.keepAliveToken is None:
+        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or\
+                self.config.keepAliveToken is None:
             return line
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
             if self.config.response.startswith("json"):
@@ -514,13 +531,15 @@ class Client:
         if opts["destination"]:
             payload['destination'] = opts['destination']
 
-        if opts["keepAliveToken"] is not None and opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN:
+        if opts["keepAliveToken"] is not None and\
+                opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN:
             if opts["keepAliveToken"] == EMPTY_EVENT_KEEPALIVE_TOKEN:
                 payload['keepAlive'] = {'type': 'empty'}
             elif opts["keepAliveToken"] == DEFAULT_KEEPALIVE_TOKEN:
                 payload['keepAlive'] = {'type': 'token'}
             else:
-                payload['keepAlive'] = {'type': 'token', 'token': opts["keepAliveToken"]}
+                payload['keepAlive'] = {'type': 'token',
+                                        'token': opts["keepAliveToken"]}
 
         return json.dumps(payload)
 
