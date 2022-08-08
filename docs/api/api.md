@@ -99,6 +99,10 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 
 #### Result returned:
 
+Client support streaming of responses
+* When the stream mode is enabled, the response is asynchronously available for the code using the Client, as the server is returning it. Therefore, there is no need to wait for the whole reponse to start processing it. It is also quite useful for query running online with no ending or ending expecting in the future, as the data is available we can be working with it.
+* When the stream mode is not enabled, we have to wait for the query response to be completed and returned by server.  
+
 Depending on the `stream` mode enabled in `ClientConfig`:
 
 | Response mode       | Stream mode enabled | Stream mode not enabled |
