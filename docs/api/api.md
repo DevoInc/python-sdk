@@ -22,6 +22,12 @@ You have a special README to quickly show the important changes suffered from ve
 
 [You can go read it here](api_v3_changes.md)
 
+#### Differences in use from version 3 to 4:
+
+You have a special README to quickly show the important changes suffered from version 3 to 4
+
+[You can go read it here](api_v4_changes.md)
+
 ## USAGE
 #### Constructor
 
@@ -31,9 +37,10 @@ You have a special README to quickly show the important changes suffered from ve
     - secret: The secret of the domain
     - token: Auth token
     - jwt: JWT token
-- retries: number of retries for a query
-- timeout: timeout of socket
+- retries: number of retries for connection errors in a query (`0`, no retry by default)
+- timeout: timeout of socket (`30`seconds by default)
 - config: dict or ClientConfig object
+- verify: whether enable or disable the TLS authentication of endpoint (`True` by default). **DEVO will always provide a secure endpoint for ALL its services**. Disable at your own risk.
 
     
 ```python
@@ -57,7 +64,8 @@ api = Client(auth={"jwt":"myauthtoken"},
 - destination: Destination options, see Documentation for more info
 - stream: Stream queries or not
 - pragmas: pragmas por query: {"user": "Username", "app_name": "app name", "comment": "This query is for x"}
-    - All pragmas are optional 
+    - All pragmas are optional
+- keepAliveToken: KeepAlive token for long responses queries, see specific Section in this document for more info
 
 ```python
 from devo.api import Client, ClientConfig
@@ -90,19 +98,32 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 
 
 #### Result returned:
+
+Depending on the `stream` mode enabled in `ClientConfig`:
+
+| Response mode       | Stream mode enabled | Stream mode not enabled |
+|---------------------|---------------------|-------------------------|
+| json                | *Not supported*     | `str`                   |
+| json/compact        | *Not supported*     | `str`                   |
+| json/simple         | `Iterator[str]`     | `str`                   |
+| json/simple/compact | `Iterator[str]`     | `str`                   |
+| msgpack             | *Not supported*     | `bytes`                 |
+| csv                 | `Iterator[str]`     | `str`                   |
+| tsv                 | `Iterator[str]`     | `str`                   |
+| xls                 | *Not supported*     | `bytes`                 |
+
 ###### - Non stream call
  - Result of the query in str/bytes when query work
  - JSON Object when query has errors
  - You can use all the response formats in non-stream mode.
-###### - stream call
- - Generator with result of the query, str/bytes, when query work
+###### - Stream call
+ - Generator with result of the query, str, when query work
  - JSON Object when query has errors
- - Stream available formats:
+ - Stream available response formats:
     - json/simple
     - json/simple/compact
-    - msgpack
     - csv (comma separated values)
-    - tsv (Tab separated Values) 
+    - tsv (tabulator separated Values) 
 
 Normal/Non stream response:
 ```python
@@ -266,7 +287,7 @@ b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD1
 
 ## The "from" and "to", formats and other stuff...
 Here we define the start and end of the query (query eventdate filter are
-secondary), those are the limits of the query.
+secondary), those are the limits of the query.google translate
 
 ```
 From                                                                          To
@@ -359,6 +380,57 @@ From                                                                          To
 | |`"from": 1536106931, "to": "12aH", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 GMT+2) This sets the ending date to 05-09-2018, 12:00:00 GMT+2 (05-09-2018, 10:00:00 UTC)
 | |`"from": "5ah", "to": "21ah"`|This sets the starting date to 07-10-2018, 19:00:00 UTC and the ending date to 07-10-2018, 21:00:00 UTC
 
+### Retries
+
+The Client supports a retry mechanism for **connectivity issues only**. The retry mechanism is disabled by default (the `retries` parameter is set to `0`by default in the `Client` constructor).
+
+In order to enable it, you must set up the `retries` parameter with a value bigger or equals than `1`. The regular action/command is not considered a retry, only the additional attempts.
+
+
+### Keep Alive mechanism support
+
+Some queries may require a big time to start returning data, because of the calculations required, the load of the platform or just because the data belongs to the future (until this future moment is not reached the platform cannot return values).
+
+In such a cases, as the client is a common HTTP client, there is a timeout for the server for start returning data. When this deadline is over the client cancels the request, and it returns a timeout error.
+
+In order to avoid this timeout errors, the server returns tokens every little time to reset the timeout control in the client. Client supports the processing of these tokens to not spoil the data and returning the right data.
+
+Client detects and removes tokens from response transparently, so developer has not to deal with them.
+
+Client support several modes for supporting this mechanism. The mode is set up in parameter `keepAliveToken` in `ClientConfig`. Its default value is `devo.api.client.DEFAULT_KEEPALIVE_TOKEN`
+
+* `devo.api.client.NO_KEEPALIVE_TOKEN`: No keep alive token mechanism will be used
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` modes are forced to use always `DEFAULT_KEEPALIVE_TOKEN` mode, so it cannot be disabled for them. The token for these modes is always `b'    '` (four utf-8 spaces chars) 
+  * For `csv`, `tsv` and `xls` the keep alive mechanism is disabled and no token is sent by server
+  * `msgpack` does not support the keep alive mechanism in any case and this is the only valid choice for this response mode
+* `devo.api.client.DEFAULT_KEEPALIVE_TOKEN`: The default token used
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
+  * For `csv`, `tsv` and `xls` token is always `\n` (new line char)
+  * `msgpack` does not support the keep alive mechanism, `NO_KEEPALIVE_TOKEN` is forced
+* `devo.api.client.EMPTY_EVENT_KEEPALIVE_TOKEN`: A new empty event or line is created by the server. The format of the event will depend on response mode, `csv`or `tsv`
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
+  * For `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has, followed by `\n` (new line char)
+  * `msgpack` and `xls` do not support this mode
+* CUSTOM keep alive token: Any `str` may be a valid token. This `str` will be used by the sever as keep alive token
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
+  * For `csv` and `tsv` token is the custom `str` set as parameter   
+  * `msgpack` and `xls` do not support this mode
+
+
+| Response mode       | default mode              | `NO_KEEPALIVE_TOKEN` | `DEFAULT_KEEPALIVE_TOKEN` | `EMPTY_EVENT_KEEPALIVE_TOKEN` | Custom keep alive token      |
+|---------------------|---------------------------|----------------------|---------------------------|-------------------------------|------------------------------|
+| json                | `DEFAULT_KEEPALIVE_TOKEN` | `b'    '`            | `b'    '`                 | `b'    '`                     | `b'    '`                    |
+| json/compact        | `DEFAULT_KEEPALIVE_TOKEN` | `b'    '`            | `b'    '`                 | `b'    '`                     | `b'    '`                    |
+| json/simple         | `DEFAULT_KEEPALIVE_TOKEN` | `b'    '`            | `b'    '`                 | `b'    '`                     | `b'    '`                    |
+| json/simple/compact | `DEFAULT_KEEPALIVE_TOKEN` | `b'    '`            | `b'    '`                 | `b'    '`                     | `b'    '`                    |
+| msgpack             | `NO_KEEPALIVE_TOKEN`      | *Not supported*      | *Not supported*           | *Not supported*               | *Not supported*              |
+| csv                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | `,+\n` <sup>1</sup>           | `str` *token*                |
+| tsv                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | `\t+\n` <sup>1</sup>          | `str`*token*                      |
+| xls                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | *Not supported* <sup>2</sup>  | *Not supported* <sup>2</sup> |
+
+<sup>1</sup> the `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has, followed by `\n` (new line char)
+
+<sup>2</sup> `xls` does support `EMPTY_EVENT_KEEPALIVE_TOKEN` by inserting empty lines in Excel file. As the Client can not *clean* these lines, the mode was not supported.
 
 ## CLI USAGE
 

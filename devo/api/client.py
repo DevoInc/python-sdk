@@ -178,6 +178,7 @@ class Client:
         :param auth: object with auth params (key, secret, token, jwt)
         :param retries: number of retries for a query
         :param timeout: timeout of socket
+        :param verify: Whether enable or disable the TLS authentication of endpoint
         """
         if config is None:
             self.config = ClientConfig()

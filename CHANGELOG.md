@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [4.0.0] - 2022-08-05
 ### Changed
  * Default retries now are 0. Therefore, no retry mechanism is enabled by default in query API
+ * Retries parameter is set to default 0 as there are no retries by default. If, after error, one retry is needed, the parameter should be set to 1
  * msgpack and xls response mode know return bytes type in query API
 ### Fixed
  * KeepAlive functionality provided by server now is supported by query API
