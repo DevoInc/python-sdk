@@ -100,7 +100,7 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 #### Result returned:
 
 Client support streaming of responses
-* When the stream mode is enabled, the response is asynchronously available for the code using the Client, as the server is returning it. Therefore, there is no need to wait for the whole reponse to start processing it. It is also quite useful for query running online with no ending or ending expecting in the future, as the data is available we can be working with it.
+* When the stream mode is enabled, the response is asynchronously available for the code using the Client, as the server is returning it. Therefore, there is no need to wait for the whole reponse to start processing it. It is also quite useful for query running online with no ending or ending expecting in the future. As the data is available we can be working with it.
 * When the stream mode is not enabled, we have to wait for the query response to be completed and returned by server.  
 
 Depending on the `stream` mode enabled in `ClientConfig`:
@@ -409,7 +409,7 @@ Client support several modes for supporting this mechanism. The mode is set up i
   * `msgpack` does not support the keep alive mechanism in any case and this is the only valid choice for this response mode
 * `devo.api.client.DEFAULT_KEEPALIVE_TOKEN`: The default token used
   * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
-  * For `csv`, `tsv` and `xls` token is always `\n` (new line char)
+  * For `csv`, `tsv` and `xls` token is always `\n` (new line char) in this mode
   * `msgpack` does not support the keep alive mechanism, `NO_KEEPALIVE_TOKEN` is forced
 * `devo.api.client.EMPTY_EVENT_KEEPALIVE_TOKEN`: A new empty event or line is created by the server. The format of the event will depend on response mode, `csv`or `tsv`
   * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 

@@ -1,7 +1,7 @@
 # Devo Api Client v3 to v4
 
 ## Main Changes
-The Client object now manages amount of retries in a different way and some responses types/format are returned in `bytes` binary structure
+The Client object now manages the amount of retries in a different way and some responses types/format are returned in `bytes` binary structure
 
 ### XLS and msgpack types are returned in `bytes`
 
@@ -19,5 +19,7 @@ After analysis, it has been considered that stream mode only makes sense for `cs
 ### Keep Alive mechanism by API server now supported
 
 Some queries may require a big time to start returning data, because of the calculations required, the load of the platform or just because the data belongs to the future.
+
 In such a cases, as the client is a common HTTP client, there is a timeout for the server for start returning data. When this timeout is over the client cancels the request, and it returns a timeout error.
+
 In order to avoid this timeout errors, the server returns tokens every little time to reset the timeout control in the client. Client now supports the processing of these tokens to not spoil the data.
