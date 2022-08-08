@@ -196,7 +196,7 @@ class Client:
             verify = verify if verify is not None \
                 else config.get("verify", True)
             retries = retries if retries is not None \
-                else config.get("retries", 1)
+                else config.get("retries", 0)
             timeout = timeout if timeout is not None \
                 else config.get("timeout", 30)
             self.config = self._from_dict(config)
@@ -209,7 +209,7 @@ class Client:
 
         self.address = self.__get_address_parts(address)
 
-        self.retries = int(retries) if retries else 1
+        self.retries = int(retries) if retries else 0
         self.timeout = int(timeout) if timeout else 30
         self.verify = verify if verify is not None else True
 
@@ -441,7 +441,7 @@ class Client:
         :return: response
         """
         tries = 0
-        while tries < self.retries:
+        while tries <= self.retries:
             try:
                 response = requests.post("{}://{}".format(
                     "http" if self.unsecure_http else "https",
@@ -459,7 +459,7 @@ class Client:
                 return response
             except requests.exceptions.ConnectionError as error:
                 tries += 1
-                if tries >= self.retries:
+                if tries > self.retries:
                     return raise_exception(_format_error(error))
                 time.sleep(self.timeout)
             except DevoClientException as error:
@@ -636,7 +636,7 @@ class Client:
         :return: Response from API
         """
         tries = 0
-        while tries < self.retries:
+        while tries <= self.retries:
             response = None
             try:
                 response = requests.get("https://{}".format(address),
