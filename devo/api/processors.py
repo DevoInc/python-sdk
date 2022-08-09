@@ -45,11 +45,11 @@ def proc_json_compact_to_array():
     """
     return lambda data: proc_json()(data)['object']['d'] \
         if data and isinstance(
-            data, bytes) and proc_bytes_to_str()(data) != '' else None
+            data, str) and proc_bytes_to_str()(data) != '' else None
 
 
 def json_compact_simple_names(data):
-    if isinstance(data, bytes) and proc_bytes_to_str()(data) == '':
+    if isinstance(data, str) and proc_bytes_to_str()(data) == '':
         return []
     else:
         return [item for item in sorted(data, key=lambda x: data[x]['index'])]
@@ -60,13 +60,13 @@ def proc_json_compact_simple_to_jobj(names=None):
         lambda data: dict(zip(names,
                               proc_json_compact_simple_to_array()(
                                 data))) if data and isinstance(
-                                data, bytes) and proc_bytes_to_str()(
+                                data, str) and proc_bytes_to_str()(
                                     data) != '' else {}
 
 
 def proc_json_compact_simple_to_array():
     return lambda data: proc_json()(data)['d'] if data and isinstance(
-        data, bytes) and proc_bytes_to_str()(data) != '' else []
+        data, str) and proc_bytes_to_str()(data) != '' else []
 
 
 def processors():
