@@ -26,10 +26,18 @@ def proc_json():
     Return json object processor
     :return: json object
     """
-    return lambda data: json.loads(data
-                                   if isinstance(data, str) else data.decode(
-                                       "utf-8")) if data and proc_bytes_to_str(
-                                       )(data) != '' else None
+    def processor(data):
+        obj = json.loads(data
+                         if isinstance(data, str)
+                         else data.decode("utf-8"))\
+            if data and proc_bytes_to_str()(data) != '' \
+            else None
+        if obj and 'e' in obj:
+            raise RuntimeError(f"Error {obj['e'][0]} processing query: "
+                               f"{obj['e'][1]}")
+        else:
+            return obj
+    return lambda data: processor(data)
 
 
 def proc_json_simple():
