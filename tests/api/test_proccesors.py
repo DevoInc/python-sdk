@@ -6,9 +6,9 @@ import devo.api.processors as processors
 class TestApi(unittest.TestCase):
 
     def setUp(self):
-        self.stream_spaces = b'       '
-        self.valid_json = b'{"a":1, "b":2, "c":3, "d":4}'
-        self.compact_simple = b'{"d":[1506439800000, "self", "email@devo.com",\
+        self.stream_spaces = '       '
+        self.valid_json = '{"a":1, "b":2, "c":3, "d":4}'
+        self.compact_simple = '{"d":[1506439800000, "self", "email@devo.com",\
             null, 1]}'
         self.names = ['eventdate', 'domain', 'userEmail', 'country', 'count']
         self.simple_names = {
@@ -35,7 +35,7 @@ class TestApi(unittest.TestCase):
                 }
             }
         }
-        self.compact_response = b'{ "msg": "", "status": 0, "object": { "m": \
+        self.compact_response = '{ "msg": "", "status": 0, "object": { "m": \
             { "eventdate": { "type": "timestamp", "index": 0 }, "domain": \
             { "type": "str", "index": 1 }, "userEmail": { "type": "str", \
             "index": 2 }, "country": { "type": "str", "index": 3 }, "count": \
@@ -44,7 +44,7 @@ class TestApi(unittest.TestCase):
             "goaquinxxx@gmail.com", null, 2 ] ] }}'
 
     def test_proc_default(self):
-        self.assertEqual(processors.proc_default()(self.stream_spaces), b'')
+        self.assertEqual(processors.proc_default()(self.stream_spaces), '')
 
     def test_proc_json(self):
         self.assertEqual(processors.proc_json()(None), None)
