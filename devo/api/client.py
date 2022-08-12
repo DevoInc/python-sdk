@@ -113,7 +113,7 @@ class ClientConfig:
             try:
                 self.processor = processors()[self.proc]()
             except KeyError:
-                raise_exception(f"Processor {self.prox} not found")
+                raise_exception(f"Processor {self.proc} not found")
         elif isinstance(processor, (type(lambda x: 0))):
             self.proc = "CUSTOM"
             self.processor = processor

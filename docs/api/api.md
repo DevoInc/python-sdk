@@ -291,7 +291,7 @@ b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD1
 
 ## The "from" and "to", formats and other stuff...
 Here we define the start and end of the query (query eventdate filter are
-secondary), those are the limits of the query.google translate
+secondary), those are the limits of the query.
 
 ```
 From                                                                          To
@@ -393,7 +393,7 @@ In order to enable it, you must set up the `retries` parameter with a value bigg
 
 ### Keep Alive mechanism support
 
-Some queries may require a big time to start returning data, because of the calculations required, the load of the platform or just because the data belongs to the future (until this future moment is not reached the platform cannot return values).
+Some queries may require a big time to start returning data, because of the calculations required, the load of the platform or just because the data belongs to the future (because the data hasn't been ingested yet).
 
 In such a cases, as the client is a common HTTP client, there is a timeout for the server for start returning data. When this deadline is over the client cancels the request, and it returns a timeout error.
 
@@ -413,7 +413,7 @@ Client support several modes for supporting this mechanism. The mode is set up i
   * `msgpack` does not support the keep alive mechanism, `NO_KEEPALIVE_TOKEN` is forced
 * `devo.api.client.EMPTY_EVENT_KEEPALIVE_TOKEN`: A new empty event or line is created by the server. The format of the event will depend on response mode, `csv`or `tsv`
   * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
-  * For `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has, followed by `\n` (new line char)
+  * For `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has minus 1, followed by `\n` (new line char)
   * `msgpack` and `xls` do not support this mode
 * CUSTOM keep alive token: Any `str` may be a valid token. This `str` will be used by the sever as keep alive token
   * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
@@ -432,7 +432,7 @@ Client support several modes for supporting this mechanism. The mode is set up i
 | tsv                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | `\t+\n` <sup>1</sup>          | `str`*token*                      |
 | xls                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | *Not supported* <sup>2</sup>  | *Not supported* <sup>2</sup> |
 
-<sup>1</sup> the `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has, followed by `\n` (new line char)
+<sup>1</sup> the `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has minus 1, followed by `\n` (new line char)
 
 <sup>2</sup> `xls` does support `EMPTY_EVENT_KEEPALIVE_TOKEN` by inserting empty lines in Excel file. As the Client can not *clean* these lines, the mode was not supported.
 
