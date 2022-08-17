@@ -1,0 +1,10 @@
+{   
+    "sender": {
+        "address": "us.elb.relay.logtrust.net",
+        "port": 443,
+        "key": "certs/devo_services.key",
+        "cert": "certs/devo_services.crt",
+        "chain": "certs/ca.crt",
+        "type": "SSL"
+    }
+}

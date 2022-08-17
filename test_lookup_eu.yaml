@@ -1,0 +1,7 @@
+sender:
+  address: "eu.elb.relay.logtrust.net"
+  port: 443
+  key: "certs/eu/devo_services.key"
+  cert: "certs/eu/devo_services.crt"
+  chain: "certs/eu/ca.crt"
+  type: "SSL"
