@@ -1,4 +1,4 @@
-# This workflow will upload a Python Package using Twine when a release is created
+# This workflow will test a Python Package when a PR is created, or updated.
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 # This workflow uses actions that are not certified by GitHub.
@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Test Python Package when pull request is created
+name: Test Python Package when pull request is created or updated
 
 on:
   pull_request:
@@ -22,17 +22,23 @@ permissions:
 
 jobs:
   test:
+    strategy:
+      max-parallel: 1
+      matrix:
+        version: ["3.7", "3.8", "3.9"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.9"
+          python-version: ${{ matrix.version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
       - name: Test package
-        run: python run_tests.py
+        run: |
+          echo ==== Running tests with version ${{ matrix.version }} ====
+          python run_tests.py
