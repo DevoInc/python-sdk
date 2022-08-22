@@ -40,7 +40,6 @@ jobs:
           pip install -r requirements-test.txt
       - name: Install certificates
         run: |
-          echo ==== Installing certificates ====
           mkdir -p certs/us
           echo "${{ secrets.CA_CRT }}" | base64 --decode > certs/us/ca.crt
           echo "${{ secrets.DEVO_SERVICES_CRT }}" | base64 --decode > certs/us/devo_services.crt
