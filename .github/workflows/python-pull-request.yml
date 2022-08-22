@@ -38,6 +38,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
+      - name: Install certificates
+        run: |
+          echo ==== Installing certificates ====
+          mkdir -p certs/us
+          echo "${{ secrets.CA_CRT }}" | base64 --decode > certs/us/ca.crt
+          echo "${{ secrets.DEVO_SERVICES_CRT }}" | base64 --decode > certs/us/devo_services.crt
+          echo "${{ secrets.DEVO_SERVICES_KEY }}" | base64 --decode > certs/us/devo_services.key
       - name: Test package
         env: # Set up secrets as environment variable
           DEVO_API_ADDRESS: ${{ secrets.DEVO_API_ADDRESS }}
