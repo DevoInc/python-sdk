@@ -27,6 +27,13 @@ jobs:
       matrix:
         version: ["3.7", "3.8", "3.9"]
     runs-on: ubuntu-latest
+    env: # Set up secrets as environment variable
+      DEVO_API_ADDRESS: ${{ secrets.DEVO_API_ADDRESS }}
+      DEVO_API_KEY: ${{ secrets.DEVO_API_KEY }}
+      DEVO_API_SECRET: ${{ secrets.DEVO_API_SECRET }}
+      DEVO_API_QUERYID: ${{ secrets.DEVO_API_QUERYID }}
+      DEVO_API_TOKEN: ${{ secrets.DEVO_API_TOKEN }}
+      DEVO_API_QUERY: ${{ secrets.DEVO_API_QUERY }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
