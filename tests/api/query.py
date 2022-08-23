@@ -39,7 +39,8 @@ class TestApi(unittest.TestCase):
 
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=config)
+                     config=config,
+                     retries=3)
 
         result = api.query(query=self.query)
         self.assertIsNotNone(result)
@@ -48,7 +49,8 @@ class TestApi(unittest.TestCase):
     def test_token(self):
         api = Client(auth={"token": self.token},
                      address=self.uri,
-                     config=ClientConfig(stream=False, response="json"))
+                     config=ClientConfig(stream=False, response="json"),
+                     retries=3)
         result = api.query(query=self.query)
         self.assertIsNotNone(result)
         self.assertTrue(len(json.loads(result)['object']) > 0)
@@ -56,7 +58,8 @@ class TestApi(unittest.TestCase):
     def test_query_id(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(stream=False, response="json"))
+                     config=ClientConfig(stream=False, response="json"),
+                     retries=3)
         result = api.query(query_id=self.query_id)
         self.assertIsNotNone(result)
         self.assertNotEqual(result, {})
@@ -65,7 +68,8 @@ class TestApi(unittest.TestCase):
     def test_query_yesterday_to_today(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(stream=False, response="json"))
+                     config=ClientConfig(stream=False, response="json"),
+                     retries=3)
         result = api.query(query=self.query,
                            dates={'from': 'yesterday()', 'to': 'today()'})
         self.assertIsNotNone(result)
@@ -74,7 +78,8 @@ class TestApi(unittest.TestCase):
     def test_query_from_seven_days(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(stream=False, response="json"))
+                     config=ClientConfig(stream=False, response="json"),
+                     retries=3)
         result = api.query(query=self.query,
                            dates={'from': 'now()-7*day()', 'to': 'now()'})
         self.assertIsNotNone(result)
@@ -83,7 +88,8 @@ class TestApi(unittest.TestCase):
     def test_query_from_fixed_dates(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(stream=False, response="json"))
+                     config=ClientConfig(stream=False, response="json"),
+                     retries=3)
         result = api.query(query=self.query,
                            dates={'from': strftime("%Y-%m-%d", gmtime()),
                                   'to': strftime(
@@ -95,7 +101,8 @@ class TestApi(unittest.TestCase):
     def test_stream_query(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(response="json/simple"))
+                     config=ClientConfig(response="json/simple"),
+                     retries=3)
         result = api.query(query=self.query)
         self.assertTrue(isinstance(result, types.GeneratorType))
         result = list(result)
@@ -104,7 +111,8 @@ class TestApi(unittest.TestCase):
     def test_stream_query_no_results_bounded_dates(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(response="json/simple"))
+                     config=ClientConfig(response="json/simple"),
+                     retries=3)
         result = api.query(
             query=self.query_no_results,
             dates={'from': '1h', 'to': 'now()'}
@@ -116,7 +124,8 @@ class TestApi(unittest.TestCase):
     def test_stream_query_no_results_unbounded_dates(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
-                     config=ClientConfig(response="json/simple"))
+                     config=ClientConfig(response="json/simple"),
+                     retries=3)
         result = api.query(query=self.query_no_results)
         self.assertTrue(isinstance(result, types.GeneratorType))
         try:
@@ -134,7 +143,8 @@ class TestApi(unittest.TestCase):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
                      config=ClientConfig(response="json",
-                                         stream=False))
+                                         stream=False),
+                     retries=3)
         api.config.set_user(user=self.user)
         api.config.set_app_name(app_name=self.app_name)
         result = api.query(query=self.query, comment=self.comment)
@@ -146,7 +156,8 @@ class TestApi(unittest.TestCase):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
                      config=ClientConfig(response="json",
-                                         stream=False))
+                                         stream=False),
+                    retries=3)
         api.config.set_user(user=self.user)
         api.config.set_app_name(app_name=self.app_name)
         result = api.query(query=self.query)
@@ -168,7 +179,8 @@ class TestApi(unittest.TestCase):
 
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address="localhost:80/anything",
-                     config=config)
+                     config=config,
+                     retries=3)
 
         result = api.query(query=self.query)
         self.assertIsNotNone(result)
