@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Test Python Package when pull request is created or updated
+name: Package tests
 
 on:
   pull_request:
@@ -44,6 +44,11 @@ jobs:
           echo "${{ secrets.CA_CRT }}" | base64 --decode > certs/us/ca.crt
           echo "${{ secrets.DEVO_SERVICES_CRT }}" | base64 --decode > certs/us/devo_services.crt
           echo "${{ secrets.DEVO_SERVICES_KEY }}" | base64 --decode > certs/us/devo_services.key
+      - name: Check connectivity to Devo API
+        run: |
+          apt update
+          apt install netcat -y
+          nc -vz ${{ secrets.DEVO_API_SERVER }} 443
       - name: Test package
         env: # Set up secrets as environment variable
           DEVO_API_ADDRESS: ${{ secrets.DEVO_API_ADDRESS }}
