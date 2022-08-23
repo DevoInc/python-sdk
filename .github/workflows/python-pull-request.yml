@@ -46,8 +46,8 @@ jobs:
           echo "${{ secrets.DEVO_SERVICES_KEY }}" | base64 --decode > certs/us/devo_services.key
       - name: Check connectivity to Devo API
         run: |
-          apt update
-          apt install netcat -y
+          sudo apt update
+          sudo apt install netcat -y
           nc -vz ${{ secrets.DEVO_API_SERVER }} 443
       - name: Test package
         env: # Set up secrets as environment variable
