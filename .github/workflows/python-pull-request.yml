@@ -1,0 +1,57 @@
+# This workflow will test a Python Package when a PR is created, or updated.
+# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Package tests
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      max-parallel: 1
+      matrix:
+        version: ["3.7", "3.8", "3.9"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+      - name: Install certificates
+        run: |
+          mkdir -p certs/us
+          echo "${{ secrets.CA_CRT }}" | base64 --decode > certs/us/ca.crt
+          echo "${{ secrets.DEVO_SERVICES_CRT }}" | base64 --decode > certs/us/devo_services.crt
+          echo "${{ secrets.DEVO_SERVICES_KEY }}" | base64 --decode > certs/us/devo_services.key
+      - name: Test package
+        env: # Set up secrets as environment variable
+          DEVO_API_ADDRESS: ${{ secrets.DEVO_API_ADDRESS }}
+          DEVO_API_KEY: ${{ secrets.DEVO_API_KEY }}
+          DEVO_API_SECRET: ${{ secrets.DEVO_API_SECRET }}
+          DEVO_API_QUERYID: ${{ secrets.DEVO_API_QUERYID }}
+          DEVO_API_TOKEN: ${{ secrets.DEVO_API_TOKEN }}
+          DEVO_API_QUERY: ${{ secrets.DEVO_API_QUERY }}
+        run: |
+          echo ==== Running tests with version ${{ matrix.version }} ====
+          python run_tests.py
