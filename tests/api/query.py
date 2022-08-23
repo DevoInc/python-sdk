@@ -59,7 +59,7 @@ class TestApi(unittest.TestCase):
         api = Client(auth={"key": self.key, "secret": self.secret},
                      address=self.uri,
                      config=ClientConfig(stream=False, response="json"),
-                     retries=3)
+                     retries=5)
         result = api.query(query_id=self.query_id)
         self.assertIsNotNone(result)
         self.assertNotEqual(result, {})
