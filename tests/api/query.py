@@ -26,10 +26,9 @@ class TestApi(unittest.TestCase):
         self.comment = os.getenv('DEVO_API_COMMENT', None)
 
     def test_from_dict(self):
-        api = Client(config=
-                     {'key': self.key, 'secret': self.secret,
-                      'address': self.uri,
-                      'user': self.user, 'app_name': self.app_name}
+        api = Client(config={'key': self.key, 'secret': self.secret,
+                             'address': self.uri,
+                             'user': self.user, 'app_name': self.app_name}
                      )
 
         self.assertTrue(isinstance(api, Client))
@@ -157,7 +156,7 @@ class TestApi(unittest.TestCase):
                      address=self.uri,
                      config=ClientConfig(response="json",
                                          stream=False),
-                    retries=3)
+                     retries=3)
         api.config.set_user(user=self.user)
         api.config.set_app_name(app_name=self.app_name)
         result = api.query(query=self.query)
