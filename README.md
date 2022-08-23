@@ -1,11 +1,8 @@
-
-[![master Build Status](https://travis-ci.com/DevoInc/python-sdk.svg?branch=master)](https://travis-ci.com/DevoInc/python-sdk) [![LICENSE](https://img.shields.io/dub/l/vibe-d.svg)](https://github.com/DevoInc/python-sdk/blob/master/LICENSE)
-
-[![wheel](https://img.shields.io/badge/wheel-yes-brightgreen.svg)](https://pypi.org/project/devo-sdk/) [![version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://pypi.org/project/devo-sdk/) [![python](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue.svg)](https://pypi.org/project/devo-sdk/)
-
-<!-- ![Tests](https://github.com/DevoInc/python-sdk/actions/workflows/python-pull-request.yml/badge.svg) -->
-![Tests branch github-action-pull-request](https://github.com/DevoInc/python-sdk/actions/workflows/python-pull-request.yml/badge.svg)
-
+![License](https://img.shields.io/github/license/DevoInc/python-sdk)
+![Wheel](https://img.shields.io/pypi/wheel/devo-sdk)
+![Version](https://img.shields.io/pypi/v/devo-sdk)
+![Python](https://img.shields.io/pypi/pyversions/devo-sdk) 
+![Tests](https://github.com/DevoInc/python-sdk/actions/workflows/python-pull-request.yml/badge.svg)
 
 # Devo Python SDK
 
