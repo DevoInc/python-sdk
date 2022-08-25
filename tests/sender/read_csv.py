@@ -41,16 +41,17 @@ class TestCSVRFC(unittest.TestCase):
         self.assertEqual(len(lines), 2)
         self.assertEqual(lines[-1], ["zzz", "yyy", "xxx"])
 
-    @unittest.skip("CSV supports several different row lengths, RFC doesn't")
+    @unittest.expectedFailure
     def test_same_number_of_fields(self):
         lines = [l for l in csv.reader(testfile_csv_with_different_num_fields)]
         for line in lines:
             self.assertEqual(len(line), 3)
 
+    @unittest.expectedFailure
     def test_no_comma_at_eol(self):
         lines = [l for l in csv.reader(testfile_csv_with_comma_at_eol)]
         self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
-        self.assertEqual(lines[1], ["zzz", "yyy", "xxx", ""])
+        self.assertEqual(lines[1], ["zzz", "yyy", "xxx"])
 
     def test_fields_with_comma_crlf_quote(self):
         reader = csv.reader(
