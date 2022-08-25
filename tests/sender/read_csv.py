@@ -56,11 +56,7 @@ class TestCSVRFC(unittest.TestCase):
         self.assertEqual(lines[1], ["zzz", "yyy", "xxx"])
 
     def test_fields_with_comma_crlf_quote(self):
-        reader = csv.reader(
-            testfile_csv_with_comma_crlf_in_fields,
-            quotechar='"',
-            doublequote=True,
-            quoting=csv.QUOTE_MINIMAL)
+        reader = csv.reader(testfile_csv_with_comma_crlf_in_fields)
         lines = [row for row in reader]
 
         self.assertEqual(reader.line_num, 3)
