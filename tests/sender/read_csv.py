@@ -29,7 +29,8 @@ testfile_csv_with_comma_crlf_in_fields = [
 
 
 # The Devo SDK Lookup Class uses the CSV reader to read the input lookup file,
-# so the following test file is used to test the CSV reader RFC 4180 compliance.
+# This tests the CSV reader RFC 4180 compliance.
+#
 # See https://tools.ietf.org/html/rfc4180 for more details.
 
 
@@ -37,19 +38,20 @@ class TestCSVRFC(unittest.TestCase):
     """Test the CSV RFC compliance."""
 
     def test_last_line_is_blank(self):
-        lines = [l for l in csv.reader(testfile_csv_last_line_is_blank)]
+        lines = [row for row in csv.reader(testfile_csv_last_line_is_blank)]
         self.assertEqual(len(lines), 2)
         self.assertEqual(lines[-1], ["zzz", "yyy", "xxx"])
 
     @unittest.expectedFailure
     def test_same_number_of_fields(self):
-        lines = [l for l in csv.reader(testfile_csv_with_different_num_fields)]
+        lines = [
+            row for row in csv.reader(testfile_csv_with_different_num_fields)]
         for line in lines:
             self.assertEqual(len(line), 3)
 
     @unittest.expectedFailure
     def test_no_comma_at_eol(self):
-        lines = [l for l in csv.reader(testfile_csv_with_comma_at_eol)]
+        lines = [row for row in csv.reader(testfile_csv_with_comma_at_eol)]
         self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
         self.assertEqual(lines[1], ["zzz", "yyy", "xxx"])
 
@@ -59,7 +61,7 @@ class TestCSVRFC(unittest.TestCase):
             quotechar='"',
             doublequote=True,
             quoting=csv.QUOTE_MINIMAL)
-        lines = [l for l in reader]
+        lines = [row for row in reader]
 
         self.assertEqual(reader.line_num, 3)
         self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
