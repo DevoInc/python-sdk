@@ -101,7 +101,7 @@ Devo account owns. Administrator users can find them in **Administration** → *
 ## Launch tests
 ### run_tests script
 You can run tests from the main folder of SDK
-To launch this script, you need either the environment variables loaded in the system, or the _environment.env_ file in the root of the SDK with the correct values, since to test all the SDK functionalities it is necessary to connect to Devo for the tests of sending and extracting data. You has a example file called _environment.env.example_
+To launch this script, you need either the environment variables loaded in the system, or the _environment.env_ file in the root of the SDK with the correct values, since to test all the SDK functionalities it is necessary to connect to Devo for the tests of sending and extracting data. There is an example file called _environment.env.example_
 
 Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
 
