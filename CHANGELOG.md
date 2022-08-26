@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2022-08-26
+### Changed
+ * Create GitHub action to publish package in PyPI
+ * Create GitHub action for running tests after a pull request
+ * Added CSV tests
+
 ## [4.0.0] - 2022-08-05
 ### Changed
  * Default retries now are 0. Therefore, no retry mechanism is enabled by default in query API
