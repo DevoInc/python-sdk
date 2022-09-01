@@ -1,6 +1,5 @@
 import csv
 import os
-from sre_constants import ASSERT
 import unittest
 
 test_directory = '.'
@@ -30,7 +29,7 @@ e",fff
 testfile_csv_with_quotes = \
     """aaa,bbb,ccc
 zzz,"yy""y",xxx
-ddd,eee",fff
+Television,24",LCD
 """
 
 testfile_csv_with_tabs = \
@@ -143,7 +142,7 @@ class TestCSVRFC(unittest.TestCase):
         self.assertEqual(len(lines), 3)
         self.assertEqual(lines[0], ['aaa', 'bbb', 'ccc'])
         self.assertEqual(lines[1], ['zzz', 'yy"y', 'xxx'])
-        self.assertEqual(lines[2], ['ddd', 'eee"', 'fff'])
+        self.assertEqual(lines[2], ['Television','24"','LCD'])
 
     def test_fields_with_tabs(self):
         with open('testfile_csv_with_tabs.yaml', 'r') as f:
