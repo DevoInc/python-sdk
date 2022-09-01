@@ -38,12 +38,13 @@ def set_formatter(msg_format):
     return logging.Formatter(msg_format)
 
 
-def get_rotating_file_handler(path="./",
-                              file_name="history.log",
-                              msg_format='%(asctime)s|%(levelname)s|%(message)s',
-                              max_size=2097152,
-                              backup_count=5,
-                              level=logging.INFO):
+def get_rotating_file_handler(
+        path="./",
+        file_name="history.log",
+        msg_format='%(asctime)s|%(levelname)s|%(message)s',
+        max_size=2097152,
+        backup_count=5,
+        level=logging.INFO):
     """Initialize rotating file handler for logger
 
     :return: RotatingFileHandler object

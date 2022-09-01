@@ -14,7 +14,7 @@ class TestConfiguration(unittest.TestCase):
             config.load_config(self.config_path + ".ini")
 
         self.assertTrue("Configuration file type unknown or not supported: "
-                        "%s%stestfile_config.ini" % \
+                        "%s%stestfile_config.ini" %
                         (os.path.dirname(os.path.abspath(__file__)), os.sep)
                         in str(context.exception))
 

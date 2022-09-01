@@ -163,14 +163,18 @@ class TestApi(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
 
-    @unittest.skip("This is an internal functionality, not intended for external use")
+    @unittest.skip(
+        "This is an internal functionality, not intended for external use")
     def test_unsecure_http_query(self):
         """
-        This test is intended for checking unsecure HTTP requests. Devo will NEVER provide an unsecure HTTP endpoint
-        for API REST services. Therefore, you are not going to need to use or test this functionality.
+        This test is intended for checking unsecure HTTP requests. Devo will
+        NEVER provide an unsecure HTTP endpoint for API REST services.
+        Therefore, you are not going to need to use or test this functionality.
         In order to enable UNSECURE_HTTP environment var should be TRUE.
-        The endpoint is served by https://httpbin.org/. You can run with `docker run -p 80:80 kennethreitz/httpbin`. It
-        will expose an HTTP service at port 80. The URL `http://localhost:80/anything` will answer with the content of
+        The endpoint is served by https://httpbin.org/. You can run with
+        `docker run -p 80:80 kennethreitz/httpbin`. It will expose an HTTP
+        service at port 80.
+        The URL `http://localhost:80/anything` will answer with the content of
         the request.
         """
         os.environ["UNSECURE_HTTP"] = "TRUE"

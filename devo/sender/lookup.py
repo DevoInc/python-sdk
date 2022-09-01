@@ -6,7 +6,6 @@ import sys
 import time
 
 
-
 def find_key_index(value=None, headers=None):
     """Find index of key value in a list"""
     for index, val in enumerate(headers):
@@ -143,6 +142,20 @@ class Lookup:
                 types[index] = "str"
         return types
 
+    def check_quotes(self, file_path) -> bool:
+        """
+        Check if there are quotes in CSV file
+        :param file_path: path to CSV file
+        :return: boolean
+        """
+        if self.escape_quotes:
+            return False
+
+        with open(file_path) as f:
+            line = next((l_temp for l_temp in f if '"' in l_temp), None)
+
+        return True if line is not None else False
+
     # Send a whole CSV file
     def send_csv(self, path=None, has_header=True, delimiter=',',
                  quotechar='"', headers=None, key="KEY", historic_tag=None,
@@ -241,7 +254,8 @@ class Lookup:
         except IOError as error:
             print("I/O error({0}): {1}".format(error.errno, error.strerror))
         except Exception as error:
-            raise Exception("Unexpected error: %e \n" % error, sys.exc_info()[0])
+            raise Exception(
+                "Unexpected error: %e \n" % error, sys.exc_info()[0])
 
     # Basic process
     # --------------------------------------------------------------------------

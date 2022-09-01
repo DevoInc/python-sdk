@@ -1,12 +1,18 @@
 import unittest
 import socket
+import time
 from ssl import CERT_NONE
 
 import devo.sender.data
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, \
     DevoSenderException
 from devo.common import get_log
-from .load_certs import *
+
+try:
+    from .load_certs import *
+except ImportError:
+    from load_certs import *
+
 from unittest import mock
 from OpenSSL import SSL
 import pem
@@ -131,7 +137,8 @@ class TestSender(unittest.TestCase):
 
     def test_multiline_send(self):
         """
-        Test that tries to send a multiple line message through a ssl connection
+        Test that tries to send a multiple line message through
+        a ssl connection
         """
         try:
             engine_config = SenderConfigSSL(address=(self.server, self.port),
@@ -167,6 +174,7 @@ class TestSender(unittest.TestCase):
                 for i in range(self.default_numbers_sendings):
                     con.send(tag=self.my_app, msg=self.test_msg)
                 con.close()
+                return True
             except Exception as error:
                 return False
         else:

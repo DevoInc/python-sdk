@@ -25,7 +25,7 @@ Example:
     "lookup": {
         "name": "Test_Lookup_of_180306_02",
         "file": "test_lookup.csv",
-        "lkey": "KEY"
+        "lkey": "KEY",
         "escape_quotes": true
     }
 }
@@ -202,7 +202,7 @@ Params
 Example
 
 ```python
-    lookup.send_csv(config['file'], headers=['KEY', 'COLOR', 'HEX'], key=config['lkey'])
+lookup.send_csv(config['file'], headers=['KEY', 'COLOR', 'HEX'], key=config['lkey'])
 ```
     
 Complete example
@@ -225,22 +225,25 @@ You can use config file to send types list:
  'lookup' : {
     'types': ["int", "str", "int4", "bool", "int8"]
     ....
- }}
+ }
+}
 ```
 ##### Double quotes in the field value
 
 Any double quotes inside the field value can cause trouble when sending the lookup if this is not escaped.
 An example of this case can be seen below:
 
-`lookup.send_data_line(key="11", fields=["11", 'double quotes must escaped"'])`
+```python
+lookup.send_data_line(key="11", fields=["11", 'double quotes must escaped"'])
+```
 
 That lookup creation will fail because that double quote will be interpreted as a field termination and 
 the number of fields for that row will unmatch the corresponding number of columns. To avoid this, 
 add `"escape_quotes": true` to the lookup configuration file and `escape_quotes=True` to the `Lookup` constructor. 
 Below, an example for the constructor is shown:
 
-```
-`lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)`
+```python
+lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
 ```
 
 To see an example for the lookup configuration please refer to the one shown at the start of the document.
