@@ -31,7 +31,7 @@ You can install the Devo SDK by using `easy_install` or `pip`:
     pip install devo-sdk
 
 
-You can use sources files, clonning the project too:
+You can use sources files, cloning the project too:
 
     #option 3
     python setup.py install
