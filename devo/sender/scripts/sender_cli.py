@@ -50,9 +50,10 @@ def cli(version):
                                     '"2" (CERT_REQUIRED)', type=int)
 @click.option('--check_hostname', help='Verify cert hostname. Default: True',
               type=bool)
-@click.option('--multiline/--no-multiline', help='Flag for multiline (With '
-                                                 'break-line in msg). '
-                                                 'Default False', default=False)
+@click.option('--multiline/--no-multiline',
+              help='Flag for multiline (With '
+              'break-line in msg). '
+              'Default False', default=False)
 @click.option('--type', help='Connection type: SSL or TCP', default="SSL")
 @click.option('--tag', '-t', help='Tag / Table to which the data will be sent '
                                   'in Devo.', default="test.drop.ltsender")
@@ -168,18 +169,31 @@ def data(**kwargs):
               default=False)
 @click.option('--delimiter', '-d', help='CSV Delimiter char.', default=",")
 @click.option('--quotechar', '-qc', help='CSV Quote char.', default='"')
+@click.option('--escapequotes', '-eq', is_flag=True,
+              help='Escape Quotes. Default: False',
+              default=False)
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def lookup(**kwargs):
     """Send csv lookups to devo"""
     config = configure_lookup(kwargs)
+    warning_st = 0
+
+    # Exit errors by https://tldp.org/LDP/abs/html/exitcodes.html
+    status_msg = {
+        64: "Some field contains double quotes in this file."
+            "If you do not use -eq or --escapequotes it might not work."
+    }
+
     con = Sender(config=config)
 
-    lookup = Lookup(name=config['name'], historic_tag=None, con=con)
+    lookup = Lookup(name=config['name'], historic_tag=None,
+                    con=con, escape_quotes=config['escapequotes'])
 
-    # with open(config['file']) as file:
-    #     line = file.readline()
+    if lookup.check_quotes(config['file']):
+        warning_st = 64
 
-    lookup.send_csv(config['file'], delimiter=config['delimiter'],
+    lookup.send_csv(config['file'],
+                    delimiter=config['delimiter'],
                     quotechar=config['quotechar'],
                     has_header=True,
                     # headers=line.rstrip().split(config['delimiter']),
@@ -190,6 +204,10 @@ def lookup(**kwargs):
                                      config.get("types", None)
                                      ),
                     detect_types=config.get("detect_types", False))
+
+    if warning_st != 0:
+        print_warning(status_msg[warning_st])
+        exit(warning_st)
 
 
 def configure(args):
@@ -237,3 +255,11 @@ def print_error(error, show_help=False):
         click.echo("")
         click.echo(click.get_current_context().get_help())
     click.echo(click.style(error, fg='red'), err=True)
+
+
+def print_warning(warning, show_help=False):
+    """Class for print warning in shell"""
+    if show_help:
+        click.echo("")
+        click.echo(click.get_current_context().get_help())
+    click.echo(click.style(warning, fg='yellow'), err=True)

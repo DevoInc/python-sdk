@@ -1,9 +1,12 @@
 import unittest
 from ssl import CERT_NONE
 from unittest import mock
-
 from devo.sender import Sender, SenderConfigSSL, Lookup
-from .load_certs import *
+
+try:
+    from .load_certs import *
+except ImportError:
+    from load_certs import *
 
 
 class TestLookup(unittest.TestCase):
@@ -60,6 +63,7 @@ class TestLookup(unittest.TestCase):
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
+
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
@@ -90,7 +94,8 @@ class TestLookup(unittest.TestCase):
         headers = ["col1", "col2", "col3"]
         fields = ["a", "b", "c"]
 
-        expected_headers = '[{"col1":{"type":"str","key":true}},{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        expected_headers = '[{"col1":{"type":"str","key":true}},' + \
+            '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         with mock.patch.object(
             lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
@@ -122,7 +127,8 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, con=con)
         headers = ["col1", "col2", "col3"]
 
-        expected_headers = '[{"col1":{"type":"int4","key":true}},{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        expected_headers = '[{"col1":{"type":"int4","key":true}},' + \
+            '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         with mock.patch.object(
             lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
@@ -333,6 +339,7 @@ class TestLookup(unittest.TestCase):
                             has_header=True,
                             key=self.lookup_key, delete_field="Green")
             clean_field.assert_called_with('ffffff', True)
+
 
 if __name__ == "__main__":
     unittest.main()

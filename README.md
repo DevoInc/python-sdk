@@ -105,20 +105,50 @@ To launch this script, you need either the environment variables loaded in the s
 
 Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
 
-```bash
+```console
 ~/projects/devo-python-sdk > python setup.py test 
 ```
 
-```bash
+```console
 ~/projects/devo-python-sdk > python run_tests.py
 ```
 
 You can add option "Coverage" for create HTML report about tests.
 
-```bash
+```console
 ~/projects/devo-python-sdk > python run_tests.py --coverage
 ```
 
+You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
+
+```console
+~/projects/devo-python-sdk > python run_tests.py -m SEND_CLI
+```
+
+Using the --help flag prints the available modules to use:
+
+```console
+~/projects/devo-python-sdk > python run_tests.py --help
+usage: run_tests.py [-h] [--coverage [COVERAGE]] [-m [MODULE]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --coverage [COVERAGE]
+                        Generate coverage
+  -m [MODULE], --module [MODULE]
+                        Run tests for selected module: API_CLI, API_QUERY, API_TASKS, COMMON_CONFIGURATION,
+                        COMMON_DATE_PARSER, SENDER_CLI, SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
+```
+
+* API_CLI: API Command-line interface tests.
+* API_QUERY: Query API tests.
+* API_TASKS: Task API tests.
+* COMMON_CONFIGURATION: Configuration tests.
+* COMMON_DATE_PARSER: Date parser tests.
+* SENDER_CLI: Lookup command-line interface tests.
+* SENDER_NUMBER_LOOKUP: Numbers in lookup tests
+* SENDER_SEND_DATA: Data sending tests.
+* SENDER_SEND_LOOKUP: Lookup sending tests.
 
 ### Run using Unittest command
 

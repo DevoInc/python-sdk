@@ -5,15 +5,17 @@ from devo.api import Client, ClientConfig
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.client = Client(config=
-            {'key': os.getenv('DEVO_API_KEY', None),
-             'secret': os.getenv('DEVO_API_SECRET', None),
-             'address': os.getenv('DEVO_API_ADDRESS',
-                              'https://apiv2-us.devo.com/'),
-             "stream": False,
-             "destination": {"type": "donothing",
-                             "params": {"friendlyName": "devo-sdk-api-test"}}
-             })
+        self.client = Client(
+            config={'key': os.getenv('DEVO_API_KEY', None),
+                    'secret': os.getenv('DEVO_API_SECRET', None),
+                    'address': os.getenv('DEVO_API_ADDRESS',
+                                         'https://apiv2-us.devo.com/'),
+                    "stream": False,
+                    "destination": {
+                        "type": "donothing",
+                        "params": {"friendlyName": "devo-sdk-api-test"}
+                    }
+                    })
 
     @unittest.skip("temporarily disabled due to Query API bug")
     def test_jobs_cycle(self):

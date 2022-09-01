@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [4.0.2] - 2022-09-01
+### Added
+ * Add a new command-line option for escaping double quotes with `-eq` or `--escape_quotes`.
+ * Add a check and shows a warning if the file contains double quotes and the option `-eq` is not used.
+ * Add a new command-line option in tests for testing just one module with `-m <module_name>` or `--module <module_name>`.
 ## [4.0.1] - 2022-08-26
 ### Added
  * Create GitHub action to publish package in PyPI

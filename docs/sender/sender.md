@@ -148,6 +148,7 @@ Options:
                                   Detect types of fields. Default: False
   -d, --delimiter TEXT            CSV Delimiter char.
   -qc, --quotechar TEXT           CSV Quote char.
+  -eq, --escapequotes             Escape Quotes. Default: False
   --debug / --no-debug            For testing purposes
   --help                          Show this message and exit.
 ```

@@ -311,8 +311,8 @@ class Sender(logging.Handler):
         logging.Handler.__init__(self)
         self.logger = logger if logger else \
             get_log(handler=get_stream_handler(
-                msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s'))
-
+                msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s')
+                )
 
         self._sender_config = config
 
@@ -410,8 +410,8 @@ class Sender(logging.Handler):
             self.reconnection += 1
             if self.debug:
                 self.logger.debug('Conected to %s|%s'
-                                  % (repr(self.socket.getpeername())
-                                     , str(self.reconnection)))
+                                  % (repr(self.socket.getpeername()),
+                                     str(self.reconnection)))
             self.timestart = int(round(time.time() * 1000))
 
         except socket.error as error:
@@ -520,7 +520,7 @@ class Sender(logging.Handler):
         if self.socket is not None:
             try:
                 self.socket.shutdown(SHUT_RDWR)
-            except:  # Try else continue
+            except Exception as e:  # Try else continue
                 pass
             self.socket.close()
             self.socket = None
@@ -671,7 +671,8 @@ class Sender(logging.Handler):
         """
         Send function when bytes, sure py3x. Can be zipped
         """
-        msg = COMPOSE_BYTES % (self.compose_mem(tag, bytes=True, **kwargs), msg)
+        msg = COMPOSE_BYTES % (
+            self.compose_mem(tag, bytes=True, **kwargs), msg)
         if kwargs.get('zip', False):
             return self.fill_buffer(msg)
 
