@@ -122,7 +122,7 @@ class TestCSVRFC(unittest.TestCase):
             reader = csv.reader(f)
             lines = [row for row in reader]
 
-        # The nomber of lines read should not be the same as the number of 
+        # The nomber of lines read should not be the same as the number of
         # lines in the file.
         self.assertEqual(reader.line_num, 4)
         self.assertEqual(len(lines), 3)
@@ -142,7 +142,7 @@ class TestCSVRFC(unittest.TestCase):
         self.assertEqual(len(lines), 3)
         self.assertEqual(lines[0], ['aaa', 'bbb', 'ccc'])
         self.assertEqual(lines[1], ['zzz', 'yy"y', 'xxx'])
-        self.assertEqual(lines[2], ['Television','24"','LCD'])
+        self.assertEqual(lines[2], ['Television', '24"', 'LCD'])
 
     def test_fields_with_tabs(self):
         with open('testfile_csv_with_tabs.yaml', 'r') as f:
