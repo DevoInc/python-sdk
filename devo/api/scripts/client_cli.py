@@ -48,7 +48,10 @@ def cli(version):
 @click.option('--output', help='File path to store query response if not want '
                                'stdout')
 @click.option('--response', '-r', default="json/simple/compact",
-              help='The output format. Default is json/simple/compact')
+              help='The output format. Default is json/simple/compact',
+              type=click.Choice(['json', 'json/compact', 'json/simple',
+                                 'json/simple/compact', 'msgpack', 'csv',
+                                 'tsv', 'xls']))
 @click.option('--from',
               help='From date. For valid formats see API README.'
                    ' Default if now - 1 hour')
@@ -88,6 +91,14 @@ def query(**kwargs):
             dates = {'timeZone': config['timeZone']}
         else:
             dates = None
+
+    if "response" in config.keys():
+        if config["response"] in ["msgpack", "xls"]:
+            if "output" not in config.keys():
+                print_error(ERROR_MSGS['binary_format_requires_output'],
+                            show_help=True)
+                exit()
+
 
     reponse = api.query(query=config['query'], dates=dates)
 
