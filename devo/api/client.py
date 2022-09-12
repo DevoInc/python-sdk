@@ -32,7 +32,9 @@ ERROR_MSGS = {
     "no_auth": "Client dont have key&secret or auth token/jwt",
     "no_endpoint": "Endpoint 'address' not found",
     "to_but_no_from": "If you use end dates for the query 'to' it is "
-                      "necessary to use start date 'from'"
+                      "necessary to use start date 'from'",
+    "binary_format_requires_output": "Binary format like `msgpack` and `xls` "
+                                     "requires output parameter"
 }
 
 DEFAULT_KEEPALIVE_TOKEN = '\n'
