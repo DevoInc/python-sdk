@@ -6,7 +6,7 @@ from devo.api import Client
 from unittest.mock import MagicMock
 
 from devo.api.client import DEFAULT_KEEPALIVE_TOKEN, \
-    EMPTY_EVENT_KEEPALIVE_TOKEN, NO_KEEPALIVE_TOKEN
+    EMPTY_EVENT_KEEPALIVE_TOKEN, NO_KEEPALIVE_TOKEN, ClientConfig
 
 
 class TimeoutTokenCase(unittest.TestCase):
@@ -346,6 +346,125 @@ class TimeoutTokenCase(unittest.TestCase):
         self.assertIsNotNone(response)
         self.assertEqual(response, result)
 
+    def test_keepAliveToken_csv(self):
+        self.response = "csv"
 
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, "TEST")
+
+    def test_keepAliveToken_tsv(self):
+        self.response = "tsv"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, "TEST")
+
+    def test_keepAliveToken_xls(self):
+        self.response = "xls"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNotNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+
+    def test_keepAliveToken_msgpack(self):
+        self.response = "msgpack"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+    def test_keepAliveToken_json(self):
+        self.response = "json"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+    def test_keepAliveToken_json_compact(self):
+        self.response = "json/compact"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+    def test_keepAliveToken_json_simple(self):
+        self.response = "json/simple"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+    def test_keepAliveToken_json_simple_compact(self):
+        self.response = "json/simple/compact"
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+
+        ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
+    
 if __name__ == '__main__':
     unittest.main()

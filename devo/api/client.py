@@ -148,28 +148,18 @@ class ClientConfig:
         :param keepAliveToken: KeepAlive token for long responses queries
         :return:
         """
-        if self.response in ['xls']:
+        # The KeepAlive token does not apply to any format other than 'xls', 'csv', 'tsv'.
+        if self.response not in ['xls','csv','tsv']:
+            self.keepAliveToken = NO_KEEPALIVE_TOKEN
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,DEFAULT_KEEPALIVE_TOKEN]:
+                   logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
+        # In the case of 'xls' only DEFAULT_KEEPALIVE_TOKEN is applied.
+        elif self.response in ['xls']:
             self.keepAliveToken = DEFAULT_KEEPALIVE_TOKEN
             if keepAliveToken not in [DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' only supports default"
-                                f" KeepAlive Token")
-        elif self.response in ['msgpack']:
-            self.keepAliveToken = NO_KEEPALIVE_TOKEN
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
-                                      DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' does not support"
-                                f" KeepAlive Token")
-        elif self.response not in ['csv', 'tsv']:
-            self.keepAliveToken = NO_KEEPALIVE_TOKEN
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
-                                      DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' does not support"
-                                f" custom KeepAlive Token")
-        elif keepAliveToken == NO_KEEPALIVE_TOKEN:
-            self.keepAliveToken = DEFAULT_KEEPALIVE_TOKEN
-            logging.warning(f"Mode '{self.response}' requires KeepAlive Token,"
-                            f" default token configured")
-        else:
+                logging.warning(f"Mode '{self.response}' only supports default KeepAlive Token")
+        # In the cases 'csv', 'tsv' you can use any value passed in 'keepAliveToken'.
+        elif self.response in ['csv','tsv']:
             self.keepAliveToken = keepAliveToken
         return True
 
