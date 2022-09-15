@@ -15,7 +15,7 @@ class TimeoutTokenCase(unittest.TestCase):
         client = Client(retries=0, config={'address': "URI", "stream": True,
                                            "response": response_type,
                                            "keepAliveToken": keepAliveToken})
-        client._make_request = MagicMock(return_value=result)
+        client._make_request = MagicMock(return_value=(None,result,None))
         return client.query()
 
     def _query_no_stream(self, response_type, result,
@@ -26,9 +26,9 @@ class TimeoutTokenCase(unittest.TestCase):
         with mock.patch(
                 'devo.api.Client._make_request') as patched_make_request:
             if isinstance(result, str):
-                patched_make_request.return_value.text = result
+                patched_make_request.return_value[0].text = result
             else:
-                patched_make_request.return_value.content = result
+                patched_make_request.return_value[0].content = result
             return client.query()
 
     def test_json_token_notstream(self):

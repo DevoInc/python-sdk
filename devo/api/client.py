@@ -149,7 +149,9 @@ class ClientConfig:
         :return:
         """
         # The KeepAlive token does not apply to any format other than 'xls', 'csv', 'tsv'.
-        if self.response not in ['xls','csv','tsv']:
+        # All json* responses always use default b'    ' token for keepalive (cannot be modified), but implementation uses NO_KEEP_ALIVE value as it does not change the query
+        # msgpack does not support keepalive
+        if self.response in ['json', 'json/compact', 'json/simple', 'json/simple/compact', 'msgpack']:  
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
             if keepAliveToken not in [NO_KEEPALIVE_TOKEN,DEFAULT_KEEPALIVE_TOKEN]:
                    logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
@@ -161,6 +163,8 @@ class ClientConfig:
         # In the cases 'csv', 'tsv' you can use any value passed in 'keepAliveToken'.
         elif self.response in ['csv','tsv']:
             self.keepAliveToken = keepAliveToken
+        else:
+            raise_exception("Response type not supported with keepAlive")
         return True
 
 
@@ -357,27 +361,33 @@ class Client:
         :return: Response from API
         """
         if self.config.stream:
-            return self._return_stream(payload)
+            return self._return_string_stream(payload)
         response = self._make_request(payload)
 
-        if isinstance(response, str):
+        #We access to the whole server response value
+        wholeResponse = response[0]
+
+        if isinstance(wholeResponse, str):
             return proc_json()(response)
         if self.config.response in ["msgpack", "xls"]:
-            return self.config.processor(response.content)
+            return self.config.processor(wholeResponse.content)
         else:
             return self.config.processor(
-                self._keepalive_content_sanitize(response.text))
+                self._keepalive_content_sanitize(wholeResponse.text))
 
-    def _return_stream(self, payload):
+    def _return_string_stream(self, payload):
         """If it's a stream call, return yield lines
         :param payload: item with headers for request
         :return line: yield-generator item
         """
         raw_response = self._make_request(payload)
 
+        #We access to the iterLines response from the server.
+        iterStringResponse = raw_response[1]
+
         response = filter(lambda l: self._empty_lines_sanitize(l),
                           map(lambda l: self._keepalive_stream_sanitize(l),
-                              map(lambda l: l.decode('utf-8'), raw_response)))
+                              map(lambda l: l.decode('utf-8'), iterStringResponse)))
         try:
             first = next(response)
         except StopIteration:
@@ -465,8 +475,10 @@ class Client:
                     raise DevoClientException(response)
 
                 if self.config.stream:
-                    return response.iter_lines()
-                return response
+                    #In case of stream mode we return an string iter of the server response.
+                    return (None,response.iter_lines(),None)
+                #In case of NOT stream mode we return the whole server response.
+                return (response,None,None)
             except requests.exceptions.ConnectionError as error:
                 tries += 1
                 if tries > self.retries:
