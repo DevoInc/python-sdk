@@ -12,7 +12,7 @@ class TimeoutTokenCase(unittest.TestCase):
         client = Client(retries=0, config={'address': "URI", "stream": True,
                                            "response": response_type,
                                            "processor": processor})
-        client._make_request = MagicMock(return_value=result)
+        client._make_request = MagicMock(return_value=(None,result,None))
         return client.query()
 
     def test_error_stream_json_simple_compact_to_array(self):
