@@ -44,10 +44,6 @@ jobs:
           echo "${{ secrets.CA_CRT }}" | base64 --decode > certs/us/ca.crt
           echo "${{ secrets.DEVO_SERVICES_CRT }}" | base64 --decode > certs/us/devo_services.crt
           echo "${{ secrets.DEVO_SERVICES_KEY }}" | base64 --decode > certs/us/devo_services.key
-          export DEVO_SENDER_KEY=$(realpath certs/us/devo_services.key)
-          export DEVO_SENDER_CERT=$(realpath certs/us/devo_services.crt)
-          export DEVO_SENDER_CHAIN=$(realpath certs/us/ca.crt)
-          export TMPDIR=${PWD}
       - name: Test package
         env: # Set up secrets as environment variable
           DEVO_API_ADDRESS: ${{ secrets.DEVO_API_ADDRESS }}
@@ -58,4 +54,8 @@ jobs:
           DEVO_API_QUERY: ${{ secrets.DEVO_API_QUERY }}
         run: |
           echo ==== Running tests with version ${{ matrix.version }} ====
+          export DEVO_SENDER_KEY=$(realpath certs/us/devo_services.key)
+          export DEVO_SENDER_CERT=$(realpath certs/us/devo_services.crt)
+          export DEVO_SENDER_CHAIN=$(realpath certs/us/ca.crt)
+          export TMPDIR=${PWD}
           python run_tests.py
