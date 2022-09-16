@@ -106,10 +106,6 @@ class TestApi(unittest.TestCase):
                 "select timestamp limit 1", "--config", self.config_path
             ])
 
-            from pprint import pprint
-            pprint(result.exception)
-
-
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
             self.assertIn('{"m":{"timestamp":{"type":"str","index":0',
