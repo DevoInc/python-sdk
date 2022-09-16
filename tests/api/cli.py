@@ -1,4 +1,5 @@
 import os
+import tempfile
 import unittest
 
 from click.testing import CliRunner
@@ -34,7 +35,9 @@ class TestApi(unittest.TestCase):
                 "comment": self.comment,
                 "app_name": self.app_name
             })
-        self.config_path = "/tmp/devo_api_tests_config.json"
+
+        self.config_path = os.path.join(tempfile.gettempdir(),
+                                        "devo_api_tests_config.json")
         configuration.save(path=self.config_path)
 
     def test_query_args(self):
@@ -61,7 +64,8 @@ class TestApi(unittest.TestCase):
             "--debug", "--from", "2018-01-01", "--query",
             "from demo.ecommerce.data "
             "select timestamp limit 1", "--address", "error-apiv2-us.logtrust"
-            ".com/search/query", "--key", self.key, "--secret", self.secret
+                                                     ".com/search/query",
+            "--key", self.key, "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
         self.assertEqual(result.exception.args[0]['status'], 500)
