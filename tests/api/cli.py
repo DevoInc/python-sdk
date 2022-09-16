@@ -95,6 +95,12 @@ class TestApi(unittest.TestCase):
     def test_with_config_file(self):
         if self.config_path:
             runner = CliRunner()
+            from pprint import pprint
+            pprint(self.config_path)
+            with open(self.config_path, 'r') as file:
+                data = file.read()
+                pprint(data)
+
             result = runner.invoke(query, [
                 "--debug", "--from", "2018-01-01", "--query",
                 "from demo.ecommerce.data "
