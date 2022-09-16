@@ -11,9 +11,13 @@ module_paths = {
     'API_CLI': ['api', 'cli.py'],
     'API_QUERY': ['api', 'query.py'],
     'API_TASKS': ['api', 'tasks.py'],
+    'API_ERRORS': ['api', 'test_errors.py'],
+    'API_PROCESSORS': ['api', 'test_proccessors.py'],
+    'API_KEEPALIVE': ['api', 'test_timeout_token.py'],
     'COMMON_CONFIGURATION': ['common', 'configuration.py'],
     'COMMON_DATE_PARSER': ['common', 'date_parser.py'],
     'SENDER_CLI': ['sender', 'cli.py'],
+    'SENDER_CSV': ['sender', 'read_csv.py'],
     'SENDER_NUMBER_LOOKUP': ['sender', 'number_lookup.py'],
     'SENDER_SEND_DATA': ['sender', 'send_data.py'],
     'SENDER_SEND_LOOKUP': ['sender', 'send_lookup.py']
