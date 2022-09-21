@@ -11,6 +11,8 @@ import requests
 from devo.common import default_from, default_to
 from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
+import calendar
+from datetime import datetime, timedelta
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -148,23 +150,19 @@ class ClientConfig:
         :param keepAliveToken: KeepAlive token for long responses queries
         :return:
         """
-        # The KeepAlive token does not apply to any format other than 'xls', 'csv', 'tsv'.
+        # The KeepAlive token does not apply to any format other than 'csv', 'tsv'.
         # All json* responses always use default b'    ' token for keepalive (cannot be modified), but implementation uses NO_KEEP_ALIVE value as it does not change the query
-        # msgpack does not support keepalive
-        if self.response in ['json', 'json/compact', 'json/simple', 'json/simple/compact', 'msgpack']:  
+        # msgpack and xls does not support keepalive
+        if self.response in ['json', 'json/compact', 'json/simple', 'json/simple/compact']:  
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
             if keepAliveToken not in [NO_KEEPALIVE_TOKEN,DEFAULT_KEEPALIVE_TOKEN]:
                    logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
-        # In the case of 'xls' only DEFAULT_KEEPALIVE_TOKEN is applied.
-        elif self.response in ['xls']:
-            self.keepAliveToken = DEFAULT_KEEPALIVE_TOKEN
-            if keepAliveToken not in [DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(f"Mode '{self.response}' only supports default KeepAlive Token")
         # In the cases 'csv', 'tsv' you can use any value passed in 'keepAliveToken'.
         elif self.response in ['csv','tsv']:
             self.keepAliveToken = keepAliveToken
         else:
-            raise_exception("Response type not supported with keepAlive")
+            logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
+            self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
 
 
@@ -348,6 +346,18 @@ class Client:
             if self.config.stream:
                 logging.warning(f"Mode '{self.config.response}' does not"
                                 f" support stream mode")
+            #If is a future query and response type is 'xls' or 'msgpack' return warning because is not available.
+            if self._future_queries_available(self.config.response):
+                self.config.stream = False
+            else:
+                
+                fromDate = self._fromDate_parser(default_to(dates['from']))
+                toDate = self._toDate_parser(fromDate,default_to(dates['to']))
+
+                if toDate > default_to("now()"):
+                   return DevoClientException("Modes 'xls' and 'msgpack' does not"
+                                f" support future queries because KeepAlive tokens are not available for those resonses type")
+                
             self.config.stream = False
 
         return self._call(
@@ -682,3 +692,92 @@ class Client:
             tries += 1
             time.sleep(self.timeout)
         return {}
+   
+    @staticmethod
+    def _future_queries_available(resp):
+        """
+        Verify whether future queries are supported for the response type selected
+        :param resp: str
+        :return: bool
+        """
+        return resp not in ["msgpack", "xls"]
+
+    @staticmethod
+    def _fromDate_parser(fromDate,now=datetime.now()):
+
+        if isinstance(fromDate,(float, int)):
+            return fromDate
+
+        now_milliseconds = now.timestamp() * 1000
+        adate = datetime.strptime(str(now.date()),'%Y-%m-%d')
+
+        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)',fromDate):
+            date = re.split('(d|ad|h|ah|m|am|s|as)',fromDate)
+            num = int(date[0])
+            type = date[1]
+
+            if(type == "d"):
+                return now_milliseconds - (8.64e+7 * num)
+            elif type=="ad":
+                return adate.timestamp() * 1000 - (8.64e+7 * num)
+            elif type=="h":
+                return now_milliseconds - (3.6e+6 * num)
+            elif type=="ah":
+                return adate.timestamp() * 1000 - (3.6e+6 * num)
+            elif type=="m":
+                return now_milliseconds - (60000 * num)
+            elif type=="am":
+                return adate.timestamp() * 1000 - (60000 * num)
+            elif type=="s":
+                return now_milliseconds - (1000 * num)
+            elif type=="as":
+                return adate.timestamp() * 1000 - (1000 * num)
+            
+        elif fromDate == "today":
+            return adate.timestamp() * 1000
+        elif fromDate == "endday":
+            return (adate + timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000
+        elif fromDate == "endmonth":
+            return (adate.replace(day = calendar.monthrange(adate.year, adate.month)[1])+ timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000       
+        elif fromDate == "now":
+            return now.timestamp()*1000
+    @staticmethod
+    def _toDate_parser(fromDateMillisec,toDate,now = datetime.now()):
+
+        if isinstance(toDate,(float, int)):
+            return toDate
+
+        fromDate = datetime.fromtimestamp(fromDateMillisec/1000)
+        aFromdate = datetime.strptime(str(fromDate.date()),'%Y-%m-%d')
+        aNowdate = datetime.strptime(str(now.date()),'%Y-%m-%d')
+        
+        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)',toDate):
+            date = re.split('(d|ad|h|ah|m|am|s|as)',toDate)
+            num = int(date[0])
+            type = date[1]
+
+            if(type == "d"):
+                return fromDateMillisec + (8.64e+7 * num)
+            elif type=="ad":
+                return aFromdate.timestamp() * 1000 + (8.64e+7 * num)
+            elif type=="h":
+                return fromDateMillisec + (3.6e+6 * num)
+            elif type=="ah":
+                return aFromdate.timestamp() * 1000 + (3.6e+6 * num)
+            elif type=="m":
+                return fromDateMillisec + (60000 * num)
+            elif type=="am":
+                return aFromdate.timestamp() * 1000 + (60000 * num)
+            elif type=="s":
+                return fromDateMillisec + (1000 * num)
+            elif type=="as":
+                return aFromdate.timestamp() * 1000 + (1000 * num)
+            
+        elif toDate == "today":
+            return aNowdate.timestamp() * 1000
+        elif toDate == "endday":
+            return (aFromdate + timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000
+        elif toDate == "endmonth":
+            return (aFromdate.replace(day = calendar.monthrange(aFromdate.year, aFromdate.month)[1])+ timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000       
+        elif toDate == "now":
+            return now.timestamp()*1000

@@ -14,6 +14,7 @@ module_paths = {
     'API_ERRORS': ['api', 'test_errors.py'],
     'API_PROCESSORS': ['api', 'test_proccessors.py'],
     'API_KEEPALIVE': ['api', 'test_timeout_token.py'],
+    'API_PARSER_DATE': ['api', 'test_parsers_dates.py'],
     'COMMON_CONFIGURATION': ['common', 'configuration.py'],
     'COMMON_DATE_PARSER': ['common', 'date_parser.py'],
     'SENDER_CLI': ['sender', 'cli.py'],

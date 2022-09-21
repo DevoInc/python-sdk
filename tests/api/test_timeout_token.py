@@ -9,6 +9,12 @@ from devo.api.client import DEFAULT_KEEPALIVE_TOKEN, \
     EMPTY_EVENT_KEEPALIVE_TOKEN, NO_KEEPALIVE_TOKEN, ClientConfig
 
 
+from datetime import datetime
+from devo.api.client import ClientConfig
+DEFAULT_KEEPALIVE_TOKEN = "\n"
+EMPTY_EVENT_KEEPALIVE_TOKEN=""
+NO_KEEPALIVE_TOKEN=None
+
 class TimeoutTokenCase(unittest.TestCase):
     def _query_stream(self, response_type, result,
                       keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
@@ -378,18 +384,17 @@ class TimeoutTokenCase(unittest.TestCase):
 
     def test_keepAliveToken_xls(self):
         self.response = "xls"
-
         ClientConfig.set_keepalive_token(self,keepAliveToken=DEFAULT_KEEPALIVE_TOKEN)
-        self.assertIsNotNone(self.keepAliveToken)
-        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
 
         ClientConfig.set_keepalive_token(self)
-        self.assertIsNotNone(self.keepAliveToken)
-        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
 
         ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
-        self.assertIsNotNone(self.keepAliveToken)
-        self.assertEqual(self.keepAliveToken, DEFAULT_KEEPALIVE_TOKEN)
+        self.assertIsNone(self.keepAliveToken)
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
 
     def test_keepAliveToken_msgpack(self):
         self.response = "msgpack"
@@ -464,7 +469,7 @@ class TimeoutTokenCase(unittest.TestCase):
 
         ClientConfig.set_keepalive_token(self,keepAliveToken="TEST")
         self.assertIsNone(self.keepAliveToken)
-        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)
-    
+        self.assertEqual(self.keepAliveToken, NO_KEEPALIVE_TOKEN)    
+
 if __name__ == '__main__':
     unittest.main()

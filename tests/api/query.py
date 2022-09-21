@@ -159,7 +159,7 @@ class TestApi(unittest.TestCase):
                      retries=3)
         api.config.set_user(user=self.user)
         api.config.set_app_name(app_name=self.app_name)
-        result = api.query(query=self.query)
+        result = api.query(query=self.query) 
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)['object']), 1)
 
@@ -190,6 +190,70 @@ class TestApi(unittest.TestCase):
         self.assertIn('json', json.loads(result))
         self.assertIn('query', json.loads(result)['json'])
 
+    def test_stream_mode_not_supported_xls(self):
+        """Test the api stream mode is not supported for xls format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="xls"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable,False)
+
+    def test_stream_mode_not_supported_json(self):
+        """Test the api stream mode is not supported for json format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="json"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable,False)
+
+    def test_stream_mode_not_supported_json_compact(self):
+        """Test the api stream mode is not supported for json/compact format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="json/compact"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable,False)
+    def test_stream_mode_not_supported_msgpack(self):
+        """Test the api stream mode is not supported for msgpack format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="msgpack"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable,False)
+
+    def test_xls_future_queries(self):
+        api = Client(auth={"key": self.key, "secret": self.secret},
+            address=self.uri,
+            config=ClientConfig(stream=False, response="xls"))
+
+        response = api.query(query=self.query,dates={'from': 'now()', 'to': 'now()+60*second()'})
+
+        self.assertIsInstance(response, DevoClientException)
+        self.assertEqual(response.args[0],"Modes 'xls' and 'msgpack' does not"
+                                f" support future queries because KeepAlive tokens are not available for those resonses type")
+    def test_msgpack_future_queries(self):
+        api = Client(auth={"key": self.key, "secret": self.secret},
+            address=self.uri,
+            config=ClientConfig(stream=False, response="msgpack"))
+
+        response = api.query(query=self.query,dates={'from': 'now()', 'to': 'now()+60*second()'})
+
+  
+        self.assertIsInstance(response, DevoClientException)
+        self.assertEqual(response.args[0],"Modes 'xls' and 'msgpack' does not"
+                                f" support future queries because KeepAlive tokens are not available for those resonses type")
 
 if __name__ == '__main__':
     unittest.main()
