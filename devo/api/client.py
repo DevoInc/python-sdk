@@ -13,6 +13,7 @@ from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
 import calendar
 from datetime import datetime, timedelta
+import pytz
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -707,9 +708,9 @@ class Client:
 
         if isinstance(fromDate,(float, int)):
             return fromDate
-
+        now = now.astimezone(pytz.UTC)
         now_milliseconds = now.timestamp() * 1000
-        adate = datetime.strptime(str(now.date()),'%Y-%m-%d')
+        adate = datetime.strptime(str(now.date()),'%Y-%m-%d').replace(tzinfo=pytz.utc)
 
         if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)',fromDate):
             date = re.split('(d|ad|h|ah|m|am|s|as)',fromDate)
@@ -747,9 +748,10 @@ class Client:
         if isinstance(toDate,(float, int)):
             return toDate
 
-        fromDate = datetime.fromtimestamp(fromDateMillisec/1000)
-        aFromdate = datetime.strptime(str(fromDate.date()),'%Y-%m-%d')
-        aNowdate = datetime.strptime(str(now.date()),'%Y-%m-%d')
+        now = now.astimezone(pytz.UTC)
+        fromDate = datetime.fromtimestamp(fromDateMillisec/1000).replace(tzinfo=pytz.utc)
+        aFromdate = datetime.strptime(str(fromDate.date()),'%Y-%m-%d').replace(tzinfo=pytz.utc)
+        aNowdate = datetime.strptime(str(now.date()),'%Y-%m-%d').replace(tzinfo=pytz.utc)
         
         if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)',toDate):
             date = re.split('(d|ad|h|ah|m|am|s|as)',toDate)
