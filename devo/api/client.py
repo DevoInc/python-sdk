@@ -14,6 +14,7 @@ from .processors import processors, proc_json, \
 import calendar
 from datetime import datetime, timedelta
 import pytz
+import sys
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -374,7 +375,9 @@ class Client:
         if self.config.stream:
             return self._return_string_stream(payload)
         response = self._make_request(payload)
-
+        data = lambda: None; data.text = response[0]
+        self._error_handler(data)
+        
         #We access to the whole server response value
         wholeResponse = response[0]
 
@@ -415,6 +418,8 @@ class Client:
             else:
                 yield self.config.processor(first)
             for line in response:
+                data = lambda: None; data.text = line
+                self._error_handler(data)
                 yield self.config.processor(line)
         else:
             yield proc_json()(first)
@@ -783,3 +788,79 @@ class Client:
             return (aFromdate.replace(day = calendar.monthrange(aFromdate.year, aFromdate.month)[1])+ timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000       
         elif toDate == "now":
             return now.timestamp()*1000
+
+    def _error_handler(self,response):
+        """
+        Function to manage possible errors returned from malote queries that Serrea is sending as part of the http response
+        Depending on the response output format the error will be handle by different ways
+        """
+        if self.config.response == "xls" or self.config.response =="msgpack":
+            return response
+        elif self.config.response == "json":
+
+             if not '"error"' in response.text:
+                return response
+             else:
+                error = re.search('(?<=\"error\": \[)(.*)(?=])',response.text).group(0)
+                code = re.search("^[0-9]{3}",error).group(0)
+                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
+                
+        elif self.config.response == "json/simple":
+              
+              if not '"error"' in response.text:
+                return response
+              else:
+                error = re.search('(?<=\["error",)(.*)(?=])',response.text).group(0)
+                code = re.search("^[0-9]{3}",error).group(0)
+                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
+
+        elif self.config.response == "json/compact":
+
+              if not '"e"' in response.text:
+                return response
+              else:
+                print(response.text)
+                error = re.search('(?<=\"e\": \[)(.*)(?=])',response.text).group(0)    
+                print(error) 
+                code = re.search("^[0-9]{3}",error).group(0)
+                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
+
+        elif self.config.response == "json/simple/compact":
+
+            if not '"e"' in response.text:
+                return response
+            else:
+                error = re.search('(?<={"e":\[)(.*)(?=])',response.text).group(0)
+                code = re.search("^[0-9]{3}",error).group(0)
+                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
+               
+        elif self.config.response == "csv":
+            
+            if not 'devo.api.error'in response.text:
+                return response
+            else:
+                error = re.search('(?<=devo.api.error,)(.*)',response.text).group(0)
+                code = error.split(",")[0]
+                message = error.split(",")[1]
+
+        elif self.config.response == "tsv":
+
+            if not 'devo.api.error'in response.text:
+                return response
+            else:
+                error = re.search('(?<=devo.api.error)(.*)',response.text).group(0)
+                code = error.split("  ")[1]
+                message =  error.split("  ")[2]
+
+        if message:
+
+            sys.tracebacklimit = 0
+            raise DevoClientException("Query lauched reported the following error -----> " + message)
+
+
+         
+            
+                
+     
+          
+
