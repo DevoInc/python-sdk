@@ -15,6 +15,9 @@ import calendar
 from datetime import datetime, timedelta
 import pytz
 import sys
+#Option to limit the message reported in exception to only 1 traceback limit
+sys.tracebacklimit = 1
+
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -50,26 +53,47 @@ class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
 
-def raise_exception(error):
-    """Util function for raise exceptions"""
+def raise_exception(errorData,status=None): 
+    #Function to standarize the return of the api exceptions     
     try:
-        if isinstance(error, str):
-            raise DevoClientException(proc_json()(error))
-        if isinstance(error, DevoClientException):
-            if isinstance(error.args[0], str):
-                raise DevoClientException(proc_json()(error.args[0]))
-            raise DevoClientException(error.args[0])
-        if isinstance(error, dict):
-            raise DevoClientException(error)
-        response_text = proc_json()(error.text)
-        raise DevoClientException(response_text)
-    except json.decoder.JSONDecodeError:
-        raise DevoClientException(_format_error(error))
+        if isinstance(errorData, requests.models.Response):
+             raise DevoClientException(errorData.json(),errorData.status_code)
 
+        elif isinstance(errorData,str):
+            if not status:
+                raise DevoClientException({"object":errorData})
+            raise DevoClientException({"object":errorData},status)
+        else:
+            raise DevoClientException(errorData)
 
-def _format_error(error):
-    return '{"msg": "Error Launching Query", "status": 500, ' \
-           '"object": "%s"}' % str(error).replace("\"", "\\\"")
+    except DevoClientException as error:
+        sys.tracebacklimit = 0
+        if(len(error.args)>1):
+            raise DevoClientException(_format_error(error.args[0],error.args[1]))
+        else:
+            raise DevoClientException(_format_error(error.args[0],None))
+
+def _format_error(error,status):
+
+    if(isinstance(error,dict)):
+        object = error.get("object") or error
+        if status:   
+            return {
+                    "msg":"Error Launching Query",
+                    "status":status,
+                    "object":object
+                }
+        else:
+            return {
+                    "msg":"Error Launching Query",
+                    "object":object
+                }
+    else:
+        return {
+                    "msg":"Error Launching Query",
+                    "object":error
+                }
+
 
 
 class ClientConfig:
@@ -207,9 +231,7 @@ class Client:
 
         self.auth = auth
         if not address:
-            raise raise_exception(
-                _format_error(ERROR_MSGS['no_endpoint'])
-            )
+            raise raise_exception(ERROR_MSGS['no_endpoint'],400)
 
         self.address = self.__get_address_parts(address)
 
@@ -357,8 +379,7 @@ class Client:
                 toDate = self._toDate_parser(fromDate,default_to(dates['to']))
 
                 if toDate > default_to("now()"):
-                   return DevoClientException("Modes 'xls' and 'msgpack' does not"
-                                f" support future queries because KeepAlive tokens are not available for those resonses type")
+                   raise raise_exception("Modes 'xls' and 'msgpack' does not support future queries because KeepAlive tokens are not available for those resonses type",400)
                 
             self.config.stream = False
 
@@ -498,7 +519,7 @@ class Client:
             except requests.exceptions.ConnectionError as error:
                 tries += 1
                 if tries > self.retries:
-                    return raise_exception(_format_error(error))
+                    return raise_exception(error)
                 time.sleep(self.timeout)
             except DevoClientException as error:
                 if isinstance(error, DevoClientException):
@@ -506,7 +527,7 @@ class Client:
                 else:
                     raise_exception(error)
             except Exception as error:
-                return raise_exception(_format_error(error))
+                return raise_exception(error)
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -594,7 +615,7 @@ class Client:
                 'Authorization': "jwt %s" % self.auth.get("jwt")
             }
 
-        raise DevoClientException(_format_error(ERROR_MSGS['no_auth']))
+        raise DevoClientException((ERROR_MSGS['no_auth']),400)
 
     def _get_sign(self, data, tstamp):
         """
@@ -605,8 +626,8 @@ class Client:
         """
         if not self.auth.get("key", False) \
                 or not self.auth.get("secret", False):
-            raise DevoClientException(_format_error("You need a API Key and "
-                                                    "API secret to make this"))
+            raise DevoClientException(("You need a API Key and "
+                                                    "API secret to make this"),400)
         sign = hmac.new(self.auth.get("secret").encode("utf-8"),
                         (self.auth.get("key") + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
@@ -819,9 +840,7 @@ class Client:
               if not '"e"' in response.text:
                 return response
               else:
-                print(response.text)
                 error = re.search('(?<=\"e\": \[)(.*)(?=])',response.text).group(0)    
-                print(error) 
                 code = re.search("^[0-9]{3}",error).group(0)
                 message = re.search("(?<=\")(.*)(?=\")",error).group(0)
 
@@ -852,10 +871,8 @@ class Client:
                 code = error.split("  ")[1]
                 message =  error.split("  ")[2]
 
-        if message:
-
-            sys.tracebacklimit = 0
-            raise DevoClientException("Query lauched reported the following error -----> " + message)
+        sys.tracebacklimit = 0
+        raise DevoClientException(("Query lauched reported the following error -----> "+message),code)
 
 
          

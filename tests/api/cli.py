@@ -54,7 +54,6 @@ class TestApi(unittest.TestCase):
         ])
 
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(result.exception.args[0]['status'], 500)
         self.assertIn(ERROR_MSGS['no_auth'],
                       result.exception.args[0]['object'])
 
@@ -68,7 +67,8 @@ class TestApi(unittest.TestCase):
             "--key", self.key, "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(result.exception.args[0]['status'], 500)
+        errorMsg = 'Error Launching Query'
+        self.assertEqual(result.exception.args[0]['msg'], errorMsg)
 
     def test_bad_credentials(self):
         runner = CliRunner()
@@ -78,9 +78,8 @@ class TestApi(unittest.TestCase):
             "select timestamp limit 1", "--address", self.uri, "--key", "aaa",
             "--secret", self.secret
         ])
-
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(result.exception.args[0]['error']['code'], 12)
+        self.assertEqual(result.exception.args[0]['object']['error']['code'], 12)
 
     def test_normal_query(self):
         runner = CliRunner()

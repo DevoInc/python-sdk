@@ -30,7 +30,7 @@ class TimeoutTokenCase(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             response = list(response)
 
-        self.assertEqual('Query lauched reported the following error -----> Error Processing Query',str(context.exception))
+        self.assertEqual("('Query lauched reported the following error -----> Error Processing Query', '500')",str(context.exception))
 
     def test_error_stream_json_simple_compact_to_obj(self):
         result = iter([b'{"m":{"parameters":{"type":"str","index":0}},'
@@ -45,7 +45,7 @@ class TimeoutTokenCase(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             response = list(response)
 
-        self.assertEqual('Query lauched reported the following error -----> Error Processing Query',str(context.exception))
+        self.assertEqual("('Query lauched reported the following error -----> Error Processing Query', '500')",str(context.exception))
 
     def test_error_handling_json_simple_stream(self):
         result = iter([b'{"eventdate":1519989776059,"level":"INFO","srcPort":48902}',
@@ -58,7 +58,8 @@ class TimeoutTokenCase(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             response = list(response)
 
-        self.assertEqual("Query lauched reported the following error -----> A very bad query error",str(context.exception))
+            self.assertEqual("('Query lauched reported the following error -----> A very bad query error', '500')",str(context.exception))
+
     def test_error_handling_json_simple_compact_stream(self):
         result = iter([b'{"m":{"eventdate":{"type":"timestamp","index":0},"level":{"type":"str","index":1},"srcPort":{"type":"int4","index":2}}}',
                        b'{"d":[1519989516834,"INFO",49756]}',
@@ -71,7 +72,8 @@ class TimeoutTokenCase(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             response = list(response)
 
-        self.assertEqual("Query lauched reported the following error -----> A very bad query error",str(context.exception))
+            self.assertEqual("('Query lauched reported the following error -----> A very bad query error', '500')",str(context.exception))
+
     def test_error_handling_csv_stream(self):
         result = iter([b'eventdate,level,srcPort',
                         b'2018-03-02 12:25:55.896,INFO,51872',
@@ -84,7 +86,8 @@ class TimeoutTokenCase(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             response = list(response)
 
-        self.assertEqual("Query lauched reported the following error -----> A very bad query error",str(context.exception))
+            self.assertEqual("('Query lauched reported the following error -----> A very bad query error', '500')",str(context.exception))
+
 
     def test_error_handling_tsv_stream(self):
         result = iter([b'eventdate  level  srcPort',
@@ -98,7 +101,7 @@ class TimeoutTokenCase(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             response = list(response)
 
-        self.assertEqual("Query lauched reported the following error -----> A very bad query error",str(context.exception))
+            self.assertEqual("('Query lauched reported the following error -----> A very bad query error', '500')",str(context.exception))
 
     def test_error_handling_json_no_stream(self):
 
@@ -109,7 +112,7 @@ class TimeoutTokenCase(unittest.TestCase):
              response = self._query(response, result, DEFAULT,False)
 
         self.assertIsNotNone(context.exception)     
-        self.assertEqual("Query lauched reported the following error -----> A very bad query error",str(context.exception))    
+        self.assertEqual("('Query lauched reported the following error -----> A very bad query error', '500')",str(context.exception))  
 
     def test_error_handling_json_compact_no_stream(self):
 
@@ -120,7 +123,7 @@ class TimeoutTokenCase(unittest.TestCase):
              response = self._query(response, result, DEFAULT,False)
              
         self.assertIsNotNone(context.exception)     
-        self.assertEqual("Query lauched reported the following error -----> A very bad query error",str(context.exception))        
+        self.assertEqual("('Query lauched reported the following error -----> A very bad query error', '500')",str(context.exception))
 if __name__ == '__main__':
     unittest.main()
 

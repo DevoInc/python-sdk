@@ -238,22 +238,23 @@ class TestApi(unittest.TestCase):
             address=self.uri,
             config=ClientConfig(stream=False, response="xls"))
 
-        response = api.query(query=self.query,dates={'from': 'now()', 'to': 'now()+60*second()'})
+        with self.assertRaises(Exception) as context:
+             response = api.query(query=self.query,dates={'from': 'now()', 'to': 'now()+60*second()'})
 
-        self.assertIsInstance(response, DevoClientException)
-        self.assertEqual(response.args[0],"Modes 'xls' and 'msgpack' does not"
-                                f" support future queries because KeepAlive tokens are not available for those resonses type")
+        self.assertIsInstance(context.exception, DevoClientException)
+        self.assertIn('resonses type',str(context.exception),"Wrong error message")
+
     def test_msgpack_future_queries(self):
         api = Client(auth={"key": self.key, "secret": self.secret},
             address=self.uri,
             config=ClientConfig(stream=False, response="msgpack"))
 
-        response = api.query(query=self.query,dates={'from': 'now()', 'to': 'now()+60*second()'})
+        with self.assertRaises(Exception) as context:
+             response = api.query(query=self.query,dates={'from': 'now()', 'to': 'now()+60*second()'})
 
   
-        self.assertIsInstance(response, DevoClientException)
-        self.assertEqual(response.args[0],"Modes 'xls' and 'msgpack' does not"
-                                f" support future queries because KeepAlive tokens are not available for those resonses type")
+        self.assertIsInstance(context.exception, DevoClientException)
+        self.assertIn('resonses type',str(context.exception),"Wrong error message")
 
 if __name__ == '__main__':
     unittest.main()
