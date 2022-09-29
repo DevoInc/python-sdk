@@ -14,9 +14,6 @@ from .processors import processors, proc_json, \
 import calendar
 from datetime import datetime, timedelta
 import pytz
-import sys
-#Option to limit the message reported in exception to only 1 traceback limit
-sys.tracebacklimit = 1
 
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
@@ -54,24 +51,16 @@ class DevoClientException(Exception):
 
 
 def raise_exception(errorData,status=None): 
-    #Function to standarize the return of the api exceptions     
-    try:
-        if isinstance(errorData, requests.models.Response):
-             raise DevoClientException(errorData.json(),errorData.status_code)
 
-        elif isinstance(errorData,str):
-            if not status:
+    if isinstance(errorData, requests.models.Response):
+        raise DevoClientException(_format_error(errorData.json(),errorData.status_code))
+
+    elif isinstance(errorData,str):
+        if not status:
                 raise DevoClientException({"object":errorData})
-            raise DevoClientException({"object":errorData},status)
-        else:
-            raise DevoClientException(errorData)
-
-    except DevoClientException as error:
-        sys.tracebacklimit = 0
-        if(len(error.args)>1):
-            raise DevoClientException(_format_error(error.args[0],error.args[1]))
-        else:
-            raise DevoClientException(_format_error(error.args[0],None))
+        raise DevoClientException(_format_error({"object":errorData},status))
+    else:
+        raise DevoClientException(_format_error(errorData,None))
 
 def _format_error(error,status):
 
@@ -81,17 +70,17 @@ def _format_error(error,status):
             return {
                     "msg":"Error Launching Query",
                     "status":status,
-                    "object":object
+                    "cause":object
                 }
         else:
             return {
                     "msg":"Error Launching Query",
-                    "object":object
+                    "cause":object
                 }
     else:
         return {
                     "msg":"Error Launching Query",
-                    "object":error
+                    "cause":error
                 }
 
 
@@ -231,7 +220,7 @@ class Client:
 
         self.auth = auth
         if not address:
-            raise raise_exception(ERROR_MSGS['no_endpoint'],400)
+            raise raise_exception(ERROR_MSGS['no_endpoint'])
 
         self.address = self.__get_address_parts(address)
 
@@ -304,7 +293,8 @@ class Client:
         :param resp: str
         :return: bool
         """
-        return resp not in ["json", "json/compact", "msgpack", "xls"]
+        #"msgpack", "xls" should be removed from here when a decision is taken to enable stream mode for binary files
+        return resp not in ["json", "json/compact","msgpack", "xls"]
 
     @staticmethod
     def _is_correct_response(line):
@@ -379,7 +369,7 @@ class Client:
                 toDate = self._toDate_parser(fromDate,default_to(dates['to']))
 
                 if toDate > default_to("now()"):
-                   raise raise_exception("Modes 'xls' and 'msgpack' does not support future queries because KeepAlive tokens are not available for those resonses type",400)
+                   raise raise_exception("Modes 'xls' and 'msgpack' does not support future queries because KeepAlive tokens are not available for those resonses type")
                 
             self.config.stream = False
 
@@ -395,13 +385,14 @@ class Client:
         """
         if self.config.stream:
             return self._return_string_stream(payload)
-        response = self._make_request(payload)
-        data = lambda: None; data.text = response[0]
+         #We access to the whole server response value
+        ( wholeResponse,_,_) = self._make_request(payload)
+        
+        #Analyse the response data to check if there are any error messages within the response.
+        data = lambda: None
+        data.text = wholeResponse
         self._error_handler(data)
         
-        #We access to the whole server response value
-        wholeResponse = response[0]
-
         if isinstance(wholeResponse, str):
             return proc_json()(response)
         if self.config.response in ["msgpack", "xls"]:
@@ -415,10 +406,8 @@ class Client:
         :param payload: item with headers for request
         :return line: yield-generator item
         """
-        raw_response = self._make_request(payload)
-
         #We access to the iterLines response from the server.
-        iterStringResponse = raw_response[1]
+        (_,iterStringResponse,_) = self._make_request(payload)
 
         response = filter(lambda l: self._empty_lines_sanitize(l),
                           map(lambda l: self._keepalive_stream_sanitize(l),
@@ -439,8 +428,10 @@ class Client:
             else:
                 yield self.config.processor(first)
             for line in response:
+                #Analyse the response data to check if there are any error messages within the response.
                 data = lambda: None; data.text = line
                 self._error_handler(data)
+
                 yield self.config.processor(line)
         else:
             yield proc_json()(first)
@@ -512,7 +503,8 @@ class Client:
                     raise DevoClientException(response)
 
                 if self.config.stream:
-                    #In case of stream mode we return an string iter of the server response.
+                    if(self.config.response in ["msgpack", "xls"]):
+                         return (None,None,response.iter_content())
                     return (None,response.iter_lines(),None)
                 #In case of NOT stream mode we return the whole server response.
                 return (response,None,None)
@@ -615,7 +607,7 @@ class Client:
                 'Authorization': "jwt %s" % self.auth.get("jwt")
             }
 
-        raise DevoClientException((ERROR_MSGS['no_auth']),400)
+        raise DevoClientException((ERROR_MSGS['no_auth']))
 
     def _get_sign(self, data, tstamp):
         """
@@ -627,7 +619,7 @@ class Client:
         if not self.auth.get("key", False) \
                 or not self.auth.get("secret", False):
             raise DevoClientException(("You need a API Key and "
-                                                    "API secret to make this"),400)
+                                                    "API secret to make this"))
         sign = hmac.new(self.auth.get("secret").encode("utf-8"),
                         (self.auth.get("key") + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
@@ -871,7 +863,6 @@ class Client:
                 code = error.split("  ")[1]
                 message =  error.split("  ")[2]
 
-        sys.tracebacklimit = 0
         raise DevoClientException(("Query lauched reported the following error -----> "+message),code)
 
 
