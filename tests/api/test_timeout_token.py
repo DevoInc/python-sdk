@@ -15,6 +15,8 @@ DEFAULT_KEEPALIVE_TOKEN = "\n"
 EMPTY_EVENT_KEEPALIVE_TOKEN=""
 NO_KEEPALIVE_TOKEN=None
 
+from requests.models import Response
+
 class TimeoutTokenCase(unittest.TestCase):
     def _query_stream(self, response_type, result,
                       keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
@@ -31,10 +33,17 @@ class TimeoutTokenCase(unittest.TestCase):
                                            "keepAliveToken": keepAliveToken})
         with mock.patch(
                 'devo.api.Client._make_request') as patched_make_request:
+                
+            response = Response()
+            response.status_code = 200
+
             if isinstance(result, str):
-                patched_make_request.return_value[0].text = result
+                response._content = result.encode('utf-8')
+                response.text
+                patched_make_request.return_value = (response,None,None)
             else:
-                patched_make_request.return_value[0].content = result
+                response._content = result
+                patched_make_request.return_value = (response,None,None)
             return client.query()
 
     def test_json_token_notstream(self):

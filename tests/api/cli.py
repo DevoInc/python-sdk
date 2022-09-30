@@ -55,7 +55,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsInstance(result.exception, DevoClientException)
         self.assertIn(ERROR_MSGS['no_auth'],
-                      result.exception.args[0]['object'])
+                      result.exception.args[0]['cause'])
 
     def test_bad_url(self):
         runner = CliRunner()
@@ -79,7 +79,7 @@ class TestApi(unittest.TestCase):
             "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(result.exception.args[0]['object']['error']['code'], 12)
+        self.assertEqual(result.exception.args[0]['cause']['error']['code'], 12)
 
     def test_normal_query(self):
         runner = CliRunner()

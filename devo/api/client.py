@@ -14,6 +14,7 @@ from .processors import processors, proc_json, \
 import calendar
 from datetime import datetime, timedelta
 import pytz
+import sys
 
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
@@ -57,7 +58,7 @@ def raise_exception(errorData,status=None):
 
     elif isinstance(errorData,str):
         if not status:
-                raise DevoClientException({"object":errorData})
+                raise DevoClientException(_format_error({"object":errorData},None))
         raise DevoClientException(_format_error({"object":errorData},status))
     else:
         raise DevoClientException(_format_error(errorData,None))
@@ -65,6 +66,7 @@ def raise_exception(errorData,status=None):
 def _format_error(error,status):
 
     if(isinstance(error,dict)):
+       
         object = error.get("object") or error
         if status:   
             return {
@@ -394,7 +396,7 @@ class Client:
         self._error_handler(data)
         
         if isinstance(wholeResponse, str):
-            return proc_json()(response)
+            return proc_json()(wholeResponse)
         if self.config.response in ["msgpack", "xls"]:
             return self.config.processor(wholeResponse.content)
         else:
@@ -810,7 +812,7 @@ class Client:
         if self.config.response == "xls" or self.config.response =="msgpack":
             return response
         elif self.config.response == "json":
-
+            
              if not '"error"' in response.text:
                 return response
              else:

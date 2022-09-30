@@ -304,7 +304,7 @@ From                                                                          To
     - '%Y-%m-%d %H:%M:%S'
     - '%Y-%m-%d', the time will be truncated to 00:00:00
     
-- **Timestamp:** From epoch in millis
+- **Timestamp:** From epoch in seconds
 
 - **Dynamic expression:** Using the LinQ sintax we can use several functions. **timeZone can be wrong with this syntax**
     - Relative functions:
@@ -619,7 +619,7 @@ Json Object with the following structure:
 | msg | String | Message Description in case of error |
 | status | Integer | Numeric value  that especify the error code. <br /> 0 - OK<br /> 1 - Invalid request |
 | object | Json Object |  |
-| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in milliseconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> | 
+| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> | 
 | object.d | Json Object | Array of Arrays with the values of the response of the query. |
 
 
@@ -717,7 +717,7 @@ The First Line is a JSON object  map with the Metadata information, the key is t
 {"m":{"eventdate":{"type":"timestamp","index":0},"domain":{"type":"str","index":1},"userEmail":{"type":"str","index":2},"country":{"type":"str","index":3},"count":{"type":"int8","index":4}}}
 ```
 
-<ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in milliseconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul>
+<ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul>
 
 The rest of the lines are data lines:  
     
