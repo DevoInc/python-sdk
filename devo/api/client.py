@@ -501,6 +501,7 @@ class Client:
                     verify=self.verify,
                     timeout=self.timeout,
                     stream=self.config.stream)
+                print("RESPONSE ----->", response.text,"<----------")
                 if response.status_code != 200:
                     raise DevoClientException(response)
 

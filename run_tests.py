@@ -50,6 +50,7 @@ def run_test_suite(selected_module):
     os.chdir('.%stests%s' % (os.sep, os.sep))
 
     # Run tests for selected module
+    selected_module = "API_CLI"
     if selected_module in module_paths.keys():
         configured_path = '.' + os.sep + module_paths[selected_module][0]
         configured_pattern = module_paths[selected_module][1]
