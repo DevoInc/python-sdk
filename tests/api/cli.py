@@ -11,7 +11,7 @@ from devo.common import Configuration
 class TestApi(unittest.TestCase):
 
     def setUp(self):
-        self.query = 'from demo.ecommerce.data select * limit 1'
+        self.query = 'from siem.logtrust.web.activity select method limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
@@ -48,9 +48,9 @@ class TestApi(unittest.TestCase):
     def test_not_credentials(self):
         runner = CliRunner()
         result = runner.invoke(query, [
-            "--debug", "--from", "2018-01-01", "--query",
-            "from demo.ecommerce.data "
-            "select timestamp limit 1", "--address", self.uri
+            "--debug", "--from", "1d", "--query",
+            self.query,
+            "--address", self.uri
         ])
 
         self.assertIsInstance(result.exception, DevoClientException)
@@ -60,9 +60,9 @@ class TestApi(unittest.TestCase):
     def test_bad_url(self):
         runner = CliRunner()
         result = runner.invoke(query, [
-            "--debug", "--from", "2018-01-01", "--query",
-            "from demo.ecommerce.data "
-            "select timestamp limit 1", "--address", "error-apiv2-us.logtrust"
+            "--debug", "--from", "1d", "--query",
+            self.query,
+            "--address", "error-apiv2-us.logtrust"
                                                      ".com/search/query",
             "--key", self.key, "--secret", self.secret
         ])
@@ -73,9 +73,9 @@ class TestApi(unittest.TestCase):
     def test_bad_credentials(self):
         runner = CliRunner()
         result = runner.invoke(query, [
-            "--debug", "--from", "2018-01-01", "--query",
-            "from demo.ecommerce.data "
-            "select timestamp limit 1", "--address", self.uri, "--key", "aaa",
+            "--debug", "--from", "1d", "--query",
+            self.query,
+            "--address", self.uri, "--key", "aaa",
             "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
@@ -84,15 +84,15 @@ class TestApi(unittest.TestCase):
     def test_normal_query(self):
         runner = CliRunner()
         result = runner.invoke(query, [
-            "--debug", "--from", "2018-01-01", "--query",
-            "from demo.ecommerce.data "
-            "select timestamp limit 1", "--address", self.uri, "--key",
+            "--debug", "--from", "1d", "--query",
+            self.query,
+            "--address", self.uri, "--key",
             self.key, "--secret", self.secret
         ])
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertIn('{"m":{"timestamp":{"type":"str","index":0',
+        self.assertIn('{"m":{"method":{"type":"str","index":0',
                       result.output)
 
     def test_with_config_file(self):
@@ -100,14 +100,13 @@ class TestApi(unittest.TestCase):
             runner = CliRunner()
 
             result = runner.invoke(query, [
-                "--debug", "--from", "2018-01-01", "--query",
-                "from demo.ecommerce.data "
-                "select timestamp limit 1", "--config", self.config_path
+                "--debug", "--from", "1d", "--query",
+                self.query,
+                "--config", self.config_path
             ])
-
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
-            self.assertIn('{"m":{"timestamp":{"type":"str","index":0',
+            self.assertIn('{"m":{"method":{"type":"str","index":0',
                           result.output)
 
 
