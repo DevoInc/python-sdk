@@ -11,7 +11,7 @@ from devo.common import Configuration
 class TestApi(unittest.TestCase):
 
     def setUp(self):
-        self.query = 'from siem.logtrust.web.activity select method limit 1'
+        self.query = 'from siem.logtrust.web.connection select action limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
@@ -92,7 +92,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertIn('{"m":{"method":{"type":"str","index":0',
+        self.assertIn('{"m":{"action":{"type":"str","index":0',
                       result.output)
 
     def test_with_config_file(self):
@@ -106,7 +106,7 @@ class TestApi(unittest.TestCase):
             ])
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
-            self.assertIn('{"m":{"method":{"type":"str","index":0',
+            self.assertIn('{"m":{"action":{"type":"str","index":0',
                           result.output)
 
 

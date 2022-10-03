@@ -16,7 +16,7 @@ class TestApi(unittest.TestCase):
                         "params": {"friendlyName": "devo-sdk-api-test"}
                     }
                     })
-        self.query = "from siem.logtrust.web.activity select *"
+        self.query = "from siem.logtrust.web.connection select action"
 
     @unittest.skip("temporarily disabled due to Query API bug")
     def test_jobs_cycle(self):
