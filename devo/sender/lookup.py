@@ -409,7 +409,7 @@ class Lookup:
         key = Lookup.clean_field(key, escape_quotes)
         # First the key
         out = '%s' % key
-
+        key_found = False
         if fields is None:
             return out
 
@@ -417,7 +417,8 @@ class Lookup:
         for item in fields:
             item = Lookup.clean_field(item, escape_quotes)
             # If file is the key don't add
-            if item == key:
+            if item == key and not key_found:
+                key_found = True
                 continue
             out += ',%s' % item
         return out
