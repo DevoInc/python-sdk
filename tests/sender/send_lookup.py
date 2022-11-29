@@ -1,3 +1,4 @@
+import re
 import unittest
 from ssl import CERT_NONE
 from unittest import mock
@@ -71,7 +72,7 @@ class TestLookup(unittest.TestCase):
         lookup.send_control("START", p_headers, "INC")
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
-        lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"])
+        lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_control("END", p_headers, "INC")
@@ -95,9 +96,9 @@ class TestLookup(unittest.TestCase):
         fields = ["a", "b", "c"]
 
         expected_headers = '[{"col1":{"type":"str","key":true}},' + \
-            '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+                           '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         with mock.patch.object(
-            lookup, "send_control", wraps=lookup.send_control
+                lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
             lookup.send_headers(
                 headers=headers, key_index=0, event="START", action="FULL"
@@ -128,9 +129,9 @@ class TestLookup(unittest.TestCase):
         headers = ["col1", "col2", "col3"]
 
         expected_headers = '[{"col1":{"type":"int4","key":true}},' + \
-            '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+                           '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         with mock.patch.object(
-            lookup, "send_control", wraps=lookup.send_control
+                lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
             lookup.send_headers(
                 headers=headers,
@@ -161,7 +162,7 @@ class TestLookup(unittest.TestCase):
         lookup.send_control("START", p_headers, "FULL")
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
-        lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"])
+        lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_control("END", p_headers, "FULL")
@@ -188,7 +189,7 @@ class TestLookup(unittest.TestCase):
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_data_line(
-            key="11", fields=["11", "HEX12", "COLOR12"], delete=True
+            key_index=0, fields=["11", "HEX12", "COLOR12"], delete=True
         )
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
@@ -215,7 +216,7 @@ class TestLookup(unittest.TestCase):
         )
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
-        lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"])
+        lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
         if len(con.socket.recv(1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_headers(
@@ -259,9 +260,9 @@ class TestLookup(unittest.TestCase):
         ]
         for field, escape_quotes, expected_result in test_params:
             with self.subTest(
-                field=field,
-                escape_quotes=escape_quotes,
-                expected_result=expected_result
+                    field=field,
+                    escape_quotes=escape_quotes,
+                    expected_result=expected_result
             ):
                 result = Lookup.clean_field(field, escape_quotes)
                 self.assertEqual(result, expected_result)
@@ -280,7 +281,7 @@ class TestLookup(unittest.TestCase):
 
         with mock.patch.object(Lookup, 'clean_field',
                                wraps=Lookup.clean_field) as clean_field:
-            lookup.send_data_line(key="11", fields=["11", 'Double quotes"'])
+            lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
             clean_field.assert_called_with('Double quotes"', True)
 
     # Test to make sure escape_quotes is propagated correctly
@@ -297,7 +298,7 @@ class TestLookup(unittest.TestCase):
 
         with mock.patch.object(Lookup, 'clean_field',
                                wraps=Lookup.clean_field) as clean_field:
-            lookup.send_data_line(fields=["11", 'Double quotes"'])
+            lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
             clean_field.assert_called_with('Double quotes"', True)
 
             # Test to make sure escape_quotes is propagated correctly
