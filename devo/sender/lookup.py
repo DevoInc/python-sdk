@@ -81,22 +81,17 @@ class Lookup:
                                            type_of_key=type_of_key)
         self.send_control(event=event, headers=p_headers, action=action)
 
-    def send_data_line(self, key=None, fields=None,
+    def send_data_line(self, fields=None,
                        delete=False, key_index=None):
         """
         Send only the data
-        :param key: key value, optional if you send 'key_index'
-        :param key_index: index of key in headers. Optional if you send 'key'
+        :param key_index: index of key in headers
         :param fields: list with fields values
         :param delete: action for field: 'delete' to delete field with this key
                        or add to add value
         :return:
         """
-        # TODO: Deprecate this if with list_to_fields in v4
-        p_fields = Lookup.list_to_fields(fields=fields, key=key,
-                                         escape_quotes=self.escape_quotes) \
-            if key_index is None \
-            else Lookup.process_fields(fields=fields, key_index=key_index,
+        p_fields = Lookup.process_fields(fields=fields, key_index=key_index,
                                        escape_quotes=self.escape_quotes)
         self.send_data(row=p_fields, delete=delete)
 
@@ -395,32 +390,6 @@ class Lookup:
         # The rest of the fields
         for item in fields[:key_index] + fields[key_index + 1:]:
             out += Lookup.field_to_str(item, escape_quotes)
-        return out
-
-    # TODO: Deprecated
-    @staticmethod
-    def list_to_fields(fields=None, key="key", escape_quotes=False):
-        """
-        Transform list item to the object we need send to Devo for each row
-        :param list fields: list of field names
-        :param str key: key name, optional
-        :result str
-        """
-        key = Lookup.clean_field(key, escape_quotes)
-        # First the key
-        out = '%s' % key
-        key_found = False
-        if fields is None:
-            return out
-
-        # The rest of the fields
-        for item in fields:
-            item = Lookup.clean_field(item, escape_quotes)
-            # If file is the key don't add
-            if item == key and not key_found:
-                key_found = True
-                continue
-            out += ',%s' % item
         return out
 
     @staticmethod
