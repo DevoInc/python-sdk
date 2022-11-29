@@ -92,7 +92,7 @@ class Lookup:
         :return:
         """
         p_fields = Lookup.process_fields(fields=fields, key_index=key_index,
-                                       escape_quotes=self.escape_quotes)
+                                         escape_quotes=self.escape_quotes)
         self.send_data(row=p_fields, delete=delete)
 
     @staticmethod
@@ -224,7 +224,7 @@ class Lookup:
                             escape_quotes=self.escape_quotes)
                         self.send_data(row=p_fields,
                                        delete=field_action == "delete"
-                                       or field_action == "DELETE")
+                                              or field_action == "DELETE")
 
                         # Send full log for historic
                         if historic_tag is not None:
@@ -348,8 +348,8 @@ class Lookup:
                                                         else type_of_key)
         elif key is not None:
             out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-                                                        if key_index and types
-                                                        else type_of_key)
+            if key_index and types
+            else type_of_key)
         else:
             raise Exception("Not key identified")
 
