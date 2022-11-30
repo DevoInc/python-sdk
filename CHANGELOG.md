@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 * API query timeout by default set to 300 seconds, instead of 30
 * Retries timeout following Exponential backoff algorithm. Default retry delay base set to 5 seconds
+* Retry delay configurable through `retry_delay` instead of `timeout` parameter
 
 ## [4.0.3] - 2022-09-12
 ### Fix
