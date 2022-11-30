@@ -11,7 +11,7 @@ from devo.common import Configuration
 class TestApi(unittest.TestCase):
 
     def setUp(self):
-        self.query = 'from siem.logtrust.web.connection select action limit 1'
+        self.query = 'from siem.logtrust.web.activity select method limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
@@ -43,7 +43,7 @@ class TestApi(unittest.TestCase):
     def test_query_args(self):
         runner = CliRunner()
         result = runner.invoke(query, [])
-        self.assertIn(ERROR_MSGS['no_endpoint'], result.stdout)
+        self.assertIn('Usage: query [OPTIONS]', result.stdout)
 
     def test_not_credentials(self):
         runner = CliRunner()
@@ -67,8 +67,8 @@ class TestApi(unittest.TestCase):
             "--key", self.key, "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
-        errorMsg = 'Error Launching Query'
-        self.assertEqual(result.exception.args[0]['msg'], errorMsg)
+        errorMsg = 'Failed to establish a new connection'
+        self.assertIn(errorMsg, result.exception.args[0]['msg'])
 
     def test_bad_credentials(self):
         runner = CliRunner()
@@ -92,7 +92,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertIn('{"m":{"action":{"type":"str","index":0',
+        self.assertIn('{"m":{"method":{"type":"str","index":0',
                       result.output)
 
     def test_with_config_file(self):
@@ -106,7 +106,7 @@ class TestApi(unittest.TestCase):
             ])
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
-            self.assertIn('{"m":{"action":{"type":"str","index":0',
+            self.assertIn('{"m":{"method":{"type":"str","index":0',
                           result.output)
 
 

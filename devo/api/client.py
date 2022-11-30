@@ -14,7 +14,6 @@ from .processors import processors, proc_json, \
 import calendar
 from datetime import datetime, timedelta
 import pytz
-import sys
 
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
@@ -34,7 +33,7 @@ SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 
 ERROR_MSGS = {
     "no_query": "Error: Not query provided.",
-    "no_auth": "Client dont have key&secret or auth token/jwt",
+    "no_auth": "Client don't have key&secret or auth token/jwt",
     "no_endpoint": "Endpoint 'address' not found",
     "to_but_no_from": "If you use end dates for the query 'to' it is "
                       "necessary to use start date 'from'",
@@ -50,41 +49,67 @@ NO_KEEPALIVE_TOKEN = None
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
-
-def raise_exception(errorData,status=None): 
-
-    if isinstance(errorData, requests.models.Response):
-        raise DevoClientException(_format_error(errorData.json(),errorData.status_code))
-
-    elif isinstance(errorData,str):
-        if not status:
-                raise DevoClientException(_format_error({"object":errorData},None))
-        raise DevoClientException(_format_error({"object":errorData},status))
-    else:
-        raise DevoClientException(_format_error(errorData,None))
-
-def _format_error(error,status):
-
-    if(isinstance(error,dict)):
-       
-        object = error.get("object") or error
-        if status:   
-            return {
-                    "msg":"Error Launching Query",
-                    "status":status,
-                    "cause":object
-                }
+    def __init__(self, message, status=None, code=None, cause=None):
+        if isinstance(message, dict):
+            self.status = message.get('status', status)
+            self.cause = message.get('cause', cause)
+            self.message = message.get('msg',
+                                       message if isinstance(message, str)
+                                       else json.dumps(message))
+            self.cid = message.get('cid', None)
+            self.code = message.get('code', code)
+            self.timestamp = message.get('timestamp',
+                                         time.time_ns() // 1000000)
         else:
-            return {
-                    "msg":"Error Launching Query",
-                    "cause":object
-                }
+            self.message = message
+            self.status = status
+            self.cause = cause
+            self.cid = None
+            self.code = code
+            self.timestamp = time.time_ns() // 1000000
+        super().__init__(message)
+
+    def __str__(self):
+        return self.message + ((": " + self.cause) if self.cause else '')
+
+
+def raise_exception(error_data, status=None):
+    if isinstance(error_data, requests.models.Response):
+        raise DevoClientException(
+            _format_error(error_data.json(), status=error_data.status_code))
+
+    elif isinstance(error_data, str):
+        if not status:
+            raise DevoClientException(
+                _format_error({"object": error_data}, status=None))
+        raise DevoClientException(
+            _format_error({"object": error_data}, status=status))
+    elif isinstance(error_data, BaseException):
+        raise DevoClientException(_format_error(error_data, status=None))\
+            from error_data
+    else:
+        raise DevoClientException(_format_error(error_data, status=None))
+
+
+def _format_error(error, status):
+    if isinstance(error, dict):
+        response = {
+            "msg": error.get("msg", "Error Launching Query"),
+            "cause": error.get("object") or error.get("context") or error
+        }
+        if status:
+            response['status'] = status
+        elif 'status' in error:
+            response['status'] = error['status']
+        for item in ['code', 'cid', 'timestamp']:
+            if item in error:
+                response[item] = error[item]
+        return response
     else:
         return {
-                    "msg":"Error Launching Query",
-                    "cause":error
-                }
-
+            "msg": str(error),
+            "cause": str(error)
+        }
 
 
 class ClientConfig:
@@ -167,18 +192,28 @@ class ClientConfig:
         :param keepAliveToken: KeepAlive token for long responses queries
         :return:
         """
-        # The KeepAlive token does not apply to any format other than 'csv', 'tsv'.
-        # All json* responses always use default b'    ' token for keepalive (cannot be modified), but implementation uses NO_KEEP_ALIVE value as it does not change the query
-        # msgpack and xls does not support keepalive
-        if self.response in ['json', 'json/compact', 'json/simple', 'json/simple/compact']:  
+        # The KeepAlive token does not apply to any format other than 'csv',
+        # 'tsv'. All json* responses always use default b'    ' token for
+        # keepalive (cannot be modified), but implementation uses
+        # NO_KEEP_ALIVE value as it does not change the query msgpack and
+        # xls does not support keepalive
+        if self.response in ['json', 'json/compact', 'json/simple',
+                             'json/simple/compact']:
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,DEFAULT_KEEPALIVE_TOKEN]:
-                   logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
-        # In the cases 'csv', 'tsv' you can use any value passed in 'keepAliveToken'.
-        elif self.response in ['csv','tsv']:
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
+                                      DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(
+                    f"Mode '{self.response}' always uses default KeepAlive"
+                    f" Token")
+        # In the cases 'csv', 'tsv' you can use any value passed in
+        # 'keepAliveToken'.
+        elif self.response in ['csv', 'tsv']:
             self.keepAliveToken = keepAliveToken
         else:
-            logging.warning(f"Mode '{self.response}' does not support KeepAlive Token")
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
+                                      DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(
+                    f"Mode '{self.response}' does not support KeepAlive Token")
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
 
@@ -295,8 +330,7 @@ class Client:
         :param resp: str
         :return: bool
         """
-        #"msgpack", "xls" should be removed from here when a decision is taken to enable stream mode for binary files
-        return resp not in ["json", "json/compact","msgpack", "xls"]
+        return resp not in ["json", "json/compact", "msgpack", "xls"]
 
     @staticmethod
     def _is_correct_response(line):
@@ -362,17 +396,21 @@ class Client:
             if self.config.stream:
                 logging.warning(f"Mode '{self.config.response}' does not"
                                 f" support stream mode")
-            #If is a future query and response type is 'xls' or 'msgpack' return warning because is not available.
+            # If is a future query and response type is 'xls' or 'msgpack'
+            # return warning because is not available.
             if self._future_queries_available(self.config.response):
                 self.config.stream = False
             else:
-                
+
                 fromDate = self._fromDate_parser(default_to(dates['from']))
-                toDate = self._toDate_parser(fromDate,default_to(dates['to']))
+                toDate = self._toDate_parser(fromDate, default_to(dates['to']))
 
                 if toDate > default_to("now()"):
-                   raise raise_exception("Modes 'xls' and 'msgpack' does not support future queries because KeepAlive tokens are not available for those resonses type")
-                
+                    raise raise_exception(
+                        "Modes 'xls' and 'msgpack' does not support future "
+                        "queries because KeepAlive tokens are not available "
+                        "for those resonses type")
+
             self.config.stream = False
 
         return self._call(
@@ -387,19 +425,23 @@ class Client:
         """
         if self.config.stream:
             return self._return_string_stream(payload)
-         #We access to the whole server response value
-        ( wholeResponse,_,_) = self._make_request(payload)
-        
-        #Analyse the response data to check if there are any error messages within the response.
-        data = lambda: None
-        data.text = wholeResponse
-        self._error_handler(data)
-        
+        # We access to the whole server response value
+        (wholeResponse, _, _) = self._make_request(payload)
+
         if isinstance(wholeResponse, str):
+            # Analyse the response data to check if there are any error
+            # messages within the response.
+            self._error_handler(wholeResponse)
             return proc_json()(wholeResponse)
         if self.config.response in ["msgpack", "xls"]:
+            # Analyse the response data to check if there are any error
+            # messages within the response.
+            self._error_handler(wholeResponse.content)
             return self.config.processor(wholeResponse.content)
         else:
+            # Analyse the response data to check if there are any error
+            # messages within the response.
+            self._error_handler(wholeResponse.text)
             return self.config.processor(
                 self._keepalive_content_sanitize(wholeResponse.text))
 
@@ -408,12 +450,13 @@ class Client:
         :param payload: item with headers for request
         :return line: yield-generator item
         """
-        #We access to the iterLines response from the server.
-        (_,iterStringResponse,_) = self._make_request(payload)
+        # We access to the iterLines response from the server.
+        (_, iterStringResponse, _) = self._make_request(payload)
 
         response = filter(lambda l: self._empty_lines_sanitize(l),
                           map(lambda l: self._keepalive_stream_sanitize(l),
-                              map(lambda l: l.decode('utf-8'), iterStringResponse)))
+                              map(lambda l: l.decode('utf-8'),
+                                  iterStringResponse)))
         try:
             first = next(response)
         except StopIteration:
@@ -430,19 +473,20 @@ class Client:
             else:
                 yield self.config.processor(first)
             for line in response:
-                #Analyse the response data to check if there are any error messages within the response.
-                data = lambda: None; data.text = line
-                self._error_handler(data)
+                # Analyse the response data to check if there are any error
+                # messages within the response.
+                self._error_handler(line)
 
                 yield self.config.processor(line)
         else:
             yield proc_json()(first)
 
-    def _empty_lines_sanitize(self, line):
+    @staticmethod
+    def _empty_lines_sanitize(line):
         return line.strip()
 
     def _keepalive_content_sanitize(self, response):
-        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or\
+        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or \
                 self.config.keepAliveToken is None:
             return response
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
@@ -464,7 +508,7 @@ class Client:
             return response.replace(f'{self.config.keepAliveToken}', '')
 
     def _keepalive_stream_sanitize(self, line):
-        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or\
+        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or \
                 self.config.keepAliveToken is None:
             return line
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
@@ -493,23 +537,17 @@ class Client:
         tries = 0
         while tries <= self.retries:
             try:
-                response = requests.post("{}://{}".format(
-                    "http" if self.unsecure_http else "https",
-                    "/".join(self.address)),
-                    data=payload,
-                    headers=self._get_headers(payload),
-                    verify=self.verify,
-                    timeout=self.timeout,
-                    stream=self.config.stream)
+                response = self.__request(payload)
                 if response.status_code != 200:
                     raise DevoClientException(response)
 
                 if self.config.stream:
-                    if(self.config.response in ["msgpack", "xls"]):
-                         return (None,None,response.iter_content())
-                    return (None,response.iter_lines(),None)
-                #In case of NOT stream mode we return the whole server response.
-                return (response,None,None)
+                    if (self.config.response in ["msgpack", "xls"]):
+                        return (None, None, response.iter_content())
+                    return (None, response.iter_lines(), None)
+                # In case of NOT stream mode we return the whole server
+                # response.
+                return (response, None, None)
             except requests.exceptions.ConnectionError as error:
                 tries += 1
                 if tries > self.retries:
@@ -522,6 +560,19 @@ class Client:
                     raise_exception(error)
             except Exception as error:
                 return raise_exception(error)
+
+    def __request(self, payload):
+        """
+        POST request method extracted for mocking purposes
+        """
+        return requests.post("{}://{}".format(
+            "http" if self.unsecure_http else "https",
+            "/".join(self.address)),
+            data=payload,
+            headers=self._get_headers(payload),
+            verify=self.verify,
+            timeout=self.timeout,
+            stream=self.config.stream)
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -566,7 +617,7 @@ class Client:
         if opts["destination"]:
             payload['destination'] = opts['destination']
 
-        if opts["keepAliveToken"] is not None and\
+        if opts["keepAliveToken"] is not None and \
                 opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN:
             if opts["keepAliveToken"] == EMPTY_EVENT_KEEPALIVE_TOKEN:
                 payload['keepAlive'] = {'type': 'empty'}
@@ -621,7 +672,7 @@ class Client:
         if not self.auth.get("key", False) \
                 or not self.auth.get("secret", False):
             raise DevoClientException(("You need a API Key and "
-                                                    "API secret to make this"))
+                                       "API secret to make this"))
         sign = hmac.new(self.auth.get("secret").encode("utf-8"),
                         (self.auth.get("key") + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
@@ -713,164 +764,138 @@ class Client:
             tries += 1
             time.sleep(self.timeout)
         return {}
-   
+
     @staticmethod
     def _future_queries_available(resp):
         """
-        Verify whether future queries are supported for the response type selected
+        Verify whether future queries are supported for the response type
+        selected
         :param resp: str
         :return: bool
         """
         return resp not in ["msgpack", "xls"]
 
     @staticmethod
-    def _fromDate_parser(fromDate,now=datetime.now()):
+    def _fromDate_parser(fromDate, now=datetime.now()):
 
-        if isinstance(fromDate,(float, int)):
+        if isinstance(fromDate, (float, int)):
             return fromDate
         now = now.astimezone(pytz.UTC)
         now_milliseconds = now.timestamp() * 1000
-        adate = datetime.strptime(str(now.date()),'%Y-%m-%d').replace(tzinfo=pytz.utc)
+        adate = datetime.strptime(str(now.date()), '%Y-%m-%d').replace(
+            tzinfo=pytz.utc)
 
-        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)',fromDate):
-            date = re.split('(d|ad|h|ah|m|am|s|as)',fromDate)
+        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)', fromDate):
+            date = re.split('(d|ad|h|ah|m|am|s|as)', fromDate)
             num = int(date[0])
-            type = date[1]
+            unit = date[1]
 
-            if(type == "d"):
+            if unit == "d":
                 return now_milliseconds - (8.64e+7 * num)
-            elif type=="ad":
+            elif unit == "ad":
                 return adate.timestamp() * 1000 - (8.64e+7 * num)
-            elif type=="h":
+            elif unit == "h":
                 return now_milliseconds - (3.6e+6 * num)
-            elif type=="ah":
+            elif unit == "ah":
                 return adate.timestamp() * 1000 - (3.6e+6 * num)
-            elif type=="m":
+            elif unit == "m":
                 return now_milliseconds - (60000 * num)
-            elif type=="am":
+            elif unit == "am":
                 return adate.timestamp() * 1000 - (60000 * num)
-            elif type=="s":
+            elif unit == "s":
                 return now_milliseconds - (1000 * num)
-            elif type=="as":
+            elif unit == "as":
                 return adate.timestamp() * 1000 - (1000 * num)
-            
+
         elif fromDate == "today":
             return adate.timestamp() * 1000
         elif fromDate == "endday":
-            return (adate + timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000
+            return (adate + timedelta(hours=23, minutes=59,
+                                      seconds=59)).timestamp() * 1000
         elif fromDate == "endmonth":
-            return (adate.replace(day = calendar.monthrange(adate.year, adate.month)[1])+ timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000       
+            return (adate.replace(
+                day=calendar.monthrange(adate.year, adate.month)[
+                    1]) + timedelta(hours=23, minutes=59,
+                                    seconds=59)).timestamp() * 1000
         elif fromDate == "now":
-            return now.timestamp()*1000
-    @staticmethod
-    def _toDate_parser(fromDateMillisec,toDate,now = datetime.now()):
+            return now.timestamp() * 1000
 
-        if isinstance(toDate,(float, int)):
+    @staticmethod
+    def _toDate_parser(fromDateMillisec, toDate, now=datetime.now()):
+
+        if isinstance(toDate, (float, int)):
             return toDate
 
         now = now.astimezone(pytz.UTC)
-        fromDate = datetime.fromtimestamp(fromDateMillisec/1000).replace(tzinfo=pytz.utc)
-        aFromdate = datetime.strptime(str(fromDate.date()),'%Y-%m-%d').replace(tzinfo=pytz.utc)
-        aNowdate = datetime.strptime(str(now.date()),'%Y-%m-%d').replace(tzinfo=pytz.utc)
-        
-        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)',toDate):
-            date = re.split('(d|ad|h|ah|m|am|s|as)',toDate)
-            num = int(date[0])
-            type = date[1]
+        fromDate = datetime.fromtimestamp(fromDateMillisec / 1000).replace(
+            tzinfo=pytz.utc)
+        aFromdate = datetime.strptime(str(fromDate.date()),
+                                      '%Y-%m-%d').replace(tzinfo=pytz.utc)
+        aNowdate = datetime.strptime(str(now.date()), '%Y-%m-%d').replace(
+            tzinfo=pytz.utc)
 
-            if(type == "d"):
+        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)', toDate):
+            date = re.split('(d|ad|h|ah|m|am|s|as)', toDate)
+            num = int(date[0])
+            unit = date[1]
+
+            if unit == "d":
                 return fromDateMillisec + (8.64e+7 * num)
-            elif type=="ad":
+            elif unit == "ad":
                 return aFromdate.timestamp() * 1000 + (8.64e+7 * num)
-            elif type=="h":
+            elif unit == "h":
                 return fromDateMillisec + (3.6e+6 * num)
-            elif type=="ah":
+            elif unit == "ah":
                 return aFromdate.timestamp() * 1000 + (3.6e+6 * num)
-            elif type=="m":
+            elif unit == "m":
                 return fromDateMillisec + (60000 * num)
-            elif type=="am":
+            elif unit == "am":
                 return aFromdate.timestamp() * 1000 + (60000 * num)
-            elif type=="s":
+            elif unit == "s":
                 return fromDateMillisec + (1000 * num)
-            elif type=="as":
+            elif unit == "as":
                 return aFromdate.timestamp() * 1000 + (1000 * num)
-            
+
         elif toDate == "today":
             return aNowdate.timestamp() * 1000
         elif toDate == "endday":
-            return (aFromdate + timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000
+            return (aFromdate + timedelta(hours=23, minutes=59,
+                                          seconds=59)).timestamp() * 1000
         elif toDate == "endmonth":
-            return (aFromdate.replace(day = calendar.monthrange(aFromdate.year, aFromdate.month)[1])+ timedelta(hours=23,minutes=59,seconds=59)).timestamp() * 1000       
+            return (aFromdate.replace(
+                day=calendar.monthrange(aFromdate.year, aFromdate.month)[
+                    1]) + timedelta(hours=23, minutes=59,
+                                    seconds=59)).timestamp() * 1000
         elif toDate == "now":
-            return now.timestamp()*1000
+            return now.timestamp() * 1000
 
-    def _error_handler(self,response):
+    def _error_handler(self, content):
         """
-        Function to manage possible errors returned from malote queries that Serrea is sending as part of the http response
-        Depending on the response output format the error will be handle by different ways
+        Function to manage possible errors returned from malote queries that
+        Serrea is sending as part of the http response
+        Depending on the response output format the error will be handled
+        by different ways
         """
-        if self.config.response == "xls" or self.config.response =="msgpack":
-            return response
-        elif self.config.response == "json":
-            
-             if not '"error"' in response.text:
-                return response
-             else:
-                error = re.search('(?<=\"error\": \[)(.*)(?=])',response.text).group(0)
-                code = re.search("^[0-9]{3}",error).group(0)
-                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
-                
-        elif self.config.response == "json/simple":
-              
-              if not '"error"' in response.text:
-                return response
-              else:
-                error = re.search('(?<=\["error",)(.*)(?=])',response.text).group(0)
-                code = re.search("^[0-9]{3}",error).group(0)
-                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
-
-        elif self.config.response == "json/compact":
-
-              if not '"e"' in response.text:
-                return response
-              else:
-                error = re.search('(?<=\"e\": \[)(.*)(?=])',response.text).group(0)    
-                code = re.search("^[0-9]{3}",error).group(0)
-                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
-
-        elif self.config.response == "json/simple/compact":
-
-            if not '"e"' in response.text:
-                return response
+        if self.config.response in ["xls", "msgpack"]:
+            return content
+        else:
+            pattern = DATA_ERROR_PATTERNS[self.config.response]
+            if match := re.search(pattern, content):
+                error = match.group(0)
+                code = int(match.group(1))
+                message = match.group(2).strip()
+                raise DevoClientException(
+                    "Error while receiving query data: %s "
+                    % message, code=code, cause=error)
             else:
-                error = re.search('(?<={"e":\[)(.*)(?=])',response.text).group(0)
-                code = re.search("^[0-9]{3}",error).group(0)
-                message = re.search("(?<=\")(.*)(?=\")",error).group(0)
-               
-        elif self.config.response == "csv":
-            
-            if not 'devo.api.error'in response.text:
-                return response
-            else:
-                error = re.search('(?<=devo.api.error,)(.*)',response.text).group(0)
-                code = error.split(",")[0]
-                message = error.split(",")[1]
-
-        elif self.config.response == "tsv":
-
-            if not 'devo.api.error'in response.text:
-                return response
-            else:
-                error = re.search('(?<=devo.api.error)(.*)',response.text).group(0)
-                code = error.split("  ")[1]
-                message =  error.split("  ")[2]
-
-        raise DevoClientException(("Query lauched reported the following error -----> "+message),code)
+                return content
 
 
-         
-            
-                
-     
-          
-
+DATA_ERROR_PATTERNS = {
+    "json/simple/compact": r'{"e":\[(\d+),"([^"]+)"]}',
+    "json/simple": r'\["error",(\d+),"([^"]+)"\]',
+    "json": r'"error":\s\[(\d+),"([^"]+)"\]',
+    "json/compact": r'"e":\s\[(\d+),"([^"]+)"\]',
+    "csv": r'devo\.api\.error,(\d+),([^,\n]+)',
+    'tsv': r'devo\.api\.error(?:\t|\s+)(\d+)(?:\t|\s+)([^\t\n]+)'
+}
