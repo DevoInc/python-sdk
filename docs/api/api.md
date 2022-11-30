@@ -38,7 +38,8 @@ You have a special README to quickly show the important changes suffered from ve
     - token: Auth token
     - jwt: JWT token
 - retries: number of retries for connection errors in a query (`0`, no retry by default)
-- timeout: timeout of socket (`30`seconds by default)
+- timeout: timeout of socket (`300` seconds by default)
+- retry_delay: retry delay value in seconds (`5` seconds by default). This is the base delay for the Exponential backoff algorithm with rate reduction of `2`
 - config: dict or ClientConfig object
 - verify: whether enable or disable the TLS authentication of endpoint (`True` by default). **DEVO will always provide a secure endpoint for ALL its services**. Disable at your own risk.
 
