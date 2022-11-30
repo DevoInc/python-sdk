@@ -880,7 +880,8 @@ class Client:
             return content
         else:
             pattern = DATA_ERROR_PATTERNS[self.config.response]
-            if match := re.search(pattern, content):
+            match = re.search(pattern, content)
+            if match:
                 error = match.group(0)
                 code = int(match.group(1))
                 message = match.group(2).strip()
