@@ -224,13 +224,15 @@ class Client:
     """
 
     def __init__(self, address=None, auth=None, config=None,
-                 retries=None, timeout=None, verify=None):
+                 retries=None, timeout=None, verify=None, retry_delay=None):
         """
         Initialize the API with this params, all optionals
         :param address: endpoint
         :param auth: object with auth params (key, secret, token, jwt)
         :param retries: number of retries for a query
-        :param timeout: timeout of socket
+        :param timeout: timeout of socket. Default: None (blocking queries)
+        :param retry_delay: delay to wait between retry attemps, exponential
+         backoff algorithm applied with rate reduction of 2. Default: 5 seconds
         :param verify: Whether enable or disable the TLS authentication of
          endpoint
         """
@@ -252,7 +254,9 @@ class Client:
             retries = retries if retries is not None \
                 else config.get("retries", 0)
             timeout = timeout if timeout is not None \
-                else config.get("timeout", 30)
+                else config.get("timeout", 300)
+            retry_delay = retry_delay if retry_delay is not None \
+                else config.get("retry_delay", 5)
             self.config = self._from_dict(config)
 
         self.auth = auth
@@ -262,7 +266,8 @@ class Client:
         self.address = self.__get_address_parts(address)
 
         self.retries = int(retries) if retries else 0
-        self.timeout = int(timeout) if timeout else 30
+        self.timeout = int(timeout) if timeout else 300
+        self.retry_delay = int(retry_delay) if retry_delay else 5
         self.verify = verify if verify is not None else True
 
         # For internal testing purposes, Devo will never expose a REST service
@@ -552,7 +557,7 @@ class Client:
                 tries += 1
                 if tries > self.retries:
                     return raise_exception(error)
-                time.sleep(self.timeout)
+                time.sleep(self.retry_delay * (2 ** (tries-1)))
             except DevoClientException as error:
                 if isinstance(error, DevoClientException):
                     raise_exception(error.args[0])
@@ -762,7 +767,7 @@ class Client:
                 except json.decoder.JSONDecodeError:
                     return response.text
             tries += 1
-            time.sleep(self.timeout)
+            time.sleep(self.retry_delay * (2 ** (tries-1)))
         return {}
 
     @staticmethod

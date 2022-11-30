@@ -38,7 +38,8 @@ You have a special README to quickly show the important changes suffered from ve
     - token: Auth token
     - jwt: JWT token
 - retries: number of retries for connection errors in a query (`0`, no retry by default)
-- timeout: timeout of socket (`30`seconds by default)
+- timeout: timeout of socket (`300` seconds by default)
+- retry_delay: retry delay value in seconds (`5` seconds by default). This is the base delay for the Exponential backoff algorithm with rate reduction of `2`
 - config: dict or ClientConfig object
 - verify: whether enable or disable the TLS authentication of endpoint (`True` by default). **DEVO will always provide a secure endpoint for ALL its services**. Disable at your own risk.
 
@@ -389,6 +390,8 @@ From                                                                          To
 The Client supports a retry mechanism for **connectivity issues only**. The retry mechanism is disabled by default (the `retries` parameter is set to `0`by default in the `Client` constructor).
 
 In order to enable it, you must set up the `retries` parameter with a value bigger or equals than `1`. The regular action/command is not considered a retry, only the additional attempts.
+
+There is a delay within `retries`. The default base delay is `5` seconds, it is updated by Exponential backoff algorithm in every retry with a rate reduction of `2`. The base delay is multiplied by 2 in every retry. The base delay can be configured by parameter `retry_delay`
 
 
 ### Keep Alive mechanism support
