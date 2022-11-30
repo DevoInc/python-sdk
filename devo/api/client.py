@@ -252,7 +252,7 @@ class Client:
             retries = retries if retries is not None \
                 else config.get("retries", 0)
             timeout = timeout if timeout is not None \
-                else config.get("timeout", 30)
+                else config.get("timeout", None)
             self.config = self._from_dict(config)
 
         self.auth = auth
@@ -262,7 +262,7 @@ class Client:
         self.address = self.__get_address_parts(address)
 
         self.retries = int(retries) if retries else 0
-        self.timeout = int(timeout) if timeout else 30
+        self.timeout = int(timeout) if timeout else None
         self.verify = verify if verify is not None else True
 
         # For internal testing purposes, Devo will never expose a REST service
