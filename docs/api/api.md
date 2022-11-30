@@ -391,6 +391,8 @@ The Client supports a retry mechanism for **connectivity issues only**. The retr
 
 In order to enable it, you must set up the `retries` parameter with a value bigger or equals than `1`. The regular action/command is not considered a retry, only the additional attempts.
 
+There is a delay within `retries`. The default base delay is 5 seconds, it is updated by Exponential backoff algorithm in every retry with a rate reduction of `2`. The base delay is multiplied by 2 in every retry. The base delay can be configured by parameter `retry_delay`
+
 
 ### Keep Alive mechanism support
 
