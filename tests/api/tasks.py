@@ -16,12 +16,13 @@ class TestApi(unittest.TestCase):
                         "params": {"friendlyName": "devo-sdk-api-test"}
                     }
                     })
+        self.query = "from siem.logtrust.web.connection select action"
 
     @unittest.skip("temporarily disabled due to Query API bug")
     def test_jobs_cycle(self):
         self.client.query(
-            query="from demo.ecommerce.data select *",
-            dates={'from': '2018-01-01 00:00:00'})
+            query=self.query,
+            dates={'from': '1d'})
 
         # Get all jobs
         result = self.client.get_jobs()

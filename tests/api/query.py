@@ -12,9 +12,11 @@ from devo.api import Client, ClientConfig, DevoClientException
 class TestApi(unittest.TestCase):
     def setUp(self):
         self.query = os.getenv('DEVO_API_QUERY',
-                               'from demo.ecommerce.data select * limit 1')
+                               'from siem.logtrust.web.activity select '
+                               'method limit 1')
         self.query_no_results = \
-            'from demo.ecommerce.data where method = "TEST" select * limit 1'
+            'from siem.logtrust.web.activity where method = "OTHER" select' \
+            ' method limit 1'
         self.app_name = "testing-app_name"
         self.uri = os.getenv('DEVO_API_ADDRESS',
                              'https://apiv2-us.devo.com/search/query')
@@ -189,6 +191,82 @@ class TestApi(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertIn('json', json.loads(result))
         self.assertIn('query', json.loads(result)['json'])
+
+    def test_stream_mode_not_supported_xls(self):
+        """Test the api stream mode is not supported for xls format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="xls"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable, False)
+
+    def test_stream_mode_not_supported_json(self):
+        """Test the api stream mode is not supported for json format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="json"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable, False)
+
+    def test_stream_mode_not_supported_json_compact(self):
+        """Test the api stream mode is not supported for json/compact format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="json/compact"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable, False)
+
+    def test_stream_mode_not_supported_msgpack(self):
+        """Test the api stream mode is not supported for msgpack format"""
+
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(response="msgpack"))
+
+        stremaAvailable = Client.stream_available(api.config.response)
+        self.assertIsNotNone(stremaAvailable)
+        self.assertEqual(stremaAvailable, False)
+
+    def test_xls_future_queries(self):
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(stream=False, response="xls"))
+
+        with self.assertRaises(Exception) as context:
+            response = api.query(query=self.query,
+                                 dates={'from': 'now()',
+                                        'to': 'now()+60*second()'})
+
+        self.assertIsInstance(context.exception, DevoClientException)
+        self.assertEqual(context.exception.cause,
+                         "Modes 'xls' and 'msgpack' does not support future"
+                         " queries because KeepAlive tokens are not available"
+                         " for those resonses type")
+
+    def test_msgpack_future_queries(self):
+        api = Client(auth={"key": self.key, "secret": self.secret},
+                     address=self.uri,
+                     config=ClientConfig(stream=False, response="msgpack"))
+
+        with self.assertRaises(Exception) as context:
+            response = api.query(query=self.query,
+                                 dates={'from': 'now()',
+                                        'to': 'now()+60*second()'})
+
+        self.assertIsInstance(context.exception, DevoClientException)
+        self.assertEqual(context.exception.cause,
+                         "Modes 'xls' and 'msgpack' does not support future "
+                         "queries because KeepAlive tokens are not available "
+                         "for those resonses type")
 
 
 if __name__ == '__main__':
