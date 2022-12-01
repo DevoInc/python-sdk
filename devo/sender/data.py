@@ -84,7 +84,7 @@ class SenderConfigSSL:
             self.verify_mode = verify_mode
         except Exception as error:
             raise DevoSenderException(
-                ERROR_MSGS.WRONG_SSL_CONFIG % str(error))
+                ERROR_MSGS.WRONG_SSL_CONFIG % str(error)) from error
 
         if self.verify_config:
             self.check_config_files_path()
@@ -102,15 +102,17 @@ class SenderConfigSSL:
         certificates = [self.key, self.chain, self.cert]
         for file in certificates:
             try:
-                if not file.is_file() if isinstance(file, Path) else Path(file).is_file():
+                if not (file.is_file() if isinstance(file, Path) else Path(file).is_file()):
                     raise DevoSenderException(ERROR_MSGS.CONFIG_FILE_NOT_FOUND % file)
             except IOError as message:
                 if message.errno == errno.EACCES:
                     raise DevoSenderException(
-                        ERROR_MSGS.CANT_READ_CONFIG_FILE % (file, str(message)))
+                        ERROR_MSGS.CANT_READ_CONFIG_FILE % (file, str(message)))\
+                        from message
                 else:
                     raise DevoSenderException(
-                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(message)))
+                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(message)))\
+                        from message
         return True
 
     def check_config_certificate_key(self):
@@ -139,7 +141,7 @@ class SenderConfigSSL:
             raise DevoSenderException(
                 "Error in the configuration, the key: " + self.key +
                 " is not compatible with the cert: " + self.cert +
-                "\noriginal error: " + str(message))
+                "\noriginal error: " + str(message)) from message
         return True
 
     def check_config_certificate_chain(self):
@@ -169,7 +171,7 @@ class SenderConfigSSL:
             raise DevoSenderException(
                 "Error in config, the chain: " + self.chain +
                 " is not compatible with the certificate: " + self.cert +
-                "\noriginal error: " + str(message))
+                "\noriginal error: " + str(message)) from message
         return True
 
     def check_config_certificate_address(self):
@@ -190,12 +192,12 @@ class SenderConfigSSL:
             raise DevoSenderException(
                 "Possible error in config, a timeout could be related " +
                 "to an incorrect address/port: " + str(self.address) +
-                "\noriginal error: " + str(message))
+                "\noriginal error: " + str(message)) from message
         except ConnectionRefusedError as message:
             raise DevoSenderException(
                 "Error in config, incorrect address/port: "
                 + str(self.address) +
-                "\noriginal error: " + str(message))
+                "\noriginal error: " + str(message)) from message
         sock.setblocking(True)
         connection.do_handshake()
         server_chain = connection.get_peer_cert_chain()
@@ -266,7 +268,7 @@ class SenderConfigTCP:
         except Exception as error:
             raise DevoSenderException(
                 "DevoSenderConfigTCP|Can't create TCP config: "
-                "%s" % str(error))
+                "%s" % str(error)) from error
 
 
 class SenderBuffer:
@@ -349,7 +351,7 @@ class Sender(logging.Handler):
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "TCP conn establishment socket error: %s" % str(error))
+                "TCP conn establishment socket error: %s" % str(error)) from error
 
         self.timestart = int(round(time.time() * 1000))
 
@@ -375,7 +377,7 @@ class Sender(logging.Handler):
             self.close()
             raise DevoSenderException(
                 "PFX Certificate read failed: %s" %
-                str(error))
+                str(error)) from error
         try:
             try:
                 if self._sender_config.key is not None \
@@ -420,7 +422,7 @@ class Sender(logging.Handler):
             self.close()
             raise DevoSenderException(
                 "SSL conn establishment socket error: %s" %
-                str(error))
+                str(error)) from error
 
     def info(self, msg):
         """
@@ -533,7 +535,7 @@ class Sender(logging.Handler):
             record = Sender.__encode_record(record)
             return b'%d %s' % (len(record), record)
         except Exception as error:
-            raise DevoSenderException(error)
+            raise DevoSenderException(error) from error
 
     @staticmethod
     def __encode_record(record):
@@ -592,14 +594,14 @@ class Sender(logging.Handler):
                 except socket.error:
                     self.close()
                     raise DevoSenderException(
-                        "Socket error: %s" % str(socket.error))
+                        "Socket error: %s" % str(socket.error)) from error
                 finally:
                     if self.debug:
                         self.logger.debug('sent|%d|size|%d|msg|%s' %
                                           (sent, len(record), record))
             raise Exception("Socket cant connect: unknown error")
         except Exception as error:
-            raise DevoSenderException(error)
+            raise DevoSenderException(error) from error
 
     @staticmethod
     def compose_mem(tag, **kwargs):
@@ -822,8 +824,8 @@ def open_file(file, mode='r', encoding='utf-8'):
     :param encoding Encoding of content
     """
     if isinstance(file, Path):
-        return file.open(mode=mode, encoding=encoding)
+        return file.open(mode=mode, encoding=encoding if not mode.endswith('b') else None)
     elif isinstance(file, str):
-        return open(file, mode=mode, encoding=encoding)
+        return open(file, mode=mode, encoding=encoding if not mode.endswith('b') else None)
     else:
         raise DevoSenderException(ERROR_MSGS.WRONG_FILE_TYPE % str(type(file)))

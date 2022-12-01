@@ -362,7 +362,7 @@ class TestSender(unittest.TestCase):
                                     verify_config=False)
 
         wrong_key_message = "Error in the configuration, " + \
-                            wrong_key.key + \
+                            "Incorrect key" + \
                             " is not a file or the path does not exist"
 
         with self.assertRaises(DevoSenderException) as result:
@@ -381,7 +381,7 @@ class TestSender(unittest.TestCase):
                                      verify_config=False)
 
         wrong_cert_message = "Error in the configuration, " + \
-                             wrong_cert.cert + \
+                             "Incorrect cert" + \
                              " is not a file or the path does not exist"
 
         with self.assertRaises(DevoSenderException) as result:
@@ -398,7 +398,7 @@ class TestSender(unittest.TestCase):
                                       verify_mode=CERT_NONE,
                                       verify_config=False)
         wrong_chain_message = "Error in the configuration, " + \
-                              wrong_chain.chain + \
+                              "Incorrect chain" + \
                               " is not a file or the path does not exist"
 
         with self.assertRaises(DevoSenderException) as result:
