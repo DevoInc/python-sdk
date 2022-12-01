@@ -8,6 +8,7 @@ import ssl
 import sys
 import time
 import zlib
+from enum import Enum
 from pathlib import Path
 from _socket import SHUT_RDWR
 
@@ -21,15 +22,24 @@ from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
 PYPY = hasattr(sys, 'pypy_version_info')
 
 
-ERROR_MSGS = {
-    "no_query": "Error: Not query provided.",
-    "no_auth": "Client dont have key&secret or auth token/jwt",
-    "no_endpoint": "Endpoint 'url' not found"
-}
+class ERROR_MSGS(str, Enum):
+    WRONG_FILE_TYPE = "'%s' is not a valid type to be opened as a file"
+    ADDRESS_TUPLE = "Devo-SenderConfigSSL| address must be a tuple (\"hostname\", int(port))'",
+    WRONG_SSL_CONFIG = "Devo-SenderConfigSSL|Can't create SSL config: %s",
+    CONFIG_FILE_NOT_FOUND = "Error in the configuration, %s is not a file or the path does not exist",
+    CANT_READ_CONFIG_FILE = "Error in the configuration %s can't be read\noriginal error: %s",
+    CONFIG_FILE_PROBLEM = "Error in the configuration, %s problem related to: %s"
 
 
 class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+    def __str__(self):
+        return self.message
 
 
 class SenderConfigSSL:
@@ -55,13 +65,12 @@ class SenderConfigSSL:
         Sender
 
     """
+
     def __init__(self, address=None, key=None, cert=None, chain=None,
                  pkcs=None, sec_level=None, check_hostname=True,
                  verify_mode=None, verify_config=False):
         if not isinstance(address, tuple):
-            raise DevoSenderException(
-                "Devo-SenderConfigSSL| address must be a tuple "
-                "'(\"hostname\", int(port))'")
+            raise DevoSenderException(ERROR_MSGS.ADDRESS_TUPLE)
         try:
             self.address = address
             self.key = key
@@ -75,8 +84,7 @@ class SenderConfigSSL:
             self.verify_mode = verify_mode
         except Exception as error:
             raise DevoSenderException(
-                "Devo-SenderConfigSSL|Can't create SSL config: "
-                "%s" % str(error))
+                ERROR_MSGS.WRONG_SSL_CONFIG % str(error))
 
         if self.verify_config:
             self.check_config_files_path()
@@ -94,23 +102,15 @@ class SenderConfigSSL:
         certificates = [self.key, self.chain, self.cert]
         for file in certificates:
             try:
-                if not Path(file).is_file():
-                    raise DevoSenderException(
-                        "Error in the configuration, "
-                        + file +
-                        " is not a file or the path does not exist")
+                if not file.is_file() if isinstance(file, Path) else Path(file).is_file():
+                    raise DevoSenderException(ERROR_MSGS.CONFIG_FILE_NOT_FOUND % file)
             except IOError as message:
                 if message.errno == errno.EACCES:
                     raise DevoSenderException(
-                        "Error in the configuration "
-                        + file + " can't be read" +
-                        "\noriginal error: " +
-                        str(message))
+                        ERROR_MSGS.CANT_READ_CONFIG_FILE % (file, str(message)))
                 else:
                     raise DevoSenderException(
-                        "Error in the configuration, "
-                        + file + " problem related to: " + str(message))
-
+                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(message)))
         return True
 
     def check_config_certificate_key(self):
@@ -121,8 +121,8 @@ class SenderConfigSSL:
         :return: Boolean true or raises an exception
         """
 
-        with open(self.cert, "rb") as certificate_file, \
-                open(self.key, "rb") as key_file:
+        with open_file(self.cert, mode="rb") as certificate_file, \
+                open_file(self.key, mode="rb") as key_file:
 
             certificate_raw = certificate_file.read()
             key_raw = key_file.read()
@@ -149,8 +149,8 @@ class SenderConfigSSL:
 
         :return: Boolean true or raises an exception
         """
-        with open(self.cert, "rb") as certificate_file, \
-                open(self.chain, "rb") as chain_file:
+        with open_file(self.cert, mode="rb") as certificate_file, \
+                open_file(self.chain, mode="rb") as chain_file:
 
             certificate_raw = certificate_file.read()
             chain_raw = chain_file.read()
@@ -201,7 +201,7 @@ class SenderConfigSSL:
         server_chain = connection.get_peer_cert_chain()
         connection.close()
 
-        with open(self.chain, "rb") as chain_file:
+        with open_file(self.chain, mode="rb") as chain_file:
             chain = chain_file.read()
             chain_certs = []
             for _ca in pem.parse(chain):
@@ -226,7 +226,7 @@ class SenderConfigSSL:
     def get_common_names(cert_chain, components_type):
         result = set()
         for temp_cert in cert_chain:
-            for key, value in getattr(temp_cert, components_type)()\
+            for key, value in getattr(temp_cert, components_type)() \
                     .get_components():
                 if key.decode("utf-8") == "CN":
                     result.add(value)
@@ -234,7 +234,7 @@ class SenderConfigSSL:
 
     @staticmethod
     def fake_get_peer_cert_chain(chain):
-        with open(chain, "rb") as chain_file:
+        with open_file(chain, mode="rb") as chain_file:
             chain_certs = []
             for _ca in pem.parse(chain_file.read()):
                 chain_certs.append(
@@ -271,6 +271,7 @@ class SenderConfigTCP:
 
 class SenderBuffer:
     """Micro class for buffer values"""
+
     def __init__(self):
         self.length = 19500
         self.compression_level = -1
@@ -289,6 +290,7 @@ class Sender(logging.Handler):
     :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
     """
+
     def __init__(self, config=None, con_type=None,
                  timeout=30, debug=False, logger=None):
         if config is None:
@@ -312,7 +314,7 @@ class Sender(logging.Handler):
         self.logger = logger if logger else \
             get_log(handler=get_stream_handler(
                 msg_format='%(asctime)s|%(levelname)s|Devo-Sender|%(message)s')
-                )
+            )
 
         self._sender_config = config
 
@@ -810,3 +812,18 @@ class Sender(logging.Handler):
                       severity=severity)
         except Exception:
             self.handleError(record)
+
+
+def open_file(file, mode='r', encoding='utf-8'):
+    """
+    Helper class to open file whenever is provided as `Path` or `str` type
+    :param file File to open
+    :param mode Opening mode
+    :param encoding Encoding of content
+    """
+    if isinstance(file, Path):
+        return file.open(mode=mode, encoding=encoding)
+    elif isinstance(file, str):
+        return open(file, mode=mode, encoding=encoding)
+    else:
+        raise DevoSenderException(ERROR_MSGS.WRONG_FILE_TYPE % str(type(file)))

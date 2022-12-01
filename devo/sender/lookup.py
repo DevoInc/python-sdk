@@ -5,6 +5,8 @@ import re
 import sys
 import time
 
+from devo.sender.data import open_file
+
 
 def find_key_index(value=None, headers=None):
     """Find index of key value in a list"""
@@ -146,7 +148,7 @@ class Lookup:
         if self.escape_quotes:
             return False
 
-        with open(file_path) as f:
+        with open_file(file_path) as f:
             line = next((l_temp for l_temp in f if '"' in l_temp), None)
 
         return True if line is not None else False
@@ -158,7 +160,7 @@ class Lookup:
                  types=None, detect_types=False):
         """Send CSV file to lookup
 
-        :param path: The path to CSV file
+        :param path: The path to CSV file (can be `str` or `Path`)
         :param has_header: If the file has header to avoid it (default True)
         :param delimiter: CSV delimiter (default ;)
         :param quotechar: CSV quotechar (default ")
@@ -172,7 +174,7 @@ class Lookup:
         """
         try:
             if detect_types:
-                with open(path, 'r') as csv_file:
+                with open_file(path, mode='r') as csv_file:
                     spam_reader = csv.reader(csv_file, delimiter=delimiter,
                                              quotechar=quotechar)
 
@@ -184,7 +186,7 @@ class Lookup:
                             sys.exc_info()[0])
 
         try:
-            with open(path, 'r') as csv_file:
+            with open_file(path, mode='r') as csv_file:
                 spam_reader = csv.reader(csv_file, delimiter=delimiter,
                                          quotechar=quotechar)
                 # Conform headers list

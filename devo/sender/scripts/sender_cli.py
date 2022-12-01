@@ -34,13 +34,13 @@ def cli(version):
 # Commands
 # ------------------------------------------------------------------------------
 @cli.command()
-@click.option('--config', '-c', type=click.Path(exists=True),
+@click.option('--config', '-c', type=click.Path(exists=True, readable=True),
               help='Optional JSON/Yaml File with configuration info.')
 @click.option('--address', '-a', help='Devo relay address')
 @click.option('--port', '-p', help='Devo relay address port')
-@click.option('--key', help='Devo user key cert file.')
-@click.option('--cert', help='Devo user cert file.')
-@click.option('--chain', help='Devo chain.crt file.')
+@click.option('--key', help='Devo user key cert file.', type=click.Path(exists=True, readable=True))
+@click.option('--cert', help='Devo user cert file.', type=click.Path(exists=True, readable=True))
+@click.option('--chain', help='Devo chain.crt file.', type=click.Path(exists=True, readable=True))
 @click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
               type=int)
 @click.option('--verify_mode', help='Verify mode for SSL Socket. '
@@ -61,7 +61,7 @@ def cli(version):
               help='For shipments of only one line, '
                    'the text you want to send.', default="David Hasselhoff")
 @click.option('--file', '-f', help='The file that you want to send to Devo,'
-                                   ' which will be sent line by line.',
+                                   ' which will be sent line by line.', type=click.Path(exists=True, readable=True),
               default="")
 @click.option('--header', '-h', help='This option is used to indicate if the'
                                      ' file has headers or not, not to send '
@@ -132,7 +132,7 @@ def data(**kwargs):
 
 
 @cli.command()
-@click.option('--config', '-c', type=click.Path(exists=True),
+@click.option('--config', '-c', type=click.Path(exists=True, readable=True),
               help='Optional JSON/Yaml File with configuration info.')
 @click.option('--env', '-e', help='Use env vars for configuration',
               default=False, type=bool)
@@ -140,9 +140,9 @@ def data(**kwargs):
               default=False, type=bool)
 @click.option('--url', '--address', '-a', help='Devo relay address')
 @click.option('--port', '-p', default=443, help='Devo relay address port')
-@click.option('--key', help='Devo user key cert file.')
-@click.option('--cert', help='Devo user cert file.')
-@click.option('--chain', help='Devo chain.crt file.')
+@click.option('--key', help='Devo user key cert file.', type=click.Path(exists=True))
+@click.option('--cert', help='Devo user cert file.', type=click.Path(exists=True))
+@click.option('--chain', help='Devo chain.crt file.', type=click.Path(exists=True))
 @click.option('--sec_level', help='Sec level for opensslsocket. Default: None',
               type=int)
 @click.option('--verify_mode', help='Verify mode for SSL Socket. '
@@ -156,7 +156,7 @@ def data(**kwargs):
 @click.option('--name', '-n', help='Name for Lookup.')
 @click.option('--action', '-ac', help='INC or FULL.', default="FULL")
 @click.option('--file', '-f', help='The file that you want to send to Devo,'
-                                   ' which will be sent line by line.')
+                                   ' which will be sent line by line.', type=click.Path(exists=True, readable=True))
 @click.option('--lkey', '-lk', help='Name of the column that contains the '
                                     'Lookup key. It has to be the exact name '
                                     'that appears in the header.')

@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.0.0] - 2022-11-29
+## [5.0.0] - 2022-12-02
 ### Added
- * `DevoClientException` refactored for better details extraction
+ * `DevoClientException` and `DevoSenderException` refactored for better details extraction
  * In query error detection and feedback through detailed `DevoClientException` 
 ### Removed
  * Parameter `key` removed from `devo.sender.lookup.Lookup.send_data_line`. The `key` parameter pointed to the value in the `fields` list that was the key of the lookup item. When the value appeared several times in `fields`, the one expected to be the key cannot be identified. This parameter was set as deprecated since version 3.4.0 (2020-08-06) 
