@@ -76,6 +76,22 @@ class TestSender(unittest.TestCase):
         self.assertIn("SSL conn establishment socket error",
                       result.exception.args[0])
 
+    def test_cli_notfound_certs(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address",
+                                      "collector-us.devo.io",
+                                      "--port", "443",
+                                      "--key", "not_a_folder/not_a_file",
+                                      "--cert", self.cert,
+                                      "--chain", self.chain,
+                                      "--verify_mode", 1,
+                                      '--check_hostname', True])
+        self.assertIsInstance(result.exception, SystemExit)
+        self.assertIn("Error: Invalid value for '--key': Path "
+                      "'not_a_folder/not_a_file' does not exist.",
+                      result.output)
+
     def test_cli_normal_send(self):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",

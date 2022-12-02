@@ -4,28 +4,46 @@ import sys
 import time
 import unittest
 import argparse
+from unittest import TestSuite
+
 from devo.common import load_env_file
+
+from tests.api.cli import TestApi as API_CLI
+from tests.api.query import TestApi as API_QUERY
+from tests.api.tasks import TestApi as API_TASKS
+from tests.api.test_errors import ErrorManagementCase as API_ERRORS
+from tests.api.test_parsers_dates import ParserDateCase as API_PARSER_DATE
+from tests.api.test_proccesors import TestApi as API_PROCESSORS
+from tests.api.test_timeout_token import TimeoutTokenCase as API_KEEPALIVE
+from tests.common.configuration import TestConfiguration as COMMON_CONFIGURATION
+from tests.common.date_parser import TestDateParser as COMMON_DATE_PARSER
+from tests.sender.cli import TestSender as SENDER_CLI
+from tests.sender.read_csv import TestCSVRFC as SENDER_CSV
+from tests.sender.number_lookup import TestLookup as SENDER_NUMBER_LOOKUP
+from tests.sender.send_data import TestSender as SENDER_SEND_DATA
+from tests.sender.send_lookup import TestLookup as SENDER_SEND_LOOKUP
+
 from tests.sender.local_servers import SSLServer, TCPServer
 
 module_paths = {
-    'API_CLI': ['api', 'cli.py'],
-    'API_QUERY': ['api', 'query.py'],
-    'API_TASKS': ['api', 'tasks.py'],
-    'API_ERRORS': ['api', 'test_errors.py'],
-    'API_PROCESSORS': ['api', 'test_proccessors.py'],
-    'API_KEEPALIVE': ['api', 'test_timeout_token.py'],
-    'API_PARSER_DATE': ['api', 'test_parsers_dates.py'],
-    'COMMON_CONFIGURATION': ['common', 'configuration.py'],
-    'COMMON_DATE_PARSER': ['common', 'date_parser.py'],
-    'SENDER_CLI': ['sender', 'cli.py'],
-    'SENDER_CSV': ['sender', 'read_csv.py'],
-    'SENDER_NUMBER_LOOKUP': ['sender', 'number_lookup.py'],
-    'SENDER_SEND_DATA': ['sender', 'send_data.py'],
-    'SENDER_SEND_LOOKUP': ['sender', 'send_lookup.py']
+    'API_CLI': API_CLI,
+    'API_QUERY': API_QUERY,
+    'API_TASKS': API_TASKS,
+    'API_ERRORS': API_ERRORS,
+    'API_PARSER_DATE': API_PARSER_DATE,
+    'API_PROCESSORS': API_PROCESSORS,
+    'API_KEEPALIVE': API_KEEPALIVE,
+    'COMMON_CONFIGURATION': COMMON_CONFIGURATION,
+    'COMMON_DATE_PARSER': COMMON_DATE_PARSER,
+    'SENDER_CLI': SENDER_CLI,
+    'SENDER_CSV': SENDER_CSV,
+    'SENDER_NUMBER_LOOKUP': SENDER_NUMBER_LOOKUP,
+    'SENDER_SEND_DATA': SENDER_SEND_DATA,
+    'SENDER_SEND_LOOKUP': SENDER_SEND_LOOKUP
 }
 
 
-def run_test_suite(selected_module):
+def run_test_suite(selected_modules, excluded_modules):
     def mark_failed():
         nonlocal failed
         failed = True
@@ -49,16 +67,20 @@ def run_test_suite(selected_module):
     original_cwd = os.path.abspath(os.getcwd())
     os.chdir('.%stests%s' % (os.sep, os.sep))
 
-    # Run tests for selected module
-    if selected_module in module_paths.keys():
-        configured_path = '.' + os.sep + module_paths[selected_module][0]
-        configured_pattern = module_paths[selected_module][1]
-    else:
-        configured_path = '.'
-        configured_pattern = '*.py'
+    if not selected_modules:
+        selected_modules = list(module_paths.keys())
 
-    suite = unittest.defaultTestLoader.discover(configured_path,
-                                                configured_pattern)
+    suites = []
+    loader = unittest.defaultTestLoader
+
+    # Run tests for selected module and non excluded modules
+    for module in selected_modules:
+        if module not in excluded_modules:
+            print("Loading module %s" % module)
+            suites.append(loader.loadTestsFromTestCase(module_paths[module]))
+
+    suite = TestSuite(suites)
+    print("Running %d test cases" % suite.countTestCases())
 
     runner = TrackingTextTestRunner(verbosity=2)
     runner.run(suite)
@@ -91,19 +113,40 @@ if __name__ == '__main__':
                         nargs='?',
                         help="Generate coverage")
     parser.add_argument("-m",
-                        "--module",
+                        "--modules",
                         type=str,
                         const=True,
                         default=None,
                         nargs='?',
-                        help="Run tests for selected module: " +
+                        help="Run tests for selected modules: " +
                         ', '.join(module_paths.keys()))
+    parser.add_argument("-M",
+                        "--exclude-modules",
+                        type=str,
+                        const=True,
+                        default=None,
+                        nargs='?',
+                        help="Exclude tests for modules: " +
+                        ', '.join(module_paths.keys()))
+
     args = parser.parse_args()
 
-    if args.module and args.module not in module_paths.keys():
-        print('Invalid module name.\n\nPlease use one of the following: ' +
+    if args.modules and \
+        any([module.strip() not in module_paths.keys()
+             for module in args.modules.split(',')]):
+        print('Invalid module name in inclussion list.\n\n'
+              'Please use one of the following: ' +
               ', '.join(module_paths.keys()))
         sys.exit(1)
+
+    if args.exclude_modules and \
+        any([module.strip() not in module_paths.keys()
+             for module in args.exclude_modules.split(',')]):
+        print('Invalid module name in exclusion list.\n\n'
+              'Please use one of the following: ' +
+              ', '.join(module_paths.keys()))
+        sys.exit(1)
+
 
     local_ssl_server = SSLServer()
     local_tcp_server = TCPServer()
@@ -123,7 +166,11 @@ if __name__ == '__main__':
         cov.stop()
         cov.html_report(directory='coverage_report')
     else:
-        failed = run_test_suite(args.module)
+        failed = run_test_suite(
+            [module.strip() for module in args.modules.split(',')]
+            if args.modules else [],
+            [module.strip() for module in args.exclude_modules.split(',')]
+            if args.exclude_modules else [])
 
     local_ssl_server.close_server()
     local_tcp_server.close_server()

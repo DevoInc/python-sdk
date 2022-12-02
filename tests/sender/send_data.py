@@ -1,11 +1,11 @@
 import unittest
 import socket
-import time
+from pathlib import Path
 from ssl import CERT_NONE
 
-import devo.sender.data
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, \
     DevoSenderException
+from devo.sender.data import open_file
 from devo.common import get_log
 
 try:
@@ -362,7 +362,7 @@ class TestSender(unittest.TestCase):
                                     verify_config=False)
 
         wrong_key_message = "Error in the configuration, " + \
-                            wrong_key.key + \
+                            "Incorrect key" + \
                             " is not a file or the path does not exist"
 
         with self.assertRaises(DevoSenderException) as result:
@@ -381,7 +381,7 @@ class TestSender(unittest.TestCase):
                                      verify_config=False)
 
         wrong_cert_message = "Error in the configuration, " + \
-                             wrong_cert.cert + \
+                             "Incorrect cert" + \
                              " is not a file or the path does not exist"
 
         with self.assertRaises(DevoSenderException) as result:
@@ -398,7 +398,7 @@ class TestSender(unittest.TestCase):
                                       verify_mode=CERT_NONE,
                                       verify_config=False)
         wrong_chain_message = "Error in the configuration, " + \
-                              wrong_chain.chain + \
+                              "Incorrect chain" + \
                               " is not a file or the path does not exist"
 
         with self.assertRaises(DevoSenderException) as result:
@@ -592,3 +592,11 @@ class TestSender(unittest.TestCase):
                     crypto.load_certificate(
                         crypto.FILETYPE_PEM, str(_ca)))
         self.assertEqual(chain_certs, fake_chain_cert)
+
+    def test_open_file(self):
+        with self.assertRaises(FileNotFoundError) as result:
+            open_file(Path('wrong_file'), mode='r', encoding='utf-8')
+        with self.assertRaises(FileNotFoundError) as result:
+            open_file('wrong_file', mode='r', encoding='utf-8')
+        with self.assertRaises(DevoSenderException) as result:
+            open_file(55, mode='r', encoding='utf-8')

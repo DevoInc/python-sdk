@@ -37,8 +37,15 @@ ERROR_MSGS = {
     "no_endpoint": "Endpoint 'address' not found",
     "to_but_no_from": "If you use end dates for the query 'to' it is "
                       "necessary to use start date 'from'",
-    "binary_format_requires_output": "Binary format like `msgpack` and `xls` "
-                                     "requires output parameter"
+    "binary_format_requires_output": "Binary format like `msgpack` and `xls` requires output parameter",
+    "wrong_processor": "processor must be lambda/function or one of the defaults API processors.",
+    "default_keepalive_only": "Mode '%s' always uses default KeepAlive Token",
+    "keepalive_not_supported": "Mode '%s' does not support KeepAlive Token",
+    "stream_mode_not_supported": "Mode '%s' does not support stream mode",
+    "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries because KeepAlive"
+                                    " tokens are not available for those resonses type",
+    "missing_api_key": "You need a API Key and API secret to make this",
+    "data_query_error": "Error while receiving query data: %s "
 }
 
 DEFAULT_KEEPALIVE_TOKEN = '\n'
@@ -164,8 +171,7 @@ class ClientConfig:
             self.proc = "CUSTOM"
             self.processor = processor
         else:
-            raise_exception("processor must be lambda/function or one of"
-                            "the defaults API processors.")
+            raise_exception(ERROR_MSGS["wrong_processor"])
         return True
 
     def set_user(self, user=CLIENT_DEFAULT_USER):
@@ -203,8 +209,7 @@ class ClientConfig:
             if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
                                       DEFAULT_KEEPALIVE_TOKEN]:
                 logging.warning(
-                    f"Mode '{self.response}' always uses default KeepAlive"
-                    f" Token")
+                    ERROR_MSGS["default_keepalive_only"] % self.response)
         # In the cases 'csv', 'tsv' you can use any value passed in
         # 'keepAliveToken'.
         elif self.response in ['csv', 'tsv']:
@@ -213,7 +218,7 @@ class ClientConfig:
             if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
                                       DEFAULT_KEEPALIVE_TOKEN]:
                 logging.warning(
-                    f"Mode '{self.response}' does not support KeepAlive Token")
+                    ERROR_MSGS["keepalive_not_supported"] % self.response)
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
 
@@ -399,8 +404,7 @@ class Client:
             if not dates['to']:
                 dates['to'] = "now()"
             if self.config.stream:
-                logging.warning(f"Mode '{self.config.response}' does not"
-                                f" support stream mode")
+                logging.warning(ERROR_MSGS["stream_mode_not_supported"] % self.config.response)
             # If is a future query and response type is 'xls' or 'msgpack'
             # return warning because is not available.
             if self._future_queries_available(self.config.response):
@@ -411,10 +415,7 @@ class Client:
                 toDate = self._toDate_parser(fromDate, default_to(dates['to']))
 
                 if toDate > default_to("now()"):
-                    raise raise_exception(
-                        "Modes 'xls' and 'msgpack' does not support future "
-                        "queries because KeepAlive tokens are not available "
-                        "for those resonses type")
+                    raise raise_exception(ERROR_MSGS["future_queries_not_supported"])
 
             self.config.stream = False
 
@@ -676,8 +677,7 @@ class Client:
         """
         if not self.auth.get("key", False) \
                 or not self.auth.get("secret", False):
-            raise DevoClientException(("You need a API Key and "
-                                       "API secret to make this"))
+            raise DevoClientException(ERROR_MSGS["missing_api_key"])
         sign = hmac.new(self.auth.get("secret").encode("utf-8"),
                         (self.auth.get("key") + data + tstamp).encode("utf-8"),
                         hashlib.sha256)
@@ -891,7 +891,7 @@ class Client:
                 code = int(match.group(1))
                 message = match.group(2).strip()
                 raise DevoClientException(
-                    "Error while receiving query data: %s "
+                    ERROR_MSGS["data_query_error"]
                     % message, code=code, cause=error)
             else:
                 return content
