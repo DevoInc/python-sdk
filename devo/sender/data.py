@@ -102,16 +102,19 @@ class SenderConfigSSL:
         certificates = [self.key, self.chain, self.cert]
         for file in certificates:
             try:
-                if not (file.is_file() if isinstance(file, Path) else Path(file).is_file()):
-                    raise DevoSenderException(ERROR_MSGS.CONFIG_FILE_NOT_FOUND % file)
+                if not (file.is_file() if isinstance(file, Path) else Path(
+                        file).is_file()):
+                    raise DevoSenderException(
+                        ERROR_MSGS.CONFIG_FILE_NOT_FOUND % file)
             except IOError as message:
                 if message.errno == errno.EACCES:
                     raise DevoSenderException(
-                        ERROR_MSGS.CANT_READ_CONFIG_FILE % (file, str(message)))\
+                        ERROR_MSGS.CANT_READ_CONFIG_FILE % (
+                        file, str(message))) \
                         from message
                 else:
                     raise DevoSenderException(
-                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(message)))\
+                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(message))) \
                         from message
         return True
 
@@ -351,7 +354,8 @@ class Sender(logging.Handler):
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "TCP conn establishment socket error: %s" % str(error)) from error
+                "TCP conn establishment socket error: %s" % str(
+                    error)) from error
 
         self.timestart = int(round(time.time() * 1000))
 
@@ -824,8 +828,10 @@ def open_file(file, mode='r', encoding='utf-8'):
     :param encoding Encoding of content
     """
     if isinstance(file, Path):
-        return file.open(mode=mode, encoding=encoding if not mode.endswith('b') else None)
+        return file.open(mode=mode,
+                         encoding=encoding if not mode.endswith('b') else None)
     elif isinstance(file, str):
-        return open(file, mode=mode, encoding=encoding if not mode.endswith('b') else None)
+        return open(file, mode=mode,
+                    encoding=encoding if not mode.endswith('b') else None)
     else:
         raise DevoSenderException(ERROR_MSGS.WRONG_FILE_TYPE % str(type(file)))
