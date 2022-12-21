@@ -57,17 +57,17 @@ class ErrorManagementCase(unittest.TestCase):
                     self.assertEqual(1669737806151,
                                      context.exception.timestamp)
                     self.assertIsNone(context.exception.code)
-                    self.assertEqual(['Error Launching Query',
+                    self.assertEqual('Error Launching Query: '
                                       'com.devo.malote.syntax.ParseException: Encountered'
                                       ' " "not" "not "" at line 1, column 17.\nWas'
                                       ' expecting one of:\n    <ID> ...\n    <QID> ...\n'
-                                      '    '],
+                                      '    ',
                                      context.exception.cause)
-                    self.assertEqual({'cause': ['Error Launching Query',
-                                                'com.devo.malote.syntax.ParseException:'
-                                                ' Encountered " "not" "not "" at line 1,'
-                                                ' column 17.\nWas expecting one of:\n'
-                                                '    <ID> ...\n    <QID> ...\n    '],
+                    self.assertEqual({'cause': 'Error Launching Query: '
+                                               'com.devo.malote.syntax.ParseException:'
+                                               ' Encountered " "not" "not "" at line 1,'
+                                               ' column 17.\nWas expecting one of:\n'
+                                               '    <ID> ...\n    <QID> ...\n    ',
                                       'msg': 'Error Launching Query',
                                       'cid': 'b46bde339628',
                                       'msg': 'Error Launching Query',

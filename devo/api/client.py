@@ -104,6 +104,9 @@ def _format_error(error, status):
             "msg": error.get("msg", "Error Launching Query"),
             "cause": error.get("object") or error.get("context") or error
         }
+        # 'object' may be a list
+        if isinstance(response["cause"], list):
+            response["cause"] = ": ".join(response["cause"])
         if status:
             response['status'] = status
         elif 'status' in error:
