@@ -24,11 +24,26 @@ PYPY = hasattr(sys, 'pypy_version_info')
 
 class ERROR_MSGS(str, Enum):
     WRONG_FILE_TYPE = "'%s' is not a valid type to be opened as a file"
-    ADDRESS_TUPLE = "Devo-SenderConfigSSL| address must be a tuple (\"hostname\", int(port))'",
-    WRONG_SSL_CONFIG = "Devo-SenderConfigSSL|Can't create SSL config: %s",
-    CONFIG_FILE_NOT_FOUND = "Error in the configuration, %s is not a file or the path does not exist",
-    CANT_READ_CONFIG_FILE = "Error in the configuration %s can't be read\noriginal error: %s",
+    ADDRESS_TUPLE = "Devo-SenderConfigSSL| address must be a tuple (\"hostname\", int(port))'"
+    WRONG_SSL_CONFIG = "Devo-SenderConfigSSL|Can't create SSL config: %s"
+    CONFIG_FILE_NOT_FOUND = "Error in the configuration, %s is not a file or the path does not exist"
+    CANT_READ_CONFIG_FILE = "Error in the configuration %s can't be read\noriginal error: %s"
     CONFIG_FILE_PROBLEM = "Error in the configuration, %s problem related to: %s"
+    KEY_NOT_COMPATIBLE_WITH_CERT = "Error in the configuration, the key: %s is not compatible with the cert: %s\noriginal error: %s"
+    CHAIN_NOT_COMPATIBLE_WITH_CERT = "Error in config, the chain: %s is not compatible with the certificate: %s\noriginal error: %s"
+    TIMEOUT_RELATED_TO_AN_INCORRECT_ADDRESS_PORT = "Possible error in config, a timeout could be related to an incorrect address/port: %s\noriginal error: %s"
+    INCORRECT_ADDRESS_PORT = "Error in config, incorrect address/port: %s\noriginal error: %s"
+    CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE = "Error in config, the certificate in the address: %s is not compatible with: %s"
+    ADDRESS_MUST_BE_A_TUPLE = "Devo-SenderConfigSSL| address must be a tuple '(\"hostname\", int(port))'"
+    CANT_CREATE_TCP_CONFIG = "DevoSenderConfigTCP|Can't create TCP config: %s"
+    PROBLEMS_WITH_SENDER_ARGS = "Problems with args passed to Sender"
+    TCP_CONN_ESTABLISHMENT_SOCKET = "TCP conn establishment socket error: %s"
+    SSL_CONN_ESTABLISHMENT_SOCKET = "SSL conn establishment socket error: %s"
+    PFX_CERTIFICATE_READ_FAILED = "PFX Certificate read failed: %s"
+    SEND_ERROR = "Send error"
+    SOCKET_ERROR = "Socket error: %s"
+    SOCKET_CANT_CONNECT_UNKNOWN_ERROR = "Socket cant connect: unknown error"
+    NO_ADDRESS = "No address"
 
 
 class DevoSenderException(Exception):
@@ -142,9 +157,9 @@ class SenderConfigSSL:
             context.check_privatekey()
         except SSL.Error as message:
             raise DevoSenderException(
-                "Error in the configuration, the key: " + self.key +
-                " is not compatible with the cert: " + self.cert +
-                "\noriginal error: " + str(message)) from message
+                ERROR_MSGS.KEY_NOT_COMPATIBLE_WITH_CERT % (
+                    self.key, self.cert, str(message)
+                )) from message
         return True
 
     def check_config_certificate_chain(self):
@@ -172,9 +187,9 @@ class SenderConfigSSL:
             store_ctx.verify_certificate()
         except crypto.X509StoreContextError as message:
             raise DevoSenderException(
-                "Error in config, the chain: " + self.chain +
-                " is not compatible with the certificate: " + self.cert +
-                "\noriginal error: " + str(message)) from message
+                ERROR_MSGS.CHAIN_NOT_COMPATIBLE_WITH_CERT % (
+                    self.chain, self.cert, str(message)
+                )) from message
         return True
 
     def check_config_certificate_address(self):
@@ -193,14 +208,14 @@ class SenderConfigSSL:
             connection.connect(self.address)
         except socket.timeout as message:
             raise DevoSenderException(
-                "Possible error in config, a timeout could be related " +
-                "to an incorrect address/port: " + str(self.address) +
-                "\noriginal error: " + str(message)) from message
+                ERROR_MSGS.TIMEOUT_RELATED_TO_AN_INCORRECT_ADDRESS_PORT % (
+                    str(self.address), str(message)
+                )) from message
         except ConnectionRefusedError as message:
             raise DevoSenderException(
-                "Error in config, incorrect address/port: "
-                + str(self.address) +
-                "\noriginal error: " + str(message)) from message
+                ERROR_MSGS.INCORRECT_ADDRESS_PORT % (
+                    str(self.address), str(message)
+                )) from message
         sock.setblocking(True)
         connection.do_handshake()
         server_chain = connection.get_peer_cert_chain()
@@ -222,10 +237,9 @@ class SenderConfigSSL:
             return True
 
         raise DevoSenderException(
-            "Error in config, the certificate in the address: "
-            + self.address[0] +
-            " is not compatible with: " +
-            self.chain)
+            ERROR_MSGS.CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE % (
+                self.address[0], self.chain
+            ))
 
     @staticmethod
     def get_common_names(cert_chain, components_type):
@@ -261,17 +275,14 @@ class SenderConfigTCP:
 
     def __init__(self, address=None):
         if not isinstance(address, tuple):
-            raise DevoSenderException(
-                "Devo-SenderConfigSSL| address must be a tuple "
-                "'(\"hostname\", int(port))'")
+            raise DevoSenderException(ERROR_MSGS.ADDRESS_MUST_BE_A_TUPLE)
         try:
             self.address = address
             self.hostname = socket.gethostname()
             self.sec_level = None
         except Exception as error:
             raise DevoSenderException(
-                "DevoSenderConfigTCP|Can't create TCP config: "
-                "%s" % str(error)) from error
+                ERROR_MSGS.CANT_CREATE_TCP_CONFIG % str(error)) from error
 
 
 class SenderBuffer:
@@ -299,7 +310,7 @@ class Sender(logging.Handler):
     def __init__(self, config=None, con_type=None,
                  timeout=30, debug=False, logger=None):
         if config is None:
-            raise DevoSenderException("Problems with args passed to Sender")
+            raise DevoSenderException(ERROR_MSGS.PROBLEMS_WITH_SENDER_ARGS)
 
         self.socket = None
         self.reconnection = 0
@@ -354,8 +365,7 @@ class Sender(logging.Handler):
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "TCP conn establishment socket error: %s" % str(
-                    error)) from error
+                ERROR_MSGS.TCP_CONN_ESTABLISHMENT_SOCKET % str(error)) from error
 
         self.timestart = int(round(time.time() * 1000))
 
@@ -380,8 +390,7 @@ class Sender(logging.Handler):
         except Exception as error:
             self.close()
             raise DevoSenderException(
-                "PFX Certificate read failed: %s" %
-                str(error)) from error
+                ERROR_MSGS.PFX_CERTIFICATE_READ_FAILED % str(error)) from error
         try:
             try:
                 if self._sender_config.key is not None \
@@ -425,8 +434,7 @@ class Sender(logging.Handler):
         except socket.error as error:
             self.close()
             raise DevoSenderException(
-                "SSL conn establishment socket error: %s" %
-                str(error)) from error
+                ERROR_MSGS.SSL_CONN_ESTABLISHMENT_SOCKET % str(error)) from error
 
     def info(self, msg):
         """
@@ -562,10 +570,10 @@ class Sender(logging.Handler):
             part = record[int(iteration * 4096):
                           int((iteration + 1) * 4096)]
             if self.socket.sendall(part) is not None:
-                raise DevoSenderException("Send error")
+                raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
             sent += len(part)
         if sent == 0:
-            raise DevoSenderException("Send error")
+            raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
         return sent
 
     def send_raw(self, record, multiline=False, zip=False):
@@ -586,7 +594,7 @@ class Sender(logging.Handler):
                         msg = self.__encode_record(record)
                         sent = len(msg)
                         if self.socket.sendall(msg) is not None:
-                            raise DevoSenderException("Send error")
+                            raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
                         return 1
                     if multiline:
                         record = self.__encode_multiline(record)
@@ -595,15 +603,15 @@ class Sender(logging.Handler):
                     if sent:
                         return 1
                     return 0
-                except socket.error:
+                except socket.error as error:
                     self.close()
                     raise DevoSenderException(
-                        "Socket error: %s" % str(socket.error)) from error
+                        ERROR_MSGS.SOCKET_ERROR % str(error)) from error
                 finally:
                     if self.debug:
                         self.logger.debug('sent|%d|size|%d|msg|%s' %
                                           (sent, len(record), record))
-            raise Exception("Socket cant connect: unknown error")
+            raise Exception(ERROR_MSGS.SOCKET_CANT_CONNECT_UNKNOWN_ERROR)
         except Exception as error:
             raise DevoSenderException(error) from error
 
@@ -773,7 +781,7 @@ class Sender(logging.Handler):
         address = config.get("address", None)
 
         if not address:
-            raise DevoSenderException("No address")
+            raise DevoSenderException(ERROR_MSGS.NO_ADDRESS)
 
         if not isinstance(address, tuple):
             address = (address, int(config.get("port", 443)))
