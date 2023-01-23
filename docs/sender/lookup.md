@@ -55,7 +55,7 @@ Params
 
 + headers **(_list_ required)**: column names list of the lookup
 + type_of_key **(_string_ optional)**: specify a concrete type for the key (Default string)
-+ key **(_string_ optional)**: name of key **deprecated, not recommended. Use key_index instead**
++ key **(_string_ optional)**: name of key
 + key_index **(_string_ optional)**: index of key. You can use this or key
 + types **(_list_ optional')**: list of type:  with types of columns in order
 
@@ -106,7 +106,7 @@ You can use _send_headers_ method of _LtLookup_ class we can unify _list_to_head
 
 _send_headers_ Params
 + headers **(_list_ default: [] )**: column name list of lookup 
-+ key **(_string_ default 'KEY')**: column name of key **deprecated, not recommended. Use key_index instead**
++ key **(_string_ default 'KEY')**: column name of key
 + key_index **(_string_ default 'KEY')**: column name of key
 + event **(_string_ default: 'START')**: header event
     - START: start of header
@@ -125,7 +125,6 @@ Finally, to send a new row we can use _send_data_line_ method from _LtLooup_ cla
 
 Params
 
-+ key **(_string_ optional default: None)**: key value **deprecated, not recommended, use key_index**
 + key_index **(_string_ optional default: None)**: or key index in list fields
 + fields **(_list_ default: [])**: values list: can be str, int, float and bool
 + delete **(_boolean_ default: False)**: row must be deleted
@@ -133,7 +132,7 @@ Params
 Example:
 
 ````python
-lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
+lookup.send_data_line(key_index=0, fields=["11", "HEX11", "COLOR11" ])
 ````
 
 A complete example to send a lookup row is:
@@ -147,9 +146,7 @@ con = Sender(config=conf.get("sender"))
 lookup = Lookup(name=conf.get('lookup').get('name', "default"), historic_tag=None, con=con)
 pHeaders = Lookup.list_to_headers(headers=['KEY','HEX', 'COLOR'], key='KEY')
 lookup.send_control(event='START', headers=pHeaders, action='INC')
-# You can use key value
-lookup.send_data_line(key="11", fields=["11", "HEX11", "COLOR11" ])
-# Or you can use key_index (Position in list)
+lookup.send_data_line(key_index=0, fields=["11", "HEX11", "COLOR11" ])
 lookup.send_data_line(key_index=0, fields=[22, "HEX22", "COLOR22"])
 lookup.send_control(event='END', headers=pHeaders, action='INC')
 
@@ -169,7 +166,7 @@ con = Sender(config=conf.get("sender"))
 lookup = Lookup(name=conf.get('name', "default"), historic_tag=None, con=con)
 
 lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START', action="INC")
-lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"], delete=True)
+lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"], delete=True)
 lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='END', action="INC")
 
 con.socket.shutdown(0)
@@ -234,7 +231,7 @@ Any double quotes inside the field value can cause trouble when sending the look
 An example of this case can be seen below:
 
 ```python
-lookup.send_data_line(key="11", fields=["11", 'double quotes must escaped"'])
+lookup.send_data_line(key_index=0, fields=["11", 'double quotes must escaped"'])
 ```
 
 That lookup creation will fail because that double quote will be interpreted as a field termination and 
