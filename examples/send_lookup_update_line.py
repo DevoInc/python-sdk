@@ -18,8 +18,8 @@ lookup = Lookup(name=lookup_name, historic_tag=None, con=con)
 p_headers = Lookup.list_to_headers(['KEY', 'HEX', 'COLOR'], 'KEY')
 lookup.send_control('START', p_headers, 'INC')
 
-lookup.send_data_line(key="22", fields=["22", "HEX22_NEW", "COLOR22_NEW"])
-lookup.send_data_line(key="44", fields=["44", "HEX44", "COLOR44"])
+lookup.send_data_line(key_index=0, fields=["22", "HEX22_NEW", "COLOR22_NEW"])
+lookup.send_data_line(key_index=0, fields=["44", "HEX44", "COLOR44"])
 
 lookup.send_control('END', p_headers, 'INC')
 

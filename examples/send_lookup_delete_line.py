@@ -17,6 +17,6 @@ lookup = Lookup(name=lookup_name, historic_tag=None, con=con)
 
 p_headers = Lookup.list_to_headers(['KEY', 'HEX', 'COLOR'], 'KEY')
 lookup.send_control('START', p_headers, 'INC')
-lookup.send_data_line(key="11", fields=["11", "HEX12", "COLOR12"], delete=True)
+lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"], delete=True)
 lookup.send_control('END', p_headers, 'INC')
 con.close()
