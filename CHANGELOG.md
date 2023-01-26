@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
  * Ingestion endpoint has an inactivity timeout that when reached closes the connection. `devo-sdk` is aware of such a timeout and restart connection before is reached. New parameter `inactivity_timeout` in class `Sender` to set up it. Its default value is 30 seconds.
  * Syntax error when calling `Path.is_file()`
+ * Documentation related to parameter `key` removal at `devo.sender.lookup.Lookup.send_data_line` in version 5.0.0 
 
 
 ## [5.0.2] - 2023-01-04
