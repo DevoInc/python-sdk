@@ -14,6 +14,7 @@ Variable descriptions
 + config **(_SenderConfigSSL_, _SenderConfigTCP_ or _dict_)**: address, port, keypath, chainpath, etc
 + con_type **(_string_)**: TCP or SSL, default SSL, you can pass it in config object too
 + timeout **(_int_)**: timeout for socket
++ inactivity_timeout **(_int_)**: inactivity timeout for Ingestion balancer, so connection is restarted before reaching
 + debug **(_bool_)**: True or False, for show more info in console/logger output
 + logger **(_string_)**: logger. Default sys.console
 
