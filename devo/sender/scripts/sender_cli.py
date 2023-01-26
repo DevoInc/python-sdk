@@ -93,7 +93,7 @@ def data(**kwargs):
             con.compression_level(cl=config.get("compression_level"))
 
         if config.get('file', False):
-            if not Path(config['file']).isfile():
+            if not Path(config['file']).is_file():
                 print_error(str("File '' does not found"
                                 % Path(config['file']).absolute()))
                 return
