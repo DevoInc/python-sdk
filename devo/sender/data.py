@@ -125,7 +125,7 @@ class SenderConfigSSL:
                 if message.errno == errno.EACCES:
                     raise DevoSenderException(
                         ERROR_MSGS.CANT_READ_CONFIG_FILE % (
-                        file, str(message))) \
+                            file, str(message))) \
                         from message
                 else:
                     raise DevoSenderException(
@@ -307,7 +307,7 @@ class Sender(logging.Handler):
     :param logger: logger. Default sys.console
     """
 
-    def __init__(self, config=None, con_type=None,
+    def __init__(self, config=None, con_type=None, inactivity_timeout=30,
                  timeout=30, debug=False, logger=None):
         if config is None:
             raise DevoSenderException(ERROR_MSGS.PROBLEMS_WITH_SENDER_ARGS)
@@ -316,7 +316,9 @@ class Sender(logging.Handler):
         self.reconnection = 0
         self.debug = debug
         self.socket_timeout = timeout
+        self.inactivity_timeout = inactivity_timeout
         self.socket_max_connection = 3600 * 1000
+        self.last_message = int(time.time())
         self.buffer = SenderBuffer()
         self.logging = {}
 
@@ -362,6 +364,7 @@ class Sender(logging.Handler):
         self.socket.settimeout(self.socket_timeout)
         try:
             self.socket.connect(self._sender_config.address)
+            self.last_message = int(time.time())
         except socket.error as error:
             self.close()
             raise DevoSenderException(
@@ -392,38 +395,36 @@ class Sender(logging.Handler):
             raise DevoSenderException(
                 ERROR_MSGS.PFX_CERTIFICATE_READ_FAILED % str(error)) from error
         try:
-            try:
-                if self._sender_config.key is not None \
-                        and self._sender_config.chain is not None \
-                        and self._sender_config.cert is not None:
+            if self._sender_config.key is not None \
+                    and self._sender_config.chain is not None \
+                    and self._sender_config.cert is not None:
 
-                    context = ssl.create_default_context(
-                        cafile=self._sender_config.chain)
+                context = ssl.create_default_context(
+                    cafile=self._sender_config.chain)
 
-                    if self._sender_config.sec_level is not None:
-                        context.set_ciphers(
-                            "DEFAULT@SECLEVEL={!s}"
-                            .format(self._sender_config.sec_level))
+                if self._sender_config.sec_level is not None:
+                    context.set_ciphers(
+                        "DEFAULT@SECLEVEL={!s}"
+                        .format(self._sender_config.sec_level))
 
-                    context.check_hostname = self._sender_config.check_hostname
+                context.check_hostname = self._sender_config.check_hostname
 
-                    if self._sender_config.verify_mode is not None:
-                        context.verify_mode = self._sender_config.verify_mode
+                if self._sender_config.verify_mode is not None:
+                    context.verify_mode = self._sender_config.verify_mode
 
-                    context.load_cert_chain(keyfile=self._sender_config.key,
-                                            certfile=self._sender_config.cert)
-                    self.socket = \
-                        context.wrap_socket(
-                            self.socket,
-                            server_hostname=self._sender_config.address[0]
-                        )
-                else:
-                    self.socket = ssl.wrap_socket(self.socket,
-                                                  cert_reqs=ssl.CERT_NONE)
-            except ssl.SSLError:
-                raise ssl.SSLError
+                context.load_cert_chain(keyfile=self._sender_config.key,
+                                        certfile=self._sender_config.cert)
+                self.socket = \
+                    context.wrap_socket(
+                        self.socket,
+                        server_hostname=self._sender_config.address[0]
+                    )
+            else:
+                self.socket = ssl.wrap_socket(self.socket,
+                                              cert_reqs=ssl.CERT_NONE)
 
             self.socket.connect(self._sender_config.address)
+            self.last_message = int(time.time())
             self.reconnection += 1
             if self.debug:
                 self.logger.debug('Conected to %s|%s'
@@ -527,6 +528,13 @@ class Sender(logging.Handler):
         if self.socket_max_connection < timeit:
             self.close()
             return False
+
+        # If there is no activity (connection or message sent) for an amount of time bigger then the inactivity
+        # timeout, the balancer may have already close the connection. Close it and reconnect.
+        if int(time.time()) - self.last_message > self.inactivity_timeout:
+            self.close()
+            return False
+
         return True
 
     def close(self):
@@ -569,6 +577,7 @@ class Sender(logging.Handler):
         for iteration in range(0, total):
             part = record[int(iteration * 4096):
                           int((iteration + 1) * 4096)]
+            self.last_message = int(time.time())
             if self.socket.sendall(part) is not None:
                 raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
             sent += len(part)
@@ -593,6 +602,7 @@ class Sender(logging.Handler):
                     if not multiline and not zip:
                         msg = self.__encode_record(record)
                         sent = len(msg)
+                        self.last_message = int(time.time())
                         if self.socket.sendall(msg) is not None:
                             raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
                         return 1
