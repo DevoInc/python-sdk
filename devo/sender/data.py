@@ -303,6 +303,7 @@ class Sender(logging.Handler):
     :param con_type: TCP or SSL, default SSL, you can pass it in
     config object too
     :param timeout: timeout for socket
+    :param inactivity_timeout: inactivity timeout for Ingestion balancer, so connection is restarted before reaching
     :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
     """
