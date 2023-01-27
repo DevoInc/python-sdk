@@ -286,10 +286,12 @@ class Sender(logging.Handler):
     :param con_type: TCP or SSL, default SSL, you can pass it in
     config object too
     :param timeout: timeout for socket
+    :param inactivity_timeout: inactivity timeout for Ingestion balancer, so connection is restarted before reaching
     :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
     """
-    def __init__(self, config=None, con_type=None,
+
+    def __init__(self, config=None, con_type=None, inactivity_timeout=30,
                  timeout=30, debug=False, logger=None):
         if config is None:
             raise DevoSenderException("Problems with args passed to Sender")
@@ -298,7 +300,9 @@ class Sender(logging.Handler):
         self.reconnection = 0
         self.debug = debug
         self.socket_timeout = timeout
+        self.inactivity_timeout = inactivity_timeout
         self.socket_max_connection = 3600 * 1000
+        self.last_message = int(time.time())
         self.buffer = SenderBuffer()
         self.logging = {}
 
@@ -344,6 +348,7 @@ class Sender(logging.Handler):
         self.socket.settimeout(self.socket_timeout)
         try:
             self.socket.connect(self._sender_config.address)
+            self.last_message = int(time.time())
         except socket.error as error:
             self.close()
             raise DevoSenderException(
@@ -407,6 +412,7 @@ class Sender(logging.Handler):
                 raise ssl.SSLError
 
             self.socket.connect(self._sender_config.address)
+            self.last_message = int(time.time())
             self.reconnection += 1
             if self.debug:
                 self.logger.debug('Conected to %s|%s'
@@ -511,6 +517,13 @@ class Sender(logging.Handler):
         if self.socket_max_connection < timeit:
             self.close()
             return False
+
+        # If there is no activity (connection or message sent) for an amount of time bigger then the inactivity
+        # timeout, the balancer may have already close the connection. Close it and reconnect.
+        if int(time.time()) - self.last_message > self.inactivity_timeout:
+            self.close()
+            return False
+
         return True
 
     def close(self):
@@ -553,6 +566,7 @@ class Sender(logging.Handler):
         for iteration in range(0, total):
             part = record[int(iteration * 4096):
                           int((iteration + 1) * 4096)]
+            self.last_message = int(time.time())
             if self.socket.sendall(part) is not None:
                 raise DevoSenderException("Send error")
             sent += len(part)
@@ -577,6 +591,7 @@ class Sender(logging.Handler):
                     if not multiline and not zip:
                         msg = self.__encode_record(record)
                         sent = len(msg)
+                        self.last_message = int(time.time())
                         if self.socket.sendall(msg) is not None:
                             raise DevoSenderException("Send error")
                         return 1
