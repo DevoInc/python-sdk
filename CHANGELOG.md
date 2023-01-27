@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Added
+ * NonBlocking Socket support added
+### Fixed
+ * Download EOF channel TCP FIN detected and connection restarted
+ * Fix message file management in CLI
+
 ## [5.1.2] - Unreleased
 ### Added
  * `responses` dependency open from ==0.22.0 to >=0.22.0
