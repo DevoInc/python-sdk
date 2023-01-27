@@ -3,6 +3,7 @@
 and sending of data to Devo """
 import errno
 import logging
+import select
 import socket
 import ssl
 import sys
@@ -372,6 +373,7 @@ class Sender(logging.Handler):
                 ERROR_MSGS.TCP_CONN_ESTABLISHMENT_SOCKET % str(error)) from error
 
         self.timestart = int(round(time.time() * 1000))
+        self.socket.setblocking(False)
 
     def __connect_ssl(self):
         """
@@ -432,6 +434,7 @@ class Sender(logging.Handler):
                                   % (repr(self.socket.getpeername()),
                                      str(self.reconnection)))
             self.timestart = int(round(time.time() * 1000))
+            self.socket.setblocking(False)
 
         except socket.error as error:
             self.close()
@@ -536,6 +539,34 @@ class Sender(logging.Handler):
             self.close()
             return False
 
+        # If the channel was closed by the other endpoint, ingestion balancer,
+        # the reading of the download channel will return EOF. This is
+        # checked by reading a ready buffer but getting no data, empty bytes
+        try:
+            # Is the channel ready for reading?
+            select_result = select.select([self.socket], [], [], 0)
+            if select_result[0]:
+                # Read it
+                buf = self.socket.recv(1)
+                # If no data, EOF and channel is closed
+                if buf == b'':
+                    # Restart connection
+                    self.close()
+                    return False
+        except BlockingIOError as exc:
+            if exc.errno == errno.ECONNRESET:
+                # A TCP RST implies error in channel
+                raise IOError("Connection reset by endpoint") from exc
+            elif exc.errno not in [errno.EAGAIN, errno.EWOULDBLOCK]:
+                # Any other error but EAGAIN and EWOULDBLOCK here
+                raise IOError("Error while accessing socket") from exc
+            else:
+                # errno.EAGAIN means nothing to get, but socket working
+                pass
+        except ssl.SSLWantReadError:
+            # If the SSL socket not ready yet, select may throw an exception
+            pass
+
         return True
 
     def close(self):
@@ -578,9 +609,16 @@ class Sender(logging.Handler):
         for iteration in range(0, total):
             part = record[int(iteration * 4096):
                           int((iteration + 1) * 4096)]
+            select_result = select.select([], [self.socket], [],
+                                          self.socket_timeout)
+            if select_result[1]:
+                if self.socket.sendall(part) is not None:
+                    raise DevoSenderException(str(ERROR_MSGS.SEND_ERROR))
+                sent += len(part)
+            else:
+                raise DevoSenderException(
+                    ERROR_MSGS.ERROR_AFTER_TIMEOUT)
             self.last_message = int(time.time())
-            if self.socket.sendall(part) is not None:
-                raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
             sent += len(part)
         if sent == 0:
             raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
@@ -603,9 +641,17 @@ class Sender(logging.Handler):
                     if not multiline and not zip:
                         msg = self.__encode_record(record)
                         sent = len(msg)
+                        select_result = select.select([], [self.socket], [],
+                                                      self.socket_timeout)
+                        if select_result[1]:
+                            if self.socket.sendall(msg) is not None:
+                                raise DevoSenderException(
+                                    str(ERROR_MSGS.SEND_ERROR))
+                            return 1
+                        else:
+                            raise DevoSenderException(
+                                str(ERROR_MSGS.ERROR_AFTER_TIMEOUT))
                         self.last_message = int(time.time())
-                        if self.socket.sendall(msg) is not None:
-                            raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
                         return 1
                     if multiline:
                         record = self.__encode_multiline(record)
