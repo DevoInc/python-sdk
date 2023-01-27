@@ -27,7 +27,7 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = ['requests==2.27.1', 'click==8.1.3', 'PyYAML==6.0',
-                    'pem==21.2.0', 'pyopenssl==22.0.0', 'urllib3>=1.26.5']
+                    'pem==21.2.0', 'pyopenssl==22.1.*', 'urllib3>=1.26.5']
 CLI = ['devo-sender=devo.sender.scripts.sender_cli:cli',
        'devo-api=devo.api.scripts.client_cli:cli']
 
