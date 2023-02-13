@@ -432,12 +432,12 @@ Client support several modes for supporting this mechanism. The mode is set up i
 | json/simple/compact | `DEFAULT_KEEPALIVE_TOKEN` | `b'    '`            | `b'    '`                 | `b'    '`                     | `b'    '`                    |
 | msgpack             | `NO_KEEPALIVE_TOKEN`      | *Not supported*      | *Not supported*           | *Not supported*               | *Not supported*              |
 | csv                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | `,+\n` <sup>1</sup>           | `str` *token*                |
-| tsv                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | `\t+\n` <sup>1</sup>          | `str`*token*                      |
-| xls                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | *Not supported* <sup>2</sup>  | *Not supported* <sup>2</sup> |
+| tsv                 | `DEFAULT_KEEPALIVE_TOKEN` | Mechanism not used   | `\n`                      | `\t+\n` <sup>1</sup>          | `str`*token*                 |
+| xls                 | `NO_KEEPALIVE_TOKEN`      | *Not supported*      | *Not supported*           | *Not supported* <sup>2</sup>  | *Not supported* <sup>2</sup> |
 
 <sup>1</sup> the `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has minus 1, followed by `\n` (new line char)
 
-<sup>2</sup> `xls` does support `EMPTY_EVENT_KEEPALIVE_TOKEN` by inserting empty lines in Excel file. As the Client can not *clean* these lines, the mode was not supported.
+<sup>2</sup> `xls` does support `EMPTY_EVENT_KEEPALIVE_TOKEN` by inserting empty lines in Excel file. As the Client can not *clean* these lines, the mode was not supported in this implementation.
 
 ## CLI USAGE
 
