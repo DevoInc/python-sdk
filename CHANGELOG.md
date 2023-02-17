@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.6.7] - 2023-02-17
+### Chorus 
+ * Bump version to avoid collision with tag belonging to former release candidate version `v3.6.6`
+
+
 ## [3.6.6] - 2023-01-27
 ### Fixed
  * `setup.py` dependencies updated
