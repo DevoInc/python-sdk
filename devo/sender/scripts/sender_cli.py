@@ -77,6 +77,9 @@ def cli(version):
 @click.option('--compression_level', help='Compression level for zipped data. '
                                           'Read readme for more info',
               type=int)
+@click.option('--no-verify-certificates', help='Do not Verify certificates '
+                                               'credentials before connection',
+              type=bool, is_flag=True)
 @click.option('--env', '-e', help='Use env vars for configuration',
               default=False, type=bool)
 @click.option('--default', '-d', help='Use default file for configuration',
@@ -176,6 +179,9 @@ def data(**kwargs):
 @click.option('--escapequotes', '-eq', is_flag=True,
               help='Escape Quotes. Default: False',
               default=False)
+@click.option('--no-verify-certificates', help='Do not Verify certificates '
+                                               'credentials before connection',
+              type=bool, is_flag=True)
 @click.option('--debug/--no-debug', help='For testing purposes', default=False)
 def lookup(**kwargs):
     """Send csv lookups to devo"""
@@ -225,6 +231,8 @@ def init_conf(args):
     try:
         if args.get('config'):
             config.load_config(args.get('config'), 'sender')
+
+        config['verify_config'] = not args.get('no_verify_certificates', False)
 
         if args.get('env'):
             config.set("address",

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Update version range support for `requests`
 ### Fixed
  * Documentation fixes in `README.md` and `docs/common.md`
+### Added
+ * Added `verify-certificates` parameter support in event and lookups clients
 
 ## [5.0.5] - 2023-02-20
 ### Fix

@@ -57,9 +57,10 @@ class TestSender(unittest.TestCase):
     def test_cli_bad_address(self):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",
+                                      "--type", "TCP",
                                       "--address", self.address + "asd"])
         self.assertIsInstance(result.exception, DevoSenderException)
-        self.assertIn("SSL conn establishment socket error", result.stdout)
+        self.assertIn("TCP conn establishment socket error", result.stdout)
 
     def test_cli_bad_certs(self):
         runner = CliRunner()
@@ -72,6 +73,22 @@ class TestSender(unittest.TestCase):
                                       "--chain", self.chain,
                                       "--verify_mode", 1,
                                       '--check_hostname', True])
+        self.assertIsInstance(result.exception, DevoSenderException)
+        self.assertIn("Error in the configuration",
+                      result.exception.args[0])
+
+    def test_cli_bad_certs_no_verify_on(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address",
+                                      "collector-us.devo.io",
+                                      "--port", "443",
+                                      "--key", self.local_key,
+                                      "--cert", self.cert,
+                                      "--chain", self.chain,
+                                      "--verify_mode", 1,
+                                      '--check_hostname', True,
+                                      "--no-verify-certificates"])
         self.assertIsInstance(result.exception, DevoSenderException)
         self.assertIn("SSL conn establishment socket error",
                       result.exception.args[0])
