@@ -1,0 +1,17 @@
+# Dependabot configuration
+version: 2
+updates:
+  - package-ecosystem: "pipenv"
+    directory: "/"
+    target-branch: "master"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Madrid"
+    assignees:
+      - "JuanFranDevo"
+    reviewers:
+      - "angel-devo"
+      - "dvillacanas"
+    labels:
+      - "Dependanbot"
