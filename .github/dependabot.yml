@@ -15,3 +15,5 @@ updates:
       - "dvillacanas"
     labels:
       - "Dependanbot"
+    # Set to 0 to avoid version updates (only security updates)
+    open-pull-requests-limit: 5
