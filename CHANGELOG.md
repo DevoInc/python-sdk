@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased - 2023-02-20
+## [5.0.5] - 2023-02-20
 ### Fix
  * Fix vulnerability found in dependency `cryptography@38.0.4` inherited from `pyopenssl@22.1.0`
+### Added
+ * Github workflow `Package test` can be triggered manually now
+ * Dependabot configuration added for security and versions updates
 
 ## [5.0.4] - 2023-02-13
 ### Chorus

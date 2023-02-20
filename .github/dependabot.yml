@@ -1,0 +1,19 @@
+# Dependabot configuration
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    target-branch: "master"
+    schedule:
+      interval: "daily"
+      time: "09:00"
+      timezone: "Europe/Madrid"
+    assignees:
+      - "JuanFranDevo"
+    reviewers:
+      - "angel-devo"
+      - "dvillacanas"
+    labels:
+      - "Dependanbot"
+    # Set to 0 to avoid version updates (only security updates)
+    open-pull-requests-limit: 5
