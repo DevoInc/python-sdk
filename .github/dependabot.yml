@@ -1,7 +1,7 @@
 # Dependabot configuration
 version: 2
 updates:
-  - package-ecosystem: "pipenv"
+  - package-ecosystem: "pip"
     directory: "/"
     target-branch: "master"
     schedule:
