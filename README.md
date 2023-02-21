@@ -125,6 +125,12 @@ You can also run the test for just one module. This is a useful feature if you a
 ~/projects/devo-python-sdk > python run_tests.py -m SEND_CLI
 ```
 
+You can also exclude one or several tests with `-M` parameter:
+
+```console
+~/projects/devo-python-sdk > python run_tests.py -M SEND_CLI,API_CLI
+```
+
 Using the --help flag prints the available modules to use:
 
 ```console
@@ -135,17 +141,27 @@ optional arguments:
   -h, --help            show this help message and exit
   --coverage [COVERAGE]
                         Generate coverage
-  -m [MODULE], --module [MODULE]
-                        Run tests for selected module: API_CLI, API_QUERY, API_TASKS, COMMON_CONFIGURATION,
-                        COMMON_DATE_PARSER, SENDER_CLI, SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
+  -m [MODULES], --modules [MODULES]
+                        Run tests for selected modules: API_CLI, API_QUERY, API_TASKS, API_ERRORS, API_PARSER_DATE,
+                        API_PROCESSORS, API_KEEPALIVE, COMMON_CONFIGURATION, COMMON_DATE_PARSER, SENDER_CLI, SENDER_CSV,
+                        SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
+  -M [EXCLUDE_MODULES], --exclude-modules [EXCLUDE_MODULES]
+                        Exclude tests for modules: API_CLI, API_QUERY, API_TASKS, API_ERRORS, API_PARSER_DATE,
+                        API_PROCESSORS, API_KEEPALIVE, COMMON_CONFIGURATION, COMMON_DATE_PARSER, SENDER_CLI, SENDER_CSV,
+                        SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
 ```
 
 * API_CLI: API Command-line interface tests.
 * API_QUERY: Query API tests.
 * API_TASKS: Task API tests.
+* API_ERRORS: Managing of API Errors tests.
+* API_PARSER_DATE: Parsing of dates in API tests.
+* API_PROCESSORS: Response processors in API tests.
+* API_KEEPALIVE: Keep Alive functionality in API tests.
 * COMMON_CONFIGURATION: Configuration tests.
 * COMMON_DATE_PARSER: Date parser tests.
 * SENDER_CLI: Lookup command-line interface tests.
+* SENDER_CSV: Lookup uploading through CSV tests.
 * SENDER_NUMBER_LOOKUP: Numbers in lookup tests
 * SENDER_SEND_DATA: Data sending tests.
 * SENDER_SEND_LOOKUP: Lookup sending tests.

@@ -4,11 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.0.6] - Unreleased
+## [5.0.6] - 2023-02-21
 ### Chorus
  * Update version range support for `requests`
 ### Fixed
  * Documentation fixes in `README.md` and `docs/common.md`
+ * Documentation related to testing updated at `README.md`
+### Added
+ * Added `verify-certificates` parameter support in event sending and lookups management clients
 
 ## [5.0.5] - 2023-02-20
 ### Fix
@@ -20,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [5.0.4] - 2023-02-13
 ### Chorus
  * Fix documentation (implementation remains the same) for keep-alive mechanism in queries for `xls` format
- * Bump version to avoid collision with tag belonging to fomer release candidate version
+ * Bump version to avoid collision with tag belonging to former release candidate version
 
 ## [5.0.3] - 2023-01-26
 ### Fixed
