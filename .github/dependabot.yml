@@ -14,6 +14,6 @@ updates:
       - "angel-devo"
       - "dvillacanas"
     labels:
-      - "Dependanbot"
+      - "Dependabot"
     # Set to 0 to avoid version updates (only security updates)
     open-pull-requests-limit: 5
