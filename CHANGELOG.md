@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [5.0.6] - Unreleased
 ### Chorus
  * Update version range support for `requests`
+### Fixed
  * Documentation fixes in `README.md` and `docs/common.md`
 
 ## [5.0.5] - 2023-02-20
