@@ -195,7 +195,7 @@ class SenderConfigSSL:
     def check_config_certificate_address(self):
         """
         Check if the certificate is compatible with the
-        address, also check is the address and port are
+        address, also check if the address and port are
         valid.
 
         :return: Boolean true or raises an exception

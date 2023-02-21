@@ -13,10 +13,14 @@ except ImportError:
 
 class TestSender(unittest.TestCase):
     def setUp(self):
-        self.address = os.getenv('DEVO_SENDER_SERVER', "127.0.0.1")
-        self.port = int(os.getenv('DEVO_SENDER_PORT', 4488))
+        self.local_address = os.getenv('DEVO_SENDER_SERVER', "127.0.0.1")
+        self.local_port = int(os.getenv('DEVO_SENDER_PORT', 4488))
         self.tcp_address = os.getenv('DEVO_SENDER_TCP_SERVER', "127.0.0.1")
         self.tcp_port = int(os.getenv('DEVO_SENDER_TCP_PORT', 4489))
+
+        self.remote_address = os.getenv('DEVO_REMOTE_SENDER_SERVER',
+                                 "collector-us.devo.io")
+        self.remote_port = int(os.getenv('DEVO_REMOTE_SENDER_PORT', 443))
 
         self.key = os.getenv('DEVO_SENDER_KEY', CLIENT_KEY)
         self.cert = os.getenv('DEVO_SENDER_CERT', CLIENT_CERT)
@@ -42,7 +46,7 @@ class TestSender(unittest.TestCase):
         configuration = Configuration()
         configuration.set("sender", {
             "key": self.key, "cert": self.cert, "chain": self.chain,
-            "address": self.address, "port": self.port,
+            "address": self.local_address, "port": self.local_port,
             "verify_mode": 0, "check_hostname": False
         })
 
@@ -58,7 +62,7 @@ class TestSender(unittest.TestCase):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",
                                       "--type", "TCP",
-                                      "--address", self.address + "asd"])
+                                      "--address", self.local_address + "asd"])
         self.assertIsInstance(result.exception, DevoSenderException)
         self.assertIn("TCP conn establishment socket error", result.stdout)
 
@@ -109,11 +113,28 @@ class TestSender(unittest.TestCase):
                       "'not_a_folder/not_a_file' does not exist.",
                       result.output)
 
-    def test_cli_normal_send(self):
+    def test_cli_normal_send_without_certificates_checking(self):
         runner = CliRunner()
         result = runner.invoke(data, ["--debug",
-                                      "--address", self.address,
-                                      "--port", self.port,
+                                      "--address", self.local_address,
+                                      "--port", self.local_port,
+                                      "--key", self.key,
+                                      "--cert", self.cert,
+                                      "--chain", self.chain,
+                                      "--tag", self.my_app,
+                                      "--verify_mode", 0,
+                                      '--check_hostname', False,
+                                      "--line", "Test line",
+                                      "--no-verify-certificates"])
+
+        self.assertIsNone(result.exception)
+        self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
+
+    def test_cli_normal_send_with_certificates_checking(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address", self.remote_address,
+                                      "--port", self.remote_port,
                                       "--key", self.key,
                                       "--cert", self.cert,
                                       "--chain", self.chain,
@@ -129,7 +150,8 @@ class TestSender(unittest.TestCase):
         if self.config_path:
             runner = CliRunner()
             result = runner.invoke(data, ["--debug",
-                                          "--config", self.config_path])
+                                          "--config", self.config_path,
+                                          "--no-verify-certificates"])
 
             self.assertIsNone(result.exception)
             self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
@@ -137,8 +159,8 @@ class TestSender(unittest.TestCase):
     def test_cli_escape_quotes(self):
         runner = CliRunner()
         result = runner.invoke(lookup, ["--debug",
-                                        "--address", self.address,
-                                        "--port", self.port,
+                                        "--address", self.local_address,
+                                        "--port", self.local_port,
                                         "--key", self.key,
                                         "--cert", self.cert,
                                         "--chain", self.chain,
@@ -148,7 +170,8 @@ class TestSender(unittest.TestCase):
                                         "-ac", "FULL",
                                         "-f", self.lookup_file,
                                         "-lk", "KEY",
-                                        "-eq"
+                                        "-eq",
+                                        "--no-verify-certificates"
                                         ])
 
         self.assertIsNone(result.exception)
@@ -157,8 +180,8 @@ class TestSender(unittest.TestCase):
     def test_cli_not_escape_quotes(self):
         runner = CliRunner()
         result = runner.invoke(lookup, ["--debug",
-                                        "--address", self.address,
-                                        "--port", self.port,
+                                        "--address", self.local_address,
+                                        "--port", self.local_port,
                                         "--key", self.key,
                                         "--cert", self.cert,
                                         "--chain", self.chain,
@@ -167,12 +190,12 @@ class TestSender(unittest.TestCase):
                                         "-n", self.lookup_name,
                                         "-ac", "FULL",
                                         "-f", self.lookup_file,
-                                        "-lk", "KEY"
+                                        "-lk", "KEY",
+                                        "--no-verify-certificates"
                                         ])
 
         self.assertIsNotNone(result.exception)
         self.assertEquals(result.exit_code, 64)
-
 
 if __name__ == '__main__':
     unittest.main()
