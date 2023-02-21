@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.0.6] - Unreleased
+## [5.0.6] - 2023-02-21
 ### Chorus
  * Update version range support for `requests`
 ### Fixed
@@ -12,12 +12,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  * Documentation related to testing updated at `README.md`
 ### Added
  * Added `verify-certificates` parameter support in event sending and lookups management clients
-
-## [5.0.6] - Unreleased
-### Chore
- * Update version range support for `requests`
-### Fixed
- * Documentation fixes in `README.md` and `docs/common.md`
 
 ## [5.0.5] - 2023-02-20
 ### Fix
