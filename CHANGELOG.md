@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [5.0.4] - 2023-02-13
 ### Chorus
  * Fix documentation (implementation remains the same) for keep-alive mechanism in queries for `xls` format
- * Bump version to avoid collision with tag belonging to fomer release candidate version
+ * Bump version to avoid collision with tag belonging to former release candidate version
 
 ## [5.0.3] - 2023-01-26
 ### Fixed
