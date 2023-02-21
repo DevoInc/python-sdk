@@ -8,11 +8,11 @@ This library add utilities for other packages.
 - Unification in the way of treating configuration files
 - Logging functions
 
-#### Date Formats
+#### Date formats considerations
 - Fixed format: As described on [Official Python Docs](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior). Accepted formats are:
     - '%Y-%m-%d %H:%M:%S'
     - '%Y-%m-%d', the time will be truncated to 00:00:00
-- Timestamp: From epoch in millis
+- Timestamp: From epoch (keep in mind API interface uses epoch in **seconds**)
 - Dynamic expression: Using the LinQ sintax we can use several functions
     - Relative functions:
         - now(): Current date and time
