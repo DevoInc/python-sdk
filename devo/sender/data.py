@@ -422,6 +422,7 @@ class Sender(logging.Handler):
                     )
             else:
                 self.socket = ssl.wrap_socket(self.socket,
+                                              ssl_version=ssl.PROTOCOL_TLS,
                                               cert_reqs=ssl.CERT_NONE)
 
             self.socket.connect(self._sender_config.address)
