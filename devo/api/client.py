@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 """Main class for pull data from Devo API (Client)."""
-import hmac
-import hashlib
 import logging
 import os
 import re
@@ -9,12 +7,16 @@ import time
 import json
 import requests
 from devo.common import default_from, default_to
+from .exception import DevoClientException
+from .messages import ERROR_MSGS
 from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
 import calendar
 from datetime import datetime, timedelta
 import pytz
 
+from devo.common.auth.common import sign_request_with_key, \
+    get_request_headers, AuthenticationMode
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -31,53 +33,9 @@ COMPACT_TO_ARRAY = "jsoncompact_to_array"
 SIMPLECOMPACT_TO_OBJ = "jsoncompactsimple_to_obj"
 SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 
-ERROR_MSGS = {
-    "no_query": "Error: Not query provided.",
-    "no_auth": "Client don't have key&secret or auth token/jwt",
-    "no_endpoint": "Endpoint 'address' not found",
-    "to_but_no_from": "If you use end dates for the query 'to' it is "
-                      "necessary to use start date 'from'",
-    "binary_format_requires_output": "Binary format like `msgpack` and `xls` requires output parameter",
-    "wrong_processor": "processor must be lambda/function or one of the defaults API processors.",
-    "default_keepalive_only": "Mode '%s' always uses default KeepAlive Token",
-    "keepalive_not_supported": "Mode '%s' does not support KeepAlive Token",
-    "stream_mode_not_supported": "Mode '%s' does not support stream mode",
-    "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries because KeepAlive"
-                                    " tokens are not available for those resonses type",
-    "missing_api_key": "You need a API Key and API secret to make this",
-    "data_query_error": "Error while receiving query data: %s "
-}
-
 DEFAULT_KEEPALIVE_TOKEN = '\n'
 EMPTY_EVENT_KEEPALIVE_TOKEN = ''
 NO_KEEPALIVE_TOKEN = None
-
-
-class DevoClientException(Exception):
-    """ Default Devo Client Exception """
-
-    def __init__(self, message, status=None, code=None, cause=None):
-        if isinstance(message, dict):
-            self.status = message.get('status', status)
-            self.cause = message.get('cause', cause)
-            self.message = message.get('msg',
-                                       message if isinstance(message, str)
-                                       else json.dumps(message))
-            self.cid = message.get('cid', None)
-            self.code = message.get('code', code)
-            self.timestamp = message.get('timestamp',
-                                         time.time_ns() // 1000000)
-        else:
-            self.message = message
-            self.status = status
-            self.cause = cause
-            self.cid = None
-            self.code = code
-            self.timestamp = time.time_ns() // 1000000
-        super().__init__(message)
-
-    def __str__(self):
-        return self.message + ((": " + self.cause) if self.cause else '')
 
 
 def raise_exception(error_data, status=None):
@@ -92,7 +50,7 @@ def raise_exception(error_data, status=None):
         raise DevoClientException(
             _format_error({"object": error_data}, status=status))
     elif isinstance(error_data, BaseException):
-        raise DevoClientException(_format_error(error_data, status=None))\
+        raise DevoClientException(_format_error(error_data, status=None)) \
             from error_data
     else:
         raise DevoClientException(_format_error(error_data, status=None))
@@ -407,7 +365,8 @@ class Client:
             if not dates['to']:
                 dates['to'] = "now()"
             if self.config.stream:
-                logging.warning(ERROR_MSGS["stream_mode_not_supported"] % self.config.response)
+                logging.warning(ERROR_MSGS[
+                                    "stream_mode_not_supported"] % self.config.response)
             # If is a future query and response type is 'xls' or 'msgpack'
             # return warning because is not available.
             if self._future_queries_available(self.config.response):
@@ -418,7 +377,8 @@ class Client:
                 toDate = self._toDate_parser(fromDate, default_to(dates['to']))
 
                 if toDate > default_to("now()"):
-                    raise raise_exception(ERROR_MSGS["future_queries_not_supported"])
+                    raise raise_exception(
+                        ERROR_MSGS["future_queries_not_supported"])
 
             self.config.stream = False
 
@@ -561,7 +521,7 @@ class Client:
                 tries += 1
                 if tries > self.retries:
                     return raise_exception(error)
-                time.sleep(self.retry_delay * (2 ** (tries-1)))
+                time.sleep(self.retry_delay * (2 ** (tries - 1)))
             except DevoClientException as error:
                 if isinstance(error, DevoClientException):
                     raise_exception(error.args[0])
@@ -647,27 +607,20 @@ class Client:
 
         tstamp = str(int(time.time()) * 1000)
         if self.auth.get("key", False) and self.auth.get("secret", False):
-            sign = self._get_sign(data, tstamp)
-            return {
-                'Content-Type': 'application/json',
-                'x-logtrust-apikey': self.auth.get("key"),
-                'x-logtrust-timestamp': tstamp,
-                'x-logtrust-sign': sign
-            }
+            return get_request_headers(AuthenticationMode.KEY, data,
+                                       key=self.auth.get("key"),
+                                       secret=self.auth.get("secret"),
+                                       tstamp=tstamp)
 
         if self.auth.get("token", False):
-            return {
-                'Content-Type': 'application/json',
-                'x-logtrust-timestamp': tstamp,
-                'Authorization': "Bearer %s" % self.auth.get("token")
-            }
+            return get_request_headers(AuthenticationMode.TOKEN, data,
+                                       token=self.auth.get("token"),
+                                       tstamp=tstamp)
 
         if self.auth.get("jwt", False):
-            return {
-                'Content-Type': 'application/json',
-                'x-logtrust-timestamp': tstamp,
-                'Authorization': "jwt %s" % self.auth.get("jwt")
-            }
+            return get_request_headers(AuthenticationMode.JWT, data,
+                                       jwt=self.auth.get("jwt"),
+                                       tstamp=tstamp)
 
         raise DevoClientException((ERROR_MSGS['no_auth']))
 
@@ -681,10 +634,9 @@ class Client:
         if not self.auth.get("key", False) \
                 or not self.auth.get("secret", False):
             raise DevoClientException(ERROR_MSGS["missing_api_key"])
-        sign = hmac.new(self.auth.get("secret").encode("utf-8"),
-                        (self.auth.get("key") + data + tstamp).encode("utf-8"),
-                        hashlib.sha256)
-        return sign.hexdigest()
+        return sign_request_with_key(self.auth.get("key"),
+                                     self.auth.get("secret"),
+                                     data, tstamp)
 
     def _generate_pragmas(self, comment=None):
         """
@@ -770,7 +722,7 @@ class Client:
                 except json.decoder.JSONDecodeError:
                     return response.text
             tries += 1
-            time.sleep(self.retry_delay * (2 ** (tries-1)))
+            time.sleep(self.retry_delay * (2 ** (tries - 1)))
         return {}
 
     @staticmethod
