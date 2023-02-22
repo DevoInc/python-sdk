@@ -1,4 +1,4 @@
-name: Workflow for Python using Snyk
+name: Scan project with Snyk for vulnerabilities
 on:
   pull_request:
     branches:
@@ -8,6 +8,8 @@ on:
       - reopened
       - synchronize
   workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * *"
 jobs:
   security:
     runs-on: ubuntu-latest
