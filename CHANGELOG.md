@@ -35,7 +35,7 @@ in `devo/sender/data.py`
  * Documentation fixes in `README.md` and `docs/common.md`
  * Documentation related to testing updated at `README.md`
 ### Added
- * Added `verify-certificates` parameter support in event sending and lookups management clients
+ * Added `--no-verify-certificates` parameter support in event sending and lookups management clients
 
 ## [5.0.5] - 2023-02-20
 ### Fix
