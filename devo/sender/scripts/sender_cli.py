@@ -228,26 +228,26 @@ def configure(args):
 def init_conf(args):
     """ Generic configuration of CLI, from config file and cli arguments """
     config = Configuration()
-    try:
-        if args.get('config'):
-            config.load_config(args.get('config'), 'sender')
 
-        config['verify_config'] = not args.get('no_verify_certificates', False)
+    if args.get('config'):
+        config.load_config(args.get('config'), 'sender')
 
-        if args.get('env'):
-            config.set("address",
-                       os.environ.get('DEVO_SENDER_ADDRESS',
-                                      os.environ.get('DEVO_SENDER_URL', None)))
-            config.set("port", os.environ.get('DEVO_SENDER_PORT', None))
-            config.set("key", os.environ.get('DEVO_SENDER_KEY', None))
-            config.set("cert", os.environ.get('DEVO_SENDER_CERT', None))
-            config.set("chain", os.environ.get('DEVO_SENDER_CHAIN', None))
+    config['verify_config'] = not args.get('no_verify_certificates', False)
 
-        if args.get('default'):
-            config.load_default_config(section="sender")
-    finally:
-        config.mix(dict(args))
-        return config
+    if args.get('env'):
+        config.set("address",
+                   os.environ.get('DEVO_SENDER_ADDRESS',
+                                  os.environ.get('DEVO_SENDER_URL', None)))
+        config.set("port", os.environ.get('DEVO_SENDER_PORT', None))
+        config.set("key", os.environ.get('DEVO_SENDER_KEY', None))
+        config.set("cert", os.environ.get('DEVO_SENDER_CERT', None))
+        config.set("chain", os.environ.get('DEVO_SENDER_CHAIN', None))
+
+    if args.get('default'):
+        config.load_default_config(section="sender")
+
+    config.mix(dict(args))
+    return config
 
 
 def configure_lookup(args):

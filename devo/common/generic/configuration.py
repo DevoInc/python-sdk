@@ -3,6 +3,8 @@
 import json
 import sys
 import os
+from json import JSONDecodeError
+from parser import ParserError
 
 
 class ConfigurationException(Exception):
@@ -38,7 +40,10 @@ class Configuration(dict):
         :return: Returns a reference to the instance object
         """
         with open(path, 'r') as file_content:
-            cfg = json.load(file_content)
+            try:
+                cfg = json.load(file_content)
+            except JSONDecodeError as exc:
+                raise ConfigurationException("Configuration file seems not to be a valid JSON file") from exc
 
         return self.__load_cfg(cfg, section)
 
@@ -57,7 +62,10 @@ class Configuration(dict):
                                      "package with [click] option")
             sys.exit(1)
         with open(path, 'r') as stream:
-            cfg = yaml.load(stream, Loader=yaml.Loader)
+            try:
+                cfg = yaml.load(stream, Loader=yaml.Loader)
+            except Exception as exc:
+                raise ConfigurationException("Configuration file seems not to be a valid YAML file") from exc
 
         return self.__load_cfg(cfg, section)
 
