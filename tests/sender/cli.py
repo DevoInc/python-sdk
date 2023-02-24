@@ -2,6 +2,7 @@ import unittest
 import socket
 from click.testing import CliRunner
 from devo.common import Configuration
+from devo.common.generic.configuration import ConfigurationException
 from devo.sender.scripts.sender_cli import data, lookup
 from devo.sender import DevoSenderException
 
@@ -52,6 +53,9 @@ class TestSender(unittest.TestCase):
 
         self.config_path = "/tmp/devo_sender_tests_config.json"
         configuration.save(path=self.config_path)
+
+        self.bad_json_config_path ="./common/bad_json_config.json"
+        self.bad_yaml_config_path = "./common/bad_yaml_config.yaml"
 
     def test_cli_args(self):
         runner = CliRunner()
@@ -155,6 +159,28 @@ class TestSender(unittest.TestCase):
 
             self.assertIsNone(result.exception)
             self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
+
+    def test_cli_with_bad_json_config_file(self):
+        if self.config_path:
+            runner = CliRunner()
+            result = runner.invoke(data, ["--debug",
+                                          "--config", self.bad_json_config_path,
+                                          "--no-verify-certificates"])
+
+            self.assertIsNotNone(result.exception)
+            self.assertIsInstance(result.exception, ConfigurationException)
+            self.assertEquals("Configuration file seems not to be a valid JSON file", result.exception.args[0])
+
+    def test_cli_with_bad_yaml_config_file(self):
+        if self.config_path:
+            runner = CliRunner()
+            result = runner.invoke(data, ["--debug",
+                                          "--config", self.bad_yaml_config_path,
+                                          "--no-verify-certificates"])
+
+            self.assertIsNotNone(result.exception)
+            self.assertIsInstance(result.exception, ConfigurationException)
+            self.assertEquals("Configuration file seems not to be a valid YAML file", result.exception.args[0])
 
     def test_cli_escape_quotes(self):
         runner = CliRunner()

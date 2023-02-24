@@ -1,0 +1,6 @@
+dashboard "Variables example":
+  - h1 text: Variables Example
+  -       dropdown my_var=pie:
+    - {"value": pie, "text": "Pie chart"}
+    - {"value": bar, "text": "Bar chart"}
+   p text: "Selected chart type: ${my_var}"
