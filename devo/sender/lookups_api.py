@@ -17,7 +17,7 @@ class Lookups:
                             headers=get_request_headers(
                                 AuthenticationMode.TOKEN,
                                 '',
-                            token="29202b31d0697ff76c514dfe782c73d7"),
+                            token=""),
                             verify=self.verify,
                             timeout=self.timeout)
 
