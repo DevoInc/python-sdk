@@ -7,8 +7,6 @@ import time
 import json
 import requests
 from devo.common import default_from, default_to
-from .exception import DevoClientException
-from .messages import ERROR_MSGS
 from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
 import calendar
@@ -17,6 +15,7 @@ import pytz
 
 from devo.common.auth.common import sign_request_with_key, \
     get_request_headers, AuthenticationMode
+from ..common.generic.exception import DevoException
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -33,10 +32,52 @@ COMPACT_TO_ARRAY = "jsoncompact_to_array"
 SIMPLECOMPACT_TO_OBJ = "jsoncompactsimple_to_obj"
 SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 
+ERROR_MSGS = {
+    "no_query": "Error: Not query provided.",
+    "no_auth": "Client don't have key&secret or auth token/jwt",
+    "no_endpoint": "Endpoint 'address' not found",
+    "to_but_no_from": "If you use end dates for the query 'to' it is "
+                      "necessary to use start date 'from'",
+    "binary_format_requires_output": "Binary format like `msgpack` and `xls` requires output parameter",
+    "wrong_processor": "processor must be lambda/function or one of the defaults API processors.",
+    "default_keepalive_only": "Mode '%s' always uses default KeepAlive Token",
+    "keepalive_not_supported": "Mode '%s' does not support KeepAlive Token",
+    "stream_mode_not_supported": "Mode '%s' does not support stream mode",
+    "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries because KeepAlive"
+                                    " tokens are not available for those resonses type",
+    "missing_api_key": "You need a API Key and API secret to make this",
+    "data_query_error": "Error while receiving query data: %s "
+}
+
 DEFAULT_KEEPALIVE_TOKEN = '\n'
 EMPTY_EVENT_KEEPALIVE_TOKEN = ''
 NO_KEEPALIVE_TOKEN = None
 
+class DevoClientException(DevoException):
+    """ Default Devo Client Exception """
+
+    def __init__(self, message, status=None, code=None, cause=None):
+        if isinstance(message, dict):
+            self.status = message.get('status', status)
+            self.cause = message.get('cause', cause)
+            self.message = message.get('msg',
+                                       message if isinstance(message, str)
+                                       else json.dumps(message))
+            self.cid = message.get('cid', None)
+            self.code = message.get('code', code)
+            self.timestamp = message.get('timestamp',
+                                         time.time_ns() // 1000000)
+        else:
+            self.message = message
+            self.status = status
+            self.cause = cause
+            self.cid = None
+            self.code = code
+            self.timestamp = time.time_ns() // 1000000
+        super().__init__(message)
+
+    def __str__(self):
+        return self.message + ((": " + self.cause) if self.cause else '')
 
 def raise_exception(error_data, status=None):
     if isinstance(error_data, requests.models.Response):

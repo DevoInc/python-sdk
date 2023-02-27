@@ -1,3 +1,4 @@
+import json
 from pprint import pprint
 
 import requests
@@ -16,10 +17,10 @@ class Lookups:
                             headers=get_request_headers(
                                 AuthenticationMode.TOKEN,
                                 '',
-                            token=""),
+                            token="29202b31d0697ff76c514dfe782c73d7"),
                             verify=self.verify,
                             timeout=self.timeout)
 
 lookups = Lookups("https://api-us.devo.com/lookup-api")
 
-pprint(lookups.get_lookups("devo_services").content)
+pprint(json.loads(lookups.get_lookups("devo_services").text))

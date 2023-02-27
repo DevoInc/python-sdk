@@ -18,6 +18,7 @@ from OpenSSL import SSL, crypto
 
 from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
                               FORMAT_MY_BYTES, SEVERITY_INFO, priority_map)
+from ..common.generic.exception import DevoException
 
 PYPY = hasattr(sys, 'pypy_version_info')
 
@@ -46,7 +47,7 @@ class ERROR_MSGS(str, Enum):
     NO_ADDRESS = "No address"
 
 
-class DevoSenderException(Exception):
+class DevoSenderException(DevoException):
     """ Default Devo Sender Exception """
 
     def __init__(self, message):
