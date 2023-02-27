@@ -51,7 +51,8 @@ def get_request_headers(mode: AuthenticationMode, data, key: str = None,
     :return: Return the formed http headers
     """
     tstamp = str(int(time.time()) * 1000) if tstamp is None else tstamp
-    if mode == AuthenticationMode.KEY and key is not None and secret is not None:
+    if mode == AuthenticationMode.KEY and key is not None \
+            and secret is not None:
         sign = sign_request_with_key(key, secret, data, tstamp)
         return {
             'Content-Type': 'application/json',
