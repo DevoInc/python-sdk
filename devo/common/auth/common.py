@@ -3,8 +3,9 @@ import hmac
 import time
 from enum import Enum
 
-from devo.api.exception import DevoClientException
-from devo.api.messages import ERROR_MSGS
+from devo.common.generic.exception import DevoException
+
+CREDENTIALS_ERROR = "Credentials for %s based authentication not found"
 
 
 def sign_request_with_key(key, secret, data, tstamp=None):
@@ -23,16 +24,16 @@ def sign_request_with_key(key, secret, data, tstamp=None):
     return sign.hexdigest()
 
 
-class AuthenticationMode(Enum):
+class AuthenticationMode(str, Enum):
     """Authentication mechanisms supported by Devo APIs"""
 
-    KEY = 1
+    KEY = "Key/Secret"
     """API key and secret based"""
 
-    TOKEN = 2
+    TOKEN = "Token"
     """Token based"""
 
-    JWT = 3
+    JWT = "JWT"
     """JWT based"""
 
 
@@ -75,4 +76,4 @@ def get_request_headers(mode: AuthenticationMode, data, key: str = None,
             'Authorization': "jwt %s" % jwt
         }
 
-    raise DevoClientException((ERROR_MSGS['no_auth']))
+    raise DevoException(CREDENTIALS_ERROR % mode)
