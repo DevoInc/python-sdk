@@ -286,7 +286,7 @@ class Client:
     def _from_dict(config):
         """
         Create Client object from config file values
-        :param config: lt-common config standar
+        :param config: lt-common config standard
         """
         return ClientConfig(processor=config.get("processor", DEFAULT),
                             response=config.get("response",
@@ -564,10 +564,7 @@ class Client:
                     return raise_exception(error)
                 time.sleep(self.retry_delay * (2 ** (tries - 1)))
             except DevoClientException as error:
-                if isinstance(error, DevoClientException):
-                    raise_exception(error.args[0])
-                else:
-                    raise_exception(error)
+                raise_exception(error.args[0])
             except Exception as error:
                 return raise_exception(error)
 
