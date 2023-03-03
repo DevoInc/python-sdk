@@ -23,6 +23,7 @@ permissions:
 
 jobs:
   test:
+    if: ${{ github.actor != 'dependabot[bot]' }}
     strategy:
       max-parallel: 1
       matrix:
