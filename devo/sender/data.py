@@ -49,8 +49,10 @@ class ERROR_MSGS(str, Enum):
 class DevoSenderException(Exception):
     """ Default Devo Sender Exception """
 
-    def __init__(self, message):
-        self.message = message
+    def __init__(self, message: str):
+        if isinstance(message, str) is False:
+            raise TypeError(f'must be str, not {type(message).__name__}')
+        self.message: str = message
         super().__init__(message)
 
     def __str__(self):
@@ -557,7 +559,7 @@ class Sender(logging.Handler):
             record = Sender.__encode_record(record)
             return b'%d %s' % (len(record), record)
         except Exception as error:
-            raise DevoSenderException(error) from error
+            raise DevoSenderException(str(error)) from error
 
     @staticmethod
     def __encode_record(record):
@@ -625,7 +627,7 @@ class Sender(logging.Handler):
                                           (sent, len(record), record))
             raise Exception(ERROR_MSGS.SOCKET_CANT_CONNECT_UNKNOWN_ERROR)
         except Exception as error:
-            raise DevoSenderException(error) from error
+            raise DevoSenderException(str(error)) from error
 
     @staticmethod
     def compose_mem(tag, **kwargs):
