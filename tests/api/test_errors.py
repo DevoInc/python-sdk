@@ -99,14 +99,9 @@ class ErrorManagementCase(unittest.TestCase):
                     self.assertEqual(1669742043045,
                                      context.exception.timestamp)
                     self.assertIsNone(context.exception.code)
-                    self.assertEqual({'timestamp': 1669742043045,
-                                      'cid': 'a41119cc9b2d',
-                                      'error': 'server_error', 'status': 500},
+                    self.assertEqual('"server_error"',
                                      context.exception.cause)
-                    self.assertEqual({'cause': {'cid': 'a41119cc9b2d',
-                                                'error': 'server_error',
-                                                'status': 500,
-                                                'timestamp': 1669742043045},
+                    self.assertEqual({'cause': '"server_error"',
                                       'cid': 'a41119cc9b2d',
                                       'msg': 'Error Launching Query',
                                       'status': 500,

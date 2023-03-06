@@ -7,9 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [5.0.7] - Unreleased
 ### Fixed
  * Fixed message shown when configuration file (JSON or YAML) is not correct
- * Check if DevoSenderException is receiving a string as parameter
+ * Fixed exception handling in `devo/sender/data.py`
 ### Added
  * Snyk integration for checking dependencies and static code security
+ * `pipdeptree` dependency open from 2.5.0 to >=2.5.0
+ * Client side exception management refactoring
 
 ## [5.0.6] - 2023-02-21
 ### Chorus

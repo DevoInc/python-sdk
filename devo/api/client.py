@@ -102,7 +102,7 @@ def _format_error(error, status):
     if isinstance(error, dict):
         response = {
             "msg": error.get("msg", "Error Launching Query"),
-            "cause": error.get("object") or error.get("context") or error
+            "cause": error.get("cause") or error.get("object") or error.get("context") or json.dumps(error.get("error"))
         }
         # 'object' may be a list
         if isinstance(response["cause"], list):
@@ -548,7 +548,7 @@ class Client:
             try:
                 response = self.__request(payload)
                 if response.status_code != 200:
-                    raise DevoClientException(response)
+                    raise_exception(response, status=response.status_code)
 
                 if self.config.stream:
                     if (self.config.response in ["msgpack", "xls"]):
@@ -563,10 +563,7 @@ class Client:
                     return raise_exception(error)
                 time.sleep(self.retry_delay * (2 ** (tries-1)))
             except DevoClientException as error:
-                if isinstance(error, DevoClientException):
-                    raise_exception(error.args[0])
-                else:
-                    raise_exception(error)
+                raise
             except Exception as error:
                 return raise_exception(error)
 

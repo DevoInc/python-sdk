@@ -1,4 +1,4 @@
 stopit==1.1.2
 msgpack==1.0.4
 responses==0.22.0
-pipdeptree>=2.5.*
+pipdeptree>=2.5.0
