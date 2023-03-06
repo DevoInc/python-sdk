@@ -619,13 +619,15 @@ class Sender(logging.Handler):
                     return 0
                 except socket.error as error:
                     self.close()
-                    raise DevoSenderException(
-                        ERROR_MSGS.SOCKET_ERROR % str(error)) from error
+                    raise DevoSenderException(ERROR_MSGS.SOCKET_ERROR % str(error)) from error
                 finally:
                     if self.debug:
-                        self.logger.debug('sent|%d|size|%d|msg|%s' %
-                                          (sent, len(record), record))
-            raise Exception(ERROR_MSGS.SOCKET_CANT_CONNECT_UNKNOWN_ERROR)
+                        self.logger.debug(
+                            'sent|%d|size|%d|msg|%s' % (sent, len(record), record)
+                        )
+            raise DevoSenderException(ERROR_MSGS.SOCKET_CANT_CONNECT_UNKNOWN_ERROR)
+        except DevoSenderException:
+            raise
         except Exception as error:
             raise DevoSenderException(str(error)) from error
 
