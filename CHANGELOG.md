@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [5.0.7] - Unreleased
 ### Fixed
  * Fixed message shown when configuration file (JSON or YAML) is not correct
+ * Check if DevoSenderException is receiving a string as parameter
 ### Added
  * Snyk integration for checking dependencies and static code security
 
