@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import unittest
@@ -55,7 +56,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsInstance(result.exception, DevoClientException)
         self.assertIn(ERROR_MSGS['no_auth'],
-                      result.exception.args[0]['cause'])
+                      result.exception.args[0])
 
     def test_bad_url(self):
         runner = CliRunner()
@@ -68,7 +69,7 @@ class TestApi(unittest.TestCase):
         ])
         self.assertIsInstance(result.exception, DevoClientException)
         errorMsg = 'Failed to establish a new connection'
-        self.assertIn(errorMsg, result.exception.args[0]['msg'])
+        self.assertIn(errorMsg, result.exception.args[0])
 
     def test_bad_credentials(self):
         runner = CliRunner()
@@ -79,7 +80,7 @@ class TestApi(unittest.TestCase):
             "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(result.exception.args[0]['cause']['error']['code'], 12)
+        self.assertEqual(result.exception.code, 12)
 
     def test_normal_query(self):
         runner = CliRunner()

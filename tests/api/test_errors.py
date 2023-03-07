@@ -1,11 +1,11 @@
 import unittest
+from unittest.mock import MagicMock
+
 import responses
 
 from devo.api import Client, DevoClientException
-from unittest.mock import MagicMock
-
 from devo.api.client import SIMPLECOMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ, \
-    DEFAULT, NO_KEEPALIVE_TOKEN
+    DEFAULT, NO_KEEPALIVE_TOKEN, DevoClientRequestException, DevoClientDataResponseException
 
 
 class ErrorManagementCase(unittest.TestCase):
@@ -50,29 +50,17 @@ class ErrorManagementCase(unittest.TestCase):
                                                                stream, 500)
                         if stream:
                             list(response)
-                    self.assertEqual('Error Launching Query',
-                                     context.exception.message)
+                    self.assertIsInstance(context.exception, DevoClientRequestException)
+                    self.assertTrue(context.exception.args[0].startswith('Error Launching Query'))
                     self.assertEqual(500, context.exception.status)
                     self.assertEqual('b46bde339628', context.exception.cid)
                     self.assertEqual(1669737806151,
                                      context.exception.timestamp)
-                    self.assertIsNone(context.exception.code)
                     self.assertEqual('Error Launching Query: '
-                                      'com.devo.malote.syntax.ParseException: Encountered'
-                                      ' " "not" "not "" at line 1, column 17.\nWas'
-                                      ' expecting one of:\n    <ID> ...\n    <QID> ...\n'
-                                      '    ',
-                                     context.exception.cause)
-                    self.assertEqual({'cause': 'Error Launching Query: '
-                                               'com.devo.malote.syntax.ParseException:'
-                                               ' Encountered " "not" "not "" at line 1,'
-                                               ' column 17.\nWas expecting one of:\n'
-                                               '    <ID> ...\n    <QID> ...\n    ',
-                                      'msg': 'Error Launching Query',
-                                      'cid': 'b46bde339628',
-                                      'msg': 'Error Launching Query',
-                                      'status': 500,
-                                      'timestamp': 1669737806151},
+                                     'com.devo.malote.syntax.ParseException: Encountered'
+                                     ' " "not" "not "" at line 1, column 17.\nWas'
+                                     ' expecting one of:\n    <ID> ...\n    <QID> ...\n'
+                                     '    ',
                                      context.exception.args[0])
 
     @responses.activate
@@ -92,25 +80,16 @@ class ErrorManagementCase(unittest.TestCase):
                                                                False, 500)
                         if stream:
                             list(response)
-                    self.assertEqual('Error Launching Query',
+                    self.assertIsInstance(context.exception, DevoClientRequestException)
+                    self.assertEqual('server_error',
                                      context.exception.message)
                     self.assertEqual(500, context.exception.status)
                     self.assertEqual('a41119cc9b2d', context.exception.cid)
                     self.assertEqual(1669742043045,
                                      context.exception.timestamp)
-                    self.assertIsNone(context.exception.code)
-                    self.assertEqual({'timestamp': 1669742043045,
-                                      'cid': 'a41119cc9b2d',
-                                      'error': 'server_error', 'status': 500},
+                    self.assertEqual('server_error',
                                      context.exception.cause)
-                    self.assertEqual({'cause': {'cid': 'a41119cc9b2d',
-                                                'error': 'server_error',
-                                                'status': 500,
-                                                'timestamp': 1669742043045},
-                                      'cid': 'a41119cc9b2d',
-                                      'msg': 'Error Launching Query',
-                                      'status': 500,
-                                      'timestamp': 1669742043045},
+                    self.assertEqual('server_error',
                                      context.exception.args[0])
 
     @responses.activate
@@ -138,6 +117,7 @@ class ErrorManagementCase(unittest.TestCase):
                                                                False, 500)
                         if stream:
                             list(response)
+                    self.assertIsInstance(context.exception, DevoClientRequestException)
                     self.assertEqual(
                         'The table TABLE is not found in the domain DOMAIN',
                         context.exception.message)
@@ -146,19 +126,12 @@ class ErrorManagementCase(unittest.TestCase):
                     self.assertEqual(1610956615646,
                                      context.exception.timestamp)
                     self.assertEqual(624, context.exception.code)
-                    self.assertEqual({
-                        "table": "TABLE",
-                        "domain": "DOMAIN"
-                    },
-                        context.exception.cause)
-                    self.assertEqual(
-                        {'cause': {'domain': 'DOMAIN', 'table': 'TABLE'},
-                         'cid': '243a25d36cc5',
-                         'code': 624,
-                         'msg': 'The table TABLE is not found in the domain DOMAIN',
-                         'status': 500,
-                         'timestamp': 1610956615646},
-                        context.exception.args[0])
+                    self.assertEqual({'msg': 'The table TABLE is not found in the domain DOMAIN', 'code': 624,
+                                      'timestamp': 1610956615646, 'cid': '243a25d36cc5',
+                                      'context': {'table': 'TABLE', 'domain': 'DOMAIN'}},
+                                     context.exception.cause)
+                    self.assertEqual("The table TABLE is not found in the domain DOMAIN",
+                                     context.exception.args[0])
 
     def test_error_stream_json_simple_compact_to_array(self):
         result = iter([b'{"m":{"parameters":{"type":"str","index":0}},'
@@ -172,7 +145,7 @@ class ErrorManagementCase(unittest.TestCase):
         self.assertIsNotNone(response)
         with self.assertRaises(DevoClientException) as context:
             response = list(response)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: Error Processing Query",
             context.exception.message)
@@ -192,7 +165,7 @@ class ErrorManagementCase(unittest.TestCase):
         self.assertIsNotNone(response)
         with self.assertRaises(DevoClientException) as context:
             response = list(response)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: Error Processing Query",
             context.exception.message)
@@ -211,7 +184,7 @@ class ErrorManagementCase(unittest.TestCase):
 
         with self.assertRaises(DevoClientException) as context:
             response = list(response)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: A very bad query error",
             context.exception.message)
@@ -221,7 +194,8 @@ class ErrorManagementCase(unittest.TestCase):
 
     def test_error_handling_json_simple_compact_stream(self):
         result = iter([
-            b'{"m":{"eventdate":{"type":"timestamp","index":0},"level":{"type":"str","index":1},"srcPort":{"type":"int4","index":2}}}',
+            b'{"m":{"eventdate":{"type":"timestamp","index":0},"level":'
+            b'{"type":"str","index":1},"srcPort":{"type":"int4","index":2}}}',
             b'{"d":[1519989516834,"INFO",49756]}',
             b'{"d":[1519989516874,"INFO",51472]}',
             b'{"d":[1519989517774,"INFO",49108]}',
@@ -231,7 +205,7 @@ class ErrorManagementCase(unittest.TestCase):
 
         with self.assertRaises(DevoClientException) as context:
             response = list(response)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: A very bad query error",
             context.exception.message)
@@ -250,7 +224,7 @@ class ErrorManagementCase(unittest.TestCase):
 
         with self.assertRaises(DevoClientException) as context:
             response = list(response)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn("Error while receiving query data: A very bad query"
                       " error", context.exception.message)
         self.assertEqual(500, context.exception.code)
@@ -268,7 +242,7 @@ class ErrorManagementCase(unittest.TestCase):
 
         with self.assertRaises(DevoClientException) as context:
             response = list(response)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: A very bad query error",
             context.exception.message)
@@ -277,12 +251,17 @@ class ErrorManagementCase(unittest.TestCase):
                          context.exception.cause)
 
     def test_error_handling_json_no_stream(self):
-        result = '{"msg": "","status": 0,"timestamp": 1527781735684,"cid": "qWw2iXJoT9","object": [{"eventdate": 1519989592201,"level": "INFO","srcPort": 45850},{"eventdate": 1519989592313,"level": "INFO","srcPort": 51718}, {"eventdate": 1519989592335,"level": "INFO","srcPort": 51772}],"error": [500,"A very bad query error"]}'
+        result = '{"msg": "","status": 0,"timestamp": 1527781735684,' \
+                 '"cid": "qWw2iXJoT9","object": [' \
+                 '{"eventdate": 1519989592201,"level": "INFO","srcPort": 45850},' \
+                 '{"eventdate": 1519989592313,"level": "INFO","srcPort": 51718}, ' \
+                 '{"eventdate": 1519989592335,"level": "INFO","srcPort": 51772}],' \
+                 '"error": [500,"A very bad query error"]}'
         response = "json"
 
         with self.assertRaises(DevoClientException) as context:
             response = self._query(response, result, DEFAULT, False)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: A very bad query error",
             context.exception.message)
@@ -291,12 +270,24 @@ class ErrorManagementCase(unittest.TestCase):
                          context.exception.cause)
 
     def test_error_handling_json_compact_no_stream(self):
-        result = '{"msg": "","status": 0,"object": {"m": {"eventdate": {"type": "timestamp","index": 0},"level": {"type": "str","index": 1},"srcPort": {"type": "int4","index": 2}},"metadata": [{"name": "eventdate","type": "timestamp"},{"name": "level","type": "str"},{"name": "srcPort","type": "int4"}],"d": [[1519989828006, "INFO", 51870],[1519989828392, "INFO", 51868],[1519989830837, "INFO", 55514]]},"e": [500,"A very bad query error"]}}'
+        result = '{"msg": "","status": 0,"object": {"m": ' \
+                 '{"eventdate": {"type": "timestamp","index": 0},' \
+                 '"level": {"type": "str","index": 1},' \
+                 '"srcPort": {"type": "int4","index": 2}},' \
+                 '"metadata": [' \
+                 '{"name": "eventdate","type": "timestamp"},' \
+                 '{"name": "level","type": "str"},' \
+                 '{"name": "srcPort","type": "int4"}],' \
+                 '"d": [' \
+                 '[1519989828006, "INFO", 51870],' \
+                 '[1519989828392, "INFO", 51868],' \
+                 '[1519989830837, "INFO", 55514]]},' \
+                 '"e": [500,"A very bad query error"]}}'
         response = "json/compact"
 
         with self.assertRaises(DevoClientException) as context:
             response = self._query(response, result, DEFAULT, False)
-
+        self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
             "Error while receiving query data: A very bad query error",
             context.exception.message)

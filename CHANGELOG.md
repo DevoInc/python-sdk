@@ -4,11 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.0.7] - Unreleased
+## [5.1.0] - 2023-03-07
 ### Fixed
+ * Fixed [exception handling issue](https://github.com/DevoInc/python-sdk/issues/175)
+in `devo/sender/data.py`
  * Fixed message shown when configuration file (JSON or YAML) is not correct
 ### Added
+ * Client side exception management refactoring for sending and querying data
  * Snyk integration for checking dependencies and static code security
+ * `pipdeptree` dependency open from ==2.5.0 to >=2.5.0
 
 ## [5.0.6] - 2023-02-21
 ### Chorus

@@ -26,7 +26,7 @@ reporting a new bug.
 To be able to make a fork and the corresponding MR you have to accept Devo's CLA
 The process to modify one package or script is the next:
 
-1. Create your fork from release-next
+1. Create your fork from `master` git branch.
 2. Add to the `CHANGELOG.md`, in 
 [`Unreleased`](#How_can_I_minimize_the_effort_required?) the tasks 
 that you are going to take or are carrying out to be able to review at a quick 

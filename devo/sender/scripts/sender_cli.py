@@ -97,7 +97,7 @@ def data(**kwargs):
 
         if config.get('file', False):
             if not Path(config['file']).is_file():
-                print_error(str("File '' does not found"
+                print_error(str("File '%s' does not found"
                                 % Path(config['file']).absolute()))
                 return
             if config['multiline']:
