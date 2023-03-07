@@ -8,13 +8,14 @@ import re
 import time
 import json
 import requests
+from requests import JSONDecodeError
+
 from devo.common import default_from, default_to
 from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
 import calendar
 from datetime import datetime, timedelta
 import pytz
-
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -45,7 +46,10 @@ ERROR_MSGS = {
     "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries because KeepAlive"
                                     " tokens are not available for those resonses type",
     "missing_api_key": "You need a API Key and API secret to make this",
-    "data_query_error": "Error while receiving query data: %s "
+    "data_query_error": "Error while receiving query data: %s ",
+    "connection_error": "Failed to establish a new connection",
+    "other_errors": "Error while invoking query",
+    "error_no_detail": "Error code %d while invoking query"
 }
 
 DEFAULT_KEEPALIVE_TOKEN = '\n'
@@ -56,70 +60,43 @@ NO_KEEPALIVE_TOKEN = None
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
-    def __init__(self, message, status=None, code=None, cause=None):
-        if isinstance(message, dict):
-            self.status = message.get('status', status)
-            self.cause = message.get('cause', cause)
-            self.message = message.get('msg',
-                                       message if isinstance(message, str)
-                                       else json.dumps(message))
-            self.cid = message.get('cid', None)
-            self.code = message.get('code', code)
-            self.timestamp = message.get('timestamp',
-                                         time.time_ns() // 1000000)
-        else:
-            self.message = message
-            self.status = status
-            self.cause = cause
-            self.cid = None
-            self.code = code
-            self.timestamp = time.time_ns() // 1000000
-        super().__init__(message)
-
-    def __str__(self):
-        return self.message + ((": " + self.cause) if self.cause else '')
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 
-def raise_exception(error_data, status=None):
-    if isinstance(error_data, requests.models.Response):
-        raise DevoClientException(
-            _format_error(error_data.json(), status=error_data.status_code))
+class DevoClientRequestException(DevoClientException):
+    def __init__(self, response: requests.models.Response):
+        self.status = response.status_code
+        try:
+            error_response = response.json()
+            self.message = error_response.get("msg", error_response.get("error", "Error Launching Query"))
+            if 'code' in error_response:
+                self.code = error_response['code']
+            if 'error' in error_response:
+                self.cause = error_response.get("error")
+                if 'code' in error_response['error']:
+                    self.code = error_response['error']['code']
+                if 'message' in error_response['error']:
+                    self.message = error_response['error']['message']
+            elif 'object' in error_response:
+                self.message = ": ".join(error_response["object"])
+            else:
+                self.cause = error_response
+            if 'cid' in error_response:
+                self.cid = error_response['cid']
+            self.timestamp = error_response.get('timestamp', time.time_ns() // 1000000)
+        except JSONDecodeError as exc:
+            self.message = ERROR_MSGS["error_no_detail"] % self.status
+        super().__init__(self.message)
 
-    elif isinstance(error_data, str):
-        if not status:
-            raise DevoClientException(
-                _format_error({"object": error_data}, status=None))
-        raise DevoClientException(
-            _format_error({"object": error_data}, status=status))
-    elif isinstance(error_data, BaseException):
-        raise DevoClientException(_format_error(error_data, status=None))\
-            from error_data
-    else:
-        raise DevoClientException(_format_error(error_data, status=None))
 
-
-def _format_error(error, status):
-    if isinstance(error, dict):
-        response = {
-            "msg": error.get("msg", "Error Launching Query"),
-            "cause": error.get("cause") or error.get("object") or error.get("context") or json.dumps(error.get("error"))
-        }
-        # 'object' may be a list
-        if isinstance(response["cause"], list):
-            response["cause"] = ": ".join(response["cause"])
-        if status:
-            response['status'] = status
-        elif 'status' in error:
-            response['status'] = error['status']
-        for item in ['code', 'cid', 'timestamp']:
-            if item in error:
-                response[item] = error[item]
-        return response
-    else:
-        return {
-            "msg": str(error),
-            "cause": str(error)
-        }
+class DevoClientDataResponseException(DevoClientException):
+    def __init__(self, message, code, cause):
+        self.message = message
+        self.code = code
+        self.cause = cause
+        super().__init__(self.message)
 
 
 class ClientConfig:
@@ -169,12 +146,12 @@ class ClientConfig:
             try:
                 self.processor = processors()[self.proc]()
             except KeyError:
-                raise_exception(f"Processor {self.proc} not found")
+                DevoClientException(f"Processor {self.proc} not found")
         elif isinstance(processor, (type(lambda x: 0))):
             self.proc = "CUSTOM"
             self.processor = processor
         else:
-            raise_exception(ERROR_MSGS["wrong_processor"])
+            DevoClientException(ERROR_MSGS["wrong_processor"])
         return True
 
     def set_user(self, user=CLIENT_DEFAULT_USER):
@@ -269,7 +246,7 @@ class Client:
 
         self.auth = auth
         if not address:
-            raise raise_exception(ERROR_MSGS['no_endpoint'])
+            raise DevoClientException(ERROR_MSGS['no_endpoint'])
 
         self.address = self.__get_address_parts(address)
 
@@ -418,7 +395,7 @@ class Client:
                 toDate = self._toDate_parser(fromDate, default_to(dates['to']))
 
                 if toDate > default_to("now()"):
-                    raise raise_exception(ERROR_MSGS["future_queries_not_supported"])
+                    raise DevoClientException(ERROR_MSGS["future_queries_not_supported"])
 
             self.config.stream = False
 
@@ -470,8 +447,8 @@ class Client:
             first = next(response)
         except StopIteration:
             return None  # The query did not return any result
-        except TypeError:
-            raise_exception(response)
+        except TypeError as error:
+            raise DevoClientException(ERROR_MSGS["other_errors"]) from error
 
         if self._is_correct_response(first):
             if self.config.proc == SIMPLECOMPACT_TO_OBJ:
@@ -548,7 +525,7 @@ class Client:
             try:
                 response = self.__request(payload)
                 if response.status_code != 200:
-                    raise_exception(response, status=response.status_code)
+                    raise DevoClientRequestException(response)
 
                 if self.config.stream:
                     if (self.config.response in ["msgpack", "xls"]):
@@ -560,12 +537,12 @@ class Client:
             except requests.exceptions.ConnectionError as error:
                 tries += 1
                 if tries > self.retries:
-                    return raise_exception(error)
-                time.sleep(self.retry_delay * (2 ** (tries-1)))
+                    raise DevoClientException(ERROR_MSGS["connection_error"]) from error
+                time.sleep(self.retry_delay * (2 ** (tries - 1)))
             except DevoClientException as error:
                 raise
             except Exception as error:
-                return raise_exception(error)
+                raise DevoClientException(ERROR_MSGS["other_errors"]) from error
 
     def __request(self, payload):
         """
@@ -755,19 +732,18 @@ class Client:
                                         verify=self.verify,
                                         timeout=self.timeout)
             except ConnectionError as error:
-                raise_exception({"status": 404, "msg": error})
+                raise DevoClientException(ERROR_MSGS["connection_error"]) from error
 
             if response:
                 if response.status_code != 200 or \
                         "error" in response.text[0:15].lower():
-                    raise_exception(response.text)
-                    return None
+                    raise DevoClientRequestException(response)
                 try:
                     return json.loads(response.text)
                 except json.decoder.JSONDecodeError:
                     return response.text
             tries += 1
-            time.sleep(self.retry_delay * (2 ** (tries-1)))
+            time.sleep(self.retry_delay * (2 ** (tries - 1)))
         return {}
 
     @staticmethod
@@ -890,7 +866,7 @@ class Client:
                 error = match.group(0)
                 code = int(match.group(1))
                 message = match.group(2).strip()
-                raise DevoClientException(
+                raise DevoClientDataResponseException(
                     ERROR_MSGS["data_query_error"]
                     % message, code=code, cause=error)
             else:

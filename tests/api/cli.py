@@ -69,7 +69,7 @@ class TestApi(unittest.TestCase):
         ])
         self.assertIsInstance(result.exception, DevoClientException)
         errorMsg = 'Failed to establish a new connection'
-        self.assertIn(errorMsg, result.exception.args[0]['msg'])
+        self.assertIn(errorMsg, result.exception.args[0])
 
     def test_bad_credentials(self):
         runner = CliRunner()
@@ -80,7 +80,7 @@ class TestApi(unittest.TestCase):
             "--secret", self.secret
         ])
         self.assertIsInstance(result.exception, DevoClientException)
-        self.assertEqual(json.loads(result.exception.args[0]['cause'])['code'], 12)
+        self.assertEqual(result.exception.code, 12)
 
     def test_normal_query(self):
         runner = CliRunner()

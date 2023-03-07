@@ -50,29 +50,16 @@ class ErrorManagementCase(unittest.TestCase):
                                                                stream, 500)
                         if stream:
                             list(response)
-                    self.assertEqual('Error Launching Query',
-                                     context.exception.message)
+                    self.assertTrue(context.exception.args[0].startswith('Error Launching Query'))
                     self.assertEqual(500, context.exception.status)
                     self.assertEqual('b46bde339628', context.exception.cid)
                     self.assertEqual(1669737806151,
                                      context.exception.timestamp)
-                    self.assertIsNone(context.exception.code)
                     self.assertEqual('Error Launching Query: '
                                       'com.devo.malote.syntax.ParseException: Encountered'
                                       ' " "not" "not "" at line 1, column 17.\nWas'
                                       ' expecting one of:\n    <ID> ...\n    <QID> ...\n'
                                       '    ',
-                                     context.exception.cause)
-                    self.assertEqual({'cause': 'Error Launching Query: '
-                                               'com.devo.malote.syntax.ParseException:'
-                                               ' Encountered " "not" "not "" at line 1,'
-                                               ' column 17.\nWas expecting one of:\n'
-                                               '    <ID> ...\n    <QID> ...\n    ',
-                                      'msg': 'Error Launching Query',
-                                      'cid': 'b46bde339628',
-                                      'msg': 'Error Launching Query',
-                                      'status': 500,
-                                      'timestamp': 1669737806151},
                                      context.exception.args[0])
 
     @responses.activate
@@ -92,20 +79,15 @@ class ErrorManagementCase(unittest.TestCase):
                                                                False, 500)
                         if stream:
                             list(response)
-                    self.assertEqual('Error Launching Query',
+                    self.assertEqual('server_error',
                                      context.exception.message)
                     self.assertEqual(500, context.exception.status)
                     self.assertEqual('a41119cc9b2d', context.exception.cid)
                     self.assertEqual(1669742043045,
                                      context.exception.timestamp)
-                    self.assertIsNone(context.exception.code)
-                    self.assertEqual('"server_error"',
+                    self.assertEqual('server_error',
                                      context.exception.cause)
-                    self.assertEqual({'cause': '"server_error"',
-                                      'cid': 'a41119cc9b2d',
-                                      'msg': 'Error Launching Query',
-                                      'status': 500,
-                                      'timestamp': 1669742043045},
+                    self.assertEqual('server_error',
                                      context.exception.args[0])
 
     @responses.activate
@@ -141,18 +123,9 @@ class ErrorManagementCase(unittest.TestCase):
                     self.assertEqual(1610956615646,
                                      context.exception.timestamp)
                     self.assertEqual(624, context.exception.code)
-                    self.assertEqual({
-                        "table": "TABLE",
-                        "domain": "DOMAIN"
-                    },
+                    self.assertEqual({'msg': 'The table TABLE is not found in the domain DOMAIN', 'code': 624, 'timestamp': 1610956615646, 'cid': '243a25d36cc5', 'context': {'table': 'TABLE', 'domain': 'DOMAIN'}},
                         context.exception.cause)
-                    self.assertEqual(
-                        {'cause': {'domain': 'DOMAIN', 'table': 'TABLE'},
-                         'cid': '243a25d36cc5',
-                         'code': 624,
-                         'msg': 'The table TABLE is not found in the domain DOMAIN',
-                         'status': 500,
-                         'timestamp': 1610956615646},
+                    self.assertEqual("The table TABLE is not found in the domain DOMAIN",
                         context.exception.args[0])
 
     def test_error_stream_json_simple_compact_to_array(self):

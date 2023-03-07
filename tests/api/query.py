@@ -247,7 +247,7 @@ class TestApi(unittest.TestCase):
                                         'to': 'now()+60*second()'})
 
         self.assertIsInstance(context.exception, DevoClientException)
-        self.assertEqual(context.exception.cause,
+        self.assertEqual(context.exception.args[0],
                          "Modes 'xls' and 'msgpack' does not support future"
                          " queries because KeepAlive tokens are not available"
                          " for those resonses type")
@@ -263,7 +263,7 @@ class TestApi(unittest.TestCase):
                                         'to': 'now()+60*second()'})
 
         self.assertIsInstance(context.exception, DevoClientException)
-        self.assertEqual(context.exception.cause,
+        self.assertEqual(context.exception.args[0],
                          "Modes 'xls' and 'msgpack' does not support future "
                          "queries because KeepAlive tokens are not available "
                          "for those resonses type")
