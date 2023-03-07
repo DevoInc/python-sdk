@@ -8,14 +8,14 @@ import ssl
 import sys
 import time
 import zlib
+from _socket import SHUT_RDWR
 from enum import Enum
 from pathlib import Path
-from _socket import SHUT_RDWR
 
 import pem
-from devo.common import Configuration, get_log, get_stream_handler
 from OpenSSL import SSL, crypto
 
+from devo.common import Configuration, get_log, get_stream_handler
 from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
                               FORMAT_MY_BYTES, SEVERITY_INFO, priority_map)
 
@@ -29,15 +29,22 @@ class ERROR_MSGS(str, Enum):
     WRONG_FILE_TYPE = "'%s' is not a valid type to be opened as a file",
     ADDRESS_TUPLE = "Devo-SenderConfigSSL| address must be a tuple (\"hostname\", int(port))'",
     WRONG_SSL_CONFIG = "Devo-SenderConfigSSL|Can't create SSL config: %s",
-    CONFIG_FILE_NOT_FOUND = "Error in the configuration, %s is not a file or the path does not exist",
+    CONFIG_FILE_NOT_FOUND = "Error in the configuration, %s is not a file or the path does not" \
+                            " exist",
     CANT_READ_CONFIG_FILE = "Error in the configuration %s can't be read\noriginal error: %s",
     CONFIG_FILE_PROBLEM = "Error in the configuration, %s problem related to: %s",
-    KEY_NOT_COMPATIBLE_WITH_CERT = "Error in the configuration, the key: %s is not compatible with the cert: %s\noriginal error: %s",
-    CHAIN_NOT_COMPATIBLE_WITH_CERT = "Error in config, the chain: %s is not compatible with the certificate: %s\noriginal error: %s",
-    TIMEOUT_RELATED_TO_AN_INCORRECT_ADDRESS_PORT = "Possible error in config, a timeout could be related to an incorrect address/port: %s\noriginal error: %s",
+    KEY_NOT_COMPATIBLE_WITH_CERT = "Error in the configuration, the key: %s is not compatible" \
+                                   " with the cert: %s\noriginal error: %s",
+    CHAIN_NOT_COMPATIBLE_WITH_CERT = "Error in config, the chain: %s is not compatible with the" \
+                                     " certificate: %s\noriginal error: %s",
+    TIMEOUT_RELATED_TO_AN_INCORRECT_ADDRESS_PORT = "Possible error in config, a timeout could be" \
+                                                   " related to an incorrect address/port: %s\n" \
+                                                   "original error: %s",
     INCORRECT_ADDRESS_PORT = "Error in config, incorrect address/port: %s\noriginal error: %s",
-    CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE = "Error in config, the certificate in the address: %s is not compatible with: %s",
-    ADDRESS_MUST_BE_A_TUPLE = "Devo-SenderConfigSSL| address must be a tuple '(\"hostname\", int(port))'",
+    CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE = "Error in config, the certificate in the address:" \
+                                               " %s is not compatible with: %s",
+    ADDRESS_MUST_BE_A_TUPLE = "Devo-SenderConfigSSL| address must be a tuple '(\"hostname\"," \
+                              " int(port))'",
     CANT_CREATE_TCP_CONFIG = "DevoSenderConfigTCP|Can't create TCP config: %s",
     PROBLEMS_WITH_SENDER_ARGS = "Problems with args passed to Sender",
     TCP_CONN_ESTABLISHMENT_SOCKET = "TCP conn establishment socket error: %s",
@@ -54,10 +61,18 @@ class ERROR_MSGS(str, Enum):
 
 
 class DevoSenderException(Exception):
-    """ Default Devo Sender Exception """
+    """ Default Devo Sender Exception for functionalities related to sending
+     events to the platform"""
 
     def __init__(self, message: str):
+        """
+        Creates an exception related to event sending tasks
+
+        :param message: Message describing the exception. It will be also
+         used as `args` attribute in `Exception` class
+        """
         self.message: str = message
+        """Message describing exception"""
         super().__init__(self.message)
 
 
@@ -307,7 +322,8 @@ class Sender(logging.Handler):
     :param con_type: TCP or SSL, default SSL, you can pass it in
     config object too
     :param timeout: timeout for socket
-    :param inactivity_timeout: inactivity timeout for Ingestion balancer, so connection is restarted before reaching
+    :param inactivity_timeout: inactivity timeout for Ingestion balancer, so connection is
+     restarted before reaching
     :param debug: For more info in console/logger output
     :param logger: logger. Default sys.console
     """
@@ -535,8 +551,9 @@ class Sender(logging.Handler):
             self.close()
             return False
 
-        # If there is no activity (connection or message sent) for an amount of time bigger then the inactivity
-        # timeout, the balancer may have already close the connection. Close it and reconnect.
+        # If there is no activity (connection or message sent) for an amount of time bigger
+        # then the inactivity timeout, the balancer may have already close the connection.
+        # Close it and reconnect.
         if int(time.time()) - self.last_message > self.inactivity_timeout:
             self.close()
             return False
@@ -739,8 +756,7 @@ class Sender(logging.Handler):
             try:
                 compressor = zlib.compressobj(self.buffer.compression_level,
                                               zlib.DEFLATED, 31)
-                record = compressor.compress(self.buffer.text_buffer) \
-                         + compressor.flush()
+                record = compressor.compress(self.buffer.text_buffer) + compressor.flush()
                 if self.send_raw(record, zip=True):
                     return self.buffer.events
                 return 0

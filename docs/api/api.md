@@ -818,3 +818,18 @@ Example
     2017-03-01 15:00:00.000 self    email@devo.com        71
     2017-03-01 15:00:00.000 email@devo.com    0:0:0:0:0:0:0:1     38
 
+## Exceptions and Errors
+
+Every issue or error found during the request of queries of data is reported through
+`DevoClientException` exception. But since version `5.1.0` there are additional exception classes
+for a more detailed feedback of errors:
+* `devo.api.client.DevoClientException`: Common legacy Exception class that is thrown for every 
+error during the querying of data. It inherits from `Exception` class
+* `devo.api.client.DevoClientRequestException`: Specific exception class that is thrown whenever 
+a query is requested to the server endpoint and it fails due to internal errors or bad requests. It
+contains the whole `requests.models.Response` from server for reference. It inherits from
+`DevoClientException`
+* `devo.api.client.DevoClientDataResponseException`: Specific exception class that is thrown
+whenever a query (of type stream) is run correctly but an error is thrown when processing one
+specific event of the response. It is only thrown for streamed queries. It inherits from
+`DevoClientException`
