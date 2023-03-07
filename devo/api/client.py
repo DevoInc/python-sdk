@@ -187,12 +187,12 @@ class ClientConfig:
             try:
                 self.processor = processors()[self.proc]()
             except KeyError:
-                DevoClientException(f"Processor {self.proc} not found")
+                raise DevoClientException(f"Processor {self.proc} not found")
         elif isinstance(processor, (type(lambda x: 0))):
             self.proc = "CUSTOM"
             self.processor = processor
         else:
-            DevoClientException(ERROR_MSGS["wrong_processor"])
+            raise DevoClientException(ERROR_MSGS["wrong_processor"])
         return True
 
     def set_user(self, user=CLIENT_DEFAULT_USER):
