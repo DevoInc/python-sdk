@@ -60,7 +60,7 @@ NO_KEEPALIVE_TOKEN = None
 class DevoClientException(Exception):
     """ Default Devo Client Exception """
 
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
         super().__init__(self.message)
 
@@ -92,7 +92,7 @@ class DevoClientRequestException(DevoClientException):
 
 
 class DevoClientDataResponseException(DevoClientException):
-    def __init__(self, message, code, cause):
+    def __init__(self, message: str, code: int, cause: str):
         self.message = message
         self.code = code
         self.cause = cause

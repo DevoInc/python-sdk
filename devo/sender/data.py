@@ -49,6 +49,8 @@ class ERROR_MSGS(str, Enum):
     NO_ADDRESS = "No address",
     MULTILINE_SENDING_ERROR = "Error sending multiline event: %s",
     RAW_SENDING_ERROR = "Error sending raw event: %s",
+    CLOSING_ERROR = "Error closing connection"
+    FLUSHING_BUFFER_ERROR = "Error flushing buffer"
 
 
 class DevoSenderException(Exception):
@@ -56,10 +58,7 @@ class DevoSenderException(Exception):
 
     def __init__(self, message: str):
         self.message: str = message
-        super().__init__(message)
-
-    def __str__(self):
-        return self.message.__str__()
+        super().__init__(self.message)
 
 
 class SenderConfigSSL:
@@ -126,16 +125,16 @@ class SenderConfigSSL:
                         file).is_file()):
                     raise DevoSenderException(
                         ERROR_MSGS.CONFIG_FILE_NOT_FOUND % file)
-            except IOError as message:
-                if message.errno == errno.EACCES:
+            except IOError as error:
+                if error.errno == errno.EACCES:
                     raise DevoSenderException(
                         ERROR_MSGS.CANT_READ_CONFIG_FILE % (
-                            file, str(message))) \
-                        from message
+                            file, str(error))) \
+                        from error
                 else:
                     raise DevoSenderException(
-                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(message))) \
-                        from message
+                        ERROR_MSGS.CONFIG_FILE_PROBLEM % (file, str(error))) \
+                        from error
         return True
 
     def check_config_certificate_key(self):
@@ -160,11 +159,11 @@ class SenderConfigSSL:
             context.use_certificate(certificate_obj)
         try:
             context.check_privatekey()
-        except SSL.Error as message:
+        except SSL.Error as error:
             raise DevoSenderException(
                 ERROR_MSGS.KEY_NOT_COMPATIBLE_WITH_CERT % (
-                    self.key, self.cert, str(message)
-                )) from message
+                    self.key, self.cert, str(error)
+                )) from error
         return True
 
     def check_config_certificate_chain(self):
@@ -190,11 +189,11 @@ class SenderConfigSSL:
                 certificates_chain, certificate_obj)
         try:
             store_ctx.verify_certificate()
-        except crypto.X509StoreContextError as message:
+        except crypto.X509StoreContextError as error:
             raise DevoSenderException(
                 ERROR_MSGS.CHAIN_NOT_COMPATIBLE_WITH_CERT % (
-                    self.chain, self.cert, str(message)
-                )) from message
+                    self.chain, self.cert, str(error)
+                )) from error
         return True
 
     def check_config_certificate_address(self):
@@ -211,16 +210,16 @@ class SenderConfigSSL:
         connection = SSL.Connection(context, sock)
         try:
             connection.connect(self.address)
-        except socket.timeout as message:
+        except socket.timeout as error:
             raise DevoSenderException(
                 ERROR_MSGS.TIMEOUT_RELATED_TO_AN_INCORRECT_ADDRESS_PORT % (
-                    str(self.address), str(message)
-                )) from message
-        except ConnectionRefusedError as message:
+                    str(self.address), str(error)
+                )) from error
+        except ConnectionRefusedError as error:
             raise DevoSenderException(
                 ERROR_MSGS.INCORRECT_ADDRESS_PORT % (
-                    str(self.address), str(message)
-                )) from message
+                    str(self.address), str(error)
+                )) from error
         sock.setblocking(True)
         connection.do_handshake()
         server_chain = connection.get_peer_cert_chain()
@@ -551,8 +550,8 @@ class Sender(logging.Handler):
         if self.socket is not None:
             try:
                 self.socket.shutdown(SHUT_RDWR)
-            except Exception as e:  # Try else continue
-                pass
+            except Exception:  # Try else continue
+                logging.exception(ERROR_MSGS.CLOSING_ERROR)
             self.socket.close()
             self.socket = None
 
@@ -746,7 +745,7 @@ class Sender(logging.Handler):
                     return self.buffer.events
                 return 0
             except Exception as error:
-                raise error
+                raise DevoSenderException(ERROR_MSGS.FLUSHING_BUFFER_ERROR) from error
             finally:
                 self.buffer.text_buffer = b''
                 self.buffer.events = 0
