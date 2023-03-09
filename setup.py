@@ -26,7 +26,7 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = ['requests>=2.27', 'click==8.1.3', 'PyYAML==6.0',
                     'pem==21.2.0', 'pyopenssl==23.0.*', 'urllib3>=1.26.5',
-                    'pytz>=2019.3','cryptography>=39.0.1']
+                    'pytz>=2019.3', 'cryptography>=39.0.1']
 CLI = ['devo-sender=devo.sender.scripts.sender_cli:cli',
        'devo-api=devo.api.scripts.client_cli:cli']
 
