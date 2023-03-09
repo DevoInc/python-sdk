@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.1.1] - Unreleased
+### Added
+ * `msgpack` dependency open from ==1.0.4 to >=1.0.4
+
 ## [5.1.0] - 2023-03-07
 ### Fixed
  * Fixed [exception handling issue](https://github.com/DevoInc/python-sdk/issues/175)
@@ -15,7 +19,7 @@ in `devo/sender/data.py`
  * `pipdeptree` dependency open from ==2.5.0 to >=2.5.0
 
 ## [5.0.6] - 2023-02-21
-### Chorus
+### Chore
  * Update version range support for `requests`
 ### Fixed
  * Documentation fixes in `README.md` and `docs/common.md`
@@ -31,7 +35,7 @@ in `devo/sender/data.py`
  * Dependabot configuration added for security and versions updates
 
 ## [5.0.4] - 2023-02-13
-### Chorus
+### Chore
  * Fix documentation (implementation remains the same) for keep-alive mechanism in queries for `xls` format
  * Bump version to avoid collision with tag belonging to former release candidate version
 
