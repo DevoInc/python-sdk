@@ -586,7 +586,7 @@ class Sender(logging.Handler):
                 # errno.EAGAIN means nothing to get, but socket working
                 pass
         except ssl.SSLWantReadError:
-            # If the SSL socket not ready yet, select may throw an exception
+            # If the socket has data but SSL wrapper not ready yet, select may throw an exception
             pass
 
         return True
@@ -923,3 +923,5 @@ def open_file(file, mode='r', encoding='utf-8'):
                     encoding=encoding if not mode.endswith('b') else None)
     else:
         raise DevoSenderException(ERROR_MSGS.WRONG_FILE_TYPE % str(type(file)))
+
+

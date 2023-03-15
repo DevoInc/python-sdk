@@ -1,7 +1,8 @@
+import select
 import unittest
 import socket
 from pathlib import Path
-from ssl import CERT_NONE
+from ssl import CERT_NONE, SSLSocket, SSLWantReadError
 
 from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, \
     DevoSenderException
@@ -75,6 +76,19 @@ class TestSender(unittest.TestCase):
                          b'<14>1991-02-20 12:00:00 %s test.tag: '
                          % self.localhost.encode("utf-8"))
 
+    @staticmethod
+    def read(con, length: int):
+        if not select.select([con.socket], [], [], con.socket_timeout):
+            raise Exception("Timeout reached during read operation")
+        if isinstance(con.socket, SSLSocket):
+            while True:
+                try:
+                    return con.socket.recv(length)
+                except SSLWantReadError:
+                    # If the data is ready at socket OS level but not at SSL wrapper level, this exception may raise
+                    pass
+        return con.socket.recv(length)
+
     def test_tcp_rt_send(self):
         """
         Tests that a TCP connection and data send it is possible
@@ -85,7 +99,7 @@ class TestSender(unittest.TestCase):
             con = Sender(engine_config)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_app, msg=self.test_msg)
-                if len(con.socket.recv(5000)) == 0:
+                if len(TestSender.read(con, 5000)) == 0:
                     raise Exception('Not msg sent!')
             con.close()
         except Exception as error:
@@ -104,7 +118,7 @@ class TestSender(unittest.TestCase):
             con = Sender(engine_config)
             for i in range(self.default_numbers_sendings):
                 con.send(tag=self.my_app, msg=self.test_msg)
-                data_received = con.socket.recv(5000)
+                data_received = TestSender.read(con, 5000)
                 print(b"\n" + data_received)
                 if len(data_received) == 0:
                     raise Exception('Not msg sent!')
@@ -127,7 +141,7 @@ class TestSender(unittest.TestCase):
                 con.send(tag=self.my_bapp, msg=self.test_msg.encode("utf-8"),
                          zip=True)
                 con.flush_buffer()
-                data_received = con.socket.recv(5000)
+                data_received = TestSender.read(con, 5000)
                 print(b"\n" + data_received)
                 if len(data_received) == 0:
                     raise Exception('Not msg sent!')
@@ -152,7 +166,7 @@ class TestSender(unittest.TestCase):
 
             con.send(tag=self.my_app, msg=content, multiline=True)
             con.flush_buffer()
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -198,7 +212,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger info")
             logger.info("Testing Sender inherit logging handler functio"
                         "nality... INFO - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -206,7 +220,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger error")
             logger.error("Testing Sender inherit logging handler function"
                          "ality... ERROR - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -214,7 +228,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger warning")
             logger.warning("Testing Sender inherit logging handler functio"
                            "nality... WARNING - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -222,7 +236,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger debug")
             logger.debug("Testing Sender inherit logging handler functiona"
                          "lity... DEBUG - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -230,7 +244,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger critical")
             logger.critical("Testing Sender inherit logging handler functio"
                             "nality... CRITICAL - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -261,7 +275,7 @@ class TestSender(unittest.TestCase):
             # table
             con.info("Testing Sender default handler functionality in remote "
                      "table... INFO - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -290,7 +304,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger info")
             logger.info("Testing Sender static handler functionality... "
                         "INFO - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -298,7 +312,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger error")
             logger.error("Testing Sender static logging handler "
                          "functionality... ERROR - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -306,7 +320,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger warning")
             logger.warning("Testing Sender static logging handler "
                            "functionality... WARNING - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -314,7 +328,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger debug")
             logger.debug("Testing Sender static logging handler "
                          "functionality... DEBUG - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
@@ -322,7 +336,7 @@ class TestSender(unittest.TestCase):
             print("Testing logger critical")
             logger.critical("Testing Sender static logging handler "
                             "functionality... CRITICAL - log")
-            data_received = con.socket.recv(5000)
+            data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception('Not msg sent!')
