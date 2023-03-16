@@ -78,7 +78,7 @@ class TestSender(unittest.TestCase):
 
     @staticmethod
     def read(con, length: int):
-        if not select.select([con.socket], [], [], con.socket_timeout):
+        if not select.select([con.socket], [], [], con.socket_timeout)[0]:
             raise Exception("Timeout reached during read operation")
         if isinstance(con.socket, SSLSocket):
             while True:

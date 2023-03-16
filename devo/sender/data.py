@@ -9,12 +9,13 @@ import ssl
 import sys
 import time
 import zlib
-from _socket import SHUT_RDWR
+from _socket import SHUT_WR, SHUT_RD
 from enum import Enum
 from pathlib import Path
 
 import pem
 from OpenSSL import SSL, crypto
+from ssl import SSLWantReadError, SSLWantWriteError
 
 from devo.common import Configuration, get_log, get_stream_handler
 from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
@@ -371,6 +372,9 @@ class Sender(logging.Handler):
         if isinstance(config, SenderConfigTCP):
             self.__connect_tcp_socket()
 
+    def __del__(self):
+        self.close()
+
     def __connect(self):
         if isinstance(self._sender_config, SenderConfigSSL):
             self.__connect_ssl()
@@ -561,33 +565,11 @@ class Sender(logging.Handler):
             self.close()
             return False
 
-        # If the channel was closed by the other endpoint, ingestion balancer,
-        # the reading of the download channel will return EOF. This is
-        # checked by reading a ready buffer but getting no data, empty bytes
-        try:
-            # Is the channel ready for reading?
-            select_result = select.select([self.socket], [], [], 0)
-            if select_result[0]:
-                # Read it
-                buf = self.socket.recv(1)
-                # If no data, EOF and channel is closed
-                if buf == b'':
-                    # Restart connection
-                    self.close()
-                    return False
-        except BlockingIOError as exc:
-            if exc.errno == errno.ECONNRESET:
-                # A TCP RST implies error in channel
-                raise IOError("Connection reset by endpoint") from exc
-            elif exc.errno not in [errno.EAGAIN, errno.EWOULDBLOCK]:
-                # Any other error but EAGAIN and EWOULDBLOCK here
-                raise IOError("Error while accessing socket") from exc
-            else:
-                # errno.EAGAIN means nothing to get, but socket working
-                pass
-        except ssl.SSLWantReadError:
-            # If the socket has data but SSL wrapper not ready yet, select may throw an exception
-            pass
+        # If no data, EOF and channel is closed
+        if self.__check_EOF():
+            # Restart connection
+            self.close()
+            return False
 
         return True
 
@@ -597,8 +579,9 @@ class Sender(logging.Handler):
         """
         if self.socket is not None:
             try:
-                self.socket.shutdown(SHUT_RDWR)
-            except Exception:  # Try else continue
+                self.socket.shutdown(SHUT_WR)
+                self.__wait_for_EOF()
+            except Exception as exc:  # Try else continue
                 logging.exception(ERROR_MSGS.CLOSING_ERROR)
             self.socket.close()
             self.socket = None
@@ -631,20 +614,114 @@ class Sender(logging.Handler):
         for iteration in range(0, total):
             part = record[int(iteration * 4096):
                           int((iteration + 1) * 4096)]
-            select_result = select.select([], [self.socket], [],
-                                          self.socket_timeout)
-            if select_result[1]:
-                if self.socket.sendall(part) is not None:
-                    raise DevoSenderException(str(ERROR_MSGS.SEND_ERROR))
-                sent += len(part)
-            else:
-                raise DevoSenderException(
-                    ERROR_MSGS.ERROR_AFTER_TIMEOUT)
+            self.__sendall(part)
             self.last_message = int(time.time())
             sent += len(part)
         if sent == 0:
             raise DevoSenderException(ERROR_MSGS.SEND_ERROR)
         return sent
+
+    def __sendall(self, content):
+        then = time.time()
+        # Is the channel ready for writing?
+        if select.select([], [self.socket], [], self.socket_timeout)[1]:
+            while True:
+                try:
+                    # Write it
+                    if self.socket.sendall(content) is not None:
+                        raise DevoSenderException(str(ERROR_MSGS.SEND_ERROR))
+                    else:
+                        return
+                except BlockingIOError as exc:
+                    # This is not blocking socket
+                    if exc.errno == errno.ECONNRESET:
+                        # A TCP RST implies error in channel
+                        raise IOError("Connection reset by endpoint") from exc
+                    elif exc.errno not in [errno.EAGAIN, errno.EWOULDBLOCK]:
+                        # Any other error but EAGAIN and EWOULDBLOCK here
+                        raise IOError("Error while accessing socket") from exc
+                    else:
+                        # errno.EAGAIN means nothing to get, but socket working
+                        pass
+                except SSLWantWriteError:
+                    # If the data is ready at socket OS level but not at SSL wrapper level, this exception may raise
+                    pass
+                # Try while timeout not reached
+                if time.time() - self.socket_timeout >= then:
+                    raise DevoSenderException(ERROR_MSGS.ERROR_AFTER_TIMEOUT)
+        else:
+            raise DevoSenderException(ERROR_MSGS.ERROR_AFTER_TIMEOUT)
+
+    def __check_EOF(self):
+        """
+        If the channel was closed by the other endpoint, ingestion balancer,
+        the reading of the download channel will return EOF. This is
+        checked by reading a ready buffer but getting no data, empty bytes
+        """
+        # Is the channel ready for reading?
+        if select.select([self.socket], [], [], 0)[0]:
+            while True:
+                try:
+                    # Read it
+                    buf = self.socket.recv(1)
+                    # If no data, EOF and channel is closed
+                    return buf == b''
+                except BlockingIOError as exc:
+                    # This is not blocking socket
+                    if exc.errno == errno.ECONNRESET:
+                        # A TCP RST implies error in channel
+                        raise IOError("Connection reset by endpoint") from exc
+                    elif exc.errno not in [errno.EAGAIN, errno.EWOULDBLOCK]:
+                        # Any other error but EAGAIN and EWOULDBLOCK here
+                        raise IOError("Error while accessing socket") from exc
+                    else:
+                        # errno.EAGAIN means nothing to get, but socket working
+                        # Nothing to read, everything is ok
+                        return False
+                except SSLWantReadError:
+                    # If the data is ready at socket OS level but not at SSL wrapper level, this exception may raise
+                    # Nothing to read, everything is ok
+                    return False
+        else:
+            return False
+
+    def __wait_for_EOF(self):
+        """
+        The downstream channel is closed by the other endpoint, ingestion balancer,
+        by sending EOF. This is checked by reading a ready buffer but getting no data, empty bytes
+        """
+        then = time.time()
+        # Wait for the channel to be ready for reading (with timeout)
+        if select.select([self.socket], [], [], self.socket_timeout)[0]:
+            bytes = bytearray()
+            while True:
+                try:
+                    # Read it
+                    buf = self.socket.recv(1)
+                    # If no data, EOF and channel is closed
+                    if buf == b'':
+                        return bytes
+                    else:
+                        bytes.extend(buf)
+                except BlockingIOError as exc:
+                    # This is not blocking socket
+                    if exc.errno == errno.ECONNRESET:
+                        # A TCP RST implies error in channel
+                        raise IOError("Connection reset by endpoint") from exc
+                    elif exc.errno not in [errno.EAGAIN, errno.EWOULDBLOCK]:
+                        # Any other error but EAGAIN and EWOULDBLOCK here
+                        raise IOError("Error while accessing socket") from exc
+                    else:
+                        # errno.EAGAIN means nothing to get, but socket working
+                        pass
+                except SSLWantReadError:
+                    # If the data is ready at socket OS level but not at SSL wrapper level, this exception may raise
+                    pass
+                # Try while timeout not reached
+                if time.time() - self.socket_timeout >= then:
+                    raise DevoSenderException(ERROR_MSGS.ERROR_AFTER_TIMEOUT)
+        else:
+            raise DevoSenderException(ERROR_MSGS.ERROR_AFTER_TIMEOUT)
 
     def send_raw(self, record, multiline=False, zip=False):
         """
@@ -663,16 +740,7 @@ class Sender(logging.Handler):
                     if not multiline and not zip:
                         msg = self.__encode_record(record)
                         sent = len(msg)
-                        select_result = select.select([], [self.socket], [],
-                                                      self.socket_timeout)
-                        if select_result[1]:
-                            if self.socket.sendall(msg) is not None:
-                                raise DevoSenderException(
-                                    str(ERROR_MSGS.SEND_ERROR))
-                            return 1
-                        else:
-                            raise DevoSenderException(
-                                str(ERROR_MSGS.ERROR_AFTER_TIMEOUT))
+                        self.__sendall(msg)
                         self.last_message = int(time.time())
                         return 1
                     if multiline:
@@ -923,5 +991,3 @@ def open_file(file, mode='r', encoding='utf-8'):
                     encoding=encoding if not mode.endswith('b') else None)
     else:
         raise DevoSenderException(ERROR_MSGS.WRONG_FILE_TYPE % str(type(file)))
-
-
