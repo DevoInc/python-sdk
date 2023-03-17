@@ -1,4 +1,5 @@
 import re
+import select
 import unittest
 from ssl import CERT_NONE
 from unittest import mock
@@ -29,6 +30,12 @@ class TestLookup(unittest.TestCase):
         )
 
         self.lookup_key = "KEY"
+
+    @staticmethod
+    def read(con, length: int):
+        if not select.select([con.socket], [], [], con.socket_timeout)[0]:
+            raise TimeoutError("Timeout reached during read operation")
+        return con.socket.recv(length)
 
     def test_ssl_lookup_csv_send(self):
 
@@ -70,16 +77,18 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         p_headers = Lookup.list_to_headers(["KEY", "HEX", "COLOR"], "KEY")
         lookup.send_control("START", p_headers, "INC")
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_control("END", p_headers, "INC")
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
 
         con.socket.shutdown(0)
+
+
 
     def test_create_lookup_key_index_preserves_structure(self):
         engine_config = SenderConfigSSL(
@@ -156,19 +165,17 @@ class TestLookup(unittest.TestCase):
             verify_mode=CERT_NONE,
         )
         con = Sender(engine_config)
-
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         p_headers = Lookup.list_to_headers(["KEY", "HEX", "COLOR"], "KEY")
         lookup.send_control("START", p_headers, "FULL")
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_control("END", p_headers, "FULL")
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
-
         con.socket.shutdown(0)
 
     # delete a line from lookup
@@ -186,15 +193,15 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
         p_headers = Lookup.list_to_headers(["KEY", "HEX", "COLOR"], "KEY")
         lookup.send_control("START", p_headers, "INC")
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_data_line(
             key_index=0, fields=["11", "HEX12", "COLOR12"], delete=True
         )
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_control("END", p_headers, "INC")
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
 
         con.socket.shutdown(0)
@@ -214,15 +221,15 @@ class TestLookup(unittest.TestCase):
         lookup.send_headers(
             headers=["KEY", "HEX", "COLOR"], key="KEY", action="START"
         )
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_headers(
             headers=["KEY", "HEX", "COLOR"], key="KEY", action="END"
         )
-        if len(con.socket.recv(1000)) == 0:
+        if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
 
         con.socket.shutdown(0)

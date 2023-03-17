@@ -101,7 +101,7 @@ def data(**kwargs):
                                 % Path(config['file']).absolute()))
                 return
             if config['multiline']:
-                with config['file'].open(mode='r') as file:
+                with open(config['file'], mode='r') as file:
                     content = file.read()
                     if not config['raw']:
                         sended += con.send(tag=config['tag'], msg=content,
@@ -112,7 +112,7 @@ def data(**kwargs):
                                                multiline=config['multiline'],
                                                zip=config.get("zip", False))
             else:
-                with config['file'].open(mode='r') as file:
+                with open(config['file'], mode='r') as file:
                     if config['header']:
                         next(file)
                     for line in file:

@@ -20,7 +20,7 @@ class TestSender(unittest.TestCase):
         self.tcp_port = int(os.getenv('DEVO_SENDER_TCP_PORT', 4489))
 
         self.remote_address = os.getenv('DEVO_REMOTE_SENDER_SERVER',
-                                 "collector-us.devo.io")
+                                        "collector-us.devo.io")
         self.remote_port = int(os.getenv('DEVO_REMOTE_SENDER_PORT', 443))
 
         self.key = os.getenv('DEVO_SENDER_KEY', CLIENT_KEY)
@@ -54,7 +54,7 @@ class TestSender(unittest.TestCase):
         self.config_path = "/tmp/devo_sender_tests_config.json"
         configuration.save(path=self.config_path)
 
-        self.bad_json_config_path ="./common/bad_json_config.json"
+        self.bad_json_config_path = "./common/bad_json_config.json"
         self.bad_yaml_config_path = "./common/bad_yaml_config.yaml"
 
     def test_cli_args(self):
@@ -150,6 +150,23 @@ class TestSender(unittest.TestCase):
         self.assertIsNone(result.exception)
         self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
 
+    def test_cli_normal_send_multiline_with_certificates_checking(self):
+        runner = CliRunner()
+        result = runner.invoke(data, ["--debug",
+                                      "--address", self.remote_address,
+                                      "--port", self.remote_port,
+                                      "--key", self.key,
+                                      "--cert", self.cert,
+                                      "--chain", self.chain,
+                                      "--tag", self.my_app,
+                                      "--verify_mode", 0,
+                                      '--check_hostname', False,
+                                      "--multiline",
+                                      "--file", self.test_file])
+
+        self.assertIsNone(result.exception)
+        self.assertGreater(int(result.output.split("Sended: ")[-1]), 0)
+
     def test_cli_with_config_file(self):
         if self.config_path:
             runner = CliRunner()
@@ -222,6 +239,7 @@ class TestSender(unittest.TestCase):
 
         self.assertIsNotNone(result.exception)
         self.assertEquals(result.exit_code, 64)
+
 
 if __name__ == '__main__':
     unittest.main()
