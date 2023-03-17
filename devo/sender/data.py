@@ -581,10 +581,11 @@ class Sender(logging.Handler):
             try:
                 self.socket.shutdown(SHUT_WR)
                 self.__wait_for_EOF()
-            except Exception as exc:  # Try else continue
+            except Exception:  # Try else continue
                 logging.exception(ERROR_MSGS.CLOSING_ERROR)
-            self.socket.close()
-            self.socket = None
+            finally:
+                self.socket.close()
+                self.socket = None
 
     @staticmethod
     def __encode_multiline(record):

@@ -34,7 +34,7 @@ class TestLookup(unittest.TestCase):
     @staticmethod
     def read(con, length: int):
         if not select.select([con.socket], [], [], con.socket_timeout)[0]:
-            raise Exception("Timeout reached during read operation")
+            raise TimeoutError("Timeout reached during read operation")
         return con.socket.recv(length)
 
     def test_ssl_lookup_csv_send(self):
