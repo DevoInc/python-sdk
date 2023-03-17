@@ -4,13 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.2.0] - Unreleased
+## [5.1.2-rc1] - 2023-03-17
 ### Added
- * Closing handshake protocol improved in Sender
- * NonBlocking Socket support added
+ * Sender: NonBlocking Socket support added
  * `responses` dependency open from ==0.22.0 to >=0.22.0
 ### Fixed
- * Download EOF channel TCP FIN detected and connection restarted
+ * Sender: Closing handshake protocol improved to avoid losing of events. Upstream channel is closed and then client waits for the closing of downstream channel 
+ * Sender: Monitoring of the EOF signal in downstream channel to detect whether server endpoint have closed the session
  * Fix message file management in CLI
 
 ## [5.1.1] - 2023-03-09
