@@ -623,6 +623,12 @@ class Sender(logging.Handler):
         return sent
 
     def __sendall(self, content):
+        """
+        Send content to endpoint dealing with blocking socket and SSL wrapper
+        :param content: The content to be sent as event
+        :raises DevoSenderException: if data cannot be sent or timeout is reached before sending it
+        :return: No expected return
+        """
         then = time.time()
         # Is the channel ready for writing?
         if select.select([], [self.socket], [], self.socket_timeout)[1]:
@@ -655,9 +661,11 @@ class Sender(logging.Handler):
 
     def __check_EOF(self):
         """
-        If the channel was closed by the other endpoint, ingestion balancer,
+        Checks for EOF of the downstream channell to check whether endpoint closed connection
+        If the channel was closed by the other endpoint (ingestion balancer)
         the reading of the download channel will return EOF. This is
         checked by reading a ready buffer but getting no data, empty bytes
+        :return: Whether the EOF is detected in downstream (True) or not (False)
         """
         # Is the channel ready for reading?
         if select.select([self.socket], [], [], 0)[0]:
@@ -688,8 +696,11 @@ class Sender(logging.Handler):
 
     def __wait_for_EOF(self):
         """
+        Wait for the endpoint to close the downstream channel after client closed the upstream one
         The downstream channel is closed by the other endpoint, ingestion balancer,
         by sending EOF. This is checked by reading a ready buffer but getting no data, empty bytes
+        :raises DevoSenderException: if timeout is reached before sending it
+        :return: Array of bytes with all the data send by endpoint until closing
         """
         then = time.time()
         # Wait for the channel to be ready for reading (with timeout)
