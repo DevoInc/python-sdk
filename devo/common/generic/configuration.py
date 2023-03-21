@@ -4,7 +4,6 @@ import json
 import sys
 import os
 from json import JSONDecodeError
-from parser import ParserError
 
 
 class ConfigurationException(Exception):

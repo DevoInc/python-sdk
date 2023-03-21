@@ -4,14 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.1.2-rc1] - 2023-03-17
+## [5.1.2-rc2] - 2023-03-21
 ### Added
  * Sender: NonBlocking Socket support added
  * `responses` dependency open from ==0.22.0 to >=0.22.0
 ### Fixed
  * Sender: Closing handshake protocol improved to avoid losing of events. Upstream channel is closed and then client waits for the closing of downstream channel 
  * Sender: Monitoring of the EOF signal in downstream channel to detect whether server endpoint have closed the session
- * Fix message file management in CLI
+ * Fixed message file management in CLI
+ * Fixed [wrong import](https://github.com/DevoInc/python-sdk/issues/185)
 
 ## [5.1.1] - 2023-03-09
 ### Added
