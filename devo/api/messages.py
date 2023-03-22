@@ -12,5 +12,8 @@ ERROR_MSGS = {
     "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries because KeepAlive"
                                     " tokens are not available for those resonses type",
     "missing_api_key": "You need a API Key and API secret to make this",
-    "data_query_error": "Error while receiving query data: %s "
+    "data_query_error": "Error while receiving query data: %s ",
+    "connection_error": "Failed to establish a new connection",
+    "other_errors": "Error while invoking query",
+    "error_no_detail": "Error code %d while invoking query"
 }

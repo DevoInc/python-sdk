@@ -1,5 +1,5 @@
 import os
-from devo.api import Client, ClientConfig, SIMPLECOMPACT_TO_OBJ
+from devo.api.client import Client, ClientConfig, SIMPLECOMPACT_TO_OBJ
 
 
 key = os.getenv('DEVO_API_KEY', None)

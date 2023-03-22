@@ -5,7 +5,7 @@ import click
 import sys
 from devo.common import Configuration
 from devo.api.client import Client
-from devo.api import DevoClientException
+from devo.api.exception import DevoClientException
 from devo.api.messages import ERROR_MSGS
 from devo.__version__ import __version__
 

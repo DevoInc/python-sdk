@@ -9,15 +9,15 @@ To use 's3' destination you must add destination parameter with type 's3' (see e
 
 - **Parameters:**
 
-| Key | Type   | Required          | Description                                                                                                                                       |
-| --- |--------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| aws.bucket | string | No*, nice to have | AWS bucket name. By default uses a enviroment.properties/s3-delivery.properties value with the same key. |
-| aws.region | string | No*, nice to have | AWS region. [Regions](https://docs.aws.amazon.com/es_es/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions) |
-| aws.accesskey | string | No*, nice to have | AWS access key credential |
-| aws.secretkey | string | No*, nice to have | AWS access password credential |
-| format | string | No | It's format of file compressed. It may be `zip`, `gzip` or `plain`. If not specified, the default format will be `zip` |
-| file.password | string | No | Add a password for file compressed. Only for zip format. |
-| s3.fileName | string | No | Filename to be used for files sent via S3. |
+| Key           | Type   | Required          | Description                                                                                                                                       |
+|---------------|--------|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
+| aws.bucket    | string | No*, nice to have | AWS bucket name. By default uses a enviroment.properties/s3-delivery.properties value with the same key.                                          |
+| aws.region    | string | No*, nice to have | AWS region. [Regions](https://docs.aws.amazon.com/es_es/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions) |
+| aws.accesskey | string | No*, nice to have | AWS access key credential                                                                                                                         |
+| aws.secretkey | string | No*, nice to have | AWS access password credential                                                                                                                    |
+| format        | string | No                | It's format of file compressed. It may be `zip`, `gzip` or `plain`. If not specified, the default format will be `zip`                            |
+| file.password | string | No                | Add a password for file compressed. Only for zip format.                                                                                          |
+| s3.fileName   | string | No                | Filename to be used for files sent via S3.                                                                                                        |
 
 
 
@@ -108,33 +108,33 @@ Example:
 ## Configuration
 All the configuration was in ``s3-delivery.properties`` and some values was ``environment.properties`` :
 
-| Key | Type | Description |
-|---|---|---|
-| aws.accesskey | string | Aws configuration by default, access key. |
-| aws.secretkey | string | Aws configuration by default, secret/pwd key. |
-| aws.bucketName | string | Aws configuration by default, bucket name. |
-| aws.region | string | Aws configuration by default, aws region. |
-| s3Delivery.tmp.dir | string | Temporal path to create files after upload then |
-| s3Delivery.tmp.clean | boolean | Clean tmp directory at api startup |
-| aws.file.size | long | Max file size for s3 files in bytes. The file can be overload size for a little bytes to avoid split a event in 2 files |
+| Key                  | Type    | Description                                                                                                             |
+|----------------------|---------|-------------------------------------------------------------------------------------------------------------------------|
+| aws.accesskey        | string  | Aws configuration by default, access key.                                                                               |
+| aws.secretkey        | string  | Aws configuration by default, secret/pwd key.                                                                           |
+| aws.bucketName       | string  | Aws configuration by default, bucket name.                                                                              |
+| aws.region           | string  | Aws configuration by default, aws region.                                                                               |
+| s3Delivery.tmp.dir   | string  | Temporal path to create files after upload then                                                                         |
+| s3Delivery.tmp.clean | boolean | Clean tmp directory at api startup                                                                                      |
+| aws.file.size        | long    | Max file size for s3 files in bytes. The file can be overload size for a little bytes to avoid split a event in 2 files |
 
 ## Errors
 
-| Error Code | Message | Description |
-|---|---|---|
-| 200 | S3 credentials cannot be empty or blank  | Please validate the destination credentials, because something was not send. |
-| 201 | Cannot create S3 client | Something was wrong when aws was created. |
-| 202 | Cannot upload file to s3 bucket | Something was wrong on upload file to s3 bucket. |
-| 203 | Cannot create temporal file to upload to s3 bucket | Cannot create temporal file to zip query response. Please validate temporal directory configuration. |
-| 204 | Cannot write in temporal file to upload to s3 bucket | Cannot add info to temporal file, please validate temporal directory configuration or disk free space. |
-| 205 | S3 upload must have all bucket info (bucket name, acccess key, access pwd and region | Verified if all aws parameters was setted. |
-| 206 | Bucket parameter must be string and it cannot be empty | Bucket name parameter must be string |
-| 207 | Access key parameter must be string and it cannot be empty | Access key parameter must be string |
-| 208 | Password key parameter must be string and it cannot be empty | Password/secret key parameter must be string |
-| 209 | Region parameter must be string and it cannot be empty | Region parameter must be string |
-| 210 | File compress format must be zip or gzip | File compress format must be zip or gzip |
-| 211 | S3 upload with format gzip cannot have password | Only zip format can be password |
-| 212 | File compress pwd format string and it cannot be empty | Password parameter must be string |
+| Error Code | Message                                                                              | Description                                                                                            |
+|------------|--------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|
+| 200        | S3 credentials cannot be empty or blank                                              | Please validate the destination credentials, because something was not send.                           |
+| 201        | Cannot create S3 client                                                              | Something was wrong when aws was created.                                                              |
+| 202        | Cannot upload file to s3 bucket                                                      | Something was wrong on upload file to s3 bucket.                                                       |
+| 203        | Cannot create temporal file to upload to s3 bucket                                   | Cannot create temporal file to zip query response. Please validate temporal directory configuration.   |
+| 204        | Cannot write in temporal file to upload to s3 bucket                                 | Cannot add info to temporal file, please validate temporal directory configuration or disk free space. |
+| 205        | S3 upload must have all bucket info (bucket name, acccess key, access pwd and region | Verified if all aws parameters was setted.                                                             |
+| 206        | Bucket parameter must be string and it cannot be empty                               | Bucket name parameter must be string                                                                   |
+| 207        | Access key parameter must be string and it cannot be empty                           | Access key parameter must be string                                                                    |
+| 208        | Password key parameter must be string and it cannot be empty                         | Password/secret key parameter must be string                                                           |
+| 209        | Region parameter must be string and it cannot be empty                               | Region parameter must be string                                                                        |
+| 210        | File compress format must be zip or gzip                                             | File compress format must be zip or gzip                                                               |
+| 211        | S3 upload with format gzip cannot have password                                      | Only zip format can be password                                                                        |
+| 212        | File compress pwd format string and it cannot be empty                               | Password parameter must be string                                                                      |
 
 ## AWS S3 upload methods
 

@@ -36,7 +36,7 @@ You can use the collector in some ways:
 - With certificates:
 	
 ```python
-from devo.sender import SenderConfigSSL, Sender
+from devo.sender.data import SenderConfigSSL, Sender
 engine_config = SenderConfigSSL(address=(SERVER, PORT), 
                                 key=KEY, cert=CERT,chain=CHAIN)
 con = Sender(engine_config)
@@ -45,7 +45,7 @@ con = Sender(engine_config)
 or 
 
 ```python
-from devo.sender import SenderConfigSSL, Sender
+from devo.sender.data import SenderConfigSSL, Sender
 engine_config = SenderConfigSSL(address=(SERVER, PORT), 
                                 pkcs={"path": "tmp/mycert.pfx",
                                       "password": "certpassword"})
@@ -55,7 +55,7 @@ con = Sender(engine_config)
 - Without certificates SSL
 
 ```python
-from devo.sender import SenderConfigSSL, Sender
+from devo.sender.data import SenderConfigSSL, Sender
 engine_config = SenderConfigSSL(address=(SERVER, PORT))
 con = Sender(engine_config)
 ```
@@ -63,7 +63,7 @@ con = Sender(engine_config)
 - Without certificates TCP
 	
 ```python
-from devo.sender import SenderConfigTCP, Sender
+from devo.sender.data import SenderConfigTCP, Sender
 engine_config = SenderConfigTCP(address=(SERVER, PORT))
 con = Sender(engine_config)
 ```
@@ -71,13 +71,13 @@ con = Sender(engine_config)
 
 - From dict - TCP example
 ```python
-from devo.sender import Sender
+from devo.sender.data import Sender
 con = Sender(config={"address": "collector", "port": 443, "type": "TCP"})
 ```
 
 - From dict - SSL example
 ```python
-from devo.sender import Sender
+from devo.sender.data import Sender
 con = Sender(config={"address": "collector", "port": 443, 
                      "key": "/tmp/key.key", "cert": "/tmp/cert.cert", 
                      "chain": "/tmp/chain.crt"})
@@ -118,7 +118,7 @@ To initialize the collector configuration from a file we need to import **Config
 
 ```python
 from devo.common import Configuration
-from devo.sender import Sender
+from devo.sender.data import Sender
 
 conf = Configuration("./config.json.example", 'sender')
 con = Sender(config=conf)
@@ -200,7 +200,7 @@ If you have problem with your certificates of Devo and devo-sdk you with this er
 on your configuration, SenderConfigSSL or CLI:
 
 ```python
-from devo.sender import SenderConfigSSL
+from devo.sender.data import SenderConfigSSL
 
 engine_config = SenderConfigSSL(address=("devo.collector", 443),
                                 key="key.key", cert="cert.crt",
@@ -232,7 +232,7 @@ The regular use of the handler can be observed in this  examples:
 ##### Second example: Setting up a Sender with tag
 ```python
 from devo.common import get_log
-from devo.sender import Sender, SenderConfigSSL
+from devo.sender.data import Sender, SenderConfigSSL
 
 engine_config = SenderConfigSSL(address=("devo.collector", 443),
                                 key="key.key", cert="cert.crt",
@@ -247,7 +247,7 @@ logger.info("Hello devo!")
 
 ```python
 from devo.common import get_log
-from devo.sender import Sender
+from devo.sender.data import Sender
 config = {"address": "devo.collertor", "port": 443,
           "key": "key.key", "cert": "cert.crt",
           "chain": "chain.crt", "type": "SSL"}

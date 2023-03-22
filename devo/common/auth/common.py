@@ -3,7 +3,7 @@ import hmac
 import time
 from enum import Enum
 
-from devo.common.generic.exception import DevoException
+from devo.api.exception import DevoClientException
 
 CREDENTIALS_ERROR = "Credentials for %s based authentication not found"
 
@@ -76,4 +76,4 @@ def get_request_headers(mode: AuthenticationMode, data, key: str = None,
             'Authorization': "jwt %s" % jwt
         }
 
-    raise DevoException(CREDENTIALS_ERROR % mode)
+    raise DevoClientException(CREDENTIALS_ERROR % mode)

@@ -1,5 +1,5 @@
 import os
-from devo.api import Client, ClientConfig, JSON
+from devo.api.client import Client, ClientConfig, JSON
 
 
 key = os.getenv('DEVO_API_KEY', None)

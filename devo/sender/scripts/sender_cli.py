@@ -15,7 +15,8 @@ except ImportError as import_error:
 import os
 from devo.common import Configuration
 from devo.sender.lookup import Lookup
-from devo.sender.data import Sender, DevoSenderException
+from devo.sender.data import Sender
+from devo.sender.exception import DevoSenderException
 from devo.__version__ import __version__
 # Groups
 # ------------------------------------------------------------------------------

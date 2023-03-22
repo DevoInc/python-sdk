@@ -1,5 +1,5 @@
 import os
-from devo.sender import Sender, SenderConfigSSL
+from devo.sender.data import Sender, SenderConfigSSL
 
 
 server = "us.elb.relay.logtrust.net"

@@ -1,6 +1,6 @@
 import os
 import unittest
-from devo.api import Client, ClientConfig
+from devo.api.client import Client
 
 
 class TestApi(unittest.TestCase):

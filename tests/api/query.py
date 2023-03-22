@@ -6,7 +6,8 @@ from time import gmtime, strftime
 
 import stopit
 
-from devo.api import Client, ClientConfig, DevoClientException
+from devo.api.exception import DevoClientException
+from devo.api.client import Client, ClientConfig
 
 
 class TestApi(unittest.TestCase):

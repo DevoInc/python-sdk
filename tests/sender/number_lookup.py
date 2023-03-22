@@ -1,5 +1,5 @@
 import unittest
-from devo.sender import Lookup
+from devo.sender.lookup import Lookup
 
 
 class TestLookup(unittest.TestCase):

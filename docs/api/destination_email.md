@@ -12,14 +12,14 @@ To use 'email' destination you must add destination parameter with type 'email' 
 
 - **Parameters:**
 
-| Key | Type | Required | Description |
-| --- | --- | --- | --- |
-| email.to | string | Yes | Email target or email to send query results |
-| email.subject | string | No | Email subject |
-| retention.size | long | No | Max file size (kilobytes) before send mail. Default file retention was 5 MB |
-| retention.time | long | No | Max time (seconds) before send mail. Default time was 15 mins |
-| format | string | Optional | It's format of file compressed. (zip or gzip) by default zip |
-| file.password | Optional | No | Add a password for file compressed. Only for zip format. |
+| Key            | Type     | Required | Description                                                                 |
+|----------------|----------|----------|-----------------------------------------------------------------------------|
+| email.to       | string   | Yes      | Email target or email to send query results                                 |
+| email.subject  | string   | No       | Email subject                                                               |
+| retention.size | long     | No       | Max file size (kilobytes) before send mail. Default file retention was 5 MB |
+| retention.time | long     | No       | Max time (seconds) before send mail. Default time was 15 mins               |
+| format         | string   | Optional | It's format of file compressed. (zip or gzip) by default zip                |
+| file.password  | Optional | No       | Add a password for file compressed. Only for zip format.                    |
 
 
 ## Restrictions

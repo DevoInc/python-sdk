@@ -1,5 +1,5 @@
 import os
-from devo.api import Client, ClientConfig, TO_BYTES
+from devo.api.client import Client, ClientConfig, TO_BYTES
 
 
 key = os.getenv('DEVO_API_KEY', None)

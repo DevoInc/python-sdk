@@ -1,7 +1,9 @@
-from json import JSONDecodeError
-import requests
 import time
-from devo.api.messages import ERROR_MSGS
+from json import JSONDecodeError
+
+import requests
+
+from devo.sender.messages import ERROR_MSGS
 
 
 class DevoClientException(Exception):

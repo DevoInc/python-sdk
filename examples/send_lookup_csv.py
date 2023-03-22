@@ -1,5 +1,6 @@
 import os
-from devo.sender import Sender, SenderConfigSSL, Lookup
+from devo.sender.data import Sender, SenderConfigSSL
+from devo.sender.lookup import Lookup
 
 server = "us.elb.relay.logtrust.net"
 port = 443

@@ -4,8 +4,8 @@ import socket
 from pathlib import Path
 from ssl import CERT_NONE, SSLSocket, SSLWantReadError
 
-from devo.sender import Sender, SenderConfigTCP, SenderConfigSSL, \
-    DevoSenderException
+from devo.sender.data import Sender, SenderConfigTCP, SenderConfigSSL
+from devo.sender.exception import DevoSenderException
 from devo.sender.data import open_file
 from devo.common import get_log
 

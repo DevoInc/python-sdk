@@ -1,7 +1,7 @@
 import calendar
 import unittest
 from datetime import datetime, timedelta
-from devo.api import Client
+from devo.api.client import Client
 import pytz
 class ParserDateCase(unittest.TestCase):
 

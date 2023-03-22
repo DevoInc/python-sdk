@@ -72,7 +72,7 @@ Accepted types:
 Example: 
 
 ```python
-from devo.sender import Lookup
+from devo.sender.lookup import Lookup
 pHeaders = Lookup.list_to_headers( 
                                    headers=list, #List with all headers names
                                    type_of_key="str",
@@ -139,7 +139,8 @@ A complete example to send a lookup row is:
 
 ````python
 from devo.common import Configuration
-from devo.sender import Sender, Lookup
+from devo.sender.data import Sender
+from devo.sender.lookup import Lookup
 
 conf = Configuration(path="./config.json.example")
 con = Sender(config=conf.get("sender"))
@@ -157,7 +158,8 @@ A simplify complete example to send a row of lookup is:
 
 ````python
 from devo.common import Configuration
-from devo.sender import Sender, Lookup
+from devo.sender.data import Sender
+from devo.sender.lookup import Lookup
 
 conf = Configuration()
 conf.load_config("./config.json.example", 'sender')
@@ -206,7 +208,8 @@ Complete example
 
 ````python
 from devo.common import Configuration
-from devo.sender import Sender, Lookup
+from devo.sender.data import Sender
+from devo.sender.lookup import Lookup
 conf = Configuration("./config.json.example")
 con = Sender(config=conf.get("sender"))
 lookup = Lookup(name=conf.get('lookup').get('name', "default"), historic_tag=None, con=con)

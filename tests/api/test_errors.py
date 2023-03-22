@@ -3,9 +3,9 @@ from unittest.mock import MagicMock
 
 import responses
 
-from devo.api import Client, DevoClientException
-from devo.api.client import SIMPLECOMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ, \
-    DEFAULT, NO_KEEPALIVE_TOKEN, DevoClientRequestException, DevoClientDataResponseException
+from devo.api.exception import DevoClientException, DevoClientRequestException, DevoClientDataResponseException
+from devo.api.client import Client, SIMPLECOMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ, \
+    DEFAULT, NO_KEEPALIVE_TOKEN
 
 
 class ErrorManagementCase(unittest.TestCase):

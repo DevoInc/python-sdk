@@ -1,6 +1,6 @@
 import os
-from devo.api import Client, ClientConfig, SIMPLECOMPACT_TO_OBJ
-from devo.sender import Sender, SenderConfigSSL
+from devo.api.client import Client, ClientConfig, SIMPLECOMPACT_TO_OBJ
+from devo.sender.data import Sender, SenderConfigSSL
 
 key = os.getenv('DEVO_API_KEY', None)
 secret = os.getenv('DEVO_API_SECRET', None)

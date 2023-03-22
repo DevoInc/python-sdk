@@ -3,7 +3,7 @@ import tempfile
 import unittest
 
 from click.testing import CliRunner
-from devo.api import DevoClientException
+from devo.api.exception import DevoClientException
 from devo.api.messages import ERROR_MSGS
 from devo.api.scripts.client_cli import query
 from devo.common import Configuration

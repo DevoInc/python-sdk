@@ -6,7 +6,7 @@ from pprint import pprint
 import requests
 from urllib.parse import quote as url_encode
 
-from devo.api import DevoClientException
+from devo.api.exception import DevoClientException
 from devo.common.auth.common import get_request_headers, AuthenticationMode
 
 NO_CREDENTIALS_IN_AUTH = "Token credentials not present in 'auth' parameter"

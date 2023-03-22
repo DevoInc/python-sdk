@@ -14,8 +14,7 @@ from .exception import DevoClientException, DevoClientRequestException, DevoClie
 from .messages import ERROR_MSGS
 from .processors import processors, proc_json, \
     json_compact_simple_names, proc_json_compact_simple_to_jobj
-from devo.common.auth.common import sign_request_with_key, \
-    get_request_headers, AuthenticationMode
+from devo.common.auth.common import get_request_headers, AuthenticationMode
 
 CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
 CLIENT_DEFAULT_USER = 'python-sdk-user'
@@ -39,7 +38,7 @@ NO_KEEPALIVE_TOKEN = None
 
 class ClientConfig:
     """
-    Main class for configuration of Client class. With diferent configurations
+    Main class for configuration of Client class. With different configurations
     """
 
     def __init__(self, processor=DEFAULT, response="json/simple/compact",

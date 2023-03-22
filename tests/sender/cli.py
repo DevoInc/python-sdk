@@ -4,7 +4,7 @@ from click.testing import CliRunner
 from devo.common import Configuration
 from devo.common.generic.configuration import ConfigurationException
 from devo.sender.scripts.sender_cli import data, lookup
-from devo.sender import DevoSenderException
+from devo.sender.exception import DevoSenderException
 
 try:
     from .load_certs import *

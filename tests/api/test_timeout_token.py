@@ -2,7 +2,7 @@ import json
 import unittest
 from unittest import mock
 
-from devo.api import Client
+from devo.api.client import Client
 from unittest.mock import MagicMock
 
 from devo.api.client import DEFAULT_KEEPALIVE_TOKEN, \
@@ -32,7 +32,7 @@ class TimeoutTokenCase(unittest.TestCase):
                                            "response": response_type,
                                            "keepAliveToken": keepAliveToken})
         with mock.patch(
-                'devo.api.Client._make_request') as patched_make_request:
+                'devo.api.client.Client._make_request') as patched_make_request:
                 
             response = Response()
             response.status_code = 200

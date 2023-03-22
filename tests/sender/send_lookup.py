@@ -3,7 +3,8 @@ import select
 import unittest
 from ssl import CERT_NONE
 from unittest import mock
-from devo.sender import Sender, SenderConfigSSL, Lookup
+from devo.sender.data import Sender, SenderConfigSSL
+from devo.sender.lookup import Lookup
 
 try:
     from .load_certs import *
