@@ -136,8 +136,8 @@ con.send(tag="test.drop.actors", msg='Hasselhoff')
 - Send raw log to collector
 
 ```python
-con.send_raw('<14>Jan  1 00:00:00 Nice-MacBook-Pro.local'
-             'test.drop.actors: Testing this cool tool')
+con.send_raw('<14>Jan  1 00:00:00 Nice-MacBook-Pro.local '
+             'test.drop.actors: Testing this cool tool\n')
 ```
 
 ## Optional fields for send function:
