@@ -23,6 +23,8 @@ from tests.sender.number_lookup import TestLookup as SENDER_NUMBER_LOOKUP
 from tests.sender.send_data import TestSender as SENDER_SEND_DATA
 from tests.sender.send_lookup import TestLookup as SENDER_SEND_LOOKUP
 from tests.lookups.test_requests import TestLookupsAPIRequests as LOOKUPS_REQUESTS
+from tests.lookups.test_operations import TestLookupsAPIOperations as LOOKUPS_OPERATIONS
+from tests.lookups.test_integration import TestLookupsAPIIntegration as LOOKUPS_INTEGRATIONS
 
 from tests.sender.local_servers import SSLServer, TCPServer
 
@@ -41,7 +43,9 @@ module_paths = {
     'SENDER_NUMBER_LOOKUP': SENDER_NUMBER_LOOKUP,
     'SENDER_SEND_DATA': SENDER_SEND_DATA,
     'SENDER_SEND_LOOKUP': SENDER_SEND_LOOKUP,
-    'LOOKUPS_REQUESTS': LOOKUPS_REQUESTS
+    'LOOKUPS_REQUESTS': LOOKUPS_REQUESTS,
+    'LOOKUPS_OPERATIONS': LOOKUPS_OPERATIONS,
+    'LOOKUPS_INTEGRATIONS': LOOKUPS_INTEGRATIONS
 }
 
 

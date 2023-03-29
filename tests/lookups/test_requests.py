@@ -1,5 +1,4 @@
 import json
-import time
 import unittest
 
 from devo.lookups.request import LookupRequest, Id, Recipe, Contribution, ContributionType, Key, KeyType, Source, \

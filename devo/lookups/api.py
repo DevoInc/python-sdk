@@ -6,8 +6,9 @@ from pprint import pprint
 import requests
 from urllib.parse import quote as url_encode
 
-from devo.api.exception import DevoClientException
+from devo.api.exception import DevoClientException, DevoClientRequestException
 from devo.common.auth.common import get_request_headers, AuthenticationMode
+from devo.lookups.request import LookupRequest
 
 NO_CREDENTIALS_IN_AUTH = "Token credentials not present in 'auth' parameter"
 
@@ -46,8 +47,10 @@ class Lookups:
                               method='get')
 
 
-    def create_lookup(self, domain: str, lookup: str, request):
-        payload = json.dumps(request)
+    def create_lookup(self, request: LookupRequest):
+        domain = request.id.creator
+        lookup = request.id.name
+        payload = request.toJson()
         return self.__request(f"{self.base_url}/lookup/{url_encode(domain)}/{url_encode(lookup)}/deploy-config",
                               method='post', payload=payload)
 
@@ -69,10 +72,9 @@ class Lookups:
             if response.status_code not in [200, 201]:
                 try:
                     message = response.json().get('error', {}).get('message', response.text)
-                    raise DevoClientException("Error processing request: %s" % str(message),
-                                              status=response.status_code)
+                    raise DevoClientRequestException(response)
                 except requests.exceptions.JSONDecodeError:
-                    raise DevoClientException(ERROR_PROCESSING_REQUEST % response.text, status=response.status_code)
+                    raise DevoClientException(ERROR_PROCESSING_REQUEST % response.text)
             try:
                 return response.json()
             except requests.exceptions.JSONDecodeError:
@@ -80,14 +82,14 @@ class Lookups:
         except DevoClientException as error:
             raise error
         except Exception as error:
-            raise DevoClientException(ERROR_INVOKING_REQUEST, cause=error) from error
+            raise DevoClientException(ERROR_INVOKING_REQUEST) from error
 
 
 domain = "devo_services"
 lookup_name = "test3"
 lookup_api = "https://api.stage.devo.com/lookup-api"
 
-lookups = Lookups(lookup_api, auth={'token': os.getenv('TOKEN')})
+lookups = Lookups(lookup_api, auth={'token': os.getenv('DEVO_LOOKUPS_TOKEN')})
 
 # pprint(lookups.get_lookups(domain))
 payload_once = \
@@ -162,15 +164,15 @@ payload_periodic = \
         },
         "notifyStatus": False
     }
-creation_result = lookups.create_lookup(domain, lookup_name, payload_periodic)
-pprint(creation_result)
-lookup_id = creation_result['id']
-while True:
-    job = lookups.get_lookup_job(domain, lookup_name, lookup_id)
-    pprint(job)
-    if job['jobs']:
-        break
-    time.sleep(30)
-if job['jobs'][0]['msg'] == 'Lookup successfully created':
-    pprint(lookups.describe_lookup(domain, lookup_name))
+# creation_result = lookups.create_lookup(domain, lookup_name, payload_periodic)
+# pprint(creation_result)
+# lookup_id = creation_result['id']
+# while True:
+#     job = lookups.get_lookup_job(domain, lookup_name, lookup_id)
+#     pprint(job)
+#     if job['jobs']:
+#         break
+#     time.sleep(30)
+# if job['jobs'][0]['msg'] == 'Lookup successfully created':
+#     pprint(lookups.describe_lookup(domain, lookup_name))
 #    pprint(lookups.delete_lookup(domain, lookup_name))
