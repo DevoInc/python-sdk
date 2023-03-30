@@ -19,28 +19,45 @@ class TestLookupsAPIIntegration(unittest.TestCase):
 
         self.api = Lookups(self.lookup_api_url, auth={'token': self.token})
 
-    @timeout_decorator.timeout(120)
+    @timeout_decorator.timeout(2400)
     def test_integration(self):
         try:
+            # Lis
             response = self.api.get_lookups(self.domain)
             i = 0
             for lookup in response['lookups']:
                 match = re.fullmatch('test(\d+)', lookup['name'])
                 if match is not None:
-                    i = +1
-                    continue
+                    i = max(int(match[1])+1, i)
             lookup_name = 'test%d' % i
             response = self.api.create_lookup(LookupRequest(
                 id=Id(self.domain, lookup_name),
                 recipe=Recipe("from siem.logtrust.web.activity where now()-1d < eventdate < now() group by username "
-                              "select username, count() as event_count, 'add' as type",
-                              column_filter=['username', 'event_count', 'type'],
+                              "select username, count() as event_count, 'creation' as when, 'add' as type",
+                              column_filter=['username', 'event_count', 'when', 'type'],
                               contribution=Contribution(name="type", type=ContributionType.COL),
                               key=Key(column='username', type=KeyType.COLUMN)),
             ))
             self.assertIsNotNone(response['lookupDeployConfig'])
+            job_id = response['id']
             while True:
-                response = self.api.get_lookup_job(self.domain, lookup_name, response['id'])
+                response = self.api.get_lookup_job(self.domain, lookup_name, job_id)
+                if response['jobs']:
+                    break
+                time.sleep(10)
+            response = self.api.describe_lookup(self.domain, lookup_name)
+            response = self.api.update_lookup(LookupRequest(
+                id=Id(self.domain, lookup_name),
+                recipe=Recipe(
+                    "from siem.logtrust.web.activity where now()-1d < eventdate < now() group by username "
+                    "select username, count() as event_count, 'update' as when, 'add' as type",
+                    column_filter=['username', 'event_count', 'when', 'type'],
+                    contribution=Contribution(name="type", type=ContributionType.COL),
+                    key=Key(column='username', type=KeyType.COLUMN)),
+            ))
+            job_id = response['id']
+            while True:
+                response = self.api.get_lookup_job(self.domain, lookup_name, job_id)
                 if response['jobs']:
                     break
                 time.sleep(10)

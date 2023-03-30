@@ -42,11 +42,6 @@ class Lookups:
         return self.__request(f"{self.base_url}/lookup/{url_encode(domain)}/{url_encode(lookup)}/job/{url_encode(id)}",
                               method='get')
 
-    def get_last_lookup_job(self, domain: str, lookup: str):
-        return self.__request(f"{self.base_url}/lookup/{url_encode(domain)}/{url_encode(lookup)}/job",
-                              method='get')
-
-
     def create_lookup(self, request: LookupRequest):
         domain = request.id.creator
         lookup = request.id.name
@@ -54,7 +49,9 @@ class Lookups:
         return self.__request(f"{self.base_url}/lookup/{url_encode(domain)}/{url_encode(lookup)}/deploy-config",
                               method='post', payload=payload)
 
-    def update_lookup(self, domain: str, lookup: str, request):
+    def update_lookup(self, request):
+        domain = request.id.creator
+        lookup = request.id.name
         payload = json.dumps(request)
         return self.__request(f"{self.base_url}/lookup/{url_encode(domain)}/{url_encode(lookup)}/deploy-config",
                               method='put', payload=payload)
