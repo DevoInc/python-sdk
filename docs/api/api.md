@@ -1,49 +1,100 @@
 # Devo API (Client)
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Devo API (Client)](#devo-api-client)
+  - [Overview](#overview)
+  - [Endpoints](#endpoints)
+    - [API](#api)
+      - [Differences in use from version 2 to 3](#differences-in-use-from-version-2-to-3)
+      - [Differences in use from version 3 to 4](#differences-in-use-from-version-3-to-4)
+  - [USAGE](#usage)
+    - [Constructor](#constructor)
+    - [ClientConfig](#clientconfig)
+    - [query() params](#query-params)
+    - [Result returned](#result-returned)
+      - [Non stream call](#non-stream-call)
+      - [Stream call](#stream-call)
+  - [Not verify certificates](#not-verify-certificates)
+  - [Use custom CA to verify](#use-custom-ca-to-verify)
+  - [Processors flags](#processors-flags)
+    - [Flag list](#flag-list)
+      - [DEFAULT example in Python 3, response csv](#default-example-in-python-3-response-csv)
+      - [DEFAULT example in Python 2.7, response csv](#default-example-in-python-27-response-csv)
+      - [TO_STR example in Python 3, response csv](#to_str-example-in-python-3-response-csv)
+      - [TO_BYTES example in Python 2.7, response csv](#to_bytes-example-in-python-27-response-csv)
+      - [SIMPLECOMPACT_TO_ARRAY example in Python 3, response json/simple/compact](#simplecompact_to_array-example-in-python-3-response-jsonsimplecompact)
+      - [SIMPLECOMPACT_TO_OBJ example in Python 3, response json/simple/compact](#simplecompact_to_obj-example-in-python-3-response-jsonsimplecompact)
+  - [The "from" and "to", formats and other stuff](#the-from-and-to-formats-and-other-stuff)
+    - [Date Formats](#date-formats)
+    - [____***Dates***](#____dates)
+    - [____***Days***](#____days)
+    - [____***Hours***](#____hours)
+    - [Retries](#retries)
+    - [Keep Alive mechanism support](#keep-alive-mechanism-support)
+  - [CLI USAGE](#cli-usage)
+  - [Choosing Format](#choosing-format)
+    - [Response type JSON](#response-type-json)
+    - [Response type json/compact](#response-type-jsoncompact)
+    - [Response type json/simple](#response-type-jsonsimple)
+    - [Reponse type json/simple/compact](#reponse-type-jsonsimplecompact)
+    - [Response type msgpack](#response-type-msgpack)
+    - [Response type csv](#response-type-csv)
+    - [Response type tsv](#response-type-tsv)
+  - [Exceptions and Errors](#exceptions-and-errors)
+
+<!-- /code_chunk_output -->
+
 ## Overview
+
 This library performs queries to the Client API (Search rest api) of Devo.
 
 ## Endpoints
-##### API
+
+### API
+
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
 
-| Region 	| Endpoint                               	|
-|--------	|----------------------------------------	|
-| USA    	| https://apiv2-us.devo.com/search/query 	|
-| Canada 	| https://apiv2-ca.devo.com/search/query 	|
-| Europe 	| https://apiv2-eu.devo.com/search/query 	|
-| Spain  	| https://apiv2-es.devo.com/search/query 	|
-| APAC  	| https://api-apac.devo.com/search/query 	|
+| Region  | Endpoint                                |
+|-------- |---------------------------------------- |
+| USA     | <https://apiv2-us.devo.com/search/query>  |
+| Canada  | <https://apiv2-ca.devo.com/search/query>  |
+| Europe  | <https://apiv2-eu.devo.com/search/query>  |
+| Spain   | <https://apiv2-es.devo.com/search/query>  |
+| APAC   | <https://api-apac.devo.com/search/query>  |
 
 You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/space/latest/95128275/Query%20API).
 
-#### Differences in use from version 2 to 3:
+#### Differences in use from version 2 to 3
 
 You have a special README to quickly show the important changes suffered from version 2 to 3
 
 [You can go read it here](api_v3_changes.md)
 
-#### Differences in use from version 3 to 4:
+#### Differences in use from version 3 to 4
 
 You have a special README to quickly show the important changes suffered from version 3 to 4
 
 [You can go read it here](api_v4_changes.md)
 
 ## USAGE
-#### Constructor
+
+### Constructor
 
 - address: endpoint
 - auth: object with auth params (key and secret, token or jwt)
-    - key: The key of the domain
-    - secret: The secret of the domain
-    - token: Auth token
-    - jwt: JWT token
+  - key: The key of the domain
+  - secret: The secret of the domain
+  - token: Auth token
+  - jwt: JWT token
 - retries: number of retries for connection errors in a query (`0`, no retry by default)
 - timeout: timeout of socket (`300` seconds by default)
 - retry_delay: retry delay value in seconds (`5` seconds by default). This is the base delay for the Exponential backoff algorithm with rate reduction of `2`
 - config: dict or ClientConfig object
 - verify: whether enable or disable the TLS authentication of endpoint (`True` by default). **DEVO will always provide a secure endpoint for ALL its services**. Disable at your own risk.
 
-    
 ```python
 from devo.api import Client
 
@@ -56,16 +107,16 @@ api = Client(auth={"token":"myauthtoken"},
 
 api = Client(auth={"jwt":"myauthtoken"},
              address="https://apiv2-eu.devo.com/search/query")
-```    
-    
-#### ClientConfig
+```
+
+### ClientConfig
 
 - processor: processor for response, default is None
 - response: format of response
 - destination: Destination options, see Documentation for more info
 - stream: Stream queries or not
 - pragmas: pragmas por query: {"user": "Username", "app_name": "app name", "comment": "This query is for x"}
-    - All pragmas are optional
+  - All pragmas are optional
 - keepAliveToken: KeepAlive token for long responses queries, see specific Section in this document for more info
 
 ```python
@@ -85,10 +136,11 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
              address="https://apiv2-eu.devo.com/search/query",
              config=config)
 ```  
-   
-#### query() params
+
+### query() params
 
 `def query(self, **kwargs)`
+
 - query: Query to perform
 - query_id: Query ID to perform the query
 - dates: Dict with "from" and "to" keys for date rangue, and "timeZone" for define timezone, if you want
@@ -97,10 +149,10 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 - comment: comment for query pragmas
 - Result of the query (dict) or Iterator object
 
-
-#### Result returned:
+### Result returned
 
 Client support streaming of responses
+
 * When the stream mode is enabled, the response is asynchronously available for the code using the Client, as the server is returning it. Therefore, there is no need to wait for the whole reponse to start processing it. It is also quite useful for query running online with no ending or ending expecting in the future. As the data is available we can be working with it.
 * When the stream mode is not enabled, we have to wait for the query response to be completed and returned by server.  
 
@@ -117,20 +169,24 @@ Depending on the `stream` mode enabled in `ClientConfig`:
 | tsv                 | `Iterator[str]`     | `str`                   |
 | xls                 | *Not supported*     | `bytes`                 |
 
-###### - Non stream call
- - Result of the query in str/bytes when query work
- - JSON Object when query has errors
- - You can use all the response formats in non-stream mode.
-###### - Stream call
- - Generator with result of the query, str, when query work
- - JSON Object when query has errors
- - Stream available response formats:
-    - json/simple
-    - json/simple/compact
-    - csv (comma separated values)
-    - tsv (tabulator separated Values) 
+#### Non stream call
+
+- Result of the query in str/bytes when query work
+- JSON Object when query has errors
+- You can use all the response formats in non-stream mode.
+
+#### Stream call
+
+- Generator with result of the query, str, when query work
+- JSON Object when query has errors
+- Stream available response formats:
+  - json/simple
+  - json/simple/compact
+  - csv (comma separated values)
+  - tsv (tabulator separated Values)
 
 Normal/Non stream response:
+
 ```python
 from devo.api import Client, ClientConfig
 
@@ -153,6 +209,7 @@ print(response)
 ```
 
 Real time/stream query:
+
 ```python
 from devo.api import Client, ClientConfig
 
@@ -172,10 +229,12 @@ except Exception as error:
     print(error)
 
 ```
-Query by id has the same parameters as query (), changing the field "query" 
+
+Query by id has the same parameters as query (), changing the field "query"
 to "query_id", which is the ID of the query in Devo.
 
 ## Not verify certificates
+
 If server has https certificates with problems, autogenerated or not verified, you can deactivate
  the secure calls (Verifying the certificates https when making the call) disabling it with:
 
@@ -195,7 +254,8 @@ api.verify_certificates(True)
 ```  
 
 ## Use custom CA to verify
-For customs servers, and custom certificates, you can use custom CA for verity that certificates. 
+
+For customs servers, and custom certificates, you can use custom CA for verity that certificates.
 You can put CA cert path instead of "False" or "True"
 
 ```python
@@ -213,7 +273,7 @@ You can revert it with:
 api.verify_certificates(True)
 ```  
 
-## Processors flags:
+## Processors flags
 
 By default, you receive response in str/bytes (Depends of your python version) direct from Socket, and you need manipulate the data.
 But you can specify one default processor for data, soo you receive in diferents format:
@@ -237,7 +297,7 @@ except Exception as error:
     print(error)
 ```
 
-#### Flag list:
+### Flag list
 
 - DEFAULT: It is the default processor, it returns str or bytes, depending on the Python version
 - TO_STR: Return str, decoding data if receive bytes
@@ -247,7 +307,6 @@ except Exception as error:
 - COMPACT_TO_ARRAY: Use it if you want arrays, when ask for json/compact responses, instead of str/bytes. Ignored when response=csv
 - SIMPLECOMPACT_TO_OBJ: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
 - SIMPLECOMPACT_TO_ARRAY: Use it if you want json objects, when ask for json/simple/compact responses, instead of str/bytes. Ignored when response=csv
-
 
 **JSON_SIMPLE, COMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ and SIMPLECOMPACT_TO_ARRAY only work with the api in mode `stream=True`**
 
@@ -264,33 +323,44 @@ api = Client(auth={"key":"myapikey", "secret":"myapisecret"},
 api.config.set_processor(processor)
 ```
 
-###### - DEFAULT example in Python 3, response csv: 
+#### DEFAULT example in Python 3, response csv
+
 ```python
 b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
 ```  
 
-###### - DEFAULT example in Python 2.7, response csv: 
+#### DEFAULT example in Python 2.7, response csv
+
 ```python
 '18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
 ```  
-###### - TO_STR example in Python 3, response csv: 
+
+#### TO_STR example in Python 3, response csv
+
 ```python
 '18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
 ```  
-###### - TO_BYTES example in Python 2.7, response csv: 
+
+#### TO_BYTES example in Python 2.7, response csv
+
 ```python
 b'18/Jan/2019:09:58:51 +0000,/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7,404,http://www.bing.com/,Googlebot/2.1 ( http://www.googlebot.com/bot.html),gaqfse5dpcm690jdh5ho1f00o2:-'
 ```  
-###### - SIMPLECOMPACT_TO_ARRAY example in Python 3, response json/simple/compact: 
+
+#### SIMPLECOMPACT_TO_ARRAY example in Python 3, response json/simple/compact
+
 ```python
 ['18/Jan/2019:09:58:51 +0000', '/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7', 404, 'http://www.bing.com/', 'Googlebot/2.1 ( http://www.googlebot.com/bot.html)', 'gaqfse5dpcm690jdh5ho1f00o2:-']
 ```  
-###### - SIMPLECOMPACT_TO_OBJ example in Python 3, response json/simple/compact: 
+
+#### SIMPLECOMPACT_TO_OBJ example in Python 3, response json/simple/compact
+
 ```python
 {'statusCode': 404, 'uri': '/category.screen?category_id=BEDROOM&JSESSIONID=SD10SL6FF10ADFF7', 'referralUri': 'http://www.bing.com/', 'userAgent': 'Googlebot/2.1 ( http://www.googlebot.com/bot.html)', 'cookie': 'gaqfse5dpcm690jdh5ho1f00o2:-', 'timestamp': '18/Jan/2019:09:58:51 +0000'}
 ```  
 
-## The "from" and "to", formats and other stuff...
+## The "from" and "to", formats and other stuff
+
 Here we define the start and end of the query (query eventdate filter are
 secondary), those are the limits of the query.
 
@@ -301,38 +371,39 @@ From                                                                          To
 ```
 
 ### Date Formats
+
 - **Fixed format:** As described on [Official Python Docs](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior). Accepted formats are:
-    - '%Y-%m-%d %H:%M:%S'
-    - '%Y-%m-%d', the time will be truncated to 00:00:00
-    
+  - '%Y-%m-%d %H:%M:%S'
+  - '%Y-%m-%d', the time will be truncated to 00:00:00
+
 - **Timestamp:** From epoch in seconds
 
 - **Dynamic expression:** Using the LinQ sintax we can use several functions. **timeZone can be wrong with this syntax**
-    - Relative functions:
-        - now(): Current date and time
-        - today(): Current date and time fixed to 00:00:00
-        - yesterday(): Current date minus one day and time fixed to 00:00:00
-    - Amount functions:
-        - second(): Return 1
-        - minute(): Return 60
-        - hour(): Return 60 * 60
-        - day(): Return 24 * 60 * 60
-        - week(): Return 7 * 24 * 60 * 60
-        - month(): Return 30 * 24 * 60 * 60
-        
+  - Relative functions:
+    - now(): Current date and time
+    - today(): Current date and time fixed to 00:00:00
+    - yesterday(): Current date minus one day and time fixed to 00:00:00
+  - Amount functions:
+    - second(): Return 1
+    - minute(): Return 60
+    - hour(): Return 60 * 60
+    - day(): Return 24 *60* 60
+    - week(): Return 7 *24* 60 * 60
+    - month(): Return 30 *24* 60 * 60
+
     With this sintax you can use expressions like: `from="now()-2*day()` equivalent to now minus two days.
     Or `from=today()-6*month()`, etc.
-    
-- **New REST API dinamyc dates**: 
+
+- **New REST API dinamyc dates**:
 
     `For all the examples that don't use a timestamp to specify a date, we assume that the moment of execution is 08-10-2018, 14:33:12 UTC.`
     This is a copy of official Devo docs you can see [HERE](https://docs.devo.com/confluence/ndt/api-reference/rest-api/running-queries-with-the-rest-api)
 
- ### ____**_Dates_**
-    
+### ____***Dates***
+
 |Operator|Example|Description|
 | ------------- | ------------- |---------|
-|today|	|Get the current day at 00:00:00. Note that the timeZone parameter affects the date settings.|
+|today| |Get the current day at 00:00:00. Note that the timeZone parameter affects the date settings.|
 | |`"from": "today"`|This sets the starting date to 08-10-2018, 00:00:00 UTC
 | |`"to": "today"`|This sets the ending date to 08-10-2018, 00:00:00 UTC
 | |`"from": "today", "timeZone": "GMT+2"`|This sets the starting date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
@@ -354,10 +425,12 @@ From                                                                          To
 | |`"to": "endmonth"`|This sets the ending date to 30-09-2018, 23:59:59 UTC.
 | |`"from": 1536150131, "to": "endmonth"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 30-09-2018, 23:59:59 UTC
 | |`"from": 1536142931, "to": "endmonth", "timeZone": "GMT+2"`|(this timestamp corresponds to 05/09/2018, 12:22:11 GMT+2) This sets the ending date to 30-09-2018 23:59:59 GMT+2 (30-09-2018, 21:59:59 UTC)
- ### ____**_Days_**
+
+### ____***Days***
+
 |Operator|Example|Description|
 | ------------- | ------------- |------------- |
-|d	| |Enter a number followed by d in the from parameter to substract N days from the current date. If you use it in the to field you will get the from date plus the indicated number of days.
+|d | |Enter a number followed by d in the from parameter to substract N days from the current date. If you use it in the to field you will get the from date plus the indicated number of days.
 | |`"from": "2d"`|This sets the starting date to 06-10-2018, 14:33:12 UTC
 | |`"from": 1536150131, "to": "2d"`|This sets the ending date to 07-09-2018, 12:22:11 UTC
 | |`"from": "5d",  "to": "2d"`|This sets the starting date to 03-10-2018, 14:33:12 UTC and the ending date to 05-10-2018, 14:33:12 UTC
@@ -370,7 +443,8 @@ From                                                                          To
 | |`"from": 1536142931, "to": "2ad", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 GMT+2 (06-09-2018, 22:00:00 UTC)
 | |`"from": "5ad", "to": "2ad", "timeZone": "GMT+2"`|This sets the starting date to 03-10-2018, 00:00:00 GMT+2 (02-10-2018, 22:00:00 UTC), and the ending date to 05-10-2018, 00:00:00 GMT+2 (04-10-2018, 22:00:00 UTC)
 
- ### ____**_Hours_**
+### ____***Hours***
+
 |Operator|Example|Description|
 | ------------- | ------------- |------------- |
 |h| |Enter a number followed by h in the from parameter to subtract N hours from the current time. If you use it in the to field you will get the from time plus the indicated number of hours.
@@ -393,7 +467,6 @@ In order to enable it, you must set up the `retries` parameter with a value bigg
 
 There is a delay within `retries`. The default base delay is `5` seconds, it is updated by Exponential backoff algorithm in every retry with a rate reduction of `2`. The base delay is multiplied by 2 in every retry. The base delay can be configured by parameter `retry_delay`
 
-
 ### Keep Alive mechanism support
 
 Some queries may require a big time to start returning data, because of the calculations required, the load of the platform or just because the data belongs to the future (because the data hasn't been ingested yet).
@@ -407,22 +480,21 @@ Client detects and removes tokens from response transparently, so developer has 
 Client support several modes for supporting this mechanism. The mode is set up in parameter `keepAliveToken` in `ClientConfig`. Its default value is `devo.api.client.DEFAULT_KEEPALIVE_TOKEN`
 
 * `devo.api.client.NO_KEEPALIVE_TOKEN`: No keep alive token mechanism will be used
-  * `json`, `json/compact`, `json/simple` and `json/simple/compact` modes are forced to use always `DEFAULT_KEEPALIVE_TOKEN` mode, so it cannot be disabled for them. The token for these modes is always `b'    '` (four utf-8 spaces chars) 
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` modes are forced to use always `DEFAULT_KEEPALIVE_TOKEN` mode, so it cannot be disabled for them. The token for these modes is always `b'    '` (four utf-8 spaces chars)
   * For `csv`, `tsv` and `xls` the keep alive mechanism is disabled and no token is sent by server
   * `msgpack` does not support the keep alive mechanism in any case and this is the only valid choice for this response mode
 * `devo.api.client.DEFAULT_KEEPALIVE_TOKEN`: The default token used
-  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars)
   * For `csv`, `tsv` and `xls` token is always `\n` (new line char) in this mode
   * `msgpack` does not support the keep alive mechanism, `NO_KEEPALIVE_TOKEN` is forced
 * `devo.api.client.EMPTY_EVENT_KEEPALIVE_TOKEN`: A new empty event or line is created by the server. The format of the event will depend on response mode, `csv`or `tsv`
-  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars)
   * For `csv` and `tsv` token contains as many separator chars (`,` or `\t`) as columns/fields the response has minus 1, followed by `\n` (new line char)
   * `msgpack` and `xls` do not support this mode
 * CUSTOM keep alive token: Any `str` may be a valid token. This `str` will be used by the sever as keep alive token
-  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars) 
-  * For `csv` and `tsv` token is the custom `str` set as parameter   
+  * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars)
+  * For `csv` and `tsv` token is the custom `str` set as parameter
   * `msgpack` and `xls` do not support this mode
-
 
 | Response mode       | default mode              | `NO_KEEPALIVE_TOKEN` | `DEFAULT_KEEPALIVE_TOKEN` | `EMPTY_EVENT_KEEPALIVE_TOKEN` | Custom keep alive token      |
 |---------------------|---------------------------|----------------------|---------------------------|-------------------------------|------------------------------|
@@ -474,17 +546,18 @@ Options:
   --help                  Show this message and exit.
 ```
 
-A configuration file does not have to have all the necessary keys, you can have 
+A configuration file does not have to have all the necessary keys, you can have
 the common values: url, port, certificates. And then send with the call the tag,
  file to upload, etc.
 
-Both things are combined at runtime, prevailing the values that are sent as 
+Both things are combined at runtime, prevailing the values that are sent as
 arguments of the call over the configuration file
 
-**Config file key:** The CLI uses the "api" key to search for information. 
+**Config file key:** The CLI uses the "api" key to search for information.
 You can see one examples in tests folders
 
 json example 1:
+
 ```json
   {
     "api": {
@@ -497,6 +570,7 @@ json example 1:
 ```
 
 json example 2:
+
 ```json
   {
     "api": {
@@ -511,13 +585,16 @@ json example 2:
 ```
 
 yaml example 1:
+
 ```yaml
   api:
     key: "MyAPIkeytoaccessdevo"
     secret: "MyAPIsecrettoaccessdevo"
     url: "https://apiv2-us.devo.com/search/query"
 ```
+
 yaml example 2:
+
 ```yaml
   api:
     auth:
@@ -529,12 +606,14 @@ yaml example 2:
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values
 
 Priority order:
+
 1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
 2. params in CLI call: He can complete values not in configuration file, but not override it
 3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
 4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
 
-Environment vars are: 
+Environment vars are:
+
 - `DEVO_API_ADDRESS`
 - `DEVO_API_KEY`
 - `DEVO_API_SECRET`
@@ -542,7 +621,8 @@ Environment vars are:
 - `DEVO_API_TOKEN`
 - `DEVO_API_JWT`
 
-## Choosing Fomat
+## Choosing Format
+
 The default response format (`response`) is `json`, to change the default value, it can be established directly:
 
 ```python
@@ -550,28 +630,28 @@ api.response = 'json/compact'
 ```
 
 To change the response format (`format`) of a query, just change the value of the attribute response of the query call
+
 ```python
 api.config.response = config.get('response')
 
 response = api.query(config.get('query'), 
                      dates={"from": config.get('from'), "to": config.get('to')})
 ```
- 
+
 Format allow the following values:
 
-    · json
-    · json/compact
-    · json/simple
-    · json/simple/compact
-    · msgpack
-    · csv (comma separated values)
-    · tsv (Tab separated Values) 
-    
-#### Response type JSON 
+- json
+- json/compact
+- json/simple
+- json/simple/compact
+- msgpack
+- csv (comma separated values)
+- tsv (Tab separated Values)
+
+### Response type JSON
 
 When `response` is set to `json`, response is a
 Json Object with the following structure:
-
 
 | Field Name | Type | Description |
 |---|---|---|
@@ -580,9 +660,8 @@ Json Object with the following structure:
 | status | Integer | Numeric value  that especify the error code. <br /> 0 - OK<br /> 1 - Invalid request |
 | object | Json Object | The Query Result. The format of the content, depends on the Query data. |
 
-
 Example
- 
+
 ```python
 {
  "success": True,
@@ -611,7 +690,7 @@ Example
 }
 ```
 
-#### Response type json/compact
+### Response type json/compact
 
 When `response` is set to `json/compact`, response is a
 Json Object with the following structure:
@@ -622,11 +701,11 @@ Json Object with the following structure:
 | msg | String | Message Description in case of error |
 | status | Integer | Numeric value  that especify the error code. <br /> 0 - OK<br /> 1 - Invalid request |
 | object | Json Object |  |
-| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> | 
+| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> |
 | object.d | Json Object | Array of Arrays with the values of the response of the query. |
 
-
 Example
+
 ```python
 {
     "msg": "",
@@ -674,8 +753,7 @@ Example
 }
 ```
 
-
-#### Response type json/simple
+### Response type json/simple
 
 When `response` is set to `json/simple`  
 The response is a stream of Json Objects with the following structure of the values that the Query generates, separated each registry  CRLF.
@@ -683,7 +761,6 @@ The response is a stream of Json Objects with the following structure of the val
 When the query does not generate more information, the connection is closed by the server.
 
 In case, no date to is requested, the connections is keeped alive.
-
 
 Example
 
@@ -709,7 +786,7 @@ Example
 ...
 ```
 
-#### Reponse type json/simple/compact
+### Reponse type json/simple/compact
 
 When `response` is set to `json/simple/compact`  
 The response is a stream of Json Objects with the following structure each line is  separated by  CRLF:
@@ -723,18 +800,18 @@ The First Line is a JSON object  map with the Metadata information, the key is t
 <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul>
 
 The rest of the lines are data lines:  
-    
+
 ```python
 {"d":[1506439800000,"self","email@devo.com",null,1]}
 ```
 
 a field with name "d", gives access to the array of values with the information.
 
-
 When the query does not generate more information, the connection is closed by the server.  
 In case, no date to is requested, the connections is keeped alive.
 
 Example
+
 ```python
 {"m":{"eventdate":{"type":"timestamp","index":0},"domain":{"type":"str","index":1},"userEmail":{"type":"str","index":2},"country":{"type":"str","index":3},"count":{"type":"int8","index":4}}}
 {"d":[1506439800000,"self","email@devo.com",null,1]}
@@ -754,23 +831,20 @@ Example
 {"d":[1506440290000,"self","email@devo.com",null,3]}
 {"d":[1506440350000,"self","email@devo.com",null,1]}
 ```
-    
 
-
-#### Response type msgpack
+### Response type msgpack
 
 When `response` is set to `msgpack`  
-The response format is the same that the Json format, but encoded using MsgPack an efficient binary serialization format (http://msgpack.org/)
+The response format is the same that the Json format, but encoded using MsgPack an efficient binary serialization format (<http://msgpack.org/>)
 
-
-
-#### Response type csv
+### Response type csv
 
 When `response` is set to `csv`  
 The system returns the information in CSV(Comma Separated Values) format, as follows
 
-Example
+Example:
 
+```text
     eventdate,domain,userEmail,country,count
     2017-03-01 12:00:00.000,none,,,3
     2017-03-01 12:00:00.000,email@devo.com,0:0:0:0:0:0:0:1,,18
@@ -791,14 +865,16 @@ Example
     2017-03-01 15:00:00.000,email@devo.com,0:0:0:0:0:0:0:1,,38
     2017-03-01 15:00:00.000,self,email@devo.com,,1
     2017-03-01 15:00:00.000,nombre,email@devo.com,,80
+```
 
-#### Response type tsv
+### Response type tsv
 
 When `response` is set to `tsv`  
 The system returns the information in TSV (Tab Separated Values)  format as follows
 
 Example
 
+```text
     eventdate   domain  userEmail   country count
     2017-03-01 12:00:00.000 none            3
     2017-03-01 12:00:00.000 email@devo.com    0:0:0:0:0:0:0:1     18
@@ -817,15 +893,17 @@ Example
     2017-03-01 15:00:00.000 email@devo.com    127.0.0.1       21
     2017-03-01 15:00:00.000 self    email@devo.com        71
     2017-03-01 15:00:00.000 email@devo.com    0:0:0:0:0:0:0:1     38
+```
 
 ## Exceptions and Errors
 
 Every issue or error found during the request of queries of data is reported through
 `DevoClientException` exception. But since version `5.1.0` there are additional exception classes
 for a more detailed feedback of errors:
-* `devo.api.client.DevoClientException`: Common legacy Exception class that is thrown for every 
+
+* `devo.api.client.DevoClientException`: Common legacy Exception class that is thrown for every
 error during the querying of data. It inherits from `Exception` class
-* `devo.api.client.DevoClientRequestException`: Specific exception class that is thrown whenever 
+* `devo.api.client.DevoClientRequestException`: Specific exception class that is thrown whenever
 a query is requested to the server endpoint and it fails due to internal errors or bad requests. It
 contains the whole `requests.models.Response` from server for reference. It inherits from
 `DevoClientException`

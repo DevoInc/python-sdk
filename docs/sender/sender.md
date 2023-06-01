@@ -1,38 +1,61 @@
-# devo-sender
+# Devo sender
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Devo sender](#devo-sender)
+  - [Overview](#overview)
+  - [Features](#features)
+  - [Endpoints](#endpoints)
+    - [Sender](#sender)
+    - [Differences in use from version 2 to 3](#differences-in-use-from-version-2-to-3)
+  - [CLI usages](#cli-usages)
+    - [devo-sender data](#devo-sender-data)
+    - [devo-sender lookup](#devo-sender-lookup)
+
+<!-- /code_chunk_output -->
+
 ## Overview
 
 This library allows you to send logs to the Devo platform.
 
 ## Features
+
 - Data and lookups sending merged in one procedure
 - Allows to send real time data
 - Logger integration and logging handler capacity for Sender
 - Send lookups to Devo
 
 You have info about usage in scripts here:
+
 - [Data](data.md)
 - [Lookups](lookup.md)
 
 ## Endpoints
-##### Sender
+
+### Sender
+
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
 
-| Region 	| Endpoint                  	| Port 	|
-|--------	|---------------------------	|------	|
-| USA    	| us.elb.relay.logtrust.net 	| 443  	|
-| Europe 	| eu.elb.relay.logtrust.net 	| 443  	|
-| Spain  	| es.elb.relay.logtrust.net 	| 443  	|
-    
+| Region  | Endpoint                   | Port  |
+|-------- |--------------------------- |------ |
+| USA     | us.elb.relay.logtrust.net  | 443   |
+| Europe  | eu.elb.relay.logtrust.net  | 443   |
+| Spain   | es.elb.relay.logtrust.net  | 443   |
+
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/space/latest/94652410/Sending%20data%20to%20Devo).
 
-#### Differences in use from version 2 to 3:
+### Differences in use from version 2 to 3
 
 You have a special README to quickly show the important changes suffered from version 2 to 3
 
 [You can go read it here](sender_v2_to_v3_major_changes.md)
 
 ## CLI usages
-#### devo-sender data
+
+### devo-sender data
+
 This command is used to send logs to Devo
 
 ```
@@ -84,6 +107,7 @@ Options:
 ```
 
 Examples
+
 ```
 #Send test line to table "test.drop.ltsender"
 devo-sender data -c ~/certs/config.json
@@ -102,9 +126,8 @@ devo-sender data -a app.devo.com -p 10000 --key ~/certs/key.key --cert ~/certs/c
 You have example file in the "tests" folder of the project for a simple, and most useful example).
 All the values must be at the same level and without "-"
 
+### devo-sender lookup
 
-
-#### devo-sender lookup
 `lookup` command is used to send lookups to Devo
 
 ```
@@ -153,13 +176,12 @@ Options:
   --help                          Show this message and exit.
 ```
 
-
 Example
+
 ```
 #Send lookup when all Devo data is in config file
 devo-sender lookup -c ~/certs/config.json -n "Test Lookup" -f "~/tests/test_lookup.csv -lk "KEY"
 ```
-
 
 To send info us the "sender" key, with information to send to Devo.
 If you want to add lookup info, you need use the "lookup" key.
@@ -168,17 +190,17 @@ A configuration file does not require all the keys, you can pass
 the common values: url, port, certificates. After that you can send the tag, the upload file, and
 so on, along with the function call.
 
-Both things are combined at runtime, prevailing the values that are sent as 
+Both things are combined at runtime, prevailing the values that are sent as
 arguments of the call over the configuration file
 
 Priority order:
+
 1. -c configuration file option: if you use it, params in the file
 2. params in CLI call: He can complete values not in configuration file, but does not overrides it
 3. Environment vars: if you send the key, secrkey or token in config file or params cli, this option will not be called
 4. ~/.devo.json: if you send the key, secrey or token in other ways, this option will not be called
- 
-**Config file example:** 
 
+**Config file example:**
 
 ```json
   {
@@ -197,6 +219,7 @@ Priority order:
     }
   }
 ```
+
 ```yaml
 sender:
   address: "devo-relay"
@@ -205,7 +228,7 @@ sender:
   cert: "/devo/certs/cert.crt"
   chain: "/devo/certs/chain.crt"
   verify_config: true
-lookup: 
+lookup:
   name: "Test lookup"
   file: "/lookups/lookup.csv"
   lkey: "ID"

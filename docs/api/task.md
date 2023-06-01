@@ -1,5 +1,38 @@
 # TASK OPERATIONS
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [TASK OPERATIONS](#task-operations)
+  - [Check Status Of a Job](#check-status-of-a-job)
+    - [Request parameter](#request-parameter)
+    - [Response parameters](#response-parameters)
+    - [Response example](#response-example)
+  - [Find All Jobs](#find-all-jobs)
+    - [Response](#response)
+    - [Response example](#response-example-1)
+  - [Find all jobs by type](#find-all-jobs-by-type)
+    - [Response parameters](#response-parameters-1)
+  - [Find all jobs By Type And Name](#find-all-jobs-by-type-and-name)
+    - [Response parameters](#response-parameters-2)
+  - [Stop a Job](#stop-a-job)
+    - [Request parameter](#request-parameter-1)
+    - [Response](#response-1)
+    - [Response example](#response-example-2)
+  - [Start a Job (Restart a stopped job)](#start-a-job-restart-a-stopped-job)
+    - [Request parameter](#request-parameter-2)
+    - [Response](#response-2)
+    - [Response example](#response-example-3)
+  - [Remove a Job](#remove-a-job)
+    - [Request parameter](#request-parameter-3)
+    - [Response](#response-3)
+    - [Example](#example)
+  - [Task Error Codes](#task-error-codes)
+  - [Task Status](#task-status)
+
+<!-- /code_chunk_output -->
+
 ## Check Status Of a Job
 
 These method is used to check the status of a Query Job.
@@ -10,15 +43,16 @@ from devo.api import Client
 api = Client(key="myapikey",
               secret="myapisecret",
               url="https://apiv2-eu.devo.com/search/query")
-              
+
 job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.get_job(job_id)
 ```
 
-##### Request parameter
-  - **jobId**: is the unique identifier returned when the query is launched.
+### Request parameter
 
-##### Response parameters
+- **jobId**: is the unique identifier returned when the query is launched.
+
+### Response parameters
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -26,9 +60,7 @@ response = api.get_job(job_id)
 | status | Integer | Numeric value  that especify the error code.0 - OK 1 - Invalid request |
 | object | Object | Job_Status Object, containing the current status of the Job |
 
-
-    - Job_Status Object: Object that contains the information needed to check the status of the Query that is forwarding the response to the targets.
-    (**Warning:** This Object contains information as we actually consider is needed, probably this object will be extended in the future depending of the needs and experience gained)
+- **Job_Status Object**: Object that contains the information needed to check the status of the Query that is forwarding the response to the targets. (**Warning:** This Object contains information as we actually consider is needed, probably this object will be extended in the future depending of the needs and experience gained)
 
 | Field Name | Type  | Description |
 |------------|-------|-------------|
@@ -40,7 +72,7 @@ response = api.get_job(job_id)
 | error      | list   | List of errors on any, when running the task |
 | extra      | object | custom object that returns data that the Task want to share |
 
-##### Response example:
+### Response example
 
 ```json
 {
@@ -71,8 +103,7 @@ api = Client(key="myapikey",
 response = api.get_jobs()
 ```
 
-
-##### Response
+### Response
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -80,7 +111,7 @@ response = api.get_jobs()
 | status | Integer | Numeric value  that especify the error code.0 - OK 1 - Invalid request |
 | object | List | list of all the Job_Status Object, containing the current status of the Jobs requested |
 
-##### Response example:
+### Response example
 
 ```json
 {
@@ -122,8 +153,7 @@ api = Client(key="myapikey",
 response = api.get_jobs(type="donothing")
 ```
 
-
-##### Response parameters
+### Response parameters
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -145,7 +175,7 @@ api = Client(key="myapikey",
 response = api.get_jobs(type="donothing", name="devo-sdk-test")
 ```
 
-##### Response parameters
+### Response parameters
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -167,11 +197,11 @@ job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.stop_job(job_id)
 ```
 
-##### Request parameter
+### Request parameter
 
-  - **jobId**: is the unique identifier returned when the query is launched.
+- **jobId**: is the unique identifier returned when the query is launched.
 
-##### Response
+### Response
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -179,7 +209,7 @@ response = api.stop_job(job_id)
 | status | Integer | Numeric value  that especify the error code. 0 - OK or see task error table |
 | object | Object | Job_Status Object, containing the current status of the Job |
 
-##### Response example:
+### Response example
 
 ```json
 {
@@ -211,11 +241,11 @@ job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.start_job(job_id)
 ```
 
-##### Request parameter 
+### Request parameter
 
-  - **jobId**: is the unique identifier returned when the query is launched.
+- **jobId**: is the unique identifier returned when the query is launched.
 
-##### Response
+### Response
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -223,13 +253,13 @@ response = api.start_job(job_id)
 | status | Integer | Numeric value  that especify the error code. 0 - OK or see task error table |
 | object | Object | Job_Status Object, containing the current status of the Job |
 
-##### Response example:
+### Response example
 
 ```json
 {
     "status": 0,
     "cid": "0uRuSH6Rnt",
-    "timestamp": 1527783750851,    
+    "timestamp": 1527783750851,
     "object": {
         "status": "RUNNING",
         "id": "04426977-a37e-45b8-b8d2-da6a5608d713",
@@ -253,11 +283,11 @@ job_id = "aaaaa-bbbbb-ccccc-dddd"
 response = api.remove_job(job_id)
 ```
 
-##### Request parameter
+### Request parameter
 
-  - **jobId**: is the unique identifier returned when the query is launched.
+- **jobId**: is the unique identifier returned when the query is launched.
 
-##### Response
+### Response
 
 | FieldName | Type | Description |
 |-----------|------|-------------|
@@ -265,7 +295,7 @@ response = api.remove_job(job_id)
 | status | Integer | Numeric value  that especify the error code. 0 - OK or see task error table |
 | object | Object | Job_Status Object, containing the current status of the Job |
 
-##### Example:
+### Example
 
 ```json
 {

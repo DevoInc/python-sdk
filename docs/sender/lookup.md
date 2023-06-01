@@ -1,4 +1,18 @@
-# devo-sender lookup
+# Devo sender to send lookups
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Devo sender to send lookups](#devo-sender-to-send-lookups)
+  - [Overview](#overview)
+  - [Script usage](#script-usage)
+    - [Sending lookup data with your own script](#sending-lookup-data-with-your-own-script)
+      - [Send lookups from CSV file](#send-lookups-from-csv-file)
+      - [Double quotes in the field value](#double-quotes-in-the-field-value)
+
+<!-- /code_chunk_output -->
+
 ## Overview
 
 This library allows you to send lookups to the Devo platform.
@@ -7,13 +21,11 @@ You have two types of uses, in script (This doc) or [send using shell](sender.md
 
 You need to know how work [Sender](sender.md) and [Data](data.md) to use Lookup functions in script, but not for shell
 
-
 ## Script usage
-Just like the send events case, to create a new lookup or send data to existent 
-lookup table we need to initialize the collector configuration.
 
-In case to initialize the collector configuration from a json/yaml file, you must include a new 
-object into the _lookup_ variable with the new parameters or add in the CLI flags:
+Just like the send events case, to create a new lookup or send data to existent lookup table we need to initialize the collector configuration.
+
+In case to initialize the collector configuration from a json/yaml file, you must include a new object into the _lookup_ variable with the new parameters or add in the CLI flags:
 
 Example:
 
@@ -33,13 +45,11 @@ Example:
 
 You can see more examples below
 
-##### Sending lookup data with your own script
+### Sending lookup data with your own script
 
-After initializing the lookup, you can send data to the lookup. There are two ways to do this. 
+After initializing the lookup, you can send data to the lookup. There are two ways to do this.
 
-The first option is to generate a string with the headers structure and then send a control
- instruction to indicate the start or the end of operation over the lookup. 
- Between those control instructions must be the operations over every row of the lookup.
+The first option is to generate a string with the headers structure and then send a control instruction to indicate the start or the end of operation over the lookup. Between those control instructions must be the operations over every row of the lookup.
 
 The header structure is an object list with values and data types of the lookup data.
 
@@ -60,16 +70,16 @@ Params
 + types **(_list_ optional')**: list of type:  with types of columns in order
 
 Accepted types:
- - String -> "str"
- - Integer -> "int" (default int type: int8)
- - Integer4 -> "int4"
- - Integer8 -> "int8"
- - Float -> "float"
- - Boolean -> "bool"
- - IP -> "ip4"
 
+- String -> "str"
+- Integer -> "int" (default int type: int8)
+- Integer4 -> "int4"
+- Integer8 -> "int8"
+- Float -> "float"
+- Boolean -> "bool"
+- IP -> "ip4"
 
-Example: 
+Example:
 
 ```python
 from devo.sender import Lookup
@@ -87,12 +97,12 @@ With this string we can call _send_control_ method of _Sender_ class to send the
 Params
 
 + event **(_string_ required 'START'|'END')**: header type
-    - START: start of header
-    - END: end of header
+  - START: start of header
+  - END: end of header
 + headers **(_string_ required)**: header structure
 + action **(_string_ required 'FULL'|'INC')**: action type
-    - FULL: delete previous lookup data and then add the new
-    - INC: add new row to lookup table
+  - FULL: delete previous lookup data and then add the new
+  - INC: add new row to lookup table
 
 Example:
 
@@ -103,20 +113,21 @@ lookup.send_control(event='START', headers=["id", "name", "email"], action='INC'
 The other option is basically the same operations but with less instructions:
 You can use _send_headers_ method of _LtLookup_ class we can unify _list_to_headers_ + _send_control_.
 
-
 _send_headers_ Params
-+ headers **(_list_ default: [] )**: column name list of lookup 
+
++ headers **(_list_ default: [] )**: column name list of lookup
 + key **(_string_ default 'KEY')**: column name of key
 + key_index **(_string_ default 'KEY')**: column name of key
 + event **(_string_ default: 'START')**: header event
-    - START: start of header
-    - END: end of header
+  - START: start of header
+  - END: end of header
 + headers **(_string_ required)**: header structure
 + action **(_string_ required 'FULL'|'INC')**: action type
-    - FULL: delete previous lookup data and then add the new
-    - INC: add new row to lookup table
+  - FULL: delete previous lookup data and then add the new
+  - INC: add new row to lookup table
 
 Example:
+
 ```python
 lookup.send_headers(headers=['KEY', 'HEX', 'COLOR'], key='KEY', event='START', action='FULL')
 ```
@@ -173,12 +184,12 @@ con.socket.shutdown(0)
 ````
 
 **NOTE:**
-- The start and end control instructions should have the list of the names of the columns in the same order in which the lookup was created. 
+
+- The start and end control instructions should have the list of the names of the columns in the same order in which the lookup was created.
 - Keep in mind that the sockets must be closed at the end
+- The lookups are sent to Devo and a process running in the background loads and distributes them. It can take a few minutes to have the lookup available.
 
-
-
-##### Send lookups from CSV file
+#### Send lookups from CSV file
 
 After initializing the lookup, you can upload a CSV file with the lookup data by _send_csv_ method from _LtLookup_ class.
 
@@ -201,7 +212,7 @@ Example
 ```python
 lookup.send_csv(config['file'], headers=['KEY', 'COLOR', 'HEX'], key=config['lkey'])
 ```
-    
+
 Complete example
 
 ````python
@@ -225,7 +236,8 @@ You can use config file to send types list:
  }
 }
 ```
-##### Double quotes in the field value
+
+#### Double quotes in the field value
 
 Any double quotes inside the field value can cause trouble when sending the lookup if this is not escaped.
 An example of this case can be seen below:
@@ -234,10 +246,7 @@ An example of this case can be seen below:
 lookup.send_data_line(key_index=0, fields=["11", 'double quotes must escaped"'])
 ```
 
-That lookup creation will fail because that double quote will be interpreted as a field termination and 
-the number of fields for that row will unmatch the corresponding number of columns. To avoid this, 
-add `"escape_quotes": true` to the lookup configuration file and `escape_quotes=True` to the `Lookup` constructor. 
-Below, an example for the constructor is shown:
+That lookup creation will fail because that double quote will be interpreted as a field termination and  the number of fields for that row will unmatch the corresponding number of columns. To avoid this, add `"escape_quotes": true` to the lookup configuration file and `escape_quotes=True` to the `Lookup` constructor. Below, an example for the constructor is shown:
 
 ```python
 lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
@@ -247,4 +256,4 @@ To see an example for the lookup configuration please refer to the one shown at 
 
 This will escape ALL double quotes in the field value by adding a second double quote to it.
 
-The default behavior is to NOT escape any double quotes. 
+The default behavior is to NOT escape any double quotes.

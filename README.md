@@ -1,12 +1,13 @@
 ![License](https://img.shields.io/github/license/DevoInc/python-sdk)
 ![Wheel](https://img.shields.io/pypi/wheel/devo-sdk)
 ![Version](https://img.shields.io/pypi/v/devo-sdk)
-![Python](https://img.shields.io/pypi/pyversions/devo-sdk) 
+![Python](https://img.shields.io/pypi/pyversions/devo-sdk)
 ![Tests](https://github.com/DevoInc/python-sdk/actions/workflows/python-pull-request.yml/badge.svg)
 
 # Devo Python SDK
 
 This is the SDK to access Devo directly from Python. It can be used to:
+
 * Send events and files to Devo.
 * Make queries.
 * Manage deferred tasks.
@@ -15,54 +16,61 @@ This is the SDK to access Devo directly from Python. It can be used to:
 
 The Devo SDK for Python requires Python 3.7+
 
-## Compatibility 
+## Compatibility
+
 - Tested compatibility for python 3.7, 3.8 and 3.9
 
 ## Quick Start
-### Installing the SDK
 
+### Installing the SDK
 
 You can install the Devo SDK by using `easy_install` or `pip`:
 
-    #option 1
-    easy_install devo-sdk
-    
-    #option 2
-    pip install devo-sdk
+```console
+#option 1
+easy_install devo-sdk
 
+#option 2
+pip install devo-sdk
+```
 
 You can use sources files, cloning the project too:
 
-    #option 3
-    python setup.py install
-    
-    #option 4
-    pip install .
-    
-    #option 5 - dev option
-    pip install -e .
+```console
+#option 3
+python setup.py install
+
+#option 4
+pip install .
+
+#option 5 - dev option
+pip install -e .
+```
 
 ### Documentation
 
 There is specific documentation in the _[docs](docs)_ folder for each part of SDK:
+
 * [Sender](docs/sender/sender.md)
-    * [Data](docs/sender/data.md)
-    * [Lookups](docs/sender/lookup.md)
+  * [Data](docs/sender/data.md)
+  * [Lookups](docs/sender/lookup.md)
 * [Common](docs/common.md)
 * API:
-    * [Api query](docs/api/api.md)
-    * [Api tasks management](docs/api/task.md)
-        * [Destination: email](docs/api/destination_email.md)
-        * [Destination: redis](docs/api/destination_redis.md)
-        * [Destination: S3](docs/api/destination_s3.md)
-
+  * [Api query](docs/api/api.md)
+  * [Api tasks management](docs/api/task.md)
+    * [Destination: email](docs/api/destination_email.md)
+    * [Destination: redis](docs/api/destination_redis.md)
+    * [Destination: S3](docs/api/destination_s3.md)
 
 ## Contributing
+
 See [PyLibs contributing guide](CONTRIBUTING.md).<br/>
 Pull and merge requests are welcome ☺
 
 ## Endpoints
-##### Sender
+
+### Sender
+
 To send data with Devo SDK, first choose the required endpoint depending on the region your are accessing from:
 
 | Region | Endpoint             | Port |
@@ -74,39 +82,45 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
 
 You have more information in the official documentation of Devo, [Sending data to Devo](https://docs.devo.com/space/latest/94652410/Sending%20data%20to%20Devo).
 
-##### API
+### API
+
 To perform a request with API, first choose the required endpoint depending on the region your are accessing from:
 
 | Region | Endpoint                               |
 |--------|----------------------------------------|
-| USA    | https://apiv2-us.devo.com/search/query |
-| Canada | https://apiv2-ca.devo.com/search/query |
-| Europe | https://apiv2-eu.devo.com/search/query |
-| APAC   | https://api-apac.devo.com/search/query |
+| USA    | <https://apiv2-us.devo.com/search/query> |
+| Canada | <https://apiv2-ca.devo.com/search/query> |
+| Europe | <https://apiv2-eu.devo.com/search/query> |
+| APAC   | <https://api-apac.devo.com/search/query> |
 
 You have more information in the official documentation of Devo, [REST API](https://docs.devo.com/space/latest/95128275/Query%20API).
 
 ## Credentials
+
 To obtain the access credentials necessary to use this SDK, you must have an account in [DEVO](https://www.devo.com/).<br/>
-Check the [security credentials](https://docs.devo.com/space/latest/94763701/Security%20credentials) info for more details. 
+Check the [security credentials](https://docs.devo.com/space/latest/94763701/Security%20credentials) info for more details.
 
-##### Certificates
-You need use a three files (Cert, key and chain) to secure send data to Devo. 
-Administrator users can find them in **Administration** → **Credentials**, in the X.509 tab. 
+### Certificates
 
-##### API authorization
-You can use a domain API key and API secret to sign the request. These are are a pair of credentials that every 
-Devo account owns. Administrator users can find them in **Administration** → **Credentials**, in the Access Keys tab. 
+You need use a three files (Cert, key and chain) to secure send data to Devo.
+Administrator users can find them in **Administration** → **Credentials**, in the X.509 tab.
+
+### API authorization
+
+You can use a domain API key and API secret to sign the request. These are are a pair of credentials that every
+Devo account owns. Administrator users can find them in **Administration** → **Credentials**, in the Access Keys tab.
 
 ## Launch tests
+
 ### run_tests script
+
 You can run tests from the main folder of SDK
 To launch this script, you need either the environment variables loaded in the system, or the _environment.env_ file in the root of the SDK with the correct values, since to test all the SDK functionalities it is necessary to connect to Devo for the tests of sending and extracting data. There is an example file called _environment.env.example_
 
 Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
 
 ```console
-~/projects/devo-python-sdk > python setup.py test 
+~/projects/devo-python-sdk > python setup.py test
 ```
 
 ```console
@@ -115,7 +129,7 @@ Its normal, by the way, TCP tests fails in clients or not Devo developers system
 
 You can add option "Coverage" for create HTML report about tests.
 
-```console
+```text
 ~/projects/devo-python-sdk > python run_tests.py --coverage
 ```
 
@@ -172,20 +186,20 @@ You can see references in [unittest documentation](https://docs.python.org/3/lib
 
 For commands like:
 
-```bash
-python -m unittest discover -p "*.py" 
+```console
+python -m unittest discover -p "*.py"
 ```
 
-If you launch this command from the root directory of the SDK, you need to have the environment variables in your 
-system for all the tests that require connection to Devo can work, not being able to use the environment.env file 
+If you launch this command from the root directory of the SDK, you need to have the environment variables in your
+system for all the tests that require connection to Devo can work, not being able to use the environment.env file
 as in the script.
-
 
 ### Contact Us
 
 You can contact with us at _support@devo.com_.
 
 ## License
+
 MIT License
 
 (C) 2022 Devo, Inc.

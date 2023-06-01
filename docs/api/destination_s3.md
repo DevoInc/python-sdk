@@ -1,5 +1,19 @@
 # Destination S3
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Destination S3](#destination-s3)
+  - [How to use](#how-to-use)
+  - [Example](#example)
+  - [Results](#results)
+  - [Configuration](#configuration)
+  - [Errors](#errors)
+  - [AWS S3 upload methods](#aws-s3-upload-methods)
+
+<!-- /code_chunk_output -->
+
 API have a S3 destination to send query results to S3.
 
 ## How to use
@@ -19,12 +33,9 @@ To use 's3' destination you must add destination parameter with type 's3' (see e
 | file.password | string | No | Add a password for file compressed. Only for zip format. |
 | s3.fileName | string | No | Filename to be used for files sent via S3. |
 
-
-
 *If the user not set any AWS config by default uses enviroment.properties/s3-delivery.properties configuration. But if aws.bucket was set all AWS config must be set. It's highly recommendable set an user s3 configuration.
 
 ## Example
-
 
 ```pyton
 api = Client(auth={"key": "myapikey",
@@ -50,7 +61,7 @@ response = api.query("from siem.logtrust.web.activity select * limit 10",
 
 ## Results
 
-All the queries results will be upload to aws bucket in one or many files depends for the size of the results. 
+All the queries results will be upload to aws bucket in one or many files depends for the size of the results.
 
 The max file size of file can be configured using the propertie ``aws.file.size``, by default was 500 Mbs.
 
@@ -59,6 +70,7 @@ The files will be upload with this format:
 ```bash
 apiv2_<task id>_<index>.csv.(zip|gz)
 ```
+
 Examples:
 
 ```bash
@@ -106,6 +118,7 @@ Example:
 ```
 
 ## Configuration
+
 All the configuration was in ``s3-delivery.properties`` and some values was ``environment.properties`` :
 
 | Key | Type | Description |
@@ -140,7 +153,6 @@ All the configuration was in ``s3-delivery.properties`` and some values was ``en
 
 AWS SDK had 2 methods to upload files to s3:
 
-- *Multipart upload:* It's for files bigger than 5mbs, this method uses a multipart upload with a concurrent threads 
+- *Multipart upload:* It's for files bigger than 5mbs, this method uses a multipart upload with a concurrent threads
 to obtain a faster upload. [Limits of multipart upload](https://docs.aws.amazon.com/es_es/AmazonS3/latest/dev/qfacts.html)
 - *Simple upload files:* It's for upload small files.
-
