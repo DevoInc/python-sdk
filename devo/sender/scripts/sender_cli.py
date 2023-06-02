@@ -15,7 +15,7 @@ except ImportError as import_error:
 import os
 from devo.common import Configuration
 from devo.sender.lookup import Lookup
-from devo.sender.data import Sender, DevoSenderException
+from devo.sender.data import Sender, DevoSenderException, open_file
 from devo.__version__ import __version__
 # Groups
 # ------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ def data(**kwargs):
                                 % Path(config['file']).absolute()))
                 return
             if config['multiline']:
-                with open(config['file'], mode='r') as file:
+                with open_file(config['file'], mode='r') as file:
                     content = file.read()
                     if not config['raw']:
                         sended += con.send(tag=config['tag'], msg=content,
@@ -112,7 +112,7 @@ def data(**kwargs):
                                                multiline=config['multiline'],
                                                zip=config.get("zip", False))
             else:
-                with open(config['file'], mode='r') as file:
+                with open_file(config['file'], mode='r') as file:
                     if config['header']:
                         next(file)
                     for line in file:
