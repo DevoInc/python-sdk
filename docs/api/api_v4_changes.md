@@ -1,6 +1,20 @@
 # Devo Api Client v3 to v4
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Devo Api Client v3 to v4](#devo-api-client-v3-to-v4)
+  - [Main Changes](#main-changes)
+    - [XLS and msgpack types are returned in `bytes`](#xls-and-msgpack-types-are-returned-in-bytes)
+    - [Stream mode support](#stream-mode-support)
+    - [Retry mechanism semantics changed](#retry-mechanism-semantics-changed)
+    - [Keep Alive mechanism by API server now supported](#keep-alive-mechanism-by-api-server-now-supported)
+
+<!-- /code_chunk_output -->
+
 ## Main Changes
+
 The Client object now manages the amount of retries in a different way and some responses types/format are returned in `bytes` binary structure
 
 ### XLS and msgpack types are returned in `bytes`

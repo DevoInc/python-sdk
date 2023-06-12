@@ -1,12 +1,23 @@
 # Destination Email
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Destination Email](#destination-email)
+  - [How to use](#how-to-use)
+  - [Restrictions](#restrictions)
+  - [Example](#example)
+  - [Result](#result)
+  - [Errors codes](#errors-codes)
+
+<!-- /code_chunk_output -->
+
 API have a email destination to send query results by email.
 
 ## How to use
 
-As any query you must to add 'query', 'from' and 'to' date params. But It's not necessary add mode.type parameter 
-because all response format will be csv. In a future will have support for more format, 
-**if you need more format please request us**.
+As any query you must to add 'query', 'from' and 'to' date params. But It's not necessary add mode.type parameter because all response format will be csv. In a future will have support for more format, **if you need more format please request us**.
 
 To use 'email' destination you must add destination parameter with type 'email' (see example).
 
@@ -21,13 +32,12 @@ To use 'email' destination you must add destination parameter with type 'email' 
 | format | string | Optional | It's format of file compressed. (zip or gzip) by default zip |
 | file.password | Optional | No | Add a password for file compressed. Only for zip format. |
 
-
 ## Restrictions
 
 - The email target must be user of the domain.
 - The file inner log format must be csv.
-- The api was configure with a maximum (1 GB) and minimum (1 Mb) retention size, and it cannot be override by user. 
-- The api was configure with a maximum (24 hours) and minimum (5 mins) retention time, and it cannot be override by user. 
+- The api was configure with a maximum (1 GB) and minimum (1 Mb) retention size, and it cannot be override by user.
+- The api was configure with a maximum (24 hours) and minimum (5 mins) retention time, and it cannot be override by user.
 
 ## Example
 
@@ -51,8 +61,7 @@ response = api.query("from siem.logtrust.web.activity select * limit 10",
 
 ```
 
-
-## Result 
+## Result
 
 Send a email with a zip/gzip file with the results.
 
@@ -84,7 +93,7 @@ On query info:
 }
 ```
 
-On query Info with errors: 
+On query Info with errors:
 
 ```json
 {
@@ -141,6 +150,3 @@ On query Info with errors:
 | 224 | QUERY_EMAIL_SERVICE_INIT |  Cannot init email services |
 | 225 | QUERY_EMAIL_ADD_CONTENT_FILE |  Cannot write in temporal file to upload to send email |
 | 226 | QUERY_EMAIL_SEND_MAIL |  Cannot send email with events |
-
-
-

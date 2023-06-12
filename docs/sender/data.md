@@ -1,11 +1,32 @@
 # Devo sender to send data
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Devo sender to send data](#devo-sender-to-send-data)
+  - [Usage in script](#usage-in-script)
+    - [Initializing the collector](#initializing-the-collector)
+    - [Sending data](#sending-data)
+  - [Optional fields for send function](#optional-fields-for-send-function)
+  - [Zip sending](#zip-sending)
+    - [Extra info when send](#extra-info-when-send)
+  - [CA_MD_TOO_WEAK - Openssl security level](#ca_md_too_weak---openssl-security-level)
+    - [Openssl security levels](#openssl-security-levels)
+  - [Sender as an Logging Handler](#sender-as-an-logging-handler)
+    - [Second example: Setting up a Sender with tag](#second-example-setting-up-a-sender-with-tag)
+    - [Second example: Setting up a static Sender](#second-example-setting-up-a-static-sender)
+  - [Enabling verification for SenderConfigSSL configuration file](#enabling-verification-for-senderconfigssl-configuration-file)
+
+<!-- /code_chunk_output -->
+
 You have two types of uses, in script (This doc) or [send using shell](sender.md#devo-sender-data)
 
 ## Usage in script
+
 Before sending the data it is necessary to initialize the collector configuration
 
-#### Initializing the collector
+### Initializing the collector
 
 There are different ways (and types) to initialize the collector configuration
 
@@ -17,7 +38,6 @@ Variable descriptions
 + inactivity_timeout **(_int_)**: inactivity timeout for Ingestion balancer, so connection is restarted before reaching
 + debug **(_bool_)**: True or False, for show more info in console/logger output
 + logger **(_string_)**: logger. Default sys.console
-
 
 Class SenderConfigSSL accept various types of certificates, you has:
 
@@ -34,7 +54,7 @@ Class SenderConfigSSL accept various types of certificates, you has:
 You can use the collector in some ways:
 
 - With certificates:
-	
+
 ```python
 from devo.sender import SenderConfigSSL, Sender
 engine_config = SenderConfigSSL(address=(SERVER, PORT), 
@@ -42,7 +62,7 @@ engine_config = SenderConfigSSL(address=(SERVER, PORT),
 con = Sender(engine_config)
 ```
 
-or 
+or
 
 ```python
 from devo.sender import SenderConfigSSL, Sender
@@ -51,7 +71,7 @@ engine_config = SenderConfigSSL(address=(SERVER, PORT),
                                       "password": "certpassword"})
 con = Sender(engine_config)
 ```
-	
+
 - Without certificates SSL
 
 ```python
@@ -59,23 +79,24 @@ from devo.sender import SenderConfigSSL, Sender
 engine_config = SenderConfigSSL(address=(SERVER, PORT))
 con = Sender(engine_config)
 ```
-	
+
 - Without certificates TCP
-	
+
 ```python
 from devo.sender import SenderConfigTCP, Sender
 engine_config = SenderConfigTCP(address=(SERVER, PORT))
 con = Sender(engine_config)
 ```
-	
 
 - From dict - TCP example
+
 ```python
 from devo.sender import Sender
 con = Sender(config={"address": "collector", "port": 443, "type": "TCP"})
 ```
 
 - From dict - SSL example
+
 ```python
 from devo.sender import Sender
 con = Sender(config={"address": "collector", "port": 443, 
@@ -92,13 +113,13 @@ This is a json example:
 ```json
 {   
     "sender": {
-	        "address":"devo-relay",
-	        "port": 443,
-	        "key": "/devo/certs/key.key",
-	        "cert": "/devo/certs/cert.crt",
-	        "chain": "/devo/certs/chain.crt",
-	        "type": "SSL"
-	    },
+         "address":"devo-relay",
+         "port": 443,
+         "key": "/devo/certs/key.key",
+         "cert": "/devo/certs/cert.crt",
+         "chain": "/devo/certs/chain.crt",
+         "type": "SSL"
+     },
 }
 ```
 
@@ -124,7 +145,7 @@ conf = Configuration("./config.json.example", 'sender')
 con = Sender(config=conf)
 ```
 
-#### Sending data 
+### Sending data
 
 After we use the configuration class, we will now be able to send events to the collector
 
@@ -133,6 +154,7 @@ After we use the configuration class, we will now be able to send events to the 
 ```python
 con.send(tag="test.drop.actors", msg='Hasselhoff')
 ```
+
 - Send raw log to collector
 
 ```python
@@ -140,7 +162,8 @@ con.send_raw('<14>Jan  1 00:00:00 Nice-MacBook-Pro.local '
              'test.drop.actors: Testing this cool tool\n')
 ```
 
-## Optional fields for send function:
+## Optional fields for send function
+
 + log_format **(_string_)**: Log format to send
 + facility **(_int_)**: facility user
 + severity **(_int_)**: severity info
@@ -148,12 +171,11 @@ con.send_raw('<14>Jan  1 00:00:00 Nice-MacBook-Pro.local '
 + multiline **(_bool_)**: Default False. For multiline msg
 + zip **(_bool_)**: Default False. For send data zipped
 
-## Zip sending:
+## Zip sending
 
-With the Devo Sender you can make a compressed delivery to optimize data transfer, 
-with the restriction that you have to work with bytes (default type for text strings in 
+With the Devo Sender you can make a compressed delivery to optimize data transfer,
+with the restriction that you have to work with bytes (default type for text strings in
 Python 3) and not with str.
-
 
 ```python
 con.send(tag=b"test.drop.actors", msg=b'Hasselhoff vs Cage', zip=True)
@@ -176,27 +198,27 @@ You can change the default compression level with:
 con.compression_level(cl=6)
 ```
 
-compression_level is an integer from 0 to 9 or -1 controlling the level of compression. 
+compression_level is an integer from 0 to 9 or -1 controlling the level of compression.
 
 * 1 (Z_BEST_SPEED) is the fastest and produces the lower compression.
 
-* 9 (Z_BEST_COMPRESSION) is the slowest and produces the 
-highest compression. 
+* 9 (Z_BEST_COMPRESSION) is the slowest and produces the
+highest compression.
 
-* 0 (Z_NO_COMPRESSION) has no compression. 
+* 0 (Z_NO_COMPRESSION) has no compression.
 
-* The default value is -1 (Z_DEFAULT_COMPRESSION). 
+* The default value is -1 (Z_DEFAULT_COMPRESSION).
   * Z_DEFAULT_COMPRESSION represents a default compromise between speed and compression (currently equivalent to level 6).
 
+### Extra info when send
 
-### Extra info when send: 
 `send()`, `send_raw()`, `flush_buffer` and `fill_buffer()` return the numbers of lines sent
  (1, each time, if not zipped, 0..X if zipped)
- 
- 
+
 ## CA_MD_TOO_WEAK - Openssl security level
+
 Or CA signature digest algorithm too weak its a error with news versions of openssl>=1.1.0
-If you have problem with your certificates of Devo and devo-sdk you with this error you can add flag `sec_level=0` 
+If you have problem with your certificates of Devo and devo-sdk you with this error you can add flag `sec_level=0`
 on your configuration, SenderConfigSSL or CLI:
 
 ```python
@@ -207,29 +229,29 @@ engine_config = SenderConfigSSL(address=("devo.collector", 443),
                                 chain="chain.crt", sec_level=0)
 ```
 
-#### Openssl security levels:
+### Openssl security levels
 
-- Level 0: 
-    - Everything is permitted. This retains compatibility with previous versions of OpenSSL.
-- Level 1: 
-    - The security level corresponds to a minimum of 80 bits of security. Any parameters offering below 80 bits of security are excluded. As a result RSA, DSA and DH keys shorter than 1024 bits and ECC keys shorter than 160 bits are prohibited. All export ciphersuites are prohibited since they all offer less than 80 bits of security. SSL version 2 is prohibited. Any ciphersuite using MD5 for the MAC is also prohibited.
-- Level 2: 
-    - Security level set to 112 bits of security. As a result RSA, DSA and DH keys shorter than 2048 bits and ECC keys shorter than 224 bits are prohibited. In addition to the level 1 exclusions any ciphersuite using RC4 is also prohibited. SSL version 3 is also not allowed. Compression is disabled.
-- Level 3: 
-    - Security level set to 128 bits of security. As a result RSA, DSA and DH keys shorter than 3072 bits and ECC keys shorter than 256 bits are prohibited. In addition to the level 2 exclusions ciphersuites not offering forward secrecy are prohibited. TLS versions below 1.1 are not permitted. Session tickets are disabled.
-- Level 4: 
-    - Security level set to 192 bits of security. As a result RSA, DSA and DH keys shorter than 7680 bits and ECC keys shorter than 384 bits are prohibited. Ciphersuites using SHA1 for the MAC are prohibited. TLS versions below 1.2 are not permitted.
-- Level 5: 
-    - Security level set to 256 bits of security. As a result RSA, DSA and DH keys shorter than 15360 bits and ECC keys shorter than 512 bits are prohibited.
-
-
+- Level 0:
+  - Everything is permitted. This retains compatibility with previous versions of OpenSSL.
+- Level 1:
+  - The security level corresponds to a minimum of 80 bits of security. Any parameters offering below 80 bits of security are excluded. As a result RSA, DSA and DH keys shorter than 1024 bits and ECC keys shorter than 160 bits are prohibited. All export ciphersuites are prohibited since they all offer less than 80 bits of security. SSL version 2 is prohibited. Any ciphersuite using MD5 for the MAC is also prohibited.
+- Level 2:
+  - Security level set to 112 bits of security. As a result RSA, DSA and DH keys shorter than 2048 bits and ECC keys shorter than 224 bits are prohibited. In addition to the level 1 exclusions any ciphersuite using RC4 is also prohibited. SSL version 3 is also not allowed. Compression is disabled.
+- Level 3:
+  - Security level set to 128 bits of security. As a result RSA, DSA and DH keys shorter than 3072 bits and ECC keys shorter than 256 bits are prohibited. In addition to the level 2 exclusions ciphersuites not offering forward secrecy are prohibited. TLS versions below 1.1 are not permitted. Session tickets are disabled.
+- Level 4:
+  - Security level set to 192 bits of security. As a result RSA, DSA and DH keys shorter than 7680 bits and ECC keys shorter than 384 bits are prohibited. Ciphersuites using SHA1 for the MAC are prohibited. TLS versions below 1.2 are not permitted.
+- Level 5:
+  - Security level set to 256 bits of security. As a result RSA, DSA and DH keys shorter than 15360 bits and ECC keys shorter than 512 bits are prohibited.
 
 ## Sender as an Logging Handler
-In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: *set_logger_tag(tag)*.
+
+In order to use **Sender** as an Handler, for logging instances, the **tag** property must be set either through the constructor or using the object method: _set_logger_tag(tag)_.
 
 The regular use of the handler can be observed in this  examples:
 
-##### Second example: Setting up a Sender with tag
+### Second example: Setting up a Sender with tag
+
 ```python
 from devo.common import get_log
 from devo.sender import Sender, SenderConfigSSL
@@ -243,7 +265,8 @@ logger = get_log(name="devo_logger", handler=con)
 logger.info("Hello devo!")
 
 ```
-##### Second example: Setting up a static Sender
+
+### Second example: Setting up a static Sender
 
 ```python
 from devo.common import get_log
@@ -255,6 +278,7 @@ config = {"address": "devo.collertor", "port": 443,
 con = Sender.for_logging(config=config, tag="my.app.test.logging")
 logger = get_log(name="devo_logger", handler=con)
 ```
+
 ## Enabling verification for SenderConfigSSL configuration file
 
 To help troubleshoot any problems with the configuration file the variables:
@@ -264,7 +288,7 @@ To help troubleshoot any problems with the configuration file the variables:
 + cert **(_str_)**: cert src file
 + chain **(_str_)**: chain src file
 
-Can be verified by adding `"verify_config": true` to the configuration file, in case any of the variables is invalid or incompatible with each other a `DevoSenderException` will be raised indicating the variable that’s causing the trouble, below an example of the file and an exception:
+Can be verified by adding `"verify_config": true` to the configuration file, in case any of the variables is invalid or incompatible with each other a `DevoSenderException` will be raised indicating the variable that's causing the trouble, below an example of the file and an exception:
 
 ```json
   {

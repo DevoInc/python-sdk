@@ -1,5 +1,18 @@
 # Destination Redis
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Destination Redis](#destination-redis)
+  - [How to use](#how-to-use)
+    - [Example](#example)
+  - [Results](#results)
+    - [Checking the Status](#checking-the-status)
+    - [Extra Object](#extra-object)
+
+<!-- /code_chunk_output -->
+
 API have a Redis destination to enable Collections behaviour.
 
 When API receive a query it will start query with "from date" = now - expiration and any "date from" or -1 to "forever". This query will get all events, hash the selected columns (eventdate is mandatory) and write in redis with a expiration = eventdate + expiration.
@@ -30,7 +43,6 @@ This destination have 2 modes:
 | valueFields | list<string> | No | List of fields to stored in redis. It must be a columns names of query results. Take care because all fields must be exist in query results. |
 
 ### Example
-
 
 ```pyton
 api = Client(auth={"key": "myapikey",
