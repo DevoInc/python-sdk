@@ -1,9 +1,9 @@
 click==8.1.3
 PyYAML==6.0
-requests>=2.27
+requests>=2.31
 pem==21.2.0
 pyopenssl>=23.0.*
 urllib3>=1.26.5
 pytz>=2019.3
 # Required because of vulnerability
-cryptography>=39.0.1
+cryptography>=41.0.1
