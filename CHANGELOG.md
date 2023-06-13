@@ -2,14 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
-and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [5.1.4] - 2023-06-13
 
-### Added
+### Security
+
+* `requests` dependency updated from `requests@2.27` to `requests@2.31`
+* `cryptography` dependency updated from `cryptography@39.0.1` to `cryptography@41.0.1`
+
+### Changed
 
 * `pyopenssl` dependency open from `pyopenssl==23.0.*` to `pyopenssl>=23.0.*`
+* Markdown documents reformated.
 
 ## [5.1.3] - 2023-03-23
 
@@ -41,8 +46,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 
-* Fixed [exception handling issue](https://github.com/DevoInc/python-sdk/issues/175)
-in `devo/sender/data.py`
+* Fixed [exception handling issue](https://github.com/DevoInc/python-sdk/issues/175) in `devo/sender/data.py`
 * Fixed message shown when configuration file (JSON or YAML) is not correct
 
 ### Added
