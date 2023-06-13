@@ -136,13 +136,13 @@ You can add option "Coverage" for create HTML report about tests.
 You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
 
 ```console
-~/projects/devo-python-sdk > python run_tests.py -m SEND_CLI
+~/projects/devo-python-sdk > python run_tests.py -m SENDER_CLI
 ```
 
 You can also exclude one or several tests with `-M` parameter:
 
 ```console
-~/projects/devo-python-sdk > python run_tests.py -M SEND_CLI,API_CLI
+~/projects/devo-python-sdk > python run_tests.py -M SENDER_CLI,API_CLI
 ```
 
 Using the --help flag prints the available modules to use:
