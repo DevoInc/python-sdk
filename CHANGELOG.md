@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Changed
 
-* `pyopenssl` dependency open from `pyopenssl==23.0.*` to `pyopenssl>=23.0.*`
+* `pyopenssl` dependency open from `pyopenssl==23.0.*` to `pyopenssl>=23.0`
 * Markdown documents reformated.
 
 ## [5.1.3] - 2023-03-23
