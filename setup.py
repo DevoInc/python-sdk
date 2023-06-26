@@ -29,7 +29,7 @@ INSTALL_REQUIRES = [
     "requests>=2.31",
     "click==8.1.3",
     "PyYAML==6.0",
-    "pem==21.2.0",
+    "pem>=21.2.0",
     "pyopenssl>=23.0",
     "urllib3>=1.26.5",
     "pytz>=2019.3",
