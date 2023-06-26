@@ -1,32 +1,34 @@
-import unittest
 import os
+import unittest
+
 from devo.common import Configuration
 
 
 class TestConfiguration(unittest.TestCase):
     def setUp(self):
-        self.config_path = "%s%stestfile_config" % \
-                           (os.path.dirname(os.path.abspath(__file__)), os.sep)
+        self.config_path = "%s%stestfile_config" % (
+            os.path.dirname(os.path.abspath(__file__)),
+            os.sep,
+        )
 
     def test_load_config(self):
         config = Configuration()
         with self.assertRaises(Exception) as context:
             config.load_config(self.config_path + ".ini")
 
-        self.assertTrue("Configuration file type unknown or not supported: "
-                        "%s%stestfile_config.ini" %
-                        (os.path.dirname(os.path.abspath(__file__)), os.sep)
-                        in str(context.exception))
+        self.assertTrue(
+            "Configuration file type unknown or not supported: "
+            "%s%stestfile_config.ini"
+            % (os.path.dirname(os.path.abspath(__file__)), os.sep)
+            in str(context.exception)
+        )
 
     def test_load_directly(self):
         config = Configuration(self.config_path + ".yaml")
-        self.assertDictEqual(config, {"devo": {
-            "die": "hard"
-        },
-            "api": {
-                "velazquez": "Then I am beautiful?"
-            }
-        })
+        self.assertDictEqual(
+            config,
+            {"devo": {"die": "hard"}, "api": {"velazquez": "Then I am beautiful?"}},
+        )
 
     def test_get_keys_chain(self):
         config = Configuration(self.config_path + ".yaml")
@@ -44,8 +46,8 @@ class TestConfiguration(unittest.TestCase):
     def test_add_key_chain(self):
         config = Configuration(self.config_path + ".yaml")
         config.set(["devo", "old", "name"], "logtrust")
-        self.assertEqual(config["devo"]['old']['name'], "logtrust")
-        self.assertEqual(config.get(("devo", 'old', 'name')), "logtrust")
+        self.assertEqual(config["devo"]["old"]["name"], "logtrust")
+        self.assertEqual(config.get(("devo", "old", "name")), "logtrust")
 
     def test_save(self):
         config = Configuration(self.config_path + ".yaml")
@@ -60,13 +62,10 @@ class TestConfiguration(unittest.TestCase):
     def test_load_json(self):
         config = Configuration()
         config.load_json(self.config_path + ".json")
-        self.assertDictEqual(config, {"devo": {
-            "die": "hard"
-        },
-            "api": {
-                "velazquez": "Then I am beautiful?"
-            }
-        })
+        self.assertDictEqual(
+            config,
+            {"devo": {"die": "hard"}, "api": {"velazquez": "Then I am beautiful?"}},
+        )
 
     def test_load_section_json(self):
         config = Configuration(self.config_path + ".json", "api")
@@ -75,13 +74,10 @@ class TestConfiguration(unittest.TestCase):
     def test_load_yaml(self):
         config = Configuration()
         config.load_yaml(self.config_path + ".yaml")
-        self.assertDictEqual(config, {"devo": {
-            "die": "hard"
-        },
-            "api": {
-                "velazquez": "Then I am beautiful?"
-            }
-        })
+        self.assertDictEqual(
+            config,
+            {"devo": {"die": "hard"}, "api": {"velazquez": "Then I am beautiful?"}},
+        )
 
     def test_load_section_yaml(self):
         config = Configuration(self.config_path + ".yaml", "devo")
@@ -90,27 +86,27 @@ class TestConfiguration(unittest.TestCase):
     def test_mix_json(self):
         config = Configuration(self.config_path + ".json")
         config.mix({"test": "ok"})
-        self.assertDictEqual(config, {"devo": {
-            "die": "hard"
-        },
-            "api": {
-                "velazquez": "Then I am beautiful?"
+        self.assertDictEqual(
+            config,
+            {
+                "devo": {"die": "hard"},
+                "api": {"velazquez": "Then I am beautiful?"},
+                "test": "ok",
             },
-            "test": "ok"
-        })
+        )
 
     def test_mix_yaml(self):
         config = Configuration(self.config_path + ".yaml")
         config.mix({"test": "ok"})
-        self.assertDictEqual(config, {"devo": {
-            "die": "hard"
-        },
-            "api": {
-                "velazquez": "Then I am beautiful?"
+        self.assertDictEqual(
+            config,
+            {
+                "devo": {"die": "hard"},
+                "api": {"velazquez": "Then I am beautiful?"},
+                "test": "ok",
             },
-            "test": "ok"
-        })
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

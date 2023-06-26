@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """A collection of allowed operations on date parsing"""
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt
+from datetime import timedelta
+
 from .dateutils import to_millis, trunc_time, trunc_time_minute
 
 
@@ -96,5 +98,5 @@ def parse_functions():
         "now": now,
         "now_without_ms": now_without_ms,
         "today": today,
-        "yesterday": yesterday
+        "yesterday": yesterday,
     }

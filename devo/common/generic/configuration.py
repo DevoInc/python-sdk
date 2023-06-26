@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 """ Util for load generic config file in devo standars"""
 import json
-import sys
 import os
+import sys
 from json import JSONDecodeError
 
 
 class ConfigurationException(Exception):
-    """ Default Configuration Exception """
+    """Default Configuration Exception"""
 
 
 class Configuration(dict):
     """
     Main class for load config files, and extract config objects
     """
+
     def __init__(self, path=None, section=None):
         if path is not None:
             self.load_config(path=path, section=section)
@@ -38,11 +39,13 @@ class Configuration(dict):
         :param section: Section of the file if it have one
         :return: Returns a reference to the instance object
         """
-        with open(path, 'r') as file_content:
+        with open(path, "r") as file_content:
             try:
                 cfg = json.load(file_content)
             except JSONDecodeError as exc:
-                raise ConfigurationException("Configuration file seems not to be a valid JSON file") from exc
+                raise ConfigurationException(
+                    "Configuration file seems not to be a valid JSON file"
+                ) from exc
 
         return self.__load_cfg(cfg, section)
 
@@ -56,15 +59,20 @@ class Configuration(dict):
         try:
             import yaml
         except ImportError as import_error:
-            print(str(import_error), "- Use 'pip install pyyaml' or "
-                                     "install this "
-                                     "package with [click] option")
+            print(
+                str(import_error),
+                "- Use 'pip install pyyaml' or "
+                "install this "
+                "package with [click] option",
+            )
             sys.exit(1)
-        with open(path, 'r') as stream:
+        with open(path, "r") as stream:
             try:
                 cfg = yaml.load(stream, Loader=yaml.Loader)
             except Exception as exc:
-                raise ConfigurationException("Configuration file seems not to be a valid YAML file") from exc
+                raise ConfigurationException(
+                    "Configuration file seems not to be a valid YAML file"
+                ) from exc
 
         return self.__load_cfg(cfg, section)
 
@@ -75,13 +83,14 @@ class Configuration(dict):
         :param section: Section of the file if it have one
         :return: Returns a reference to the instance object
         """
-        if path.endswith('.json'):
+        if path.endswith(".json"):
             return self.load_json(path, section)
-        if path.endswith('.yaml') or path.endswith('.yml'):
+        if path.endswith(".yaml") or path.endswith(".yml"):
             return self.load_yaml(path, section)
 
-        raise ConfigurationException("Configuration file type unknown "
-                                     "or not supported: %s" % path)
+        raise ConfigurationException(
+            "Configuration file type unknown " "or not supported: %s" % path
+        )
 
     def save(self, path=None, save_bak=False):
         if path is None:
@@ -90,16 +99,18 @@ class Configuration(dict):
         if os.path.isfile(path):
             os.rename(path, "{}.bak".format(path))
         try:
-            with open(path, 'w') as file:
-                if path.endswith('.json'):
+            with open(path, "w") as file:
+                if path.endswith(".json"):
                     json.dump(self, file)
-                if path.endswith('.yaml') or path.endswith('.yml'):
+                if path.endswith(".yaml") or path.endswith(".yml"):
                     try:
                         import yaml
                     except ImportError as import_error:
-                        print(str(import_error),
-                              "- Use 'pip install pyyaml' or install this "
-                              "package with [click] option")
+                        print(
+                            str(import_error),
+                            "- Use 'pip install pyyaml' or install this "
+                            "package with [click] option",
+                        )
                     yaml.dump(self, file, default_flow_style=False)
             if os.path.isfile("{}.bak".format(path)) and not save_bak:
                 self.delete_file("{}.bak".format(path))
@@ -118,10 +129,15 @@ class Configuration(dict):
 
     @staticmethod
     def __search_default_config_file():
-        return "json" if os.path.exists(os.path.expanduser("~/.devo.json")) \
-            else "yaml" if os.path.exists(os.path.expanduser("~/.devo.yaml")) \
-            else "yml" if os.path.exists(os.path.expanduser("~/.devo.yml")) \
+        return (
+            "json"
+            if os.path.exists(os.path.expanduser("~/.devo.json"))
+            else "yaml"
+            if os.path.exists(os.path.expanduser("~/.devo.yaml"))
+            else "yml"
+            if os.path.exists(os.path.expanduser("~/.devo.yml"))
             else None
+        )
 
     def load_default_config(self, ext=None, section=None):
         """Function for load default configuration"""
@@ -197,16 +213,15 @@ class Configuration(dict):
 
         if key[0] in aux_dict.keys():
             if len(key) > 1:
-                return self.get(key=key[1:], default=default,
-                                aux_dict=aux_dict[key[0]])
+                return self.get(key=key[1:], default=default, aux_dict=aux_dict[key[0]])
             return aux_dict[key[0]]
 
         return default
 
     def set(self, key=None, value=None):
-        """ Set value of dict
-         :param key: Key when save value, can be list to create depth key
-         :param value: Value to save
+        """Set value of dict
+        :param key: Key when save value, can be list to create depth key
+        :param value: Value to save
         """
         if key:
             if not isinstance(key, (list, tuple)):

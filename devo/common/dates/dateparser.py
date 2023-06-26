@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-
 """
 This file parse dates and provide some helpers for the very basic usage
 """
 
+import sys
 from datetime import datetime as dt
 
-import sys
-from .dateutils import test_date_format, to_millis, trunc_time
 from .dateoperations import parse_functions
+from .dateutils import test_date_format, to_millis, trunc_time
 
 
-def parse(date_string=None, default='now'):
+def parse(date_string=None, default="now"):
     """
     Parse a date string and return the result
     :param date_string: Date in string format
@@ -29,11 +28,11 @@ def parse_string(date_string):
     :param date_string: String to parse
     :return: Millis
     """
-    if test_date_format(date_string, '%Y-%m-%d %H:%M:%S'):
-        date = dt.strptime(date_string, '%Y-%m-%d %H:%M:%S')
+    if test_date_format(date_string, "%Y-%m-%d %H:%M:%S"):
+        date = dt.strptime(date_string, "%Y-%m-%d %H:%M:%S")
         return to_millis(date)
-    if test_date_format(date_string, '%Y-%m-%d'):
-        date = dt.strptime(date_string, '%Y-%m-%d')
+    if test_date_format(date_string, "%Y-%m-%d"):
+        date = dt.strptime(date_string, "%Y-%m-%d")
         return to_millis(trunc_time(date))
     return parse_expression(date_string)
 
@@ -54,11 +53,11 @@ def parse_expression(date_string):
             return date_string
         return result
     except SyntaxError as err:
-        sys.exit('ERROR: Syntax error on parse dates: ' + str(err))
+        sys.exit("ERROR: Syntax error on parse dates: " + str(err))
     except TypeError as err:
-        sys.exit('ERROR: Type error on parse dates: ' + str(err))
+        sys.exit("ERROR: Type error on parse dates: " + str(err))
     except Exception as err:
-        sys.exit('ERROR: Unknown error on parse dates: ' + str(err))
+        sys.exit("ERROR: Unknown error on parse dates: " + str(err))
 
 
 def default_from(date=None):
@@ -71,7 +70,7 @@ def default_from(date=None):
         if len(str(abs(date))) == 10:
             return date * 1000
         return date
-    return parse(date, 'now()-day()')
+    return parse(date, "now()-day()")
 
 
 def default_to(date=None):
@@ -85,4 +84,4 @@ def default_to(date=None):
         if len(str(abs(date))) == 10:
             return date * 1000
         return date
-    return parse(date, 'now()')
+    return parse(date, "now()")

@@ -17,40 +17,41 @@ class TestDateParser(unittest.TestCase):
 
     def test_default_from(self):
         ts1 = str(default_from())[:11]
-        ts2 = str(int((dt.utcnow() - self.epoch).total_seconds() * 1000)
-                  - 86400000)[:11]
+        ts2 = str(int((dt.utcnow() - self.epoch).total_seconds() * 1000) - 86400000)[
+            :11
+        ]
         self.assertTrue(ts1 == ts2)
 
     # Tests amounts
     # --------------------------------------------------------------------------
 
     def test_second(self):
-        ts1 = default_from('second()')
+        ts1 = default_from("second()")
         ts2 = 1000
         self.assertTrue(ts1 == ts2)
 
     def test_minute(self):
-        ts1 = default_from('minute()')
+        ts1 = default_from("minute()")
         ts2 = 60 * 1000
         self.assertTrue(ts1 == ts2)
 
     def test_hour(self):
-        ts1 = default_from('hour()')
+        ts1 = default_from("hour()")
         ts2 = 60 * 60 * 1000
         self.assertTrue(ts1 == ts2)
 
     def test_day(self):
-        ts1 = default_from('day()')
+        ts1 = default_from("day()")
         ts2 = 24 * 60 * 60 * 1000
         self.assertTrue(ts1 == ts2)
 
     def test_week(self):
-        ts1 = default_from('week()')
+        ts1 = default_from("week()")
         ts2 = 7 * 24 * 60 * 60 * 1000
         self.assertTrue(ts1 == ts2)
 
     def test_month(self):
-        ts1 = default_from('month()')
+        ts1 = default_from("month()")
         ts2 = 30 * 24 * 60 * 60 * 1000
         self.assertTrue(ts1 == ts2)
 
@@ -58,22 +59,22 @@ class TestDateParser(unittest.TestCase):
     # --------------------------------------------------------------------------
 
     def test_now(self):
-        ts1 = default_from('now()')
+        ts1 = default_from("now()")
         ts2 = int((dt.utcnow() - self.epoch).total_seconds() * 1000)
         self.assertTrue(ts1 == ts2)
 
     def test_today(self):
-        ts1 = default_from('today()')
+        ts1 = default_from("today()")
         tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         ts2 = int((tmp - self.epoch).total_seconds() * 1000)
         self.assertTrue(ts1 == ts2)
 
     def test_yesterday(self):
-        ts1 = default_from('yesterday()')
+        ts1 = default_from("yesterday()")
         tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         ts2 = int((tmp - self.epoch).total_seconds() * 1000) - 86400000
         self.assertTrue(ts1 == ts2)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

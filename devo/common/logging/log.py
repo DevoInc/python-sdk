@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """ Generic function to logging events in Devo SDK """
+import logging
 import os
 import sys
-import logging
 from logging.handlers import RotatingFileHandler
 
 
@@ -13,8 +13,7 @@ def get_log(name="log", level=None, handler=None):
     """
     logger = logging.getLogger(name)
     if handler is None:
-        handler = get_rotating_file_handler(level=None if level is None
-                                            else level)
+        handler = get_rotating_file_handler(level=None if level is None else level)
         logger.addHandler(handler)
     elif isinstance(handler, list):
         for simple_handler in handler:
@@ -39,12 +38,13 @@ def set_formatter(msg_format):
 
 
 def get_rotating_file_handler(
-        path="./",
-        file_name="history.log",
-        msg_format='%(asctime)s|%(levelname)s|%(message)s',
-        max_size=2097152,
-        backup_count=5,
-        level=logging.INFO):
+    path="./",
+    file_name="history.log",
+    msg_format="%(asctime)s|%(levelname)s|%(message)s",
+    max_size=2097152,
+    backup_count=5,
+    level=logging.INFO,
+):
     """Initialize rotating file handler for logger
 
     :return: RotatingFileHandler object
@@ -53,17 +53,20 @@ def get_rotating_file_handler(
     if not os.path.exists(os.path.dirname(full_path)):
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
-    handler = RotatingFileHandler(full_path, maxBytes=max_size,
-                                  backupCount=backup_count)
+    handler = RotatingFileHandler(
+        full_path, maxBytes=max_size, backupCount=backup_count
+    )
     handler.setFormatter(set_formatter(msg_format))
     if level is not None:
         handler.setLevel(level)
     return handler
 
 
-def get_stream_handler(dest=sys.stdout,
-                       msg_format='%(asctime)s|%(levelname)s|%(message)s',
-                       level=logging.INFO):
+def get_stream_handler(
+    dest=sys.stdout,
+    msg_format="%(asctime)s|%(levelname)s|%(message)s",
+    level=logging.INFO,
+):
     """Initialize stream handlerhandler for logger
     :return: StreamHandler object
     """
