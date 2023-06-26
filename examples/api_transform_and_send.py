@@ -19,7 +19,7 @@ response = api.query(
     dates={"from": "today()-1*day()", "to": "today()"},
 )
 
-server = "us.elb.relay.logtrust.net"
+server = "collector-us.devo.io"
 port = 443
 key = os.getenv("DEVO_SENDER_KEY")
 cert = os.getenv("DEVO_SENDER_CERT")

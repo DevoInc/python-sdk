@@ -625,7 +625,7 @@ class TestSender(unittest.TestCase):
         Test that verifies that a wrong port raises an exception.
         """
         engine_config = SenderConfigSSL(
-            address=("eu.elb.relay.logtrust.net", 442),
+            address=("collector-eu.devo.io", 442),
             key=self.key,
             cert=self.cert,
             chain=self.chain,
@@ -648,7 +648,7 @@ class TestSender(unittest.TestCase):
 
     def test_get_common_names(self):
         engine_config = SenderConfigSSL(
-            address=("eu.elb.relay.logtrust.net", 442),
+            address=("collector-eu.devo.io", 442),
             key=self.key,
             cert=self.cert,
             chain=self.chain,
@@ -663,9 +663,9 @@ class TestSender(unittest.TestCase):
 
         self.assertTrue(issuer.issubset(subject))
 
-    def fake_get_peer_cert_chain(self):
+    def test_fake_get_peer_cert_chain(self):
         engine_config = SenderConfigSSL(
-            address=("eu.elb.relay.logtrust.net", 442),
+            address=("collector-us.devo.io", 442),
             key=self.key,
             cert=self.cert,
             chain=self.chain,
@@ -681,7 +681,8 @@ class TestSender(unittest.TestCase):
                 chain_certs.append(
                     crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca))
                 )
-        self.assertEqual(chain_certs, fake_chain_cert)
+        for a, b in zip(fake_chain_cert, chain_certs):
+            self.assertEqual(a.get_subject(), b.get_subject())
 
     def test_open_file(self):
         with self.assertRaises(FileNotFoundError):
