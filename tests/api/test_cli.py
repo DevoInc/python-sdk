@@ -12,7 +12,7 @@ from devo.common import Configuration
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.query = "from siem.logtrust.web.activity select method limit 1"
+        self.query = "from demo.ecommerce.data select method limit 1"
         self.app_name = "testing-app_name"
         self.uri = os.getenv(
             "DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query"

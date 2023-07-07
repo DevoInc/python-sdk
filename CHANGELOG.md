@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Changed
 
+- `click` dependency updated from `click==8.1.3` to `click==8.1.4`
 - `pem` dependency open from `pem==21.2.0` to `pem>=21.2.0`
 - Code reformatted with `yapf`, `black`, `isort` and `flake8` tools.
 

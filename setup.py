@@ -27,7 +27,7 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = [
     "requests>=2.31",
-    "click==8.1.3",
+    "click==8.1.4",
     "PyYAML==6.0",
     "pem>=21.2.0",
     "pyopenssl>=23.0",
