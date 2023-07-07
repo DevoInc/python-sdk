@@ -2,8 +2,8 @@
 Parsing .env file content and adding each value into os.environ
 For testing purposes
 """
-import os
 import ast
+import os
 
 
 def load_env_file(path=None):
@@ -13,9 +13,9 @@ def load_env_file(path=None):
     if path and os.path.exists(path):
         pass
     else:
-        if not os.path.exists('.env'):
+        if not os.path.exists(".env"):
             return False
-        path = os.path.join('.env')
+        path = os.path.join(".env")
 
     for key, value in _proc_env(path):
         os.environ.setdefault(key, str(value))
@@ -29,10 +29,10 @@ def _proc_env(path):
     with open(path) as file:
         for line in file:
             line = line.strip()
-            if line.startswith('#') or '=' not in line:
+            if line.startswith("#") or "=" not in line:
                 continue
 
-            key, value = line.split('=', 1)
+            key, value = line.split("=", 1)
             key = key.strip().upper()
             value = value.strip()
 

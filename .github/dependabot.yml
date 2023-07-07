@@ -12,7 +12,6 @@ updates:
       - "JuanFranDevo"
     reviewers:
       - "angel-devo"
-      - "dvillacanas"
     labels:
       - "Dependabot"
     # Set to 0 to avoid version updates (only security updates)

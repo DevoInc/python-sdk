@@ -23,18 +23,19 @@ def find_delete_index(value=None, headers=None):
 
 
 class Lookup:
-    """ Main class Lookup for create and send the object from some sources """
+    """Main class Lookup for create and send the object from some sources"""
+
     # Type of the header sent
     # - EVENT_START for START header
     # - EVENT_END for END header
-    EVENT_START = 'START'
-    EVENT_END = 'END'
+    EVENT_START = "START"
+    EVENT_END = "END"
 
     # Action of lookup:
     # - FULL replace all data in the lookup for the new one
     # - INC add rows to the lookup base on the key
-    ACTION_FULL = 'FULL'
-    ACTION_INC = 'INC'
+    ACTION_FULL = "FULL"
+    ACTION_INC = "INC"
 
     # Time to wait after send START and before send END
     # This is for avoid sync problem (In most cases not need)
@@ -44,16 +45,18 @@ class Lookup:
     DATA_TABLE = "my.lookup.data"
     CONTROL_TABLE = "my.lookup.control"
 
-    def __init__(self, name="example", historic_tag=None,
-                 con=None, delay=5, escape_quotes=False):
-
+    def __init__(
+        self, name="example", historic_tag=None, con=None, delay=5, escape_quotes=False
+    ):
         if not re.match(r"^[A-Za-z0-9_]+$", name):
-            raise Exception('Devo Lookup: The name of the lookup is incorrect,'
-                            ' must contain only letters, '
-                            'numbers and underscore')
+            raise Exception(
+                "Devo Lookup: The name of the lookup is incorrect,"
+                " must contain only letters, "
+                "numbers and underscore"
+            )
 
         if con is None:
-            raise Exception('Devo Lookup: Undefined devo sender.')
+            raise Exception("Devo Lookup: Undefined devo sender.")
 
         self.lookup_id = str(time.time())
         self.con = con
@@ -64,9 +67,16 @@ class Lookup:
 
     # Helper methods
     # --------------------------------------------------------------------------
-    def send_headers(self, headers=None, key="KEY", event='START',
-                     action='FULL', types=None, key_index=None,
-                     type_of_key="str"):
+    def send_headers(
+        self,
+        headers=None,
+        key="KEY",
+        event="START",
+        action="FULL",
+        types=None,
+        key_index=None,
+        type_of_key="str",
+    ):
         """
         Send only the headers
         :param headers: list with headers names
@@ -78,13 +88,16 @@ class Lookup:
         :param type_of_key: the key's type (str by default)
         :return:
         """
-        p_headers = Lookup.list_to_headers(headers=headers, key=key,
-                                           types=types, key_index=key_index,
-                                           type_of_key=type_of_key)
+        p_headers = Lookup.list_to_headers(
+            headers=headers,
+            key=key,
+            types=types,
+            key_index=key_index,
+            type_of_key=type_of_key,
+        )
         self.send_control(event=event, headers=p_headers, action=action)
 
-    def send_data_line(self, fields=None,
-                       delete=False, key_index=None):
+    def send_data_line(self, fields=None, delete=False, key_index=None):
         """
         Send only the data
         :param key_index: index of key in headers
@@ -93,8 +106,9 @@ class Lookup:
                        or add to add value
         :return:
         """
-        p_fields = Lookup.process_fields(fields=fields, key_index=key_index,
-                                         escape_quotes=self.escape_quotes)
+        p_fields = Lookup.process_fields(
+            fields=fields, key_index=key_index, escape_quotes=self.escape_quotes
+        )
         self.send_data(row=p_fields, delete=delete)
 
     @staticmethod
@@ -154,10 +168,20 @@ class Lookup:
         return True if line is not None else False
 
     # Send a whole CSV file
-    def send_csv(self, path=None, has_header=True, delimiter=',',
-                 quotechar='"', headers=None, key="KEY", historic_tag=None,
-                 action="FULL", delete_field=None,
-                 types=None, detect_types=False):
+    def send_csv(
+        self,
+        path=None,
+        has_header=True,
+        delimiter=",",
+        quotechar='"',
+        headers=None,
+        key="KEY",
+        historic_tag=None,
+        action="FULL",
+        delete_field=None,
+        types=None,
+        detect_types=False,
+    ):
         """Send CSV file to lookup
 
         :param path: The path to CSV file (can be `str` or `Path`)
@@ -174,21 +198,22 @@ class Lookup:
         """
         try:
             if detect_types:
-                with open_file(path, mode='r') as csv_file:
-                    spam_reader = csv.reader(csv_file, delimiter=delimiter,
-                                             quotechar=quotechar)
+                with open_file(path, mode="r") as csv_file:
+                    spam_reader = csv.reader(
+                        csv_file, delimiter=delimiter, quotechar=quotechar
+                    )
 
                     types = self.detect_types(reader=spam_reader)
         except IOError as error:
             print("I/O error({0}): {1}".format(error.errno, error.strerror))
         except Exception as error:
-            raise Exception("Unexpected error: %e \n" % error,
-                            sys.exc_info()[0])
+            raise Exception("Unexpected error: %e \n" % error, sys.exc_info()[0])
 
         try:
-            with open_file(path, mode='r') as csv_file:
-                spam_reader = csv.reader(csv_file, delimiter=delimiter,
-                                         quotechar=quotechar)
+            with open_file(path, mode="r") as csv_file:
+                spam_reader = csv.reader(
+                    csv_file, delimiter=delimiter, quotechar=quotechar
+                )
                 # Conform headers list
                 if has_header is False and headers is None:
                     raise Exception("No headers for fields")
@@ -197,23 +222,21 @@ class Lookup:
                 elif not isinstance(headers, list):
                     headers = headers.split(delimiter)
 
-                this_action = self.ACTION_INC if action == "INC" \
-                    else self.ACTION_FULL
+                this_action = self.ACTION_INC if action == "INC" else self.ACTION_FULL
                 counter = 0
 
                 # Find key index
                 key_index = find_key_index(key, headers).__next__()
                 try:
-                    delete_index = find_delete_index(delete_field,
-                                                     headers).__next__()
+                    delete_index = find_delete_index(delete_field, headers).__next__()
                     del headers[delete_index]
                 except StopIteration:
                     delete_index = None
 
                 # Send control START with ACTION (parsedHeaders)
-                p_headers = Lookup.list_to_headers(headers=headers,
-                                                   key_index=key_index,
-                                                   types=types)
+                p_headers = Lookup.list_to_headers(
+                    headers=headers, key_index=key_index, types=types
+                )
 
                 self.send_control(self.EVENT_START, p_headers, this_action)
 
@@ -223,26 +246,29 @@ class Lookup:
                         p_fields = Lookup.process_fields(
                             fields=fields,
                             key_index=key_index,
-                            escape_quotes=self.escape_quotes)
-                        self.send_data(row=p_fields,
-                                       delete=field_action == "delete"
-                                              or field_action == "DELETE")
+                            escape_quotes=self.escape_quotes,
+                        )
+                        self.send_data(
+                            row=p_fields,
+                            delete=field_action == "delete" or field_action == "DELETE",
+                        )
 
                         # Send full log for historic
                         if historic_tag is not None:
-                            self.send_full(historic_tag, ','.join(fields))
+                            self.send_full(historic_tag, ",".join(fields))
                         counter += 1
                 else:
                     for fields in spam_reader:
                         p_fields = Lookup.process_fields(
                             fields=fields,
                             key_index=key_index,
-                            escape_quotes=self.escape_quotes)
+                            escape_quotes=self.escape_quotes,
+                        )
                         self.send_data(row=p_fields)
 
                         # Send full log for historic
                         if historic_tag is not None:
-                            self.send_full(historic_tag, ','.join(fields))
+                            self.send_full(historic_tag, ",".join(fields))
                         counter += 1
 
                 # Send control END
@@ -251,8 +277,7 @@ class Lookup:
         except IOError as error:
             print("I/O error({0}): {1}".format(error.errno, error.strerror))
         except Exception as error:
-            raise Exception(
-                "Unexpected error: %e \n" % error, sys.exc_info()[0])
+            raise Exception("Unexpected error: %e \n" % error, sys.exc_info()[0])
 
     # Basic process
     # --------------------------------------------------------------------------
@@ -276,7 +301,7 @@ class Lookup:
         if event == self.EVENT_START:
             time.sleep(self.delay)
 
-    def send_data(self, row='', delete=False):
+    def send_data(self, row="", delete=False):
         """
         Send data to table of lookup data
 
@@ -289,7 +314,7 @@ class Lookup:
         line = "%s_%s|%s" % (self.lookup_id, self.name, row)
         self.con.tag = "%s.%s" % (self.DATA_TABLE, self.name)
         if delete:
-            self.con.tag += '.DELETE'
+            self.con.tag += ".DELETE"
         return self.con.send(tag=self.con.tag, msg=line)
 
     def send_full(self, historic_tag=None, row=None):
@@ -327,10 +352,9 @@ class Lookup:
         return fields[index].strip()
 
     @staticmethod
-    def list_to_headers(headers=None, key=None,
-                        type_of_key="str",
-                        key_index=None,
-                        types=None):
+    def list_to_headers(
+        headers=None, key=None, type_of_key="str", key_index=None, types=None
+    ):
         """
         Transform list item to the object we need send to Devo for headers
 
@@ -344,20 +368,21 @@ class Lookup:
         # First the key
         if key_index is not None:
             key = headers[key_index]
-            out = '[{"%s":{"type":"%s","key":true}}' % (key,
-                                                        types[key_index]
-                                                        if types
-                                                        else type_of_key)
+            out = '[{"%s":{"type":"%s","key":true}}' % (
+                key,
+                types[key_index] if types else type_of_key,
+            )
         elif key is not None:
-            out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-            if key_index and types
-            else type_of_key)
+            out = '[{"%s":{"type":"%s","key":true}}' % (
+                key,
+                types[key_index] if key_index and types else type_of_key,
+            )
         else:
             raise Exception("Not key identified")
 
         # The rest of the fields
         if headers is None:
-            return out + ']'
+            return out + "]"
         aux = -1
         for item in headers:
             aux += 1
@@ -366,7 +391,7 @@ class Lookup:
                 continue
             field_type = "str" if not isinstance(types, list) else types[aux]
             out += ',{"%s":{"type":"%s"}}' % (item, field_type)
-        out += ']'
+        out += "]"
         return out
 
     @staticmethod
@@ -376,7 +401,7 @@ class Lookup:
         :param field: field to clean
         :return:
         """
-        return ',%s' % Lookup.clean_field(field, escape_quotes)
+        return ",%s" % Lookup.clean_field(field, escape_quotes)
 
     @staticmethod
     def process_fields(fields=None, key_index=None, escape_quotes=False):
@@ -387,10 +412,10 @@ class Lookup:
         :return:
         """
         # First the key
-        out = '%s' % Lookup.clean_field(fields[key_index], escape_quotes)
+        out = "%s" % Lookup.clean_field(fields[key_index], escape_quotes)
 
         # The rest of the fields
-        for item in fields[:key_index] + fields[key_index + 1:]:
+        for item in fields[:key_index] + fields[key_index + 1 :]:
             out += Lookup.field_to_str(item, escape_quotes)
         return out
 
@@ -421,5 +446,5 @@ class Lookup:
         :param str text: text for evaluate if is a number
         :return bool: Result of regex
         """
-        pattern = re.compile(r'^-?\d+((\.\d+)*)$')
+        pattern = re.compile(r"^-?\d+((\.\d+)*)$")
         return pattern.match(text)

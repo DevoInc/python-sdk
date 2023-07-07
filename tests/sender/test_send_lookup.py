@@ -1,14 +1,12 @@
-import re
+import os
 import select
 import unittest
 from ssl import CERT_NONE
 from unittest import mock
-from devo.sender import Sender, SenderConfigSSL, Lookup
 
-try:
-    from .load_certs import *
-except ImportError:
-    from load_certs import *
+from devo.sender import Lookup, Sender, SenderConfigSSL
+
+from .load_certs import CLIENT_CERT, CLIENT_CHAIN, CLIENT_KEY
 
 
 class TestLookup(unittest.TestCase):
@@ -38,7 +36,6 @@ class TestLookup(unittest.TestCase):
         return con.socket.recv(length)
 
     def test_ssl_lookup_csv_send(self):
-
         engine_config = SenderConfigSSL(
             address=(self.server, self.port),
             key=self.key,
@@ -88,8 +85,6 @@ class TestLookup(unittest.TestCase):
 
         con.socket.shutdown(0)
 
-
-
     def test_create_lookup_key_index_preserves_structure(self):
         engine_config = SenderConfigSSL(
             address=(self.server, self.port),
@@ -104,10 +99,12 @@ class TestLookup(unittest.TestCase):
         headers = ["col1", "col2", "col3"]
         fields = ["a", "b", "c"]
 
-        expected_headers = '[{"col1":{"type":"str","key":true}},' + \
-                           '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        expected_headers = (
+            '[{"col1":{"type":"str","key":true}},'
+            + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        )
         with mock.patch.object(
-                lookup, "send_control", wraps=lookup.send_control
+            lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
             lookup.send_headers(
                 headers=headers, key_index=0, event="START", action="FULL"
@@ -137,10 +134,12 @@ class TestLookup(unittest.TestCase):
         lookup = Lookup(name=self.lookup_name, con=con)
         headers = ["col1", "col2", "col3"]
 
-        expected_headers = '[{"col1":{"type":"int4","key":true}},' + \
-                           '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        expected_headers = (
+            '[{"col1":{"type":"int4","key":true}},'
+            + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+        )
         with mock.patch.object(
-                lookup, "send_control", wraps=lookup.send_control
+            lookup, "send_control", wraps=lookup.send_control
         ) as lookup_spy:
             lookup.send_headers(
                 headers=headers,
@@ -218,17 +217,13 @@ class TestLookup(unittest.TestCase):
         con = Sender(engine_config)
 
         lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con)
-        lookup.send_headers(
-            headers=["KEY", "HEX", "COLOR"], key="KEY", action="START"
-        )
+        lookup.send_headers(headers=["KEY", "HEX", "COLOR"], key="KEY", action="START")
         if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"])
         if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
-        lookup.send_headers(
-            headers=["KEY", "HEX", "COLOR"], key="KEY", action="END"
-        )
+        lookup.send_headers(headers=["KEY", "HEX", "COLOR"], key="KEY", action="END")
         if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
 
@@ -263,13 +258,13 @@ class TestLookup(unittest.TestCase):
             ("No double quotes", False, '"No double quotes"'),
             ("No double quotes", True, '"No double quotes"'),
             ('Double quotes"', False, '"Double quotes""'),
-            ('Double quotes"', True, '"Double quotes"""')
+            ('Double quotes"', True, '"Double quotes"""'),
         ]
         for field, escape_quotes, expected_result in test_params:
             with self.subTest(
-                    field=field,
-                    escape_quotes=escape_quotes,
-                    expected_result=expected_result
+                field=field,
+                escape_quotes=escape_quotes,
+                expected_result=expected_result,
             ):
                 result = Lookup.clean_field(field, escape_quotes)
                 self.assertEqual(result, expected_result)
@@ -283,11 +278,13 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
-                        escape_quotes=True)
+        lookup = Lookup(
+            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
+        )
 
-        with mock.patch.object(Lookup, 'clean_field',
-                               wraps=Lookup.clean_field) as clean_field:
+        with mock.patch.object(
+            Lookup, "clean_field", wraps=Lookup.clean_field
+        ) as clean_field:
             lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
             clean_field.assert_called_with('Double quotes"', True)
 
@@ -300,11 +297,13 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
-                        escape_quotes=True)
+        lookup = Lookup(
+            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
+        )
 
-        with mock.patch.object(Lookup, 'clean_field',
-                               wraps=Lookup.clean_field) as clean_field:
+        with mock.patch.object(
+            Lookup, "clean_field", wraps=Lookup.clean_field
+        ) as clean_field:
             lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
             clean_field.assert_called_with('Double quotes"', True)
 
@@ -318,15 +317,15 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
-                        escape_quotes=True)
+        lookup = Lookup(
+            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
+        )
 
-        with mock.patch.object(Lookup, 'clean_field',
-                               wraps=Lookup.clean_field) as clean_field:
-            lookup.send_csv(path=self.lookup_file,
-                            has_header=True,
-                            key=self.lookup_key)
-            clean_field.assert_called_with('ffffff', True)
+        with mock.patch.object(
+            Lookup, "clean_field", wraps=Lookup.clean_field
+        ) as clean_field:
+            lookup.send_csv(path=self.lookup_file, has_header=True, key=self.lookup_key)
+            clean_field.assert_called_with("ffffff", True)
 
             # Test to make sure escape_quotes is propagated correctly
 
@@ -338,15 +337,20 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con,
-                        escape_quotes=True)
+        lookup = Lookup(
+            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
+        )
 
-        with mock.patch.object(Lookup, 'clean_field',
-                               wraps=Lookup.clean_field) as clean_field:
-            lookup.send_csv(path=self.lookup_file,
-                            has_header=True,
-                            key=self.lookup_key, delete_field="Green")
-            clean_field.assert_called_with('ffffff', True)
+        with mock.patch.object(
+            Lookup, "clean_field", wraps=Lookup.clean_field
+        ) as clean_field:
+            lookup.send_csv(
+                path=self.lookup_file,
+                has_header=True,
+                key=self.lookup_key,
+                delete_field="Green",
+            )
+            clean_field.assert_called_with("ffffff", True)
 
 
 if __name__ == "__main__":

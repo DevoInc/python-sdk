@@ -15,14 +15,15 @@ import requests
 from requests import JSONDecodeError
 
 from devo.common import default_from, default_to
-from .processors import processors, proc_json, \
-    json_compact_simple_names, proc_json_compact_simple_to_jobj
 
-CLIENT_DEFAULT_APP_NAME = 'python-sdk-app'
-CLIENT_DEFAULT_USER = 'python-sdk-user'
-ADDRESS_AWS_EU = 'https://apiv2-eu.devo.com'
-ADDRESS_QUERY_COMPLEMENT = 'search/query'
-ADDRESS_JOB = '/search/job/'
+from .processors import (json_compact_simple_names, proc_json,
+                         proc_json_compact_simple_to_jobj, processors)
+
+CLIENT_DEFAULT_APP_NAME = "python-sdk-app"
+CLIENT_DEFAULT_USER = "python-sdk-user"
+ADDRESS_AWS_EU = "https://apiv2-eu.devo.com"
+ADDRESS_QUERY_COMPLEMENT = "search/query"
+ADDRESS_JOB = "/search/job/"
 
 DEFAULT = "default"
 TO_STR = "bytes_to_str"
@@ -38,31 +39,31 @@ ERROR_MSGS = {
     "no_auth": "Client don't have key&secret or auth token/jwt",
     "no_endpoint": "Endpoint 'address' not found",
     "to_but_no_from": "If you use end dates for the query 'to' it is "
-                      "necessary to use start date 'from'",
+    "necessary to use start date 'from'",
     "binary_format_requires_output": "Binary format like `msgpack` and `xls` requires output"
-                                     " parameter",
+    " parameter",
     "wrong_processor": "processor must be lambda/function or one of the defaults API processors.",
     "default_keepalive_only": "Mode '%s' always uses default KeepAlive Token",
     "keepalive_not_supported": "Mode '%s' does not support KeepAlive Token",
     "stream_mode_not_supported": "Mode '%s' does not support stream mode",
     "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries"
-                                    " because KeepAlive tokens are not available for those "
-                                    "resonses type",
+    " because KeepAlive tokens are not available for those "
+    "resonses type",
     "missing_api_key": "You need a API Key and API secret to make this",
     "data_query_error": "Error while receiving query data: %s ",
     "connection_error": "Failed to establish a new connection",
     "other_errors": "Error while invoking query",
-    "error_no_detail": "Error code %d while invoking query"
+    "error_no_detail": "Error code %d while invoking query",
 }
 
-DEFAULT_KEEPALIVE_TOKEN = '\n'
-EMPTY_EVENT_KEEPALIVE_TOKEN = ''
+DEFAULT_KEEPALIVE_TOKEN = "\n"
+EMPTY_EVENT_KEEPALIVE_TOKEN = ""
 NO_KEEPALIVE_TOKEN = None
 
 
 class DevoClientException(Exception):
-    """ Default Devo Client Exception for functionalities
-     related to querying data to the platform"""
+    """Default Devo Client Exception for functionalities
+    related to querying data to the platform"""
 
     def __init__(self, message: str):
         """
@@ -77,7 +78,7 @@ class DevoClientException(Exception):
 
 
 class DevoClientRequestException(DevoClientException):
-    """ Devo Client Exception that is raised whenever a query data request
+    """Devo Client Exception that is raised whenever a query data request
     is performed and processed but an error is found on server side"""
 
     def __init__(self, response: requests.models.Response):
@@ -91,35 +92,36 @@ class DevoClientRequestException(DevoClientException):
         self.status = response.status_code
         try:
             error_response = response.json()
-            self.message = error_response.get("msg",
-                                              error_response.get("error", "Error Launching Query"))
+            self.message = error_response.get(
+                "msg", error_response.get("error", "Error Launching Query")
+            )
             """Message describing exception"""
-            if 'code' in error_response:
-                self.code = error_response['code']
+            if "code" in error_response:
+                self.code = error_response["code"]
                 """Error code `int` as returned by server"""
-            if 'error' in error_response:
+            if "error" in error_response:
                 self.cause = error_response.get("error")
                 """Cause of error or detailed description as returned by server"""
-                if 'code' in error_response['error']:
-                    self.code = error_response['error']['code']
-                if 'message' in error_response['error']:
-                    self.message = error_response['error']['message']
-            elif 'object' in error_response:
+                if "code" in error_response["error"]:
+                    self.code = error_response["error"]["code"]
+                if "message" in error_response["error"]:
+                    self.message = error_response["error"]["message"]
+            elif "object" in error_response:
                 self.message = ": ".join(error_response["object"])
             else:
                 self.cause = error_response
-            if 'cid' in error_response:
-                self.cid = error_response['cid']
+            if "cid" in error_response:
+                self.cid = error_response["cid"]
                 """Unique request identifier as assigned by server"""
-            self.timestamp = error_response.get('timestamp', time.time_ns() // 1000000)
+            self.timestamp = error_response.get("timestamp", time.time_ns() // 1000000)
             """Timestamp of the error if returned by server, autogenerated if not"""
-        except JSONDecodeError as exc:
+        except JSONDecodeError:
             self.message = ERROR_MSGS["error_no_detail"] % self.status
         super().__init__(self.message)
 
 
 class DevoClientDataResponseException(DevoClientException):
-    """ Devo Client Exception that is raised after a successful streamed request
+    """Devo Client Exception that is raised after a successful streamed request
     whenever an error is found during the processing of an event"""
 
     def __init__(self, message: str, code: int, cause: str):
@@ -145,9 +147,15 @@ class ClientConfig:
     Main class for configuration of Client class. With diferent configurations
     """
 
-    def __init__(self, processor=DEFAULT, response="json/simple/compact",
-                 destination=None, stream=True, pragmas=None,
-                 keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
+    def __init__(
+        self,
+        processor=DEFAULT,
+        response="json/simple/compact",
+        destination=None,
+        stream=True,
+        pragmas=None,
+        keepAliveToken=DEFAULT_KEEPALIVE_TOKEN,
+    ):
         """
         Initialize the API with this params, all optionals
         :param processor: processor for response, default is None
@@ -169,12 +177,14 @@ class ClientConfig:
         if pragmas:
             self.pragmas = pragmas
             if "user" not in self.pragmas.keys():
-                self.pragmas['user'] = CLIENT_DEFAULT_USER
+                self.pragmas["user"] = CLIENT_DEFAULT_USER
             if "app_name" not in self.pragmas.keys():
-                self.pragmas['app_name'] = CLIENT_DEFAULT_APP_NAME
+                self.pragmas["app_name"] = CLIENT_DEFAULT_APP_NAME
         else:
-            self.pragmas = {"user": CLIENT_DEFAULT_USER,
-                            "app_name": CLIENT_DEFAULT_APP_NAME}
+            self.pragmas = {
+                "user": CLIENT_DEFAULT_USER,
+                "app_name": CLIENT_DEFAULT_APP_NAME,
+            }
 
     def set_processor(self, processor=None):
         """
@@ -201,7 +211,7 @@ class ClientConfig:
         :param user: username string
         :return:
         """
-        self.pragmas['user'] = user
+        self.pragmas["user"] = user
         return True
 
     def set_app_name(self, app_name=CLIENT_DEFAULT_APP_NAME):
@@ -210,7 +220,7 @@ class ClientConfig:
         :param app_name: app_name string
         :return:
         """
-        self.pragmas['app_name'] = app_name
+        self.pragmas["app_name"] = app_name
         return True
 
     def set_keepalive_token(self, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
@@ -224,22 +234,22 @@ class ClientConfig:
         # keepalive (cannot be modified), but implementation uses
         # NO_KEEP_ALIVE value as it does not change the query msgpack and
         # xls does not support keepalive
-        if self.response in ['json', 'json/compact', 'json/simple',
-                             'json/simple/compact']:
+        if self.response in [
+            "json",
+            "json/compact",
+            "json/simple",
+            "json/simple/compact",
+        ]:
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
-                                      DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(
-                    ERROR_MSGS["default_keepalive_only"] % self.response)
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(ERROR_MSGS["default_keepalive_only"] % self.response)
         # In the cases 'csv', 'tsv' you can use any value passed in
         # 'keepAliveToken'.
-        elif self.response in ['csv', 'tsv']:
+        elif self.response in ["csv", "tsv"]:
             self.keepAliveToken = keepAliveToken
         else:
-            if keepAliveToken not in [NO_KEEPALIVE_TOKEN,
-                                      DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(
-                    ERROR_MSGS["keepalive_not_supported"] % self.response)
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(ERROR_MSGS["keepalive_not_supported"] % self.response)
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
 
@@ -249,8 +259,16 @@ class Client:
     The Devo search rest api main class
     """
 
-    def __init__(self, address=None, auth=None, config=None,
-                 retries=None, timeout=None, verify=None, retry_delay=None):
+    def __init__(
+        self,
+        address=None,
+        auth=None,
+        config=None,
+        retries=None,
+        timeout=None,
+        verify=None,
+        retry_delay=None,
+    ):
         """
         Initialize the API with this params, all optionals
         :param address: endpoint
@@ -268,26 +286,31 @@ class Client:
             self.config = config
         else:
             address = address if address else config.get("address", None)
-            auth = auth if auth else \
-                config.get("auth",
-                           {"key": config.get("key", None),
-                            "secret": config.get("secret", None),
-                            "jwt": config.get("jwt", None),
-                            "token": config.get("token", None)})
+            auth = (
+                auth
+                if auth
+                else config.get(
+                    "auth",
+                    {
+                        "key": config.get("key", None),
+                        "secret": config.get("secret", None),
+                        "jwt": config.get("jwt", None),
+                        "token": config.get("token", None),
+                    },
+                )
+            )
 
-            verify = verify if verify is not None \
-                else config.get("verify", True)
-            retries = retries if retries is not None \
-                else config.get("retries", 0)
-            timeout = timeout if timeout is not None \
-                else config.get("timeout", 300)
-            retry_delay = retry_delay if retry_delay is not None \
-                else config.get("retry_delay", 5)
+            verify = verify if verify is not None else config.get("verify", True)
+            retries = retries if retries is not None else config.get("retries", 0)
+            timeout = timeout if timeout is not None else config.get("timeout", 300)
+            retry_delay = (
+                retry_delay if retry_delay is not None else config.get("retry_delay", 5)
+            )
             self.config = self._from_dict(config)
 
         self.auth = auth
         if not address:
-            raise DevoClientException(ERROR_MSGS['no_endpoint'])
+            raise DevoClientException(ERROR_MSGS["no_endpoint"])
 
         self.address = self.__get_address_parts(address)
 
@@ -298,8 +321,9 @@ class Client:
 
         # For internal testing purposes, Devo will never expose a REST service
         # in an unsecure manner
-        self.unsecure_http = True if \
-            os.getenv("UNSECURE_HTTP", "False").upper() == "TRUE" else False
+        self.unsecure_http = (
+            True if os.getenv("UNSECURE_HTTP", "False").upper() == "TRUE" else False
+        )
 
     @staticmethod
     def _from_dict(config):
@@ -307,13 +331,13 @@ class Client:
         Create Client object from config file values
         :param config: lt-common config standar
         """
-        return ClientConfig(processor=config.get("processor", DEFAULT),
-                            response=config.get("response",
-                                                "json/simple/compact"),
-                            destination=config.get("destination", None),
-                            stream=config.get("stream", True),
-                            keepAliveToken=config.get("keepAliveToken",
-                                                      DEFAULT_KEEPALIVE_TOKEN))
+        return ClientConfig(
+            processor=config.get("processor", DEFAULT),
+            response=config.get("response", "json/simple/compact"),
+            destination=config.get("destination", None),
+            stream=config.get("stream", True),
+            keepAliveToken=config.get("keepAliveToken", DEFAULT_KEEPALIVE_TOKEN),
+        )
 
     def verify_certificates(self, option=True):
         """
@@ -327,9 +351,9 @@ class Client:
         Split the two parts of the api address
         :param address: address of the api
         """
-        return \
-            self.__verify_address_complement(
-                address.split("//")[-1].split("/", maxsplit=1))
+        return self.__verify_address_complement(
+            address.split("//")[-1].split("/", maxsplit=1)
+        )
 
     @staticmethod
     def __verify_address_complement(address_list):
@@ -337,8 +361,11 @@ class Client:
         Verify if only has main domain or full address
         :param address_list: One or two part of the address
         """
-        return address_list if len(address_list) == 2 \
+        return (
+            address_list
+            if len(address_list) == 2
             else [address_list[0], ADDRESS_QUERY_COMPLEMENT]
+        )
 
     @staticmethod
     def _generate_dates(dates):
@@ -347,7 +374,7 @@ class Client:
         :param dates: object with options for query, see doc
         :return: updated opts
         """
-        default = {'from': '1h', 'to': None}
+        default = {"from": "1h", "to": None}
         if not dates:
             return default
 
@@ -374,9 +401,14 @@ class Client:
         except ValueError:
             return False
 
-    def configurate(self, processor=None, response=None,
-                    destination=None, stream=True,
-                    keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
+    def configurate(
+        self,
+        processor=None,
+        response=None,
+        destination=None,
+        stream=True,
+        keepAliveToken=DEFAULT_KEEPALIVE_TOKEN,
+    ):
         """
         Method for fill Configuration options easier
         :param processor: processor for response, default is None
@@ -396,8 +428,15 @@ class Client:
             self.config.destination = destination
         self.config.set_keepalive_token(keepAliveToken)
 
-    def query(self, query=None, query_id=None, dates=None,
-              limit=None, offset=None, comment=None):
+    def query(
+        self,
+        query=None,
+        query_id=None,
+        dates=None,
+        limit=None,
+        offset=None,
+        comment=None,
+    ):
         """
         Query API by a custom query
         :param query: Query to perform
@@ -413,36 +452,37 @@ class Client:
         if query is not None:
             query += self._generate_pragmas(comment=comment)
 
-        query_opts = {'limit': limit,
-                      'response': self.config.response,
-                      'offset': offset,
-                      'destination': self.config.destination,
-                      'keepAliveToken': self.config.keepAliveToken
-                      }
+        query_opts = {
+            "limit": limit,
+            "response": self.config.response,
+            "offset": offset,
+            "destination": self.config.destination,
+            "keepAliveToken": self.config.keepAliveToken,
+        }
 
-        if not self.stream_available(self.config.response) \
-                or not self.config.stream:
-            if not dates['to']:
-                dates['to'] = "now()"
+        if not self.stream_available(self.config.response) or not self.config.stream:
+            if not dates["to"]:
+                dates["to"] = "now()"
             if self.config.stream:
-                logging.warning(ERROR_MSGS["stream_mode_not_supported"] % self.config.response)
+                logging.warning(
+                    ERROR_MSGS["stream_mode_not_supported"] % self.config.response
+                )
             # If is a future query and response type is 'xls' or 'msgpack'
             # return warning because is not available.
             if self._future_queries_available(self.config.response):
                 self.config.stream = False
             else:
-
-                fromDate = self._fromDate_parser(default_to(dates['from']))
-                toDate = self._toDate_parser(fromDate, default_to(dates['to']))
+                fromDate = self._fromDate_parser(default_to(dates["from"]))
+                toDate = self._toDate_parser(fromDate, default_to(dates["to"]))
 
                 if toDate > default_to("now()"):
-                    raise DevoClientException(ERROR_MSGS["future_queries_not_supported"])
+                    raise DevoClientException(
+                        ERROR_MSGS["future_queries_not_supported"]
+                    )
 
             self.config.stream = False
 
-        return self._call(
-            self._get_payload(query, query_id, dates, query_opts)
-        )
+        return self._call(self._get_payload(query, query_id, dates, query_opts))
 
     def _call(self, payload):
         """
@@ -470,7 +510,8 @@ class Client:
             # messages within the response.
             self._error_handler(wholeResponse.text)
             return self.config.processor(
-                self._keepalive_content_sanitize(wholeResponse.text))
+                self._keepalive_content_sanitize(wholeResponse.text)
+            )
 
     def _return_string_stream(self, payload):
         """If it's a stream call, return yield lines
@@ -480,10 +521,13 @@ class Client:
         # We access to the iterLines response from the server.
         (_, iterStringResponse, _) = self._make_request(payload)
 
-        response = filter(lambda l: self._empty_lines_sanitize(l),
-                          map(lambda l: self._keepalive_stream_sanitize(l),
-                              map(lambda l: l.decode('utf-8'),
-                                  iterStringResponse)))
+        response = filter(
+            lambda lines: self._empty_lines_sanitize(lines),
+            map(
+                lambda line: self._keepalive_stream_sanitize(line),
+                map(lambda line: line.decode("utf-8"), iterStringResponse),
+            ),
+        )
         try:
             first = next(response)
         except StopIteration:
@@ -493,7 +537,7 @@ class Client:
 
         if self._is_correct_response(first):
             if self.config.proc == SIMPLECOMPACT_TO_OBJ:
-                aux = json_compact_simple_names(proc_json()(first)['m'])
+                aux = json_compact_simple_names(proc_json()(first)["m"])
                 self.config.processor = proc_json_compact_simple_to_jobj(aux)
             elif self.config.proc == SIMPLECOMPACT_TO_ARRAY:
                 pass
@@ -513,47 +557,54 @@ class Client:
         return line.strip()
 
     def _keepalive_content_sanitize(self, response):
-        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or \
-                self.config.keepAliveToken is None:
+        if (
+            self.config.keepAliveToken == NO_KEEPALIVE_TOKEN
+            or self.config.keepAliveToken is None
+        ):
             return response
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
             if self.config.response.startswith("json"):
                 return response
             elif self.config.response in ["csv", "tsv"]:
-                return re.sub(rf'{DEFAULT_KEEPALIVE_TOKEN}{{2,}}',
-                              f'{DEFAULT_KEEPALIVE_TOKEN}', response)
+                return re.sub(
+                    rf"{DEFAULT_KEEPALIVE_TOKEN}{{2,}}",
+                    f"{DEFAULT_KEEPALIVE_TOKEN}",
+                    response,
+                )
             else:
                 return response
         elif self.config.keepAliveToken == EMPTY_EVENT_KEEPALIVE_TOKEN:
-            if self.config.response == 'csv':
-                return re.sub(r'(,+$)|(,+\n)', '', response)
-            elif self.config.response == 'tsv':
-                return re.sub(r'(\t+$)|(\t+\n)', '', response)
+            if self.config.response == "csv":
+                return re.sub(r"(,+$)|(,+\n)", "", response)
+            elif self.config.response == "tsv":
+                return re.sub(r"(\t+$)|(\t+\n)", "", response)
             else:
                 return response
         else:
-            return response.replace(f'{self.config.keepAliveToken}', '')
+            return response.replace(f"{self.config.keepAliveToken}", "")
 
     def _keepalive_stream_sanitize(self, line):
-        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or \
-                self.config.keepAliveToken is None:
+        if (
+            self.config.keepAliveToken == NO_KEEPALIVE_TOKEN
+            or self.config.keepAliveToken is None
+        ):
             return line
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
             if self.config.response.startswith("json"):
                 return line
             elif self.config.response in ["csv", "tsv"]:
-                return re.sub(DEFAULT_KEEPALIVE_TOKEN, '', line)
+                return re.sub(DEFAULT_KEEPALIVE_TOKEN, "", line)
             else:
                 return line
         elif self.config.keepAliveToken == EMPTY_EVENT_KEEPALIVE_TOKEN:
-            if self.config.response == 'csv':
-                return re.sub(r'(,+$)|(,+\n)', '', line)
-            elif self.config.response == 'tsv':
-                return re.sub(r'(\t+$)|(\t+\n)', '', line)
+            if self.config.response == "csv":
+                return re.sub(r"(,+$)|(,+\n)", "", line)
+            elif self.config.response == "tsv":
+                return re.sub(r"(\t+$)|(\t+\n)", "", line)
             else:
                 return line
         else:
-            return line.replace(f'{self.config.keepAliveToken}', '')
+            return line.replace(f"{self.config.keepAliveToken}", "")
 
     def _make_request(self, payload):
         """
@@ -569,7 +620,7 @@ class Client:
                     raise DevoClientRequestException(response)
 
                 if self.config.stream:
-                    if (self.config.response in ["msgpack", "xls"]):
+                    if self.config.response in ["msgpack", "xls"]:
                         return (None, None, response.iter_content())
                     return (None, response.iter_lines(), None)
                 # In case of NOT stream mode we return the whole server
@@ -580,7 +631,7 @@ class Client:
                 if tries > self.retries:
                     raise DevoClientException(ERROR_MSGS["connection_error"]) from error
                 time.sleep(self.retry_delay * (2 ** (tries - 1)))
-            except DevoClientException as error:
+            except DevoClientException:
                 raise
             except Exception as error:
                 raise DevoClientException(ERROR_MSGS["other_errors"]) from error
@@ -589,14 +640,16 @@ class Client:
         """
         POST request method extracted for mocking purposes
         """
-        return requests.post("{}://{}".format(
-            "http" if self.unsecure_http else "https",
-            "/".join(self.address)),
+        return requests.post(
+            "{}://{}".format(
+                "http" if self.unsecure_http else "https", "/".join(self.address)
+            ),
             data=payload,
             headers=self._get_headers(payload),
             verify=self.verify,
             timeout=self.timeout,
-            stream=self.config.stream)
+            stream=self.config.stream,
+        )
 
     @staticmethod
     def _get_payload(query, query_id, dates, opts):
@@ -611,45 +664,48 @@ class Client:
         :param opts: destination -> Destination for the results
         :return: Return the formed payload
         """
-        date_from = default_from(dates['from'])
-        date_to = default_to(dates['to']) if dates['to'] is not None else None
+        date_from = default_from(dates["from"])
+        date_to = default_to(dates["to"]) if dates["to"] is not None else None
 
         payload = {
-            "from":
-                int(date_from / 1000) if isinstance(date_from, (int, float))
-                else date_from,
-            "to":
-                int(date_to / 1000) if isinstance(date_to, (int, float))
-                else date_to,
-            "mode": {"type": opts['response']}}
+            "from": int(date_from / 1000)
+            if isinstance(date_from, (int, float))
+            else date_from,
+            "to": int(date_to / 1000) if isinstance(date_to, (int, float)) else date_to,
+            "mode": {"type": opts["response"]},
+        }
 
         if dates.get("timeZone"):
-            payload['timeZone'] = dates.get("timeZone")
+            payload["timeZone"] = dates.get("timeZone")
 
         if query:
-            payload['query'] = query
+            payload["query"] = query
 
         if query_id:
-            payload['queryId'] = query_id
+            payload["queryId"] = query_id
 
-        if opts['limit']:
-            payload['limit'] = opts['limit']
+        if opts["limit"]:
+            payload["limit"] = opts["limit"]
 
-        if opts['offset']:
-            payload['offset'] = opts['offset']
+        if opts["offset"]:
+            payload["offset"] = opts["offset"]
 
         if opts["destination"]:
-            payload['destination'] = opts['destination']
+            payload["destination"] = opts["destination"]
 
-        if opts["keepAliveToken"] is not None and \
-                opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN:
+        if (
+            opts["keepAliveToken"] is not None
+            and opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN
+        ):
             if opts["keepAliveToken"] == EMPTY_EVENT_KEEPALIVE_TOKEN:
-                payload['keepAlive'] = {'type': 'empty'}
+                payload["keepAlive"] = {"type": "empty"}
             elif opts["keepAliveToken"] == DEFAULT_KEEPALIVE_TOKEN:
-                payload['keepAlive'] = {'type': 'token'}
+                payload["keepAlive"] = {"type": "token"}
             else:
-                payload['keepAlive'] = {'type': 'token',
-                                        'token': opts["keepAliveToken"]}
+                payload["keepAlive"] = {
+                    "type": "token",
+                    "token": opts["keepAliveToken"],
+                }
 
         return json.dumps(payload)
 
@@ -664,27 +720,27 @@ class Client:
         if self.auth.get("key", False) and self.auth.get("secret", False):
             sign = self._get_sign(data, tstamp)
             return {
-                'Content-Type': 'application/json',
-                'x-logtrust-apikey': self.auth.get("key"),
-                'x-logtrust-timestamp': tstamp,
-                'x-logtrust-sign': sign
+                "Content-Type": "application/json",
+                "x-logtrust-apikey": self.auth.get("key"),
+                "x-logtrust-timestamp": tstamp,
+                "x-logtrust-sign": sign,
             }
 
         if self.auth.get("token", False):
             return {
-                'Content-Type': 'application/json',
-                'x-logtrust-timestamp': tstamp,
-                'Authorization': "Bearer %s" % self.auth.get("token")
+                "Content-Type": "application/json",
+                "x-logtrust-timestamp": tstamp,
+                "Authorization": "Bearer %s" % self.auth.get("token"),
             }
 
         if self.auth.get("jwt", False):
             return {
-                'Content-Type': 'application/json',
-                'x-logtrust-timestamp': tstamp,
-                'Authorization': "jwt %s" % self.auth.get("jwt")
+                "Content-Type": "application/json",
+                "x-logtrust-timestamp": tstamp,
+                "Authorization": "jwt %s" % self.auth.get("jwt"),
             }
 
-        raise DevoClientException((ERROR_MSGS['no_auth']))
+        raise DevoClientException((ERROR_MSGS["no_auth"]))
 
     def _get_sign(self, data, tstamp):
         """
@@ -693,12 +749,13 @@ class Client:
         :param tstamp: Epoch timestamp
         :return: The sign in hex response
         """
-        if not self.auth.get("key", False) \
-                or not self.auth.get("secret", False):
+        if not self.auth.get("key", False) or not self.auth.get("secret", False):
             raise DevoClientException(ERROR_MSGS["missing_api_key"])
-        sign = hmac.new(self.auth.get("secret").encode("utf-8"),
-                        (self.auth.get("key") + data + tstamp).encode("utf-8"),
-                        hashlib.sha256)
+        sign = hmac.new(
+            self.auth.get("secret").encode("utf-8"),
+            (self.auth.get("key") + data + tstamp).encode("utf-8"),
+            hashlib.sha256,
+        )
         return sign.hexdigest()
 
     def _generate_pragmas(self, comment=None):
@@ -708,10 +765,9 @@ class Client:
         :user: Pragma comment user
         :app_name: Pragma comment id. App name.
         """
-        str_pragmas = ' pragma comment.id:"{}" ' \
-                      'pragma comment.user:"{}"' \
-            .format(self.config.pragmas['app_name'],
-                    self.config.pragmas['user'])
+        str_pragmas = ' pragma comment.id:"{}" ' 'pragma comment.user:"{}"'.format(
+            self.config.pragmas["app_name"], self.config.pragmas["user"]
+        )
 
         if comment:
             return str_pragmas + ' pragma comment.free:"{}"'.format(comment)
@@ -723,40 +779,43 @@ class Client:
         :param job_type: category of jobs
         :param name: name of jobs
         :return: json"""
-        plus = "" if not job_type \
-            else "/{}".format(job_type if not name
-                              else "{}/{}".format(job_type, name))
+        plus = (
+            ""
+            if not job_type
+            else "/{}".format(job_type if not name else "{}/{}".format(job_type, name))
+        )
 
-        return self._call_jobs("{}{}{}".format(self.address[0],
-                                               '/search/jobs', plus))
+        return self._call_jobs("{}{}{}".format(self.address[0], "/search/jobs", plus))
 
     def get_job(self, job_id):
         """Get all info of job
         :param job_id: job id
         :return: json"""
-        return self._call_jobs("{}{}{}".format(self.address[0],
-                                               ADDRESS_JOB, job_id))
+        return self._call_jobs("{}{}{}".format(self.address[0], ADDRESS_JOB, job_id))
 
     def stop_job(self, job_id):
-        """ Stop one job by ID
+        """Stop one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB,
-                                                 'stop/', job_id))
+        return self._call_jobs(
+            "{}{}{}{}".format(self.address[0], ADDRESS_JOB, "stop/", job_id)
+        )
 
     def start_job(self, job_id):
-        """ Start one job by ID
+        """Start one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB,
-                                                 'start/', job_id))
+        return self._call_jobs(
+            "{}{}{}{}".format(self.address[0], ADDRESS_JOB, "start/", job_id)
+        )
 
     def remove_job(self, job_id):
-        """ Remove one job by ID
+        """Remove one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB,
-                                                 'remove/', job_id))
+        return self._call_jobs(
+            "{}{}{}{}".format(self.address[0], ADDRESS_JOB, "remove/", job_id)
+        )
 
     def _call_jobs(self, address):
         """
@@ -768,16 +827,20 @@ class Client:
         while tries <= self.retries:
             response = None
             try:
-                response = requests.get("https://{}".format(address),
-                                        headers=self._get_headers(""),
-                                        verify=self.verify,
-                                        timeout=self.timeout)
+                response = requests.get(
+                    "https://{}".format(address),
+                    headers=self._get_headers(""),
+                    verify=self.verify,
+                    timeout=self.timeout,
+                )
             except ConnectionError as error:
                 raise DevoClientException(ERROR_MSGS["connection_error"]) from error
 
             if response:
-                if response.status_code != 200 or \
-                        "error" in response.text[0:15].lower():
+                if (
+                    response.status_code != 200
+                    or "error" in response.text[0:15].lower()
+                ):
                     raise DevoClientRequestException(response)
                 try:
                     return json.loads(response.text)
@@ -799,27 +862,25 @@ class Client:
 
     @staticmethod
     def _fromDate_parser(fromDate, now=datetime.now()):
-
         if isinstance(fromDate, (float, int)):
             return fromDate
         now = now.astimezone(pytz.UTC)
         now_milliseconds = now.timestamp() * 1000
-        adate = datetime.strptime(str(now.date()), '%Y-%m-%d').replace(
-            tzinfo=pytz.utc)
+        adate = datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc)
 
-        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)', fromDate):
-            date = re.split('(d|ad|h|ah|m|am|s|as)', fromDate)
+        if re.match("^[1-9]+(d|ad|h|ah|m|am|s|as)", fromDate):
+            date = re.split("(d|ad|h|ah|m|am|s|as)", fromDate)
             num = int(date[0])
             unit = date[1]
 
             if unit == "d":
-                return now_milliseconds - (8.64e+7 * num)
+                return now_milliseconds - (8.64e7 * num)
             elif unit == "ad":
-                return adate.timestamp() * 1000 - (8.64e+7 * num)
+                return adate.timestamp() * 1000 - (8.64e7 * num)
             elif unit == "h":
-                return now_milliseconds - (3.6e+6 * num)
+                return now_milliseconds - (3.6e6 * num)
             elif unit == "ah":
-                return adate.timestamp() * 1000 - (3.6e+6 * num)
+                return adate.timestamp() * 1000 - (3.6e6 * num)
             elif unit == "m":
                 return now_milliseconds - (60000 * num)
             elif unit == "am":
@@ -832,43 +893,46 @@ class Client:
         elif fromDate == "today":
             return adate.timestamp() * 1000
         elif fromDate == "endday":
-            return (adate + timedelta(hours=23, minutes=59,
-                                      seconds=59)).timestamp() * 1000
+            return (
+                adate + timedelta(hours=23, minutes=59, seconds=59)
+            ).timestamp() * 1000
         elif fromDate == "endmonth":
-            return (adate.replace(
-                day=calendar.monthrange(adate.year, adate.month)[
-                    1]) + timedelta(hours=23, minutes=59,
-                                    seconds=59)).timestamp() * 1000
+            return (
+                adate.replace(day=calendar.monthrange(adate.year, adate.month)[1])
+                + timedelta(hours=23, minutes=59, seconds=59)
+            ).timestamp() * 1000
         elif fromDate == "now":
             return now.timestamp() * 1000
 
     @staticmethod
     def _toDate_parser(fromDateMillisec, toDate, now=datetime.now()):
-
         if isinstance(toDate, (float, int)):
             return toDate
 
         now = now.astimezone(pytz.UTC)
         fromDate = datetime.fromtimestamp(fromDateMillisec / 1000).replace(
-            tzinfo=pytz.utc)
-        aFromdate = datetime.strptime(str(fromDate.date()),
-                                      '%Y-%m-%d').replace(tzinfo=pytz.utc)
-        aNowdate = datetime.strptime(str(now.date()), '%Y-%m-%d').replace(
-            tzinfo=pytz.utc)
+            tzinfo=pytz.utc
+        )
+        aFromdate = datetime.strptime(str(fromDate.date()), "%Y-%m-%d").replace(
+            tzinfo=pytz.utc
+        )
+        aNowdate = datetime.strptime(str(now.date()), "%Y-%m-%d").replace(
+            tzinfo=pytz.utc
+        )
 
-        if re.match('^[1-9]+(d|ad|h|ah|m|am|s|as)', toDate):
-            date = re.split('(d|ad|h|ah|m|am|s|as)', toDate)
+        if re.match("^[1-9]+(d|ad|h|ah|m|am|s|as)", toDate):
+            date = re.split("(d|ad|h|ah|m|am|s|as)", toDate)
             num = int(date[0])
             unit = date[1]
 
             if unit == "d":
-                return fromDateMillisec + (8.64e+7 * num)
+                return fromDateMillisec + (8.64e7 * num)
             elif unit == "ad":
-                return aFromdate.timestamp() * 1000 + (8.64e+7 * num)
+                return aFromdate.timestamp() * 1000 + (8.64e7 * num)
             elif unit == "h":
-                return fromDateMillisec + (3.6e+6 * num)
+                return fromDateMillisec + (3.6e6 * num)
             elif unit == "ah":
-                return aFromdate.timestamp() * 1000 + (3.6e+6 * num)
+                return aFromdate.timestamp() * 1000 + (3.6e6 * num)
             elif unit == "m":
                 return fromDateMillisec + (60000 * num)
             elif unit == "am":
@@ -881,13 +945,16 @@ class Client:
         elif toDate == "today":
             return aNowdate.timestamp() * 1000
         elif toDate == "endday":
-            return (aFromdate + timedelta(hours=23, minutes=59,
-                                          seconds=59)).timestamp() * 1000
+            return (
+                aFromdate + timedelta(hours=23, minutes=59, seconds=59)
+            ).timestamp() * 1000
         elif toDate == "endmonth":
-            return (aFromdate.replace(
-                day=calendar.monthrange(aFromdate.year, aFromdate.month)[
-                    1]) + timedelta(hours=23, minutes=59,
-                                    seconds=59)).timestamp() * 1000
+            return (
+                aFromdate.replace(
+                    day=calendar.monthrange(aFromdate.year, aFromdate.month)[1]
+                )
+                + timedelta(hours=23, minutes=59, seconds=59)
+            ).timestamp() * 1000
         elif toDate == "now":
             return now.timestamp() * 1000
 
@@ -908,8 +975,8 @@ class Client:
                 code = int(match.group(1))
                 message = match.group(2).strip()
                 raise DevoClientDataResponseException(
-                    ERROR_MSGS["data_query_error"]
-                    % message, code=code, cause=error)
+                    ERROR_MSGS["data_query_error"] % message, code=code, cause=error
+                )
             else:
                 return content
 
@@ -919,6 +986,6 @@ DATA_ERROR_PATTERNS = {
     "json/simple": r'\["error",(\d+),"([^"]+)"\]',
     "json": r'"error":\s\[(\d+),"([^"]+)"\]',
     "json/compact": r'"e":\s\[(\d+),"([^"]+)"\]',
-    "csv": r'devo\.api\.error,(\d+),([^,\n]+)',
-    'tsv': r'devo\.api\.error(?:\t|\s+)(\d+)(?:\t|\s+)([^\t\n]+)'
+    "csv": r"devo\.api\.error,(\d+),([^,\n]+)",
+    "tsv": r"devo\.api\.error(?:\t|\s+)(\d+)(?:\t|\s+)([^\t\n]+)",
 }

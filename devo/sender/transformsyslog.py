@@ -38,10 +38,10 @@ SEVERITY_NOTICE = 5  # Events that are unusual, but not error conditions.
 SEVERITY_INFO = 6  # Normal operational messages that require no action.
 SEVERITY_DEBUG = 7  # Information useful to developers for debugging
 # the application.
-COMPOSE = '%s%s'
-COMPOSE_BYTES = b'%s%s'
-FORMAT_MY = '<%d>%s %s %s: '  # Not \000
-FORMAT_MY_BYTES = b'<%d>%s %s %s: '  # Not \000
+COMPOSE = "%s%s"
+COMPOSE_BYTES = b"%s%s"
+FORMAT_MY = "<%d>%s %s %s: "  # Not \000
+FORMAT_MY_BYTES = b"<%d>%s %s %s: "  # Not \000
 
 # logging.handler translator to Sender codes
 facility_names = {
@@ -79,5 +79,5 @@ priority_map = {
     "WARN": SEVERITY_WARN,  # DEPRECATED
     "NOTICE": SEVERITY_NOTICE,
     "INFO": SEVERITY_INFO,
-    "DEBUG": SEVERITY_DEBUG
+    "DEBUG": SEVERITY_DEBUG,
 }
