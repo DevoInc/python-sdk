@@ -1,4 +1,4 @@
-click==8.1.4
+click==8.1.6
 PyYAML==6.0
 requests>=2.31
 pem>=21.2.0
