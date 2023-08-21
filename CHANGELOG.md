@@ -4,13 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [5.1.5] - 2023-08-21
 
 ### Changed
 
-- `click` dependency updated from `click==8.1.3` to `click==8.1.4`
+- `click` dependency upgraded from `click==8.1.3` to `click==8.1.7`
 - `pem` dependency open from `pem==21.2.0` to `pem>=21.2.0`
+- `pyyaml` dependency open from `pyyaml==6.0.1` to `pyyaml>=6.0.1`
 - Code reformatted with `yapf`, `black`, `isort` and `flake8` tools.
+
+### Security
+
+- `certifi` dependency open from `certifi==2021.10.8` to `certifi>=2023.7.22`
+- `cryptography` dependency upgraded from `cryptography==41.0.1` to `cryptography>=41.0.3`
 
 ## [5.1.4] - 2023-06-13
 
