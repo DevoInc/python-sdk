@@ -4,6 +4,6 @@ requests~=2.31
 pem~=21.2.0
 pyopenssl~=23.0
 urllib3~=1.26.5
-pytz~=2019.3
+pytz~=2023.3
 certifi~=2023.7.22
 cryptography~=41.0.3
