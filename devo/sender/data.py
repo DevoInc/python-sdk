@@ -622,7 +622,7 @@ class Sender(logging.Handler):
                 self.socket.shutdown(SHUT_WR)
                 self.__wait_for_EOF()
             except Exception:  # Try else continue
-                logging.exception(ERROR_MSGS.CLOSING_ERROR)
+                logging.warning(ERROR_MSGS.CLOSING_ERROR)
             finally:
                 self.socket.close()
                 self.socket = None

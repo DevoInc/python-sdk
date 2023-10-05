@@ -1,4 +1,14 @@
 # File : .pep8speaks.yml
 
 scanner:
-    diff_only: True  # Errors caused by only the patch are shown
+    diff_only: True # Errors caused by only the patch are shown
+    linter: pycodestyle # Alternative option - flake8
+
+pycodestyle: # Same as scanner.linter value. Other option is flake8
+    max-line-length: 99 # Default is 79 in PEP 8
+    ignore: # Errors and warnings to ignore
+        - E203 # whitespace before ':'
+        - E501 # line too long
+        - W503 # line break before binary operator
+        - F401 # module imported but unused
+        - F403 # 'from module import *' used; unable to detect undefined names
