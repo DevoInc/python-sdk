@@ -30,12 +30,20 @@ INSTALL_REQUIRES = [
     "click==8.1.7",
     "PyYAML==6.0.1",
     "pem~=21.2.0",
-    "pyopenssl~=23.0",
-    "urllib3~=1.26.5",
-    "pytz~=2019.3",
+    "pyopenssl~=23.2",
+    "urllib3~=2.0.6",
+    "pytz~=2023.3",
     "certifi~=2023.7.22",
     "cryptography~=41.0.3",
 ]
+EXTRAS_REQUIRE = {
+    "dev": [
+        "stopit==1.1.2",
+        "msgpack~=1.0.4",
+        "responses~=0.23.3",
+        "pipdeptree~=2.5.0"
+    ]
+}
 CLI = [
     "devo-sender=devo.sender.scripts.sender_cli:cli",
     "devo-api=devo.api.scripts.client_cli:cli",
@@ -59,7 +67,9 @@ def find_meta(meta):
     Extract __*meta*__ from META_FILE.
     """
     meta_match = re.search(
-        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta), META_FILE, re.M
+        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta),
+        META_FILE,
+        re.M
     )
     if meta_match:
         return meta_match.group(1)
@@ -85,5 +95,6 @@ setup(
     classifiers=CLASSIFIERS,
     packages=PACKAGES,
     install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     entry_points={"console_scripts": CLI},
 )
