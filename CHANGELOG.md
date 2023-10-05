@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.1.6] - 2023-10-05
+
+### Changed
+
+- `pyopenssl` dependency upgraded from `pyopenssl~=23.0` to `pyopenssl~=23.2`
+- `pytz` dependency upgraded from `pytz~=2019.3` to `pytz~=2023.3`
+- `responses` dependency upgraded from `responses~=0.22.0` to `responses~=0.23.3`
+- `urllib3` dependency upgraded from `urllib3~=1.26.5` to `urllib3~=2.0.6`
+- Log level demoted to warning while closing socket in sender data.
+
 ## [5.1.5] - 2023-08-21
 
 ### Changed
