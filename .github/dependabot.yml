@@ -5,14 +5,14 @@ updates:
     directory: "/"
     target-branch: "master"
     schedule:
-      interval: "daily"
-      time: "09:00"
-      timezone: "Europe/Madrid"
+      interval: "weekly"
     assignees:
-      - "JuanFranDevo"
+      - "angel-devo"
+      - "jgarciai"
     reviewers:
       - "angel-devo"
+      - "jgarciai"
     labels:
-      - "Dependabot"
+      - "dependencies"
     # Set to 0 to avoid version updates (only security updates)
     open-pull-requests-limit: 5
