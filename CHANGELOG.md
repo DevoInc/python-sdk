@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - `cryptography` depemdency upgraded from `cryptography~=41.0.3` to `cryptography~=41.0.5`
 - `msgpack~=1.0.4` testing dependency upgraded from `msgpack~=1.0.4` to `msgpack~=1.0.7`
 - `pipdeptree~=2.5.0` testing dependency upgraded from `pipdeptree~=2.5.0` to `pipdeptree~=2.13.0`
+- Removed support for Python 3.7.
 
 ## [5.1.6] - 2023-10-05
 
