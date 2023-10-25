@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.1.7] - 2023-10-25
+
+### Changed
+
+- `urllib3` dependency removed, `requests` already solves it.
+- `cryptography` depemdency upgraded from `cryptography~=41.0.3` to `cryptography~=41.0.5`
+- `msgpack~=1.0.4` testing dependency upgraded from `msgpack~=1.0.4` to `msgpack~=1.0.7`
+- `pipdeptree~=2.5.0` testing dependency upgraded from `pipdeptree~=2.5.0` to `pipdeptree~=2.13.0`
+
 ## [5.1.6] - 2023-10-05
 
 ### Changed
