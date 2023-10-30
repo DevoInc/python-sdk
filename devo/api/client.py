@@ -43,8 +43,8 @@ ERROR_MSGS = {
     "binary_format_requires_output": "Binary format like `msgpack` and `xls` requires output"
     " parameter",
     "wrong_processor": "processor must be lambda/function or one of the defaults API processors.",
-    "default_keepalive_only": "Mode '%s' always uses default KeepAlive Token",
-    "keepalive_not_supported": "Mode '%s' does not support KeepAlive Token",
+    "default_keepalive_only": "This mode always uses default KeepAlive Token",
+    "keepalive_not_supported": "This mode does not support KeepAlive Token",
     "stream_mode_not_supported": "Mode '%s' does not support stream mode",
     "future_queries_not_supported": "Modes 'xls' and 'msgpack' does not support future queries"
     " because KeepAlive tokens are not available for those "
@@ -242,14 +242,14 @@ class ClientConfig:
         ]:
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
             if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(ERROR_MSGS["default_keepalive_only"] % self.response)
+                logging.warning(ERROR_MSGS["default_keepalive_only"])
         # In the cases 'csv', 'tsv' you can use any value passed in
         # 'keepAliveToken'.
         elif self.response in ["csv", "tsv"]:
             self.keepAliveToken = keepAliveToken
         else:
             if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
-                logging.warning(ERROR_MSGS["keepalive_not_supported"] % self.response)
+                logging.warning(ERROR_MSGS["keepalive_not_supported"])
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
 
