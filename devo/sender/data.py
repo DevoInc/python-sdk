@@ -250,6 +250,13 @@ class SenderConfigSSL:
         sock = socket.socket()
         context = SSL.Context(SSL.TLS_CLIENT_METHOD)
         sock.settimeout(10)
+
+        # Restrict insecure protocols
+        context.set_options(SSL.OP_NO_SSLv2)
+        context.set_options(SSL.OP_NO_SSLv3)
+        context.set_options(SSL.OP_NO_TLSv1)
+        context.set_options(SSL.OP_NO_TLSv1_1)
+
         connection = SSL.Connection(context, sock)
         try:
             connection.connect(self.address)
