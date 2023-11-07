@@ -29,7 +29,7 @@ INSTALL_REQUIRES = [
     "click==8.1.7",
     "PyYAML==6.0.1",
     "pem~=21.2.0",
-    "pyopenssl~=23.2",
+    "pyopenssl~=23.3",
     "pytz~=2023.3",
     "certifi~=2023.7.22",
     "cryptography~=41.0.5",
@@ -38,7 +38,7 @@ EXTRAS_REQUIRE = {
     "dev": [
         "stopit==1.1.2",
         "msgpack~=1.0.7",
-        "responses~=0.23.3",
+        "responses~=0.24",
         "pipdeptree~=2.13.0"
     ]
 }

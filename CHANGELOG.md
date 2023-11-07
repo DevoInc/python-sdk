@@ -10,6 +10,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - Restrict insecure TLS versions in Sender and API clients to TLSv1.2 and TLSv1.3
 - Remove disclosing information in messages about keepalive token.
+- Fix incorences in documentation about using `url` and `address` interchangeably.
+- `pyopenssl` dependency upgraded from `pyopenssl~=23.2` to `pyopenssl~=23.3`
+- `responses` dependency upgraded from `responses~=0.22.3` to `responses~=0.24`
 
 ## [5.1.7] - 2023-10-25
 
