@@ -553,7 +553,7 @@ the common values: url, port, certificates. And then send with the call the tag,
 Both things are combined at runtime, prevailing the values that are sent as
 arguments of the call over the configuration file
 
-**Config file key:** The CLI uses the "api" key to search for information.
+**Config file key:** The CLI uses the API key to query the data.
 You can see one examples in tests folders
 
 json example 1:
@@ -563,7 +563,7 @@ json example 1:
     "api": {
       "key": "MyAPIkeytoaccessdevo",
       "secret": "MyAPIsecrettoaccessdevo",
-      "url": "https://apiv2-us.devo.com/search/query"
+      "address": "https://apiv2-us.devo.com/search/query"
     }
   }
   
@@ -590,7 +590,7 @@ yaml example 1:
   api:
     key: "MyAPIkeytoaccessdevo"
     secret: "MyAPIsecrettoaccessdevo"
-    url: "https://apiv2-us.devo.com/search/query"
+    address: "https://apiv2-us.devo.com/search/query"
 ```
 
 yaml example 2:
@@ -605,12 +605,12 @@ yaml example 2:
 
 You can use environment variables or a global configuration file for the KEY, SECRET, URL, USER, APP_NAME and COMMENT values
 
-Priority order:
+How do the CLI resolve the set up of this parameters? This is the evalutaion order:
 
-1. -c configuration file option: if you use ite, CLI search key, secret and url, or token and url in the file
-2. params in CLI call: He can complete values not in configuration file, but not override it
-3. Environment vars: if you send key, secrey or token in config file or params cli, this option not be called
-4. ~/.devo.json or ~/.devo.yaml: if you send key, secrey or token in other way, this option not be called
+1. `-c` configuration file option: use it to set API key, secret and url, or token and url in one file.
+2. The parameters in CLI call can complete values not in configuration file, but not override it
+3. Environment vars: if you set key, secrey or token in config file or params cli, this option should not be used.
+4. ~/.devo.json or ~/.devo.yaml: if you set key, secrey or token in other way, this option should not be used.
 
 Environment vars are:
 
