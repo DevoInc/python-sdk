@@ -31,15 +31,15 @@ INSTALL_REQUIRES = [
     "pem~=21.2.0",
     "pyopenssl~=23.3",
     "pytz~=2023.3",
-    "certifi~=2023.7.22",
-    "cryptography~=41.0.5",
+    "certifi~=2023.11.17",
+    "cryptography~=41.0.7",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
         "stopit==1.1.2",
         "msgpack~=1.0.7",
         "responses~=0.24",
-        "pipdeptree~=2.13.0"
+        "pipdeptree~=2.13.1"
     ]
 }
 CLI = [
