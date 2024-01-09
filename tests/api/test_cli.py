@@ -1,4 +1,3 @@
-import json
 import os
 import tempfile
 import unittest
@@ -12,7 +11,9 @@ from devo.common import Configuration
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.query = "from demo.ecommerce.data select method limit 1"
+        self.query = os.getenv(
+            "DEVO_API_QUERY", "from siem.logtrust.web.activity select eventdate limit 1"
+        )
         self.app_name = "testing-app_name"
         self.uri = os.getenv(
             "DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query"
@@ -124,7 +125,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertIn('{"m":{"method":{"type":"str","index":0', result.output)
+        self.assertIn('{"m":{"eventdate":{"type":"timestamp","index":0', result.output)
 
     def test_with_config_file(self):
         if self.config_path:
@@ -144,7 +145,7 @@ class TestApi(unittest.TestCase):
             )
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
-            self.assertIn('{"m":{"method":{"type":"str","index":0', result.output)
+            self.assertIn('{"m":{"eventdate":{"type":"timestamp","index":0', result.output)
 
 
 if __name__ == "__main__":
