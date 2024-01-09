@@ -1,5 +1,6 @@
 import os
 import socket
+import tempfile
 import unittest
 
 from click.testing import CliRunner
@@ -69,7 +70,9 @@ class TestSender(unittest.TestCase):
             },
         )
 
-        self.config_path = "/tmp/devo_sender_tests_config.json"
+        self.config_path = os.path.join(
+            tempfile.gettempdir(), "devo_api_tests_config.json"
+        )
         configuration.save(path=self.config_path)
 
         self.bad_json_config_path = "./common/bad_json_config.json"
