@@ -13,9 +13,7 @@ from devo.api.client import (DEFAULT_KEEPALIVE_TOKEN,
 
 
 class TimeoutTokenCase(unittest.TestCase):
-    def _query_stream(
-        self, response_type, result, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN
-    ):
+    def _query_stream(self, response_type, result, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
         client = Client(
             retries=0,
             config={
@@ -28,9 +26,7 @@ class TimeoutTokenCase(unittest.TestCase):
         client._make_request = MagicMock(return_value=(None, result, None))
         return client.query()
 
-    def _query_no_stream(
-        self, response_type, result, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN
-    ):
+    def _query_no_stream(self, response_type, result, keepAliveToken=DEFAULT_KEEPALIVE_TOKEN):
         client = Client(
             retries=0,
             config={
@@ -162,10 +158,7 @@ class TimeoutTokenCase(unittest.TestCase):
         self.assertIsNotNone(response)
         self.assertEqual(
             [4, 12],
-            [
-                json.loads(event)["d"][1] if event.strip() else ""
-                for event in list(response)[1:]
-            ],
+            [json.loads(event)["d"][1] if event.strip() else "" for event in list(response)[1:]],
         )
 
     def test_csv_default_token_notstream(self):
@@ -176,17 +169,12 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "csv"
         keepalive_token = DEFAULT_KEEPALIVE_TOKEN
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(
             [("2022-08-04 10:47:00.000", "59"), ("2022-08-04 10:48:00.000", "4")],
-            [
-                (event.split(",")[0], event.split(",")[1])
-                for event in response.split("\n")[1:]
-            ],
+            [(event.split(",")[0], event.split(",")[1]) for event in response.split("\n")[1:]],
         )
 
     def test_csv_empty_event_token_notstream(self):
@@ -197,17 +185,12 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "csv"
         keepalive_token = EMPTY_EVENT_KEEPALIVE_TOKEN
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(
             [("2022-08-04 10:52:00.000", "40"), ("2022-08-04 10:53:00.000", "16")],
-            [
-                (event.split(",")[0], event.split(",")[1])
-                for event in response.split("\n")[1:]
-            ],
+            [(event.split(",")[0], event.split(",")[1]) for event in response.split("\n")[1:]],
         )
 
     def test_csv_custom_token_notstream(self):
@@ -219,17 +202,12 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "csv"
         keepalive_token = "TOKEN"
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(
             [("2022-08-04 10:57:00.000", "18"), ("2022-08-04 10:58:00.000", "12")],
-            [
-                (event.split(",")[0], event.split(",")[1])
-                for event in response.split("\n")[1:]
-            ],
+            [(event.split(",")[0], event.split(",")[1]) for event in response.split("\n")[1:]],
         )
 
     def test_csv_default_token_stream(self):
@@ -329,9 +307,7 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "tsv"
         keepalive_token = DEFAULT_KEEPALIVE_TOKEN
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(
@@ -340,10 +316,7 @@ class TimeoutTokenCase(unittest.TestCase):
                 ("2022-08-04 11:10:00.000", "4"),
                 ("2022-08-04 11:11:00.000", "169"),
             ],
-            [
-                (event.split("\t")[0], event.split("\t")[1])
-                for event in response.split("\n")
-            ],
+            [(event.split("\t")[0], event.split("\t")[1]) for event in response.split("\n")],
         )
 
     def test_tsv_empty_event_token_notstream(self):
@@ -355,9 +328,7 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "tsv"
         keepalive_token = EMPTY_EVENT_KEEPALIVE_TOKEN
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(
@@ -366,10 +337,7 @@ class TimeoutTokenCase(unittest.TestCase):
                 ("2022-08-04 11:06:00.000", "24"),
                 ("2022-08-04 11:07:00.000", "86"),
             ],
-            [
-                (event.split("\t")[0], event.split("\t")[1])
-                for event in response.split("\n")
-            ],
+            [(event.split("\t")[0], event.split("\t")[1]) for event in response.split("\n")],
         )
 
     def test_tsv_custom_token_notstream(self):
@@ -381,9 +349,7 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "tsv"
         keepalive_token = "TOKEN"
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(
@@ -392,10 +358,7 @@ class TimeoutTokenCase(unittest.TestCase):
                 ("2022-08-04 11:02:00.000", "8"),
                 ("2022-08-04 11:03:00.000", "22"),
             ],
-            [
-                (event.split("\t")[0], event.split("\t")[1])
-                for event in response.split("\n")
-            ],
+            [(event.split("\t")[0], event.split("\t")[1]) for event in response.split("\n")],
         )
 
     def test_tsv_default_token_stream(self):
@@ -495,9 +458,7 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "msgpack"
         keepalive_token = NO_KEEPALIVE_TOKEN
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(response, result)
@@ -510,9 +471,7 @@ class TimeoutTokenCase(unittest.TestCase):
         response = "xls"
         keepalive_token = DEFAULT_KEEPALIVE_TOKEN
 
-        response = self._query_no_stream(
-            response, result, keepAliveToken=keepalive_token
-        )
+        response = self._query_no_stream(response, result, keepAliveToken=keepalive_token)
 
         self.assertIsNotNone(response)
         self.assertEqual(response, result)

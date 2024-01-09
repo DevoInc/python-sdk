@@ -6,11 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Added
+
+- Added Code of Conduct.
+
 ### Changed
 
-- Restrict insecure TLS versions in Sender and API clients to TLSv1.2 and TLSv1.3
+- Restrict insecure TLS versions in Sender and API clients to TLSv1.2 and TLSv1.3.
 - Remove disclosing information in messages about keepalive token.
 - Fix incorences in documentation about using `url` and `address` interchangeably.
+- `certifi` dependency upgraded from `certifi~=2023.7.22` to `certifi~=2023.11.17`
+- `cryptography` dependency upgraded from `cryptography~=41.0.5` to `cryptography~=41.0.7`
+- `pipdeptree` dependency upgraded from `pipdeptree~=2.13.0` to `pipdeptree~=2.13.1`
 - `pyopenssl` dependency upgraded from `pyopenssl~=23.2` to `pyopenssl~=23.3`
 - `responses` dependency upgraded from `responses~=0.22.3` to `responses~=0.24`
 

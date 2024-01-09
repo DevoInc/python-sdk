@@ -58,9 +58,7 @@ def run_test_suite(selected_modules, excluded_modules):
 
     class TrackingTextTestRunner(unittest.TextTestRunner):
         def _makeResult(self):
-            return _TrackingTextTestResult(
-                self.stream, self.descriptions, self.verbosity
-            )
+            return _TrackingTextTestResult(self.stream, self.descriptions, self.verbosity)
 
     failed = False
     load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
@@ -136,10 +134,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.modules and any(
-        [
-            module.strip() not in module_paths.keys()
-            for module in args.modules.split(",")
-        ]
+        [module.strip() not in module_paths.keys() for module in args.modules.split(",")]
     ):
         print(
             "Invalid module name in inclussion list.\n\n"
@@ -148,10 +143,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if args.exclude_modules and any(
-        [
-            module.strip() not in module_paths.keys()
-            for module in args.exclude_modules.split(",")
-        ]
+        [module.strip() not in module_paths.keys() for module in args.exclude_modules.split(",")]
     ):
         print(
             "Invalid module name in exclusion list.\n\n"
@@ -177,9 +169,7 @@ if __name__ == "__main__":
         cov.html_report(directory="coverage_report")
     else:
         failed = run_test_suite(
-            [module.strip() for module in args.modules.split(",")]
-            if args.modules
-            else [],
+            [module.strip() for module in args.modules.split(",")] if args.modules else [],
             [module.strip() for module in args.exclude_modules.split(",")]
             if args.exclude_modules
             else [],

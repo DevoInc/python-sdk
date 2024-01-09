@@ -103,22 +103,12 @@ class TestLookup(unittest.TestCase):
             '[{"col1":{"type":"str","key":true}},'
             + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         )
-        with mock.patch.object(
-            lookup, "send_control", wraps=lookup.send_control
-        ) as lookup_spy:
-            lookup.send_headers(
-                headers=headers, key_index=0, event="START", action="FULL"
-            )
-            lookup_spy.assert_called_with(
-                action="FULL", event="START", headers=expected_headers
-            )
+        with mock.patch.object(lookup, "send_control", wraps=lookup.send_control) as lookup_spy:
+            lookup.send_headers(headers=headers, key_index=0, event="START", action="FULL")
+            lookup_spy.assert_called_with(action="FULL", event="START", headers=expected_headers)
             lookup.send_data_line(key_index=0, fields=fields)
-            lookup.send_headers(
-                headers=headers, key_index=0, event="END", action="FULL"
-            )
-            lookup_spy.assert_called_with(
-                action="FULL", event="END", headers=expected_headers
-            )
+            lookup.send_headers(headers=headers, key_index=0, event="END", action="FULL")
+            lookup_spy.assert_called_with(action="FULL", event="END", headers=expected_headers)
         con.socket.shutdown(0)
 
     def test_send_headers_with_type_of_key(self):
@@ -138,9 +128,7 @@ class TestLookup(unittest.TestCase):
             '[{"col1":{"type":"int4","key":true}},'
             + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
         )
-        with mock.patch.object(
-            lookup, "send_control", wraps=lookup.send_control
-        ) as lookup_spy:
+        with mock.patch.object(lookup, "send_control", wraps=lookup.send_control) as lookup_spy:
             lookup.send_headers(
                 headers=headers,
                 key_index=0,
@@ -148,9 +136,7 @@ class TestLookup(unittest.TestCase):
                 event="START",
                 action="FULL",
             )
-            lookup_spy.assert_called_with(
-                action="FULL", event="START", headers=expected_headers
-            )
+            lookup_spy.assert_called_with(action="FULL", event="START", headers=expected_headers)
         con.socket.shutdown(0)
 
     # add new line deleting previous data
@@ -194,9 +180,7 @@ class TestLookup(unittest.TestCase):
         lookup.send_control("START", p_headers, "INC")
         if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
-        lookup.send_data_line(
-            key_index=0, fields=["11", "HEX12", "COLOR12"], delete=True
-        )
+        lookup.send_data_line(key_index=0, fields=["11", "HEX12", "COLOR12"], delete=True)
         if len(TestLookup.read(con, 1000)) == 0:
             raise Exception("Not msg sent!")
         lookup.send_control("END", p_headers, "INC")
@@ -236,9 +220,7 @@ class TestLookup(unittest.TestCase):
     def test_check_is_not_a_number(self):
         self.assertFalse(
             Lookup.is_number(
-                "5551,HNBId=001D4C-1213120051,"
-                "Fsn=1213120051,bSRName=,"
-                "manualPscUsed=false"
+                "5551,HNBId=001D4C-1213120051,Fsn=1213120051,bSRName=,manualPscUsed=false"
             )
         )
         self.assertFalse(Lookup.is_number("5."))
@@ -278,13 +260,9 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(
-            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
-        )
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
 
-        with mock.patch.object(
-            Lookup, "clean_field", wraps=Lookup.clean_field
-        ) as clean_field:
+        with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
             lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
             clean_field.assert_called_with('Double quotes"', True)
 
@@ -297,13 +275,9 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(
-            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
-        )
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
 
-        with mock.patch.object(
-            Lookup, "clean_field", wraps=Lookup.clean_field
-        ) as clean_field:
+        with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
             lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
             clean_field.assert_called_with('Double quotes"', True)
 
@@ -317,13 +291,9 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(
-            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
-        )
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
 
-        with mock.patch.object(
-            Lookup, "clean_field", wraps=Lookup.clean_field
-        ) as clean_field:
+        with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
             lookup.send_csv(path=self.lookup_file, has_header=True, key=self.lookup_key)
             clean_field.assert_called_with("ffffff", True)
 
@@ -337,13 +307,9 @@ class TestLookup(unittest.TestCase):
         )
         con = Sender(engine_config)
 
-        lookup = Lookup(
-            name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True
-        )
+        lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_quotes=True)
 
-        with mock.patch.object(
-            Lookup, "clean_field", wraps=Lookup.clean_field
-        ) as clean_field:
+        with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
             lookup.send_csv(
                 path=self.lookup_file,
                 has_header=True,

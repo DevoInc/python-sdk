@@ -12,16 +12,13 @@ from devo.api import Client, ClientConfig, DevoClientException
 class TestApi(unittest.TestCase):
     def setUp(self):
         self.query = os.getenv(
-            "DEVO_API_QUERY", "from siem.logtrust.web.activity select " "method limit 1"
+            "DEVO_API_QUERY", "from siem.logtrust.web.activity select method limit 1"
         )
         self.query_no_results = (
-            'from siem.logtrust.web.activity where method = "OTHER" select'
-            " method limit 1"
+            'from siem.logtrust.web.activity where method = "OTHER" select method limit 1'
         )
         self.app_name = "testing-app_name"
-        self.uri = os.getenv(
-            "DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query"
-        )
+        self.uri = os.getenv("DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query")
         self.key = os.getenv("DEVO_API_KEY", None)
         self.secret = os.getenv("DEVO_API_SECRET", None)
         self.token = os.getenv("DEVO_API_TOKEN", None)
@@ -86,9 +83,7 @@ class TestApi(unittest.TestCase):
             config=ClientConfig(stream=False, response="json"),
             retries=3,
         )
-        result = api.query(
-            query=self.query, dates={"from": "yesterday()", "to": "today()"}
-        )
+        result = api.query(query=self.query, dates={"from": "yesterday()", "to": "today()"})
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)["object"]), 1)
 
@@ -99,9 +94,7 @@ class TestApi(unittest.TestCase):
             config=ClientConfig(stream=False, response="json"),
             retries=3,
         )
-        result = api.query(
-            query=self.query, dates={"from": "now()-7*day()", "to": "now()"}
-        )
+        result = api.query(query=self.query, dates={"from": "now()-7*day()", "to": "now()"})
         self.assertIsNotNone(result)
         self.assertEqual(len(json.loads(result)["object"]), 1)
 
@@ -141,9 +134,7 @@ class TestApi(unittest.TestCase):
             config=ClientConfig(response="json/simple"),
             retries=3,
         )
-        result = api.query(
-            query=self.query_no_results, dates={"from": "1h", "to": "now()"}
-        )
+        result = api.query(query=self.query_no_results, dates={"from": "1h", "to": "now()"})
         self.assertTrue(isinstance(result, types.GeneratorType))
         result = list(result)
         self.assertEqual(len(result), 0)
@@ -283,9 +274,7 @@ class TestApi(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            _ = api.query(
-                query=self.query, dates={"from": "now()", "to": "now()+60*second()"}
-            )
+            _ = api.query(query=self.query, dates={"from": "now()", "to": "now()+60*second()"})
 
         self.assertIsInstance(context.exception, DevoClientException)
         self.assertEqual(
@@ -303,9 +292,7 @@ class TestApi(unittest.TestCase):
         )
 
         with self.assertRaises(Exception) as context:
-            _ = api.query(
-                query=self.query, dates={"from": "now()", "to": "now()+60*second()"}
-            )
+            _ = api.query(query=self.query, dates={"from": "now()", "to": "now()+60*second()"})
 
         self.assertIsInstance(context.exception, DevoClientException)
         self.assertEqual(
