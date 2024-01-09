@@ -54,10 +54,10 @@ def cli(version):
 @click.option("--query", "-q", help="Query.", default="")
 @click.option(
     "--stream/--no-stream",
-    help="Flag for make streaming query or full query with " "start and end. Default is true",
+    help="Flag for make streaming query or full query with start and end. Default is true",
     default=True,
 )
-@click.option("--output", help="File path to store query response if not want " "stdout")
+@click.option("--output", help="File path to store query response if not want stdout")
 @click.option(
     "--response",
     "-r",
@@ -78,7 +78,7 @@ def cli(version):
 )
 @click.option(
     "--from",
-    help="From date. For valid formats see API README." " Default if now - 1 hour",
+    help="From date. For valid formats see API README. Default if now - 1 hour",
 )
 @click.option("--to", help="To date. For valid formats see API README")
 @click.option("--timeZone", help="Timezone info. For valid formats see API README")

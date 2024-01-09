@@ -12,10 +12,10 @@ from devo.api import Client, ClientConfig, DevoClientException
 class TestApi(unittest.TestCase):
     def setUp(self):
         self.query = os.getenv(
-            "DEVO_API_QUERY", "from siem.logtrust.web.activity select " "method limit 1"
+            "DEVO_API_QUERY", "from siem.logtrust.web.activity select method limit 1"
         )
         self.query_no_results = (
-            'from siem.logtrust.web.activity where method = "OTHER" select' " method limit 1"
+            'from siem.logtrust.web.activity where method = "OTHER" select method limit 1'
         )
         self.app_name = "testing-app_name"
         self.uri = os.getenv("DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query")

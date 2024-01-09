@@ -162,7 +162,7 @@ class TestSender(unittest.TestCase):
         )
         self.assertIsInstance(result.exception, SystemExit)
         self.assertIn(
-            "Error: Invalid value for '--key': Path " "'not_a_folder/not_a_file' does not exist.",
+            "Error: Invalid value for '--key': Path 'not_a_folder/not_a_file' does not exist.",
             result.output,
         )
 

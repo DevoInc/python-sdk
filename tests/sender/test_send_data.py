@@ -227,14 +227,14 @@ class TestSender(unittest.TestCase):
             con = Sender.for_logging(config=engine_config, tag=self.my_app, level=TEST_FACILITY)
             logger = get_log(name="DevoLogger", handler=con, level=TEST_FACILITY)
             print("Testing logger info")
-            logger.info("Testing Sender inherit logging handler functio" "nality... INFO - log")
+            logger.info("Testing Sender inherit logging handler functionality... INFO - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception("Not msg sent!")
 
             print("Testing logger error")
-            logger.error("Testing Sender inherit logging handler function" "ality... ERROR - log")
+            logger.error("Testing Sender inherit logging handler functionality... ERROR - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -242,7 +242,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger warning")
             logger.warning(
-                "Testing Sender inherit logging handler functio" "nality... WARNING - log"
+                "Testing Sender inherit logging handler functionality... WARNING - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -250,7 +250,7 @@ class TestSender(unittest.TestCase):
                 raise Exception("Not msg sent!")
 
             print("Testing logger debug")
-            logger.debug("Testing Sender inherit logging handler functiona" "lity... DEBUG - log")
+            logger.debug("Testing Sender inherit logging handler functionality... DEBUG - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -258,7 +258,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger critical")
             logger.critical(
-                "Testing Sender inherit logging handler functio" "nality... CRITICAL - log"
+                "Testing Sender inherit logging handler functionality... CRITICAL - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -287,12 +287,12 @@ class TestSender(unittest.TestCase):
             con = Sender.for_logging(config=engine_config, tag=self.my_app, level=TEST_FACILITY)
             # NOTE: this logger logging traces will be visible in console
             con.logger.info(
-                "Testing Sender default handler functionality in " "local console... INFO - log"
+                "Testing Sender default handler functionality in local console... INFO - log"
             )
             # NOTE: this logger logging traces will be visible in the remote
             # table
             con.info(
-                "Testing Sender default handler functionality in remote " "table... INFO - log"
+                "Testing Sender default handler functionality in remote table... INFO - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -324,14 +324,14 @@ class TestSender(unittest.TestCase):
             logger = get_log(name="DevoLogger2", handler=con, level=TEST_FACILITY)
 
             print("Testing logger info")
-            logger.info("Testing Sender static handler functionality... " "INFO - log")
+            logger.info("Testing Sender static handler functionality... INFO - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception("Not msg sent!")
 
             print("Testing logger error")
-            logger.error("Testing Sender static logging handler " "functionality... ERROR - log")
+            logger.error("Testing Sender static logging handler functionality... ERROR - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -339,7 +339,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger warning")
             logger.warning(
-                "Testing Sender static logging handler " "functionality... WARNING - log"
+                "Testing Sender static logging handler functionality... WARNING - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -347,7 +347,7 @@ class TestSender(unittest.TestCase):
                 raise Exception("Not msg sent!")
 
             print("Testing logger debug")
-            logger.debug("Testing Sender static logging handler " "functionality... DEBUG - log")
+            logger.debug("Testing Sender static logging handler functionality... DEBUG - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -355,7 +355,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger critical")
             logger.critical(
-                "Testing Sender static logging handler " "functionality... CRITICAL - log"
+                "Testing Sender static logging handler functionality... CRITICAL - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)

@@ -33,7 +33,7 @@ class ERROR_MSGS(str, Enum):
     ADDRESS_TUPLE = ('Devo-SenderConfigSSL| address must be a tuple ("hostname", int(port))\'',)
     WRONG_SSL_CONFIG = ("Devo-SenderConfigSSL|Can't create SSL config: %s",)
     CONFIG_FILE_NOT_FOUND = (
-        "Error in the configuration, %s is not a file or the path does not" " exist",
+        "Error in the configuration, %s is not a file or the path does not exist",
     )
     CANT_READ_CONFIG_FILE = ("Error in the configuration %s can't be read\noriginal error: %s",)
     CONFIG_FILE_PROBLEM = ("Error in the configuration, %s problem related to: %s",)
@@ -52,7 +52,7 @@ class ERROR_MSGS(str, Enum):
     )
     INCORRECT_ADDRESS_PORT = ("Error in config, incorrect address/port: %s\noriginal error: %s",)
     CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE = (
-        "Error in config, the certificate in the address:" " %s is not compatible with: %s",
+        "Error in config, the certificate in the address: %s is not compatible with: %s",
     )
     ADDRESS_MUST_BE_A_TUPLE = (
         'Devo-SenderConfigSSL| address must be a tuple \'("hostname",' " int(port))'",

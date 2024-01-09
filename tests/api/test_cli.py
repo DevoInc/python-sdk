@@ -68,7 +68,7 @@ class TestApi(unittest.TestCase):
                 "--query",
                 self.query,
                 "--address",
-                "error-apiv2-us.logtrust" ".com/search/query",
+                "error-apiv2-us.logtrust.com/search/query",
                 "--key",
                 self.key,
                 "--secret",

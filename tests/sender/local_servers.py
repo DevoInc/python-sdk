@@ -37,7 +37,7 @@ class SSLServer:
 
         server_key = os.getenv(
             "DEVO_SENDER_SERVER_KEY",
-            "{!s}local_certs/keys/server/" "private/server_key.pem".format(self.file_path),
+            "{!s}local_certs/keys/server/private/server_key.pem".format(self.file_path),
         )
 
         sc = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)

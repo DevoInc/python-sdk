@@ -10,7 +10,7 @@ try:
 except ImportError as import_error:
     print(
         str(import_error),
-        "- Use 'pip install click' or install this " "package with [click] option",
+        "- Use 'pip install click' or install this package with [click] option",
     )
     sys.exit(1)
 
@@ -73,47 +73,47 @@ def cli(version):
 @click.option("--check_hostname", help="Verify cert hostname. Default: True", type=bool)
 @click.option(
     "--multiline/--no-multiline",
-    help="Flag for multiline (With " "break-line in msg). " "Default False",
+    help="Flag for multiline (With break-line in msg). Default False",
     default=False,
 )
 @click.option("--type", help="Connection type: SSL or TCP", default="SSL")
 @click.option(
     "--tag",
     "-t",
-    help="Tag / Table to which the data will be sent " "in Devo.",
+    help="Tag / Table to which the data will be sent in Devo.",
     default="test.drop.ltsender",
 )
 @click.option(
     "--line",
     "-l",
-    help="For shipments of only one line, " "the text you want to send.",
+    help="For shipments of only one line, the text you want to send.",
     default="David Hasselhoff",
 )
 @click.option(
     "--file",
     "-f",
-    help="The file that you want to send to Devo," " which will be sent line by line.",
+    help="The file that you want to send to Devo, which will be sent line by line.",
     type=click.Path(exists=True, readable=True),
 )
 @click.option(
     "--header",
     "-h",
-    help="This option is used to indicate if the" " file has headers or not, not to send " "them.",
+    help="This option is used to indicate if the file has headers or not, not to send them.",
     default=False,
     type=bool,
 )
-@click.option("--raw", is_flag=True, help="Send raw events from a " "file when using --file")
+@click.option("--raw", is_flag=True, help="Send raw events from a file when using --file")
 @click.option("--debug/--no-debug", help="For testing purposes", default=False)
 @click.option("--zip/--no-zip", help="For testing purposes", default=False, type=bool)
 @click.option("--buffer", help="Buffer size for zipped data.", type=int)
 @click.option(
     "--compression_level",
-    help="Compression level for zipped data. " "Read readme for more info",
+    help="Compression level for zipped data. Read readme for more info",
     type=int,
 )
 @click.option(
     "--no-verify-certificates",
-    help="Do not Verify certificates " "credentials before connection",
+    help="Do not Verify certificates credentials before connection",
     type=bool,
     is_flag=True,
 )
@@ -221,7 +221,7 @@ def data(**kwargs):
 @click.option(
     "--file",
     "-f",
-    help="The file that you want to send to Devo," " which will be sent line by line.",
+    help="The file that you want to send to Devo, which will be sent line by line.",
     type=click.Path(exists=True, readable=True),
 )
 @click.option(
@@ -256,7 +256,7 @@ def data(**kwargs):
 )
 @click.option(
     "--no-verify-certificates",
-    help="Do not Verify certificates " "credentials before connection",
+    help="Do not Verify certificates credentials before connection",
     type=bool,
     is_flag=True,
 )

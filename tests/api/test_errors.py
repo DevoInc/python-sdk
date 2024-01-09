@@ -282,7 +282,7 @@ class ErrorManagementCase(unittest.TestCase):
             response = list(response)
         self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
-            "Error while receiving query data: A very bad query" " error",
+            "Error while receiving query data: A very bad query error",
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
