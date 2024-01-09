@@ -26,9 +26,7 @@ def cli(version):
             )
         )
         click.echo(
-            "devo-sdk {!s} from {!s} (python {!s})".format(
-                __version__, pkg_dir, sys.version[:3]
-            )
+            "devo-sdk {!s} from {!s} (python {!s})".format(__version__, pkg_dir, sys.version[:3])
         )
 
 
@@ -44,9 +42,7 @@ def cli(version):
     help="Optional JSON/Yaml File with configuration info.",
 )
 @click.option("--env", "-e", help="Use env vars for configuration", default=False)
-@click.option(
-    "--default", "-d", help="Use default file for configuration", default=False
-)
+@click.option("--default", "-d", help="Use default file for configuration", default=False)
 @click.option("--address", "-a", help="Endpoint for the api.")
 @click.option("--user", help="User for the api.")
 @click.option("--app_name", help="Application name for the api.")
@@ -58,13 +54,10 @@ def cli(version):
 @click.option("--query", "-q", help="Query.", default="")
 @click.option(
     "--stream/--no-stream",
-    help="Flag for make streaming query or full query with "
-    "start and end. Default is true",
+    help="Flag for make streaming query or full query with " "start and end. Default is true",
     default=True,
 )
-@click.option(
-    "--output", help="File path to store query response if not want " "stdout"
-)
+@click.option("--output", help="File path to store query response if not want " "stdout")
 @click.option(
     "--response",
     "-r",
@@ -141,9 +134,7 @@ def process_response(response, config):
     :return: None
     """
     try:
-        file_printer = (
-            open(config["output"], "w") if "output" in config.keys() else None
-        )
+        file_printer = open(config["output"], "w") if "output" in config.keys() else None
     except (OSError, IOError) as error:
         print_error("Error: (%s)" % error)
 

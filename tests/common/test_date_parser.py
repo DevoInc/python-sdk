@@ -17,9 +17,7 @@ class TestDateParser(unittest.TestCase):
 
     def test_default_from(self):
         ts1 = str(default_from())[:11]
-        ts2 = str(int((dt.utcnow() - self.epoch).total_seconds() * 1000) - 86400000)[
-            :11
-        ]
+        ts2 = str(int((dt.utcnow() - self.epoch).total_seconds() * 1000) - 86400000)[:11]
         self.assertTrue(ts1 == ts2)
 
     # Tests amounts

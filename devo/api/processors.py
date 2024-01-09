@@ -12,19 +12,11 @@ def proc_default():
 
 
 def proc_bytes_to_str():
-    return (
-        lambda data: data.strip()
-        if isinstance(data, str)
-        else data.strip().decode("utf-8")
-    )
+    return lambda data: data.strip() if isinstance(data, str) else data.strip().decode("utf-8")
 
 
 def proc_str_to_bytes():
-    return (
-        lambda data: data.strip()
-        if isinstance(data, bytes)
-        else data.strip().encode("utf-8")
-    )
+    return lambda data: data.strip() if isinstance(data, bytes) else data.strip().encode("utf-8")
 
 
 def proc_json():
@@ -40,9 +32,7 @@ def proc_json():
             else None
         )
         if obj and "e" in obj:
-            raise RuntimeError(
-                f"Error {obj['e'][0]} processing query: " f"{obj['e'][1]}"
-            )
+            raise RuntimeError(f"Error {obj['e'][0]} processing query: " f"{obj['e'][1]}")
         else:
             return obj
 

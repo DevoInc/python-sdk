@@ -43,9 +43,7 @@ class TestApi(unittest.TestCase):
 
     def test_proc_json_compact_to_array(self):
         self.assertEqual(processors.proc_json_compact_to_array()(None), None)
-        self.assertEqual(
-            processors.proc_json_compact_to_array()(self.stream_spaces), None
-        )
+        self.assertEqual(processors.proc_json_compact_to_array()(self.stream_spaces), None)
         self.assertEqual(
             processors.proc_json_compact_to_array()(self.compact_response),
             [
@@ -67,9 +65,7 @@ class TestApi(unittest.TestCase):
             {},
         )
         self.assertEqual(
-            processors.proc_json_compact_simple_to_jobj(self.names)(
-                self.compact_simple
-            ),
+            processors.proc_json_compact_simple_to_jobj(self.names)(self.compact_simple),
             {
                 "eventdate": 1506439800000,
                 "domain": "self",
@@ -80,9 +76,7 @@ class TestApi(unittest.TestCase):
         )
 
     def test_proc_json_compact_simple_to_array(self):
-        self.assertEqual(
-            processors.proc_json_compact_simple_to_array()(self.stream_spaces), []
-        )
+        self.assertEqual(processors.proc_json_compact_simple_to_array()(self.stream_spaces), [])
         self.assertEqual(
             processors.proc_json_compact_simple_to_array()(self.compact_simple),
             [1506439800000, "self", "email@devo.com", None, 1],

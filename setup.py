@@ -35,12 +35,7 @@ INSTALL_REQUIRES = [
     "cryptography~=41.0.7",
 ]
 EXTRAS_REQUIRE = {
-    "dev": [
-        "stopit==1.1.2",
-        "msgpack~=1.0.7",
-        "responses~=0.24",
-        "pipdeptree~=2.13.1"
-    ]
+    "dev": ["stopit==1.1.2", "msgpack~=1.0.7", "responses~=0.24", "pipdeptree~=2.13.1"]
 }
 CLI = [
     "devo-sender=devo.sender.scripts.sender_cli:cli",
@@ -64,11 +59,7 @@ def find_meta(meta):
     """
     Extract __*meta*__ from META_FILE.
     """
-    meta_match = re.search(
-        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta),
-        META_FILE,
-        re.M
-    )
+    meta_match = re.search(r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta), META_FILE, re.M)
     if meta_match:
         return meta_match.group(1)
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))

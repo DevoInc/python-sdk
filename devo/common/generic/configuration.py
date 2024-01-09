@@ -61,9 +61,7 @@ class Configuration(dict):
         except ImportError as import_error:
             print(
                 str(import_error),
-                "- Use 'pip install pyyaml' or "
-                "install this "
-                "package with [click] option",
+                "- Use 'pip install pyyaml' or " "install this " "package with [click] option",
             )
             sys.exit(1)
         with open(path, "r") as stream:

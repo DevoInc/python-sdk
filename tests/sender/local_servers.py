@@ -13,9 +13,7 @@ class SSLServer:
     def __init__(self):
         self.shutdown = False
         self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
-        self.server_process = multiprocessing.Process(
-            target=self.server, name="sslserver"
-        )
+        self.server_process = multiprocessing.Process(target=self.server, name="sslserver")
         self.server_process.start()
 
     def server(self):
@@ -39,17 +37,14 @@ class SSLServer:
 
         server_key = os.getenv(
             "DEVO_SENDER_SERVER_KEY",
-            "{!s}local_certs/keys/server/"
-            "private/server_key.pem".format(self.file_path),
+            "{!s}local_certs/keys/server/" "private/server_key.pem".format(self.file_path),
         )
 
         sc = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         sc.load_cert_chain(server_cert, server_key)
 
         loop = asyncio.get_event_loop()
-        coro = asyncio.start_server(
-            handle_connection, self.ip, self.port, ssl=sc, loop=loop
-        )
+        coro = asyncio.start_server(handle_connection, self.ip, self.port, ssl=sc, loop=loop)
         server = loop.run_until_complete(coro)
 
         print("Serving on {}".format(server.sockets[0].getsockname()))
@@ -66,9 +61,7 @@ class TCPServer:
         self.shutdown = False
         self.server = None
         self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
-        self.server = threading.Thread(
-            target=self.start_server, kwargs={"ip": ip, "port": port}
-        )
+        self.server = threading.Thread(target=self.start_server, kwargs={"ip": ip, "port": port})
         self.server.setDaemon(True)
         self.server.start()
 
