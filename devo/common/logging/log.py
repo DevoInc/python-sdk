@@ -53,9 +53,7 @@ def get_rotating_file_handler(
     if not os.path.exists(os.path.dirname(full_path)):
         os.makedirs(os.path.dirname(full_path), exist_ok=True)
 
-    handler = RotatingFileHandler(
-        full_path, maxBytes=max_size, backupCount=backup_count
-    )
+    handler = RotatingFileHandler(full_path, maxBytes=max_size, backupCount=backup_count)
     handler.setFormatter(set_formatter(msg_format))
     if level is not None:
         handler.setLevel(level)

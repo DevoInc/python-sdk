@@ -303,9 +303,7 @@ class Client:
             verify = verify if verify is not None else config.get("verify", True)
             retries = retries if retries is not None else config.get("retries", 0)
             timeout = timeout if timeout is not None else config.get("timeout", 300)
-            retry_delay = (
-                retry_delay if retry_delay is not None else config.get("retry_delay", 5)
-            )
+            retry_delay = retry_delay if retry_delay is not None else config.get("retry_delay", 5)
             self.config = self._from_dict(config)
 
         self.auth = auth
@@ -351,9 +349,7 @@ class Client:
         Split the two parts of the api address
         :param address: address of the api
         """
-        return self.__verify_address_complement(
-            address.split("//")[-1].split("/", maxsplit=1)
-        )
+        return self.__verify_address_complement(address.split("//")[-1].split("/", maxsplit=1))
 
     @staticmethod
     def __verify_address_complement(address_list):
@@ -362,9 +358,7 @@ class Client:
         :param address_list: One or two part of the address
         """
         return (
-            address_list
-            if len(address_list) == 2
-            else [address_list[0], ADDRESS_QUERY_COMPLEMENT]
+            address_list if len(address_list) == 2 else [address_list[0], ADDRESS_QUERY_COMPLEMENT]
         )
 
     @staticmethod
@@ -464,9 +458,7 @@ class Client:
             if not dates["to"]:
                 dates["to"] = "now()"
             if self.config.stream:
-                logging.warning(
-                    ERROR_MSGS["stream_mode_not_supported"] % self.config.response
-                )
+                logging.warning(ERROR_MSGS["stream_mode_not_supported"] % self.config.response)
             # If is a future query and response type is 'xls' or 'msgpack'
             # return warning because is not available.
             if self._future_queries_available(self.config.response):
@@ -476,9 +468,7 @@ class Client:
                 toDate = self._toDate_parser(fromDate, default_to(dates["to"]))
 
                 if toDate > default_to("now()"):
-                    raise DevoClientException(
-                        ERROR_MSGS["future_queries_not_supported"]
-                    )
+                    raise DevoClientException(ERROR_MSGS["future_queries_not_supported"])
 
             self.config.stream = False
 
@@ -509,9 +499,7 @@ class Client:
             # Analyse the response data to check if there are any error
             # messages within the response.
             self._error_handler(wholeResponse.text)
-            return self.config.processor(
-                self._keepalive_content_sanitize(wholeResponse.text)
-            )
+            return self.config.processor(self._keepalive_content_sanitize(wholeResponse.text))
 
     def _return_string_stream(self, payload):
         """If it's a stream call, return yield lines
@@ -557,10 +545,7 @@ class Client:
         return line.strip()
 
     def _keepalive_content_sanitize(self, response):
-        if (
-            self.config.keepAliveToken == NO_KEEPALIVE_TOKEN
-            or self.config.keepAliveToken is None
-        ):
+        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or self.config.keepAliveToken is None:
             return response
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
             if self.config.response.startswith("json"):
@@ -584,10 +569,7 @@ class Client:
             return response.replace(f"{self.config.keepAliveToken}", "")
 
     def _keepalive_stream_sanitize(self, line):
-        if (
-            self.config.keepAliveToken == NO_KEEPALIVE_TOKEN
-            or self.config.keepAliveToken is None
-        ):
+        if self.config.keepAliveToken == NO_KEEPALIVE_TOKEN or self.config.keepAliveToken is None:
             return line
         elif self.config.keepAliveToken == DEFAULT_KEEPALIVE_TOKEN:
             if self.config.response.startswith("json"):
@@ -641,9 +623,7 @@ class Client:
         POST request method extracted for mocking purposes
         """
         return requests.post(
-            "{}://{}".format(
-                "http" if self.unsecure_http else "https", "/".join(self.address)
-            ),
+            "{}://{}".format("http" if self.unsecure_http else "https", "/".join(self.address)),
             data=payload,
             headers=self._get_headers(payload),
             verify=self.verify,
@@ -668,9 +648,7 @@ class Client:
         date_to = default_to(dates["to"]) if dates["to"] is not None else None
 
         payload = {
-            "from": int(date_from / 1000)
-            if isinstance(date_from, (int, float))
-            else date_from,
+            "from": int(date_from / 1000) if isinstance(date_from, (int, float)) else date_from,
             "to": int(date_to / 1000) if isinstance(date_to, (int, float)) else date_to,
             "mode": {"type": opts["response"]},
         }
@@ -693,10 +671,7 @@ class Client:
         if opts["destination"]:
             payload["destination"] = opts["destination"]
 
-        if (
-            opts["keepAliveToken"] is not None
-            and opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN
-        ):
+        if opts["keepAliveToken"] is not None and opts["keepAliveToken"] != NO_KEEPALIVE_TOKEN:
             if opts["keepAliveToken"] == EMPTY_EVENT_KEEPALIVE_TOKEN:
                 payload["keepAlive"] = {"type": "empty"}
             elif opts["keepAliveToken"] == DEFAULT_KEEPALIVE_TOKEN:
@@ -797,25 +772,19 @@ class Client:
         """Stop one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs(
-            "{}{}{}{}".format(self.address[0], ADDRESS_JOB, "stop/", job_id)
-        )
+        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB, "stop/", job_id))
 
     def start_job(self, job_id):
         """Start one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs(
-            "{}{}{}{}".format(self.address[0], ADDRESS_JOB, "start/", job_id)
-        )
+        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB, "start/", job_id))
 
     def remove_job(self, job_id):
         """Remove one job by ID
         :param job_id: id of job
         :return: bool"""
-        return self._call_jobs(
-            "{}{}{}{}".format(self.address[0], ADDRESS_JOB, "remove/", job_id)
-        )
+        return self._call_jobs("{}{}{}{}".format(self.address[0], ADDRESS_JOB, "remove/", job_id))
 
     def _call_jobs(self, address):
         """
@@ -837,10 +806,7 @@ class Client:
                 raise DevoClientException(ERROR_MSGS["connection_error"]) from error
 
             if response:
-                if (
-                    response.status_code != 200
-                    or "error" in response.text[0:15].lower()
-                ):
+                if response.status_code != 200 or "error" in response.text[0:15].lower():
                     raise DevoClientRequestException(response)
                 try:
                     return json.loads(response.text)
@@ -893,9 +859,7 @@ class Client:
         elif fromDate == "today":
             return adate.timestamp() * 1000
         elif fromDate == "endday":
-            return (
-                adate + timedelta(hours=23, minutes=59, seconds=59)
-            ).timestamp() * 1000
+            return (adate + timedelta(hours=23, minutes=59, seconds=59)).timestamp() * 1000
         elif fromDate == "endmonth":
             return (
                 adate.replace(day=calendar.monthrange(adate.year, adate.month)[1])
@@ -910,15 +874,9 @@ class Client:
             return toDate
 
         now = now.astimezone(pytz.UTC)
-        fromDate = datetime.fromtimestamp(fromDateMillisec / 1000).replace(
-            tzinfo=pytz.utc
-        )
-        aFromdate = datetime.strptime(str(fromDate.date()), "%Y-%m-%d").replace(
-            tzinfo=pytz.utc
-        )
-        aNowdate = datetime.strptime(str(now.date()), "%Y-%m-%d").replace(
-            tzinfo=pytz.utc
-        )
+        fromDate = datetime.fromtimestamp(fromDateMillisec / 1000).replace(tzinfo=pytz.utc)
+        aFromdate = datetime.strptime(str(fromDate.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc)
+        aNowdate = datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc)
 
         if re.match("^[1-9]+(d|ad|h|ah|m|am|s|as)", toDate):
             date = re.split("(d|ad|h|ah|m|am|s|as)", toDate)
@@ -945,14 +903,10 @@ class Client:
         elif toDate == "today":
             return aNowdate.timestamp() * 1000
         elif toDate == "endday":
-            return (
-                aFromdate + timedelta(hours=23, minutes=59, seconds=59)
-            ).timestamp() * 1000
+            return (aFromdate + timedelta(hours=23, minutes=59, seconds=59)).timestamp() * 1000
         elif toDate == "endmonth":
             return (
-                aFromdate.replace(
-                    day=calendar.monthrange(aFromdate.year, aFromdate.month)[1]
-                )
+                aFromdate.replace(day=calendar.monthrange(aFromdate.year, aFromdate.month)[1])
                 + timedelta(hours=23, minutes=59, seconds=59)
             ).timestamp() * 1000
         elif toDate == "now":

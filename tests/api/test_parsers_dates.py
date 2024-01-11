@@ -18,9 +18,7 @@ class ParserDateCase(unittest.TestCase):
         now = datetime.now().astimezone(pytz.UTC)
         response_miliseconds = Client._fromDate_parser("2ad", now)
         adate_miliseconds = (
-            datetime.strptime(str(now.date()), "%Y-%m-%d")
-            .replace(tzinfo=pytz.utc)
-            .timestamp()
+            datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc).timestamp()
             * 1000
         )
         self.assertEqual(response_miliseconds, adate_miliseconds - 1.728e8)
@@ -35,9 +33,7 @@ class ParserDateCase(unittest.TestCase):
         now = datetime.now().astimezone(pytz.UTC)
         response_miliseconds = Client._fromDate_parser("2ah", now)
         adate_miliseconds = (
-            datetime.strptime(str(now.date()), "%Y-%m-%d")
-            .replace(tzinfo=pytz.utc)
-            .timestamp()
+            datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc).timestamp()
             * 1000
         )
         self.assertEqual(response_miliseconds, adate_miliseconds - 7.2e6)
@@ -52,9 +48,7 @@ class ParserDateCase(unittest.TestCase):
         now = datetime.now().astimezone(pytz.UTC)
         response_miliseconds = Client._fromDate_parser("2am", now)
         adate_miliseconds = (
-            datetime.strptime(str(now.date()), "%Y-%m-%d")
-            .replace(tzinfo=pytz.utc)
-            .timestamp()
+            datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc).timestamp()
             * 1000
         )
         self.assertEqual(response_miliseconds, adate_miliseconds - 120000)
@@ -69,9 +63,7 @@ class ParserDateCase(unittest.TestCase):
         now = datetime.now().astimezone(pytz.UTC)
         response_miliseconds = Client._fromDate_parser("2as", now)
         adate_miliseconds = (
-            datetime.strptime(str(now.date()), "%Y-%m-%d")
-            .replace(tzinfo=pytz.utc)
-            .timestamp()
+            datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc).timestamp()
             * 1000
         )
         self.assertEqual(response_miliseconds, adate_miliseconds - 2000)
@@ -80,9 +72,7 @@ class ParserDateCase(unittest.TestCase):
         now = datetime.now().astimezone(pytz.UTC)
         response_miliseconds = Client._fromDate_parser("today", now)
         adate_miliseconds = (
-            datetime.strptime(str(now.date()), "%Y-%m-%d")
-            .replace(tzinfo=pytz.utc)
-            .timestamp()
+            datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc).timestamp()
             * 1000
         )
         self.assertEqual(response_miliseconds, adate_miliseconds)
@@ -160,9 +150,7 @@ class ParserDateCase(unittest.TestCase):
     def test_to_Date_today(self):
         fromDateMiliseconds = 1663664778239.2002
         now = datetime.now().astimezone(pytz.UTC)
-        aNowdate = datetime.strptime(str(now.date()), "%Y-%m-%d").replace(
-            tzinfo=pytz.utc
-        )
+        aNowdate = datetime.strptime(str(now.date()), "%Y-%m-%d").replace(tzinfo=pytz.utc)
         response_miliseconds = Client._toDate_parser(fromDateMiliseconds, "today", now)
 
         self.assertEqual(response_miliseconds, aNowdate.timestamp() * 1000)

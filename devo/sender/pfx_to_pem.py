@@ -24,22 +24,14 @@ def pfx_to_pem(path=None, password=None):
     pfx = open(path, "rb").read()
     p12 = OpenSSL.crypto.load_pkcs12(pfx, password)
 
-    f_key.write(
-        OpenSSL.crypto.dump_privatekey(
-            OpenSSL.crypto.FILETYPE_PEM, p12.get_privatekey()
-        )
-    )
+    f_key.write(OpenSSL.crypto.dump_privatekey(OpenSSL.crypto.FILETYPE_PEM, p12.get_privatekey()))
     f_cert.write(
-        OpenSSL.crypto.dump_certificate(
-            OpenSSL.crypto.FILETYPE_PEM, p12.get_certificate()
-        )
+        OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, p12.get_certificate())
     )
     ca = p12.get_ca_certificates()
     if ca is not None:
         for cert in ca:
-            f_ca.write(
-                OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-            )
+            f_ca.write(OpenSSL.crypto.dump_certificate(OpenSSL.crypto.FILETYPE_PEM, cert))
     f_key.close()
     f_cert.close()
     f_ca.close()

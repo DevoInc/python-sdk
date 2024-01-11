@@ -14,7 +14,7 @@ from pathlib import Path
 from ssl import SSLWantReadError, SSLWantWriteError
 
 import pem
-from _socket import SHUT_RD, SHUT_WR
+from _socket import SHUT_WR
 from OpenSSL import SSL, crypto
 
 from devo.common import Configuration, get_log, get_stream_handler
@@ -30,16 +30,12 @@ class ERROR_MSGS(str, Enum):
         return str(self.value)
 
     WRONG_FILE_TYPE = ("'%s' is not a valid type to be opened as a file",)
-    ADDRESS_TUPLE = (
-        'Devo-SenderConfigSSL| address must be a tuple ("hostname", int(port))\'',
-    )
+    ADDRESS_TUPLE = ('Devo-SenderConfigSSL| address must be a tuple ("hostname", int(port))\'',)
     WRONG_SSL_CONFIG = ("Devo-SenderConfigSSL|Can't create SSL config: %s",)
     CONFIG_FILE_NOT_FOUND = (
-        "Error in the configuration, %s is not a file or the path does not" " exist",
+        "Error in the configuration, %s is not a file or the path does not exist",
     )
-    CANT_READ_CONFIG_FILE = (
-        "Error in the configuration %s can't be read\noriginal error: %s",
-    )
+    CANT_READ_CONFIG_FILE = ("Error in the configuration %s can't be read\noriginal error: %s",)
     CONFIG_FILE_PROBLEM = ("Error in the configuration, %s problem related to: %s",)
     KEY_NOT_COMPATIBLE_WITH_CERT = (
         "Error in the configuration, the key: %s is not compatible"
@@ -54,12 +50,9 @@ class ERROR_MSGS(str, Enum):
         " related to an incorrect address/port: %s\n"
         "original error: %s",
     )
-    INCORRECT_ADDRESS_PORT = (
-        "Error in config, incorrect address/port: %s\noriginal error: %s",
-    )
+    INCORRECT_ADDRESS_PORT = ("Error in config, incorrect address/port: %s\noriginal error: %s",)
     CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE = (
-        "Error in config, the certificate in the address:"
-        " %s is not compatible with: %s",
+        "Error in config, the certificate in the address: %s is not compatible with: %s",
     )
     ADDRESS_MUST_BE_A_TUPLE = (
         'Devo-SenderConfigSSL| address must be a tuple \'("hostname",' " int(port))'",
@@ -145,9 +138,7 @@ class SenderConfigSSL:
             self.verify_config = verify_config
             self.verify_mode = verify_mode
         except Exception as error:
-            raise DevoSenderException(
-                ERROR_MSGS.WRONG_SSL_CONFIG % str(error)
-            ) from error
+            raise DevoSenderException(ERROR_MSGS.WRONG_SSL_CONFIG % str(error)) from error
 
         if self.verify_config:
             self.check_config_files_path()
@@ -165,9 +156,7 @@ class SenderConfigSSL:
         certificates = [self.key, self.chain, self.cert]
         for file in certificates:
             try:
-                if not (
-                    file.is_file() if isinstance(file, Path) else Path(file).is_file()
-                ):
+                if not (file.is_file() if isinstance(file, Path) else Path(file).is_file()):
                     raise DevoSenderException(ERROR_MSGS.CONFIG_FILE_NOT_FOUND % file)
             except IOError as error:
                 if error.errno == errno.EACCES:
@@ -193,9 +182,7 @@ class SenderConfigSSL:
         ) as key_file:
             certificate_raw = certificate_file.read()
             key_raw = key_file.read()
-            certificate_obj = crypto.load_certificate(
-                crypto.FILETYPE_PEM, certificate_raw
-            )
+            certificate_obj = crypto.load_certificate(crypto.FILETYPE_PEM, certificate_raw)
             private_key_obj = crypto.load_privatekey(crypto.FILETYPE_PEM, key_raw)
             context = SSL.Context(SSL.TLS_CLIENT_METHOD)
             context.use_privatekey(private_key_obj)
@@ -204,8 +191,7 @@ class SenderConfigSSL:
             context.check_privatekey()
         except SSL.Error as error:
             raise DevoSenderException(
-                ERROR_MSGS.KEY_NOT_COMPATIBLE_WITH_CERT
-                % (self.key, self.cert, str(error))
+                ERROR_MSGS.KEY_NOT_COMPATIBLE_WITH_CERT % (self.key, self.cert, str(error))
             ) from error
         return True
 
@@ -221,9 +207,7 @@ class SenderConfigSSL:
         ) as chain_file:
             certificate_raw = certificate_file.read()
             chain_raw = chain_file.read()
-            certificate_obj = crypto.load_certificate(
-                crypto.FILETYPE_PEM, certificate_raw
-            )
+            certificate_obj = crypto.load_certificate(crypto.FILETYPE_PEM, certificate_raw)
             certificates_chain = crypto.X509Store()
             for certificate in pem.parse(chain_raw):
                 certificates_chain.add_cert(
@@ -234,8 +218,7 @@ class SenderConfigSSL:
             store_ctx.verify_certificate()
         except crypto.X509StoreContextError as error:
             raise DevoSenderException(
-                ERROR_MSGS.CHAIN_NOT_COMPATIBLE_WITH_CERT
-                % (self.chain, self.cert, str(error))
+                ERROR_MSGS.CHAIN_NOT_COMPATIBLE_WITH_CERT % (self.chain, self.cert, str(error))
             ) from error
         return True
 
@@ -278,9 +261,7 @@ class SenderConfigSSL:
             chain = chain_file.read()
             chain_certs = []
             for _ca in pem.parse(chain):
-                chain_certs.append(
-                    crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca))
-                )
+                chain_certs.append(crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
 
         server_common_names = self.get_common_names(server_chain, "get_subject")
         client_common_names = self.get_common_names(chain_certs, "get_issuer")
@@ -289,8 +270,7 @@ class SenderConfigSSL:
             return True
 
         raise DevoSenderException(
-            ERROR_MSGS.CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE
-            % (self.address[0], self.chain)
+            ERROR_MSGS.CERTIFICATE_IN_ADDRESS_IS_NOT_COMPATIBLE % (self.address[0], self.chain)
         )
 
     @staticmethod
@@ -307,9 +287,7 @@ class SenderConfigSSL:
         with open_file(chain, mode="rb") as chain_file:
             chain_certs = []
             for _ca in pem.parse(chain_file.read()):
-                chain_certs.append(
-                    crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca))
-                )
+                chain_certs.append(crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
             return chain_certs
 
 
@@ -332,9 +310,7 @@ class SenderConfigTCP:
             self.hostname = socket.gethostname()
             self.sec_level = None
         except Exception as error:
-            raise DevoSenderException(
-                ERROR_MSGS.CANT_CREATE_TCP_CONFIG % str(error)
-            ) from error
+            raise DevoSenderException(ERROR_MSGS.CANT_CREATE_TCP_CONFIG % str(error)) from error
 
 
 class SenderBuffer:
@@ -501,8 +477,7 @@ class Sender(logging.Handler):
             self.reconnection += 1
             if self.debug:
                 self.logger.debug(
-                    "Conected to %s|%s"
-                    % (repr(self.socket.getpeername()), str(self.reconnection))
+                    "Conected to %s|%s" % (repr(self.socket.getpeername()), str(self.reconnection))
                 )
             self.timestart = int(round(time.time() * 1000))
             self.socket.setblocking(False)
@@ -640,9 +615,7 @@ class Sender(logging.Handler):
             record = Sender.__encode_record(record)
             return b"%d %s" % (len(record), record)
         except Exception as error:
-            raise DevoSenderException(
-                ERROR_MSGS.MULTILINE_SENDING_ERROR % str(error)
-            ) from error
+            raise DevoSenderException(ERROR_MSGS.MULTILINE_SENDING_ERROR % str(error)) from error
 
     @staticmethod
     def __encode_record(record):
@@ -815,21 +788,15 @@ class Sender(logging.Handler):
                     return 0
                 except socket.error as error:
                     self.close()
-                    raise DevoSenderException(
-                        ERROR_MSGS.SOCKET_ERROR % str(error)
-                    ) from error
+                    raise DevoSenderException(ERROR_MSGS.SOCKET_ERROR % str(error)) from error
                 finally:
                     if self.debug:
-                        self.logger.debug(
-                            "sent|%d|size|%d|msg|%s" % (sent, len(record), record)
-                        )
+                        self.logger.debug("sent|%d|size|%d|msg|%s" % (sent, len(record), record))
             raise DevoSenderException(ERROR_MSGS.SOCKET_CANT_CONNECT_UNKNOWN_ERROR)
         except DevoSenderException:
             raise
         except Exception as error:
-            raise DevoSenderException(
-                ERROR_MSGS.RAW_SENDING_ERROR % str(error)
-            ) from error
+            raise DevoSenderException(ERROR_MSGS.RAW_SENDING_ERROR % str(error)) from error
 
     @staticmethod
     def compose_mem(tag, **kwargs):
@@ -933,12 +900,8 @@ class Sender(logging.Handler):
         """
         if self.buffer.text_buffer:
             try:
-                compressor = zlib.compressobj(
-                    self.buffer.compression_level, zlib.DEFLATED, 31
-                )
-                record = (
-                    compressor.compress(self.buffer.text_buffer) + compressor.flush()
-                )
+                compressor = zlib.compressobj(self.buffer.compression_level, zlib.DEFLATED, 31)
+                record = compressor.compress(self.buffer.text_buffer) + compressor.flush()
                 if self.send_raw(record, zip=True):
                     return self.buffer.events
                 return 0
@@ -1055,12 +1018,8 @@ def open_file(file, mode="r", encoding="utf-8"):
     :param encoding Encoding of content
     """
     if isinstance(file, Path):
-        return file.open(
-            mode=mode, encoding=encoding if not mode.endswith("b") else None
-        )
+        return file.open(mode=mode, encoding=encoding if not mode.endswith("b") else None)
     elif isinstance(file, str):
-        return open(
-            file, mode=mode, encoding=encoding if not mode.endswith("b") else None
-        )
+        return open(file, mode=mode, encoding=encoding if not mode.endswith("b") else None)
     else:
         raise DevoSenderException(ERROR_MSGS.WRONG_FILE_TYPE % str(type(file)))
