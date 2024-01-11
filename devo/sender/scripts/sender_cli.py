@@ -10,7 +10,7 @@ try:
 except ImportError as import_error:
     print(
         str(import_error),
-        "- Use 'pip install click' or install this " "package with [click] option",
+        "- Use 'pip install click' or install this package with [click] option",
     )
     sys.exit(1)
 
@@ -38,9 +38,7 @@ def cli(version):
             )
         )
         click.echo(
-            "devo-sdk {!s} from {!s} (python {!s})".format(
-                __version__, pkg_dir, sys.version[:3]
-            )
+            "devo-sdk {!s} from {!s} (python {!s})".format(__version__, pkg_dir, sys.version[:3])
         )
 
 
@@ -60,15 +58,9 @@ def cli(version):
     help="Devo user key cert file.",
     type=click.Path(exists=True, readable=True),
 )
-@click.option(
-    "--cert", help="Devo user cert file.", type=click.Path(exists=True, readable=True)
-)
-@click.option(
-    "--chain", help="Devo chain.crt file.", type=click.Path(exists=True, readable=True)
-)
-@click.option(
-    "--sec_level", help="Sec level for opensslsocket. Default: None", type=int
-)
+@click.option("--cert", help="Devo user cert file.", type=click.Path(exists=True, readable=True))
+@click.option("--chain", help="Devo chain.crt file.", type=click.Path(exists=True, readable=True))
+@click.option("--sec_level", help="Sec level for opensslsocket. Default: None", type=int)
 @click.option(
     "--verify_mode",
     help="Verify mode for SSL Socket. "
@@ -81,57 +73,51 @@ def cli(version):
 @click.option("--check_hostname", help="Verify cert hostname. Default: True", type=bool)
 @click.option(
     "--multiline/--no-multiline",
-    help="Flag for multiline (With " "break-line in msg). " "Default False",
+    help="Flag for multiline (With break-line in msg). Default False",
     default=False,
 )
 @click.option("--type", help="Connection type: SSL or TCP", default="SSL")
 @click.option(
     "--tag",
     "-t",
-    help="Tag / Table to which the data will be sent " "in Devo.",
+    help="Tag / Table to which the data will be sent in Devo.",
     default="test.drop.ltsender",
 )
 @click.option(
     "--line",
     "-l",
-    help="For shipments of only one line, " "the text you want to send.",
+    help="For shipments of only one line, the text you want to send.",
     default="David Hasselhoff",
 )
 @click.option(
     "--file",
     "-f",
-    help="The file that you want to send to Devo," " which will be sent line by line.",
+    help="The file that you want to send to Devo, which will be sent line by line.",
     type=click.Path(exists=True, readable=True),
 )
 @click.option(
     "--header",
     "-h",
-    help="This option is used to indicate if the"
-    " file has headers or not, not to send "
-    "them.",
+    help="This option is used to indicate if the file has headers or not, not to send them.",
     default=False,
     type=bool,
 )
-@click.option(
-    "--raw", is_flag=True, help="Send raw events from a " "file when using --file"
-)
+@click.option("--raw", is_flag=True, help="Send raw events from a file when using --file")
 @click.option("--debug/--no-debug", help="For testing purposes", default=False)
 @click.option("--zip/--no-zip", help="For testing purposes", default=False, type=bool)
 @click.option("--buffer", help="Buffer size for zipped data.", type=int)
 @click.option(
     "--compression_level",
-    help="Compression level for zipped data. " "Read readme for more info",
+    help="Compression level for zipped data. Read readme for more info",
     type=int,
 )
 @click.option(
     "--no-verify-certificates",
-    help="Do not Verify certificates " "credentials before connection",
+    help="Do not Verify certificates credentials before connection",
     type=bool,
     is_flag=True,
 )
-@click.option(
-    "--env", "-e", help="Use env vars for configuration", default=False, type=bool
-)
+@click.option("--env", "-e", help="Use env vars for configuration", default=False, type=bool)
 @click.option(
     "--default",
     "-d",
@@ -152,9 +138,7 @@ def data(**kwargs):
 
         if config.get("file", False):
             if not Path(config["file"]).is_file():
-                print_error(
-                    str("File '%s' does not found" % Path(config["file"]).absolute())
-                )
+                print_error(str("File '%s' does not found" % Path(config["file"]).absolute()))
                 return
             if config["multiline"]:
                 with open_file(config["file"], mode="r") as file:
@@ -186,9 +170,7 @@ def data(**kwargs):
                                 zip=config.get("zip", False),
                             )
         else:
-            sended += con.send(
-                tag=config["tag"], msg=config["line"], zip=config.get("zip", False)
-            )
+            sended += con.send(tag=config["tag"], msg=config["line"], zip=config.get("zip", False))
 
         con.close()
         if config.get("debug", False):
@@ -209,9 +191,7 @@ def data(**kwargs):
     type=click.Path(exists=True, readable=True),
     help="Optional JSON/Yaml File with configuration info.",
 )
-@click.option(
-    "--env", "-e", help="Use env vars for configuration", default=False, type=bool
-)
+@click.option("--env", "-e", help="Use env vars for configuration", default=False, type=bool)
 @click.option(
     "--default",
     "-d",
@@ -224,9 +204,7 @@ def data(**kwargs):
 @click.option("--key", help="Devo user key cert file.", type=click.Path(exists=True))
 @click.option("--cert", help="Devo user cert file.", type=click.Path(exists=True))
 @click.option("--chain", help="Devo chain.crt file.", type=click.Path(exists=True))
-@click.option(
-    "--sec_level", help="Sec level for opensslsocket. Default: None", type=int
-)
+@click.option("--sec_level", help="Sec level for opensslsocket. Default: None", type=int)
 @click.option(
     "--verify_mode",
     help="Verify mode for SSL Socket. "
@@ -243,7 +221,7 @@ def data(**kwargs):
 @click.option(
     "--file",
     "-f",
-    help="The file that you want to send to Devo," " which will be sent line by line.",
+    help="The file that you want to send to Devo, which will be sent line by line.",
     type=click.Path(exists=True, readable=True),
 )
 @click.option(
@@ -278,7 +256,7 @@ def data(**kwargs):
 )
 @click.option(
     "--no-verify-certificates",
-    help="Do not Verify certificates " "credentials before connection",
+    help="Do not Verify certificates credentials before connection",
     type=bool,
     is_flag=True,
 )
@@ -341,9 +319,7 @@ def init_conf(args):
     if args.get("env"):
         config.set(
             "address",
-            os.environ.get(
-                "DEVO_SENDER_ADDRESS", os.environ.get("DEVO_SENDER_URL", None)
-            ),
+            os.environ.get("DEVO_SENDER_ADDRESS", os.environ.get("DEVO_SENDER_URL", None)),
         )
         config.set("port", os.environ.get("DEVO_SENDER_PORT", None))
         config.set("key", os.environ.get("DEVO_SENDER_KEY", None))

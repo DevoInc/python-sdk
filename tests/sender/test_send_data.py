@@ -224,23 +224,17 @@ class TestSender(unittest.TestCase):
                 check_hostname=False,
                 verify_mode=CERT_NONE,
             )
-            con = Sender.for_logging(
-                config=engine_config, tag=self.my_app, level=TEST_FACILITY
-            )
+            con = Sender.for_logging(config=engine_config, tag=self.my_app, level=TEST_FACILITY)
             logger = get_log(name="DevoLogger", handler=con, level=TEST_FACILITY)
             print("Testing logger info")
-            logger.info(
-                "Testing Sender inherit logging handler functio" "nality... INFO - log"
-            )
+            logger.info("Testing Sender inherit logging handler functionality... INFO - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception("Not msg sent!")
 
             print("Testing logger error")
-            logger.error(
-                "Testing Sender inherit logging handler function" "ality... ERROR - log"
-            )
+            logger.error("Testing Sender inherit logging handler functionality... ERROR - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -248,8 +242,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger warning")
             logger.warning(
-                "Testing Sender inherit logging handler functio"
-                "nality... WARNING - log"
+                "Testing Sender inherit logging handler functionality... WARNING - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -257,9 +250,7 @@ class TestSender(unittest.TestCase):
                 raise Exception("Not msg sent!")
 
             print("Testing logger debug")
-            logger.debug(
-                "Testing Sender inherit logging handler functiona" "lity... DEBUG - log"
-            )
+            logger.debug("Testing Sender inherit logging handler functionality... DEBUG - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -267,8 +258,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger critical")
             logger.critical(
-                "Testing Sender inherit logging handler functio"
-                "nality... CRITICAL - log"
+                "Testing Sender inherit logging handler functionality... CRITICAL - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -294,19 +284,15 @@ class TestSender(unittest.TestCase):
                 check_hostname=False,
                 verify_mode=CERT_NONE,
             )
-            con = Sender.for_logging(
-                config=engine_config, tag=self.my_app, level=TEST_FACILITY
-            )
+            con = Sender.for_logging(config=engine_config, tag=self.my_app, level=TEST_FACILITY)
             # NOTE: this logger logging traces will be visible in console
             con.logger.info(
-                "Testing Sender default handler functionality in "
-                "local console... INFO - log"
+                "Testing Sender default handler functionality in local console... INFO - log"
             )
             # NOTE: this logger logging traces will be visible in the remote
             # table
             con.info(
-                "Testing Sender default handler functionality in remote "
-                "table... INFO - log"
+                "Testing Sender default handler functionality in remote table... INFO - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -334,22 +320,18 @@ class TestSender(unittest.TestCase):
                 "verify_mode": CERT_NONE,
             }
 
-            con = Sender.for_logging(
-                config=engine_config, tag=self.my_app, level=TEST_FACILITY
-            )
+            con = Sender.for_logging(config=engine_config, tag=self.my_app, level=TEST_FACILITY)
             logger = get_log(name="DevoLogger2", handler=con, level=TEST_FACILITY)
 
             print("Testing logger info")
-            logger.info("Testing Sender static handler functionality... " "INFO - log")
+            logger.info("Testing Sender static handler functionality... INFO - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
                 raise Exception("Not msg sent!")
 
             print("Testing logger error")
-            logger.error(
-                "Testing Sender static logging handler " "functionality... ERROR - log"
-            )
+            logger.error("Testing Sender static logging handler functionality... ERROR - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -357,8 +339,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger warning")
             logger.warning(
-                "Testing Sender static logging handler "
-                "functionality... WARNING - log"
+                "Testing Sender static logging handler functionality... WARNING - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -366,9 +347,7 @@ class TestSender(unittest.TestCase):
                 raise Exception("Not msg sent!")
 
             print("Testing logger debug")
-            logger.debug(
-                "Testing Sender static logging handler " "functionality... DEBUG - log"
-            )
+            logger.debug("Testing Sender static logging handler functionality... DEBUG - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -376,8 +355,7 @@ class TestSender(unittest.TestCase):
 
             print("Testing logger critical")
             logger.critical(
-                "Testing Sender static logging handler "
-                "functionality... CRITICAL - log"
+                "Testing Sender static logging handler functionality... CRITICAL - log"
             )
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
@@ -624,8 +602,9 @@ class TestSender(unittest.TestCase):
         """
         Test that verifies that a wrong port raises an exception.
         """
+        remote_address = os.getenv("DEVO_REMOTE_SENDER_SERVER", "collector-us.devo.io")
         engine_config = SenderConfigSSL(
-            address=("collector-eu.devo.io", 442),
+            address=(remote_address, 442),
             key=self.key,
             cert=self.cert,
             chain=self.chain,
@@ -647,8 +626,13 @@ class TestSender(unittest.TestCase):
         self.assertIn(expected_exception, str(result.exception))
 
     def test_get_common_names(self):
+        """
+        Verify Subject and Issuer Names:
+        Confirm that the issuer of each certificate matches the subject of the next certificate
+        in the chain. This ensures that each certificate is properly linked in the chain.
+        """
         engine_config = SenderConfigSSL(
-            address=("collector-eu.devo.io", 442),
+            address=("localhost", 442),
             key=self.key,
             cert=self.cert,
             chain=self.chain,
@@ -656,16 +640,16 @@ class TestSender(unittest.TestCase):
             verify_mode=CERT_NONE,
             verify_config=False,
         )
-        cert_1 = engine_config.fake_get_peer_cert_chain(self.chain)
-        cert_2 = engine_config.fake_get_peer_cert_chain(self.chain)
-        subject = engine_config.get_common_names(cert_1, "get_subject")
-        issuer = engine_config.get_common_names(cert_2, "get_issuer")
+        server_chain = engine_config.fake_get_peer_cert_chain(self.chain)
+        chain_cert = engine_config.fake_get_peer_cert_chain(self.cert)
+        subject = engine_config.get_common_names(server_chain, "get_subject")
+        issuer = engine_config.get_common_names(chain_cert, "get_issuer")
 
         self.assertTrue(issuer.issubset(subject))
 
     def test_fake_get_peer_cert_chain(self):
         engine_config = SenderConfigSSL(
-            address=("collector-us.devo.io", 442),
+            address=("localhost", 442),
             key=self.key,
             cert=self.cert,
             chain=self.chain,
@@ -678,9 +662,7 @@ class TestSender(unittest.TestCase):
         with open(self.chain, "rb") as chain_file:
             chain_certs = []
             for _ca in pem.parse(chain_file.read()):
-                chain_certs.append(
-                    crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca))
-                )
+                chain_certs.append(crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
         for a, b in zip(fake_chain_cert, chain_certs):
             self.assertEqual(a.get_subject(), b.get_subject())
 

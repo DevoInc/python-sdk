@@ -39,9 +39,7 @@ class ErrorManagementCase(unittest.TestCase):
             },
             auth={"token": "TOKEN"},
         )
-        responses.add(
-            responses.POST, "https://uri/search/query", body=result, status=status
-        )
+        responses.add(responses.POST, "https://uri/search/query", body=result, status=status)
 
         return client.query()
 
@@ -51,7 +49,7 @@ class ErrorManagementCase(unittest.TestCase):
             '{"timestamp":1669737806151,"cid":"b46bde339628","msg":\n'
             '        "Error Launching Query","status":500,"object":["Error Launching Query"\n'
             '        ,"com.devo.malote.syntax.ParseException: Encountered '
-            '\\\" \\\"not\\\" \\\"not \\\"\\\" at line 1, column 17.\\n'
+            '\\" \\"not\\" \\"not \\"\\" at line 1, column 17.\\n'
             'Was expecting one of:\\n    <ID> ...\\n    <QID> ...\\n    "]}'
         )
         for stream in [True, False]:
@@ -74,9 +72,7 @@ class ErrorManagementCase(unittest.TestCase):
                         if stream:
                             list(response)
                     self.assertIsInstance(context.exception, DevoClientRequestException)
-                    self.assertTrue(
-                        context.exception.args[0].startswith("Error Launching Query")
-                    )
+                    self.assertTrue(context.exception.args[0].startswith("Error Launching Query"))
                     self.assertEqual(500, context.exception.status)
                     self.assertEqual("b46bde339628", context.exception.cid)
                     self.assertEqual(1669737806151, context.exception.timestamp)
@@ -197,9 +193,7 @@ class ErrorManagementCase(unittest.TestCase):
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            '{"e":[500,"Error Processing Query"]}', context.exception.cause
-        )
+        self.assertEqual('{"e":[500,"Error Processing Query"]}', context.exception.cause)
 
     def test_error_stream_json_simple_compact_to_obj(self):
         result = iter(
@@ -223,9 +217,7 @@ class ErrorManagementCase(unittest.TestCase):
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            '{"e":[500,"Error Processing Query"]}', context.exception.cause
-        )
+        self.assertEqual('{"e":[500,"Error Processing Query"]}', context.exception.cause)
 
     def test_error_handling_json_simple_stream(self):
         result = iter(
@@ -247,9 +239,7 @@ class ErrorManagementCase(unittest.TestCase):
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            '["error",500,"A very bad query error"]', context.exception.cause
-        )
+        self.assertEqual('["error",500,"A very bad query error"]', context.exception.cause)
 
     def test_error_handling_json_simple_compact_stream(self):
         result = iter(
@@ -273,9 +263,7 @@ class ErrorManagementCase(unittest.TestCase):
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            '{"e":[500,"A very bad query error"]}', context.exception.cause
-        )
+        self.assertEqual('{"e":[500,"A very bad query error"]}', context.exception.cause)
 
     def test_error_handling_csv_stream(self):
         result = iter(
@@ -294,13 +282,11 @@ class ErrorManagementCase(unittest.TestCase):
             response = list(response)
         self.assertIsInstance(context.exception, DevoClientDataResponseException)
         self.assertIn(
-            "Error while receiving query data: A very bad query" " error",
+            "Error while receiving query data: A very bad query error",
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            "devo.api.error,500,A very bad query error", context.exception.cause
-        )
+        self.assertEqual("devo.api.error,500,A very bad query error", context.exception.cause)
 
     def test_error_handling_tsv_stream(self):
         result = iter(
@@ -323,9 +309,7 @@ class ErrorManagementCase(unittest.TestCase):
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            "devo.api.error  500  A very bad query error", context.exception.cause
-        )
+        self.assertEqual("devo.api.error  500  A very bad query error", context.exception.cause)
 
     def test_error_handling_json_no_stream(self):
         result = (
@@ -346,9 +330,7 @@ class ErrorManagementCase(unittest.TestCase):
             context.exception.message,
         )
         self.assertEqual(500, context.exception.code)
-        self.assertEqual(
-            '"error": [500,"A very bad query error"]', context.exception.cause
-        )
+        self.assertEqual('"error": [500,"A very bad query error"]', context.exception.cause)
 
     def test_error_handling_json_compact_no_stream(self):
         result = (

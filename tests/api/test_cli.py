@@ -1,4 +1,3 @@
-import json
 import os
 import tempfile
 import unittest
@@ -12,11 +11,11 @@ from devo.common import Configuration
 
 class TestApi(unittest.TestCase):
     def setUp(self):
-        self.query = "from demo.ecommerce.data select method limit 1"
-        self.app_name = "testing-app_name"
-        self.uri = os.getenv(
-            "DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query"
+        self.query = os.getenv(
+            "DEVO_API_QUERY", "from siem.logtrust.web.activity select eventdate limit 1"
         )
+        self.app_name = "testing-app_name"
+        self.uri = os.getenv("DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query")
         self.key = os.getenv("DEVO_API_KEY", None)
         self.secret = os.getenv("DEVO_API_SECRET", None)
         self.token = os.getenv("DEVO_AUTH_TOKEN", None)
@@ -40,9 +39,7 @@ class TestApi(unittest.TestCase):
             },
         )
 
-        self.config_path = os.path.join(
-            tempfile.gettempdir(), "devo_api_tests_config.json"
-        )
+        self.config_path = os.path.join(tempfile.gettempdir(), "devo_api_tests_config.json")
         configuration.save(path=self.config_path)
 
     def test_query_args(self):
@@ -71,7 +68,7 @@ class TestApi(unittest.TestCase):
                 "--query",
                 self.query,
                 "--address",
-                "error-apiv2-us.logtrust" ".com/search/query",
+                "error-apiv2-us.logtrust.com/search/query",
                 "--key",
                 self.key,
                 "--secret",
@@ -124,7 +121,7 @@ class TestApi(unittest.TestCase):
 
         self.assertIsNone(result.exception)
         self.assertEqual(result.exit_code, 0)
-        self.assertIn('{"m":{"method":{"type":"str","index":0', result.output)
+        self.assertIn('{"m":{"eventdate":{"type":"timestamp","index":0', result.output)
 
     def test_with_config_file(self):
         if self.config_path:
@@ -144,7 +141,7 @@ class TestApi(unittest.TestCase):
             )
             self.assertIsNone(result.exception)
             self.assertEqual(result.exit_code, 0)
-            self.assertIn('{"m":{"method":{"type":"str","index":0', result.output)
+            self.assertIn('{"m":{"eventdate":{"type":"timestamp","index":0', result.output)
 
 
 if __name__ == "__main__":

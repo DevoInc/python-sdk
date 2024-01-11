@@ -45,9 +45,7 @@ class Lookup:
     DATA_TABLE = "my.lookup.data"
     CONTROL_TABLE = "my.lookup.control"
 
-    def __init__(
-        self, name="example", historic_tag=None, con=None, delay=5, escape_quotes=False
-    ):
+    def __init__(self, name="example", historic_tag=None, con=None, delay=5, escape_quotes=False):
         if not re.match(r"^[A-Za-z0-9_]+$", name):
             raise Exception(
                 "Devo Lookup: The name of the lookup is incorrect,"
@@ -199,9 +197,7 @@ class Lookup:
         try:
             if detect_types:
                 with open_file(path, mode="r") as csv_file:
-                    spam_reader = csv.reader(
-                        csv_file, delimiter=delimiter, quotechar=quotechar
-                    )
+                    spam_reader = csv.reader(csv_file, delimiter=delimiter, quotechar=quotechar)
 
                     types = self.detect_types(reader=spam_reader)
         except IOError as error:
@@ -211,9 +207,7 @@ class Lookup:
 
         try:
             with open_file(path, mode="r") as csv_file:
-                spam_reader = csv.reader(
-                    csv_file, delimiter=delimiter, quotechar=quotechar
-                )
+                spam_reader = csv.reader(csv_file, delimiter=delimiter, quotechar=quotechar)
                 # Conform headers list
                 if has_header is False and headers is None:
                     raise Exception("No headers for fields")
@@ -352,9 +346,7 @@ class Lookup:
         return fields[index].strip()
 
     @staticmethod
-    def list_to_headers(
-        headers=None, key=None, type_of_key="str", key_index=None, types=None
-    ):
+    def list_to_headers(headers=None, key=None, type_of_key="str", key_index=None, types=None):
         """
         Transform list item to the object we need send to Devo for headers
 
