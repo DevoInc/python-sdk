@@ -1,5 +1,6 @@
 import os
 import socket
+import tempfile
 import unittest
 
 from click.testing import CliRunner
@@ -19,9 +20,7 @@ class TestSender(unittest.TestCase):
         self.tcp_address = os.getenv("DEVO_SENDER_TCP_SERVER", "127.0.0.1")
         self.tcp_port = int(os.getenv("DEVO_SENDER_TCP_PORT", 4489))
 
-        self.remote_address = os.getenv(
-            "DEVO_REMOTE_SENDER_SERVER", "collector-us.devo.io"
-        )
+        self.remote_address = os.getenv("DEVO_REMOTE_SENDER_SERVER", "collector-us.devo.io")
         self.remote_port = int(os.getenv("DEVO_REMOTE_SENDER_PORT", 443))
 
         self.key = os.getenv("DEVO_SENDER_KEY", CLIENT_KEY)
@@ -69,7 +68,7 @@ class TestSender(unittest.TestCase):
             },
         )
 
-        self.config_path = "/tmp/devo_sender_tests_config.json"
+        self.config_path = os.path.join(tempfile.gettempdir(), "devo_api_tests_config.json")
         configuration.save(path=self.config_path)
 
         self.bad_json_config_path = "./common/bad_json_config.json"
@@ -163,8 +162,7 @@ class TestSender(unittest.TestCase):
         )
         self.assertIsInstance(result.exception, SystemExit)
         self.assertIn(
-            "Error: Invalid value for '--key': Path "
-            "'not_a_folder/not_a_file' does not exist.",
+            "Error: Invalid value for '--key': Path 'not_a_folder/not_a_file' does not exist.",
             result.output,
         )
 

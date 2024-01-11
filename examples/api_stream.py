@@ -13,9 +13,7 @@ api = Client(
     ),
 )
 
-response = api.query(
-    query="from demo.ecommerce.data select * ", dates={"from": "today()-1*day()"}
-)
+response = api.query(query="from demo.ecommerce.data select * ", dates={"from": "today()-1*day()"})
 
 for item in response:
     print(item)
