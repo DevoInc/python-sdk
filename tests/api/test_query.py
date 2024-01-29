@@ -5,7 +5,6 @@ import unittest
 from time import gmtime, strftime
 
 import stopit
-
 from devo.api import Client, ClientConfig, DevoClientException
 
 
