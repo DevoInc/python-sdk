@@ -4,7 +4,6 @@ import tempfile
 import unittest
 
 from click.testing import CliRunner
-
 from devo.common import Configuration
 from devo.common.generic.configuration import ConfigurationException
 from devo.sender import DevoSenderException
