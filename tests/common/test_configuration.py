@@ -1,111 +1,117 @@
 import os
-import unittest
 
+import pytest
 from devo.common import Configuration
 
 
-class TestConfiguration(unittest.TestCase):
-    def setUp(self):
-        self.config_path = "%s%stestfile_config" % (
-            os.path.dirname(os.path.abspath(__file__)),
-            os.sep,
-        )
+@pytest.fixture(scope="module")
+def setup_config_path():
+    module_configuration = "%s%stestfile_config" % (
+        os.path.dirname(os.path.abspath(__file__)),
+        os.sep,
+    )
+    return module_configuration
 
-    def test_load_config(self):
-        config = Configuration()
-        with self.assertRaises(Exception) as context:
-            config.load_config(self.config_path + ".ini")
 
-        self.assertTrue(
-            "Configuration file type unknown or not supported: "
-            "%s%stestfile_config.ini" % (os.path.dirname(os.path.abspath(__file__)), os.sep)
-            in str(context.exception)
-        )
+def test_load_config():
+    file_path = "bad_file.ini"
+    config = Configuration()
+    with pytest.raises(Exception) as context:
+        config.load_config(file_path)
 
-    def test_load_directly(self):
-        config = Configuration(self.config_path + ".yaml")
-        self.assertDictEqual(
-            config,
-            {"devo": {"die": "hard"}, "api": {"velazquez": "Then I am beautiful?"}},
-        )
+    assert f"Configuration file type unknown or not supported: {file_path}" in str(
+        context.exconly()
+    )
 
-    def test_get_keys_chain(self):
-        config = Configuration(self.config_path + ".yaml")
-        self.assertEqual(config.get(("devo", "die")), "hard")
 
-    def test_get_keys_chain_in_array(self):
-        config = Configuration(self.config_path + ".yaml")
-        self.assertEqual(config.get(("devo", "die")), "hard")
+def test_load_directly(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    assert config == {
+        "devo": {"die": "hard"},
+        "api": {"velazquez": "Then I am beautiful?"},
+    }
 
-    def test_add_key(self):
-        config = Configuration(self.config_path + ".yaml")
-        config.set("logtrust", "old")
-        self.assertEqual(config["logtrust"], "old")
 
-    def test_add_key_chain(self):
-        config = Configuration(self.config_path + ".yaml")
-        config.set(["devo", "old", "name"], "logtrust")
-        self.assertEqual(config["devo"]["old"]["name"], "logtrust")
-        self.assertEqual(config.get(("devo", "old", "name")), "logtrust")
+def test_get_keys_chain(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    assert config.get(("devo", "die")) == "hard"
 
-    def test_save(self):
-        config = Configuration(self.config_path + ".yaml")
-        config.save(self.config_path + ".bak")
 
-        if os.path.isfile(self.config_path + ".bak"):
-            os.remove(self.config_path + ".bak")
-            self.assertTrue(True)
-        else:
-            self.assertFalse(True)
+def test_get_keys_chain_in_array(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    assert config.get(("devo", "die")) == "hard"
 
-    def test_load_json(self):
-        config = Configuration()
-        config.load_json(self.config_path + ".json")
-        self.assertDictEqual(
-            config,
-            {"devo": {"die": "hard"}, "api": {"velazquez": "Then I am beautiful?"}},
-        )
 
-    def test_load_section_json(self):
-        config = Configuration(self.config_path + ".json", "api")
-        self.assertDictEqual(config, {"velazquez": "Then I am beautiful?"})
+def test_add_key(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    config.set("logtrust", "old")
+    assert config["logtrust"] == "old"
 
-    def test_load_yaml(self):
-        config = Configuration()
-        config.load_yaml(self.config_path + ".yaml")
-        self.assertDictEqual(
-            config,
-            {"devo": {"die": "hard"}, "api": {"velazquez": "Then I am beautiful?"}},
-        )
 
-    def test_load_section_yaml(self):
-        config = Configuration(self.config_path + ".yaml", "devo")
-        self.assertDictEqual(config, {"die": "hard"})
+def test_add_key_chain(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    config.set(["devo", "old", "name"], "logtrust")
+    assert config["devo"]["old"]["name"] == "logtrust"
+    assert config.get(("devo", "old", "name")) == "logtrust"
 
-    def test_mix_json(self):
-        config = Configuration(self.config_path + ".json")
-        config.mix({"test": "ok"})
-        self.assertDictEqual(
-            config,
-            {
-                "devo": {"die": "hard"},
-                "api": {"velazquez": "Then I am beautiful?"},
-                "test": "ok",
-            },
-        )
 
-    def test_mix_yaml(self):
-        config = Configuration(self.config_path + ".yaml")
-        config.mix({"test": "ok"})
-        self.assertDictEqual(
-            config,
-            {
-                "devo": {"die": "hard"},
-                "api": {"velazquez": "Then I am beautiful?"},
-                "test": "ok",
-            },
-        )
+def test_save(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    config.save(setup_config_path + ".bak")
+
+    if os.path.isfile(setup_config_path + ".bak"):
+        os.remove(setup_config_path + ".bak")
+    else:
+        raise Exception("File not found")
+
+
+def test_load_json(setup_config_path):
+    config = Configuration()
+    config.load_json(setup_config_path + ".json")
+    assert config == {
+        "devo": {"die": "hard"},
+        "api": {"velazquez": "Then I am beautiful?"},
+    }
+
+
+def test_load_section_json(setup_config_path):
+    config = Configuration(setup_config_path + ".json", "api")
+    assert config == {"velazquez": "Then I am beautiful?"}
+
+
+def test_load_yaml(setup_config_path):
+    config = Configuration()
+    config.load_yaml(setup_config_path + ".yaml")
+    assert config == {
+        "devo": {"die": "hard"},
+        "api": {"velazquez": "Then I am beautiful?"},
+    }
+
+
+def test_load_section_yaml(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml", "devo")
+    assert config == {"die": "hard"}
+
+
+def test_mix_json(setup_config_path):
+    config = Configuration(setup_config_path + ".json")
+    config.mix({"test": "ok"})
+    assert config == {
+        "devo": {"die": "hard"},
+        "api": {"velazquez": "Then I am beautiful?"},
+        "test": "ok",
+    }
+
+
+def test_mix_yaml(setup_config_path):
+    config = Configuration(setup_config_path + ".yaml")
+    config.mix({"test": "ok"})
+    assert config == {
+        "devo": {"die": "hard"},
+        "api": {"velazquez": "Then I am beautiful?"},
+        "test": "ok",
+    }
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main()

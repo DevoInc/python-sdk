@@ -1,78 +1,72 @@
-import unittest
 from datetime import datetime as dt
 
+import pytest
 from devo.common import default_from, default_to
 
 
-class TestDateParser(unittest.TestCase):
+@pytest.fixture(scope="module")
+def setup_epoch():
     epoch = dt.utcfromtimestamp(0)
+    return epoch
 
-    # Tests defaults
-    # --------------------------------------------------------------------------
 
-    def test_default_to(self):
-        ts1 = str(default_to())[:11]
-        ts2 = str((dt.utcnow() - self.epoch).total_seconds() * 1000)[:11]
-        self.assertTrue(ts1 == ts2)
+# Tests defaults
+# --------------------------------------------------------------------------
+def test_default_to(setup_epoch):
+    ts1 = str(default_to())[:11]
+    ts2 = str((dt.utcnow() - setup_epoch).total_seconds() * 1000)[:11]
+    assert ts1 == ts2
 
-    def test_default_from(self):
-        ts1 = str(default_from())[:11]
-        ts2 = str(int((dt.utcnow() - self.epoch).total_seconds() * 1000) - 86400000)[:11]
-        self.assertTrue(ts1 == ts2)
 
-    # Tests amounts
-    # --------------------------------------------------------------------------
+def test_default_from(setup_epoch):
+    ts1 = str(default_from())[:11]
+    ts2 = str(int((dt.utcnow() - setup_epoch).total_seconds() * 1000) - 86400000)[:11]
+    assert ts1 == ts2
 
-    def test_second(self):
-        ts1 = default_from("second()")
-        ts2 = 1000
-        self.assertTrue(ts1 == ts2)
 
-    def test_minute(self):
-        ts1 = default_from("minute()")
-        ts2 = 60 * 1000
-        self.assertTrue(ts1 == ts2)
+# Tests amounts
+# --------------------------------------------------------------------------
+def test_second():
+    assert default_from("second()") == 1000
 
-    def test_hour(self):
-        ts1 = default_from("hour()")
-        ts2 = 60 * 60 * 1000
-        self.assertTrue(ts1 == ts2)
 
-    def test_day(self):
-        ts1 = default_from("day()")
-        ts2 = 24 * 60 * 60 * 1000
-        self.assertTrue(ts1 == ts2)
+def test_minute():
+    assert default_from("minute()") == 60 * 1000
 
-    def test_week(self):
-        ts1 = default_from("week()")
-        ts2 = 7 * 24 * 60 * 60 * 1000
-        self.assertTrue(ts1 == ts2)
 
-    def test_month(self):
-        ts1 = default_from("month()")
-        ts2 = 30 * 24 * 60 * 60 * 1000
-        self.assertTrue(ts1 == ts2)
+def test_hour():
+    assert default_from("hour()") == 60 * 60 * 1000
 
-    # Tests relatives
-    # --------------------------------------------------------------------------
 
-    def test_now(self):
-        ts1 = default_from("now()")
-        ts2 = int((dt.utcnow() - self.epoch).total_seconds() * 1000)
-        self.assertTrue(ts1 == ts2)
+def test_day():
+    assert default_from("day()") == 24 * 60 * 60 * 1000
 
-    def test_today(self):
-        ts1 = default_from("today()")
-        tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-        ts2 = int((tmp - self.epoch).total_seconds() * 1000)
-        self.assertTrue(ts1 == ts2)
 
-    def test_yesterday(self):
-        ts1 = default_from("yesterday()")
-        tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-        ts2 = int((tmp - self.epoch).total_seconds() * 1000) - 86400000
-        self.assertTrue(ts1 == ts2)
+def test_week():
+    assert default_from("week()") == 7 * 24 * 60 * 60 * 1000
+
+
+def test_month():
+    assert default_from("month()") == 30 * 24 * 60 * 60 * 1000
+
+
+# Tests relatives
+# --------------------------------------------------------------------------
+def test_now(setup_epoch):
+    assert default_from("now()") == int((dt.utcnow() - setup_epoch).total_seconds() * 1000)
+
+
+def test_today(setup_epoch):
+    tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    assert default_from("today()") == int((tmp - setup_epoch).total_seconds() * 1000)
+
+
+def test_yesterday(setup_epoch):
+    tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    assert (
+        default_from("yesterday()") == int((tmp - setup_epoch).total_seconds() * 1000) - 86400000
+    )
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main()
