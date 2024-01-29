@@ -7,12 +7,11 @@ from ssl import CERT_NONE, SSLSocket, SSLWantReadError
 from unittest import mock
 
 import pem
-from OpenSSL import SSL, crypto
-
 from devo.common import get_log
 from devo.sender import (DevoSenderException, Sender, SenderConfigSSL,
                          SenderConfigTCP)
 from devo.sender.data import open_file
+from OpenSSL import SSL, crypto
 
 from .load_certs import CLIENT_CERT, CLIENT_CHAIN, CLIENT_KEY
 
@@ -241,9 +240,7 @@ class TestSender(unittest.TestCase):
                 raise Exception("Not msg sent!")
 
             print("Testing logger warning")
-            logger.warning(
-                "Testing Sender inherit logging handler functionality... WARNING - log"
-            )
+            logger.warning("Testing Sender inherit logging handler functionality... WARNING - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -291,9 +288,7 @@ class TestSender(unittest.TestCase):
             )
             # NOTE: this logger logging traces will be visible in the remote
             # table
-            con.info(
-                "Testing Sender default handler functionality in remote table... INFO - log"
-            )
+            con.info("Testing Sender default handler functionality in remote table... INFO - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:
@@ -338,9 +333,7 @@ class TestSender(unittest.TestCase):
                 raise Exception("Not msg sent!")
 
             print("Testing logger warning")
-            logger.warning(
-                "Testing Sender static logging handler functionality... WARNING - log"
-            )
+            logger.warning("Testing Sender static logging handler functionality... WARNING - log")
             data_received = TestSender.read(con, 5000)
             print(b"\n" + data_received)
             if len(data_received) == 0:

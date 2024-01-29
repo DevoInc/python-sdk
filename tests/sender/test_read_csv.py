@@ -1,6 +1,7 @@
 import csv
-import os
-import unittest
+import io
+
+import pytest
 
 test_directory = "."
 
@@ -38,116 +39,74 @@ ddd\teee\tfff
 # See https://tools.ietf.org/html/rfc4180 for more details.
 
 
-class TestCSVRFC(unittest.TestCase):
-    """Test the CSV RFC compliance."""
+def test_last_line_is_blank():
+    s = io.StringIO(testfile_csv_last_line_is_blank)
+    reader = csv.reader(s)
+    lines = [row for row in reader]
 
-    def setUp(self):
-        """Set up the module."""
+    assert len(lines) == 2
+    assert lines[-1] == ["zzz", "yyy", "xxx"]
 
-        global test_directory
-        # Get file directory.
-        test_directory = os.path.dirname(os.path.realpath(__file__))
-        os.chdir(test_directory)
 
-        # Create the test files.
-        with open("testfile_csv_last_line_is_blank.yaml", "w") as f:
-            f.write(testfile_csv_last_line_is_blank)
+@pytest.mark.xfail
+def test_same_number_of_fields():
+    f = io.StringIO(testfile_csv_with_different_num_fields)
+    reader = csv.reader(f)
+    lines = [row for row in reader]
 
-        with open("testfile_csv_with_different_num_fields.yaml", "w") as f:
-            f.write(testfile_csv_with_different_num_fields)
+    for line in lines:
+        assert len(line) == 3
 
-        with open("testfile_csv_with_comma_at_eol.yaml", "w") as f:
-            f.write(testfile_csv_with_comma_at_eol)
 
-        with open("testfile_csv_with_comma_crlf_in_fields.yaml", "w") as f:
-            f.write(testfile_csv_with_comma_crlf_in_fields)
+@pytest.mark.xfail
+def test_no_comma_at_eol():
+    f = io.StringIO(testfile_csv_with_comma_at_eol)
+    reader = csv.reader(f)
+    lines = [row for row in reader]
 
-        with open("testfile_csv_with_quotes.yaml", "w") as f:
-            f.write(testfile_csv_with_quotes)
+    assert lines[0] == ["aaa", "bbb", "ccc"]
+    assert lines[1] == ["zzz", "yyy", "xxx"]
 
-        with open("testfile_csv_with_tabs.yaml", "w") as f:
-            f.write(testfile_csv_with_tabs)
 
-    def tearDown(self):
-        """Tear down the module."""
+def test_fields_with_comma_crlf():
+    f = io.StringIO(testfile_csv_with_comma_crlf_in_fields)
+    reader = csv.reader(f)
+    lines = [row for row in reader]
 
-        # Cleanup the test files.
-        global test_directory
-        os.chdir(test_directory)
-        for f in [
-            "testfile_csv_last_line_is_blank.yaml",
-            "testfile_csv_with_different_num_fields.yaml",
-            "testfile_csv_with_comma_at_eol.yaml",
-            "testfile_csv_with_comma_crlf_in_fields.yaml",
-            "testfile_csv_with_quotes.yaml",
-            "testfile_csv_with_tabs.yaml",
-        ]:
-            if os.path.exists(f):
-                os.remove(f)
+    # The nomber of lines read should not be the same as the number of
+    # lines in the file.
+    assert reader.line_num == 4
+    assert len(lines) == 3
+    assert lines[0] == ["aaa", "bbb", "ccc"]
+    assert lines[1] == ["zzz", "yy,y", "xxx"]
+    assert lines[2] == ["ddd", "ee\ne", "fff"]
 
-    def test_last_line_is_blank(self):
-        with open("testfile_csv_last_line_is_blank.yaml", "r") as f:
-            reader = csv.reader(f)
-            lines = [row for row in reader]
 
-        self.assertEqual(len(lines), 2)
-        self.assertEqual(lines[-1], ["zzz", "yyy", "xxx"])
+def test_fields_with_quotes():
+    f = io.StringIO(testfile_csv_with_quotes)
+    reader = csv.reader(f)
+    lines = [row for row in reader]
 
-    @unittest.expectedFailure
-    def test_same_number_of_fields(self):
-        with open("testfile_csv_with_different_num_fields.yaml", "r") as f:
-            reader = csv.reader(f)
-            lines = [row for row in reader]
+    # The files with quotes inside will be checked by the
+    # function that sends the data in the Devo SDK and a warning
+    # will be issued, but the reader has to read the file.
 
-        for line in lines:
-            self.assertEqual(len(line), 3)
+    assert len(lines) == 3
+    assert lines[0] == ["aaa", "bbb", "ccc"]
+    assert lines[1] == ["zzz", 'yy"y', "xxx"]
+    assert lines[2] == ["Television", '24"', "LCD"]
 
-    @unittest.expectedFailure
-    def test_no_comma_at_eol(self):
-        with open("testfile_csv_with_comma_at_eol.yaml", "r") as f:
-            reader = csv.reader(f)
-            lines = [row for row in reader]
 
-        self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
-        self.assertEqual(lines[1], ["zzz", "yyy", "xxx"])
+def test_fields_with_tabs():
+    f = io.StringIO(testfile_csv_with_tabs)
+    reader = csv.reader(f, delimiter="\t")
+    lines = [row for row in reader]
 
-    def test_fields_with_comma_crlf(self):
-        with open("testfile_csv_with_comma_crlf_in_fields.yaml", "r") as f:
-            reader = csv.reader(f)
-            lines = [row for row in reader]
-
-        # The nomber of lines read should not be the same as the number of
-        # lines in the file.
-        self.assertEqual(reader.line_num, 4)
-        self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
-        self.assertEqual(lines[1], ["zzz", "yy,y", "xxx"])
-        self.assertEqual(lines[2], ["ddd", "ee\ne", "fff"])
-
-    def test_fields_with_quotes(self):
-        with open("testfile_csv_with_quotes.yaml", "r") as f:
-            reader = csv.reader(f)
-            lines = [row for row in reader]
-
-        # The files with quotes inside will be checked by the
-        # function that sends the data in the Devo SDK and a warning
-        # will be issued, but the reader has to read the file.
-
-        self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
-        self.assertEqual(lines[1], ["zzz", 'yy"y', "xxx"])
-        self.assertEqual(lines[2], ["Television", '24"', "LCD"])
-
-    def test_fields_with_tabs(self):
-        with open("testfile_csv_with_tabs.yaml", "r") as f:
-            reader = csv.reader(f, delimiter="\t")
-            lines = [row for row in reader]
-
-        self.assertEqual(len(lines), 3)
-        self.assertEqual(lines[0], ["aaa", "bbb", "ccc"])
-        self.assertEqual(lines[1], ["zzz", "yyy", "xxx"])
-        self.assertEqual(lines[2], ["ddd", "eee", "fff"])
+    assert len(lines) == 3
+    assert lines[0] == ["aaa", "bbb", "ccc"]
+    assert lines[1] == ["zzz", "yyy", "xxx"]
+    assert lines[2] == ["ddd", "eee", "fff"]
 
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main()
