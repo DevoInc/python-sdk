@@ -5,12 +5,18 @@ from devo.common import Configuration
 
 
 @pytest.fixture(scope="module")
-def setup_config_path():
-    module_configuration = "%s%stestfile_config" % (
-        os.path.dirname(os.path.abspath(__file__)),
-        os.sep,
+def setup():
+    """Return the path of the configuration file in resources folder"""
+    module_configuration = "".join(
+        [
+            os.path.dirname(os.path.abspath(__file__)),
+            os.sep,
+            "resources",
+            os.sep,
+            "testfile_config",
+        ]
     )
-    return module_configuration
+    yield module_configuration
 
 
 def test_load_config():
@@ -24,77 +30,77 @@ def test_load_config():
     )
 
 
-def test_load_directly(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
+def test_load_directly(setup):
+    config = Configuration(setup + ".yaml")
     assert config == {
         "devo": {"die": "hard"},
         "api": {"velazquez": "Then I am beautiful?"},
     }
 
 
-def test_get_keys_chain(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
+def test_get_keys_chain(setup):
+    config = Configuration(setup + ".yaml")
     assert config.get(("devo", "die")) == "hard"
 
 
-def test_get_keys_chain_in_array(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
+def test_get_keys_chain_in_array(setup):
+    config = Configuration(setup + ".yaml")
     assert config.get(("devo", "die")) == "hard"
 
 
-def test_add_key(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
+def test_add_key(setup):
+    config = Configuration(setup + ".yaml")
     config.set("logtrust", "old")
     assert config["logtrust"] == "old"
 
 
-def test_add_key_chain(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
+def test_add_key_chain(setup):
+    config = Configuration(setup + ".yaml")
     config.set(["devo", "old", "name"], "logtrust")
     assert config["devo"]["old"]["name"] == "logtrust"
     assert config.get(("devo", "old", "name")) == "logtrust"
 
 
-def test_save(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
-    config.save(setup_config_path + ".bak")
+def test_save(setup):
+    config = Configuration(setup + ".yaml")
+    config.save(setup + ".bak")
 
-    if os.path.isfile(setup_config_path + ".bak"):
-        os.remove(setup_config_path + ".bak")
+    if os.path.isfile(setup + ".bak"):
+        os.remove(setup + ".bak")
     else:
         raise Exception("File not found")
 
 
-def test_load_json(setup_config_path):
+def test_load_json(setup):
     config = Configuration()
-    config.load_json(setup_config_path + ".json")
+    config.load_json(setup + ".json")
     assert config == {
         "devo": {"die": "hard"},
         "api": {"velazquez": "Then I am beautiful?"},
     }
 
 
-def test_load_section_json(setup_config_path):
-    config = Configuration(setup_config_path + ".json", "api")
+def test_load_section_json(setup):
+    config = Configuration(setup + ".json", "api")
     assert config == {"velazquez": "Then I am beautiful?"}
 
 
-def test_load_yaml(setup_config_path):
+def test_load_yaml(setup):
     config = Configuration()
-    config.load_yaml(setup_config_path + ".yaml")
+    config.load_yaml(setup + ".yaml")
     assert config == {
         "devo": {"die": "hard"},
         "api": {"velazquez": "Then I am beautiful?"},
     }
 
 
-def test_load_section_yaml(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml", "devo")
+def test_load_section_yaml(setup):
+    config = Configuration(setup + ".yaml", "devo")
     assert config == {"die": "hard"}
 
 
-def test_mix_json(setup_config_path):
-    config = Configuration(setup_config_path + ".json")
+def test_mix_json(setup):
+    config = Configuration(setup + ".json")
     config.mix({"test": "ok"})
     assert config == {
         "devo": {"die": "hard"},
@@ -103,8 +109,8 @@ def test_mix_json(setup_config_path):
     }
 
 
-def test_mix_yaml(setup_config_path):
-    config = Configuration(setup_config_path + ".yaml")
+def test_mix_yaml(setup):
+    config = Configuration(setup + ".yaml")
     config.mix({"test": "ok"})
     assert config == {
         "devo": {"die": "hard"},
