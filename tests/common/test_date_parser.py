@@ -7,7 +7,7 @@ from devo.common import default_from, default_to
 @pytest.fixture(scope="module")
 def setup_epoch():
     epoch = dt.utcfromtimestamp(0)
-    return epoch
+    yield epoch
 
 
 # Tests defaults
