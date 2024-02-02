@@ -4,6 +4,7 @@ import pytest
 
 @pytest.fixture(scope="module")
 def setup():
+
     class Fixture:
         pass
 

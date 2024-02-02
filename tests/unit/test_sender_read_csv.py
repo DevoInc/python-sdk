@@ -3,8 +3,6 @@ import io
 
 import pytest
 
-test_directory = "."
-
 testfile_csv_last_line_is_blank = """key,value1,value2
 zzz,yyy,xxx
 """

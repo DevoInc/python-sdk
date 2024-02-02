@@ -14,6 +14,7 @@ load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
 
 @pytest.fixture(scope="module", autouse=True)
 def setup():
+
     class Fixture:
         pass
 
