@@ -14,6 +14,7 @@ load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
 
 @pytest.fixture(scope="module", autouse=True)
 def setup():
+
     class Fixture:
         pass
 
@@ -306,8 +307,7 @@ def test_xls_future_queries(setup):
 
     assert isinstance(context.value, DevoClientException)
     assert (
-        context.value.args[0]
-        == "Modes 'xls' and 'msgpack' does not support future "
+        context.value.args[0] == "Modes 'xls' and 'msgpack' does not support future "
         "queries because KeepAlive tokens are not available "
         "for those resonses type"
     )
@@ -325,8 +325,7 @@ def test_msgpack_future_queries(setup):
 
     assert isinstance(context.value, DevoClientException)
     assert (
-        context.value.args[0]
-        == "Modes 'xls' and 'msgpack' does not support future "
+        context.value.args[0] == "Modes 'xls' and 'msgpack' does not support future "
         "queries because KeepAlive tokens are not available "
         "for those resonses type"
     )
