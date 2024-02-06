@@ -1,4 +1,5 @@
 import pytest
+
 from devo.sender import Lookup
 
 

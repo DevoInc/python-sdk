@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import pytest
 import pytz
+
 from devo.api import Client
 
 

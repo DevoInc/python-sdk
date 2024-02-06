@@ -50,8 +50,8 @@ def proc_json_compact_to_array():
     """
     :return: json object
     """
-    return (
-        lambda data: proc_json()(data)["object"]["d"]
+    return lambda data: (
+        proc_json()(data)["object"]["d"]
         if data and isinstance(data, str) and proc_bytes_to_str()(data) != ""
         else None
     )
@@ -68,15 +68,17 @@ def proc_json_compact_simple_to_jobj(names=None):
     return (
         proc_json_compact_simple_to_array()
         if not names
-        else lambda data: dict(zip(names, proc_json_compact_simple_to_array()(data)))
-        if data and isinstance(data, str) and proc_bytes_to_str()(data) != ""
-        else {}
+        else lambda data: (
+            dict(zip(names, proc_json_compact_simple_to_array()(data)))
+            if data and isinstance(data, str) and proc_bytes_to_str()(data) != ""
+            else {}
+        )
     )
 
 
 def proc_json_compact_simple_to_array():
-    return (
-        lambda data: proc_json()(data)["d"]
+    return lambda data: (
+        proc_json()(data)["d"]
         if data and isinstance(data, str) and proc_bytes_to_str()(data) != ""
         else []
     )

@@ -26,6 +26,7 @@ PYPY = hasattr(sys, "pypy_version_info")
 
 
 class ERROR_MSGS(str, Enum):
+
     def __str__(self):
         return str(self.value)
 

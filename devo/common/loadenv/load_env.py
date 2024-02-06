@@ -2,6 +2,7 @@
 Parsing .env file content and adding each value into os.environ
 For testing purposes
 """
+
 import ast
 import os
 

@@ -8,12 +8,13 @@ from unittest import mock
 
 import pem
 import pytest
+from OpenSSL import SSL, crypto
+
 from devo.common import Configuration, get_log
 from devo.common.loadenv.load_env import load_env_file
 from devo.sender import (DevoSenderException, Sender, SenderConfigSSL,
                          SenderConfigTCP)
 from devo.sender.data import open_file
-from OpenSSL import SSL, crypto
 
 from .local_servers import (SSLServer, TCPServer, _find_available_port,
                             _wait_for_ready_server)
@@ -57,21 +58,23 @@ def setup():
     # Certificates configuration - LOCAL SERVER
     # ----------------------------------------
     setup.certs_path = setup.res_path + os.sep + "local_certs" + os.sep + "keys"
-    setup.server_key = os.getenv(
+    setup.local_server_key = os.getenv(
         "DEVO_SENDER_SERVER_KEY", f"{setup.certs_path}/server/private/server_key.pem"
     )
-    setup.server_cert = os.getenv(
-        "DEVO_SENDER_SERVER_CRT", f"{setup.certs_path}/server/server_cert.pem"
+    setup.local_server_cert = os.getenv(
+        "DEVO_SENDER_SERVER_CERT", f"{setup.certs_path}/server/server_cert.pem"
     )
-    setup.chain = os.getenv("DEVO_SENDER_SERVER_CHAIN", f"{setup.certs_path}/ca/ca_cert.pem")
-    setup.test_tcp = os.getenv("DEVO_TEST_TCP", "True")
+    setup.local_server_chain = os.getenv(
+        "DEVO_SENDER_SERVER_CHAIN", f"{setup.certs_path}/ca/ca_cert.pem"
+    )
+    setup.test_tcp = os.getenv("DEVO_TEST_TCP", False)
     setup.configuration = Configuration()
     setup.configuration.set(
         "sender",
         {
-            "key": setup.server_key,
-            "cert": setup.server_cert,
-            "chain": setup.chain,
+            "key": setup.local_server_key,
+            "cert": setup.local_server_cert,
+            "chain": setup.local_server_chain,
             "address": setup.ssl_address,
             "port": setup.ssl_port,
             "verify_mode": 0,
@@ -81,29 +84,38 @@ def setup():
 
     # Certificates configuration - REMOTE SERVER
     # ----------------------------------------
-    setup.key = os.getenv("DEVO_SENDER_KEY", f"{setup.res_path}/certs/us/devo_services.key")
-    setup.cert = os.getenv("DEVO_SENDER_CRT", f"{setup.res_path}/certs/us/devo_services.crt")
-    setup.ca = os.getenv("DEVO_SENDER_CHAIN", f"{setup.res_path}/certs/us/chain.crt")
+    setup.remote_server_key = os.getenv(
+        "DEVO_SENDER_KEY", f"{setup.res_path}/certs/us/devo_services.key"
+    )
+    setup.remote_server_cert = os.getenv(
+        "DEVO_SENDER_CERT", f"{setup.res_path}/certs/us/devo_services.crt"
+    )
+    setup.remote_server_chain = os.getenv(
+        "DEVO_SENDER_CHAIN", f"{setup.res_path}/certs/us/chain.crt"
+    )
 
     # Configuration files
     # ----------------------------------------
     setup.config_path = os.path.join(tempfile.gettempdir(), "devo_api_tests_config.json")
     setup.configuration.save(path=setup.config_path)
 
+    # Run local servers
+    # ----------------------------------------
     setup.ssl_port = _find_available_port(setup.ssl_address, setup.ssl_port)
     local_ssl_server = SSLServer(
-        setup.ssl_address, setup.ssl_port, setup.server_cert, setup.server_key
+        setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
     )
-
-    setup.tcp_port = _find_available_port(setup.ssl_address, setup.ssl_port)
-    local_tcp_server = TCPServer(setup.tcp_address, setup.tcp_port)
-
     _wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
+
+    if setup.test_tcp:
+        setup.tcp_port = _find_available_port(setup.tcp_address, setup.tcp_port)
+        local_tcp_server = TCPServer(setup.tcp_address, setup.tcp_port)
+        _wait_for_ready_server(local_tcp_server.ip, local_tcp_server.port)
 
     yield setup
 
     local_ssl_server.close_server()
-    local_tcp_server.close_server()
+    local_tcp_server.close_server() if setup.test_tcp else None
 
 
 def _read(con, length: int):
@@ -150,6 +162,9 @@ def test_tcp_rt_send(setup):
     """
     Tests that a TCP connection and data send it is possible
     """
+    if not setup.test_tcp:
+        pytest.skip("Not testing TCP")
+
     try:
         engine_config = SenderConfigTCP(address=(setup.tcp_address, setup.tcp_port))
         con = Sender(engine_config)
@@ -169,9 +184,9 @@ def test_ssl_rt_send(setup):
     try:
         engine_config = SenderConfigSSL(
             address=(setup.ssl_address, setup.ssl_port),
-            key=setup.key,
-            cert=setup.cert,
-            chain=setup.chain,
+            key=setup.local_server_key,
+            cert=setup.local_server_cert,
+            chain=setup.local_server_chain,
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
@@ -194,9 +209,9 @@ def test_ssl_zip_send(setup):
     try:
         engine_config = SenderConfigSSL(
             address=(setup.ssl_address, setup.ssl_port),
-            key=setup.key,
-            cert=setup.cert,
-            chain=setup.chain,
+            key=setup.local_server_key,
+            cert=setup.local_server_cert,
+            chain=setup.local_server_chain,
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
@@ -221,9 +236,9 @@ def test_multiline_send(setup):
     try:
         engine_config = SenderConfigSSL(
             address=(setup.ssl_address, setup.ssl_port),
-            key=setup.key,
-            cert=setup.cert,
-            chain=setup.chain,
+            key=setup.local_server_key,
+            cert=setup.local_server_cert,
+            chain=setup.local_server_chain,
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
@@ -246,22 +261,21 @@ def test_rt_send_no_certs(setup):
     """
     Test that tries to send a message without using certificates
     """
-    if setup.test_tcp == "True":
-        try:
-            engine_config = SenderConfigSSL(
-                address=(setup.ssl_address, setup.ssl_port),
-                check_hostname=False,
-                verify_mode=CERT_NONE,
-            )
-            con = Sender(engine_config)
-            for i in range(setup.default_numbers_sendings):
-                con.send(tag=setup.my_app, msg=setup.test_msg)
-            con.close()
-            return True
-        except Exception:
-            return False
-    else:
+    if not setup.test_tcp:
+        pytest.skip("Not testing TCP")
+    try:
+        engine_config = SenderConfigSSL(
+            address=(setup.ssl_address, setup.ssl_port),
+            check_hostname=False,
+            verify_mode=CERT_NONE,
+        )
+        con = Sender(engine_config)
+        for i in range(setup.default_numbers_sendings):
+            con.send(tag=setup.my_app, msg=setup.test_msg)
+        con.close()
         return True
+    except Exception:
+        return False
 
 
 def test_sender_as_handler(setup):
@@ -272,9 +286,9 @@ def test_sender_as_handler(setup):
     try:
         engine_config = SenderConfigSSL(
             address=(setup.ssl_address, setup.ssl_port),
-            key=setup.key,
-            cert=setup.cert,
-            chain=setup.chain,
+            key=setup.local_server_key,
+            cert=setup.local_server_cert,
+            chain=setup.local_server_chain,
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
@@ -329,9 +343,9 @@ def test_sender_with_default_logger(setup):
     try:
         engine_config = SenderConfigSSL(
             address=(setup.ssl_address, setup.ssl_port),
-            key=setup.key,
-            cert=setup.cert,
-            chain=setup.chain,
+            key=setup.local_server_key,
+            cert=setup.local_server_cert,
+            chain=setup.local_server_chain,
             check_hostname=False,
             verify_mode=CERT_NONE,
         )
@@ -363,9 +377,9 @@ def test_sender_as_handler_static(setup):
         engine_config = {
             "address": setup.ssl_address,
             "port": setup.ssl_port,
-            "key": setup.key,
-            "cert": setup.cert,
-            "chain": setup.chain,
+            "key": setup.local_server_key,
+            "cert": setup.local_server_cert,
+            "chain": setup.local_server_chain,
             "check_hostname": False,
             "verify_mode": CERT_NONE,
         }
@@ -421,9 +435,9 @@ def test_config_files_path_standard_case(setup):
 
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -441,8 +455,8 @@ def test_config_files_path_incorrect_key(setup):
     wrong_key = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
         key="Incorrect key",
-        cert=setup.cert,
-        chain=setup.chain,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -463,9 +477,9 @@ def test_config_files_path_incorrect_key(setup):
 def test_config_files_path_incorrect_cert(setup):
     wrong_cert = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
+        key=setup.local_server_key,
         cert="Incorrect cert",
-        chain=setup.chain,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -486,8 +500,8 @@ def test_config_files_path_incorrect_cert(setup):
 def test_config_files_path_incorrect_chain(setup):
     wrong_chain = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
         chain="Incorrect chain",
         check_hostname=False,
         verify_mode=CERT_NONE,
@@ -513,9 +527,9 @@ def test_config_cert_key_standard_case(setup):
 
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -532,12 +546,9 @@ def test_config_cert_key_incompatible_case(setup):
 
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        # cert="{!s}/local_certs/keys/server/server_cert.pem".format(
-        #     os.path.dirname(os.path.abspath(__file__))
-        # ),
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.remote_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -564,9 +575,9 @@ def test_config_cert_chain_standard_case(setup):
 
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -583,9 +594,9 @@ def test_config_cert_chain_incompatible_case(setup):
 
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.server_cert,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.remote_server_cert,
         # chain="{!s}/local_certs/keys/server/server_cert.pem".format(
         #     os.path.dirname(os.path.abspath(__file__))
         # ),
@@ -613,14 +624,14 @@ def test_config_cert_address_standard_case(setup):
     """
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
     )
-    chain = engine_config.fake_get_peer_cert_chain(setup.chain)
+    chain = engine_config.fake_get_peer_cert_chain(setup.local_server_chain)
     with mock.patch.object(
         SSL.Connection, "get_peer_cert_chain", mock.MagicMock(return_value=chain)
     ):
@@ -635,9 +646,9 @@ def test_config_cert_address_incompatible_address(setup):
     """
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.remote_server_key,
+        cert=setup.remote_server_cert,
+        chain=setup.remote_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -664,9 +675,9 @@ def test_config_cert_address_incompatible_port(setup):
     remote_address = os.getenv("DEVO_REMOTE_SENDER_SERVER", "collector-us.devo.io")
     engine_config = SenderConfigSSL(
         address=(remote_address, 442),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.remote_server_key,
+        cert=setup.remote_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -693,15 +704,15 @@ def test_get_common_names(setup):
     """
     engine_config = SenderConfigSSL(
         address=("localhost", 442),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
     )
-    server_chain = engine_config.fake_get_peer_cert_chain(setup.chain)
-    chain_cert = engine_config.fake_get_peer_cert_chain(setup.cert)
+    server_chain = engine_config.fake_get_peer_cert_chain(setup.local_server_chain)
+    chain_cert = engine_config.fake_get_peer_cert_chain(setup.local_server_cert)
     subject = engine_config.get_common_names(server_chain, "get_subject")
     issuer = engine_config.get_common_names(chain_cert, "get_issuer")
 
@@ -711,16 +722,16 @@ def test_get_common_names(setup):
 def test_fake_get_peer_cert_chain(setup):
     engine_config = SenderConfigSSL(
         address=("localhost", 442),
-        key=setup.key,
-        cert=setup.cert,
-        chain=setup.chain,
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
     )
 
-    fake_chain_cert = engine_config.fake_get_peer_cert_chain(setup.chain)
-    with open(setup.chain, "rb") as chain_file:
+    fake_chain_cert = engine_config.fake_get_peer_cert_chain(setup.local_server_chain)
+    with open(setup.local_server_chain, "rb") as chain_file:
         chain_certs = []
         for _ca in pem.parse(chain_file.read()):
             chain_certs.append(crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))

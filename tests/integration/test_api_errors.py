@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 import responses
+
 from devo.api import Client, DevoClientException
 from devo.api.client import (DEFAULT, NO_KEEPALIVE_TOKEN,
                              SIMPLECOMPACT_TO_ARRAY, SIMPLECOMPACT_TO_OBJ,

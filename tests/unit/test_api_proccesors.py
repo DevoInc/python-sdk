@@ -1,5 +1,6 @@
-import devo.api.processors as processors
 import pytest
+
+import devo.api.processors as processors
 
 
 @pytest.fixture(scope="module")
