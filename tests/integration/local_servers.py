@@ -36,7 +36,7 @@ def _wait_for_ready_server(address, port):
 
 class SSLServer:
 
-    def __init__(self, ip="127.0.0.1", port=4489, certfile=None, keyfile=None):
+    def __init__(self, ip="127.0.0.1", port=4488, certfile=None, keyfile=None):
         self.ip = ip
         self.port = port
         self.cert = certfile
@@ -61,18 +61,7 @@ class SSLServer:
             except Exception:
                 writer.close()
 
-        # server_cert = os.getenv(
-        #     "DEVO_SENDER_SERVER_CRT",
-        #     "{!s}local_certs/keys/server/server_cert.pem".format(self.file_path),
-        # )
-
-        # server_key = os.getenv(
-        #     "DEVO_SENDER_SERVER_KEY",
-        #     "{!s}local_certs/keys/server/private/server_key.pem".format(self.file_path),
-        # )
-
         sc = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        # sc.load_cert_chain(server_cert, server_key)
         sc.load_cert_chain(self.cert, self.key)
 
         loop = asyncio.get_event_loop()

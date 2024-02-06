@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from devo.api import Client
 from devo.common.loadenv.load_env import load_env_file
 

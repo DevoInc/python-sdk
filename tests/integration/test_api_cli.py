@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 from click.testing import CliRunner
+
 from devo.api.client import ERROR_MSGS, DevoClientException
 from devo.api.scripts.client_cli import query
 from devo.common import Configuration
@@ -23,10 +24,10 @@ def setup():
         "DEVO_API_QUERY", "from siem.logtrust.web.activity select eventdate limit 1"
     )
     setup.app_name = "testing-app_name"
-    setup.uri = os.getenv("DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query")
-    setup.key = os.getenv("DEVO_API_KEY", None)
-    setup.secret = os.getenv("DEVO_API_SECRET", None)
-    setup.token = os.getenv("DEVO_AUTH_TOKEN", None)
+    setup.api_address = os.getenv("DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query")
+    setup.api_key = os.getenv("DEVO_API_KEY", None)
+    setup.api_secret = os.getenv("DEVO_API_SECRET", None)
+    setup.api_token = os.getenv("DEVO_AUTH_TOKEN", None)
     setup.query_id = os.getenv("DEVO_API_QUERYID", None)
     setup.user = os.getenv("DEVO_API_USER", "python-sdk-user")
     setup.comment = os.getenv("DEVO_API_COMMENT", None)
@@ -36,10 +37,10 @@ def setup():
         "api",
         {
             "query": setup.query,
-            "address": setup.uri,
-            "key": setup.key,
-            "secret": setup.secret,
-            "token": setup.token,
+            "address": setup.api_address,
+            "key": setup.api_key,
+            "secret": setup.api_secret,
+            "token": setup.api_token,
             "query_id": setup.query_id,
             "user": setup.user,
             "comment": setup.comment,
@@ -66,7 +67,7 @@ def test_not_credentials(setup):
     runner = CliRunner()
     result = runner.invoke(
         query,
-        ["--debug", "--from", "1d", "--query", setup.query, "--address", setup.uri],
+        ["--debug", "--from", "1d", "--query", setup.query, "--address", setup.api_address],
     )
 
     assert isinstance(result.exception, DevoClientException)
@@ -86,9 +87,9 @@ def test_bad_url(setup):
             "--address",
             "error-apiv2-us.logtrust.com/search/query",
             "--key",
-            setup.key,
+            setup.api_key,
             "--secret",
-            setup.secret,
+            setup.api_secret,
         ],
     )
     assert isinstance(result.exception, DevoClientException)
@@ -106,11 +107,11 @@ def test_bad_credentials(setup):
             "--query",
             setup.query,
             "--address",
-            setup.uri,
+            setup.api_address,
             "--key",
             "aaa",
             "--secret",
-            setup.secret,
+            setup.api_secret,
         ],
     )
     assert isinstance(result.exception, DevoClientException)
@@ -128,11 +129,11 @@ def test_normal_query(setup):
             "--query",
             setup.query,
             "--address",
-            setup.uri,
+            setup.api_address,
             "--key",
-            setup.key,
+            setup.api_key,
             "--secret",
-            setup.secret,
+            setup.api_secret,
         ],
     )
 

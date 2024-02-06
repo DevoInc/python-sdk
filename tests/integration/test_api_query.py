@@ -5,6 +5,7 @@ from time import gmtime, strftime
 
 import pytest
 import stopit
+
 from devo.api import Client, ClientConfig, DevoClientException
 from devo.common.loadenv.load_env import load_env_file
 
@@ -27,8 +28,8 @@ def setup():
     )
     setup.app_name = "testing-app_name"
     setup.uri = os.getenv("DEVO_API_ADDRESS", "https://apiv2-us.devo.com/search/query")
-    setup.key = os.getenv("DEVO_API_KEY", None)
-    setup.secret = os.getenv("DEVO_API_SECRET", None)
+    setup.remote_server_key = os.getenv("DEVO_API_KEY", None)
+    setup.remote_server_secret = os.getenv("DEVO_API_SECRET", None)
     setup.token = os.getenv("DEVO_API_TOKEN", None)
     setup.query_id = os.getenv("DEVO_API_QUERYID", None)
     setup.user = os.getenv("DEVO_API_USER", "python-sdk-user")
@@ -40,8 +41,8 @@ def setup():
 def test_from_dict(setup):
     api = Client(
         config={
-            "key": setup.key,
-            "secret": setup.secret,
+            "key": setup.remote_server_key,
+            "secret": setup.remote_server_secret,
             "address": setup.uri,
             "user": setup.user,
             "app_name": setup.app_name,
@@ -55,7 +56,7 @@ def test_simple_query(setup):
     config = ClientConfig(stream=False, response="json")
 
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=config,
         retries=3,
@@ -80,7 +81,7 @@ def test_token(setup):
 
 def test_query_id(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(stream=False, response="json"),
         retries=5,
@@ -93,7 +94,7 @@ def test_query_id(setup):
 
 def test_query_yesterday_to_today(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(stream=False, response="json"),
         retries=3,
@@ -105,7 +106,7 @@ def test_query_yesterday_to_today(setup):
 
 def test_query_from_seven_days(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(stream=False, response="json"),
         retries=3,
@@ -117,7 +118,7 @@ def test_query_from_seven_days(setup):
 
 def test_query_from_fixed_dates(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(stream=False, response="json"),
         retries=3,
@@ -135,7 +136,7 @@ def test_query_from_fixed_dates(setup):
 
 def test_stream_query(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json/simple"),
         retries=3,
@@ -148,7 +149,7 @@ def test_stream_query(setup):
 
 def test_stream_query_no_results_bounded_dates(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json/simple"),
         retries=3,
@@ -161,7 +162,7 @@ def test_stream_query_no_results_bounded_dates(setup):
 
 def test_stream_query_no_results_unbounded_dates(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json/simple"),
         retries=3,
@@ -183,7 +184,7 @@ def test_stream_query_no_results_unbounded_dates(setup):
 def test_pragmas(setup):
     """Test the api when the pragma comment.free is used"""
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json", stream=False),
         retries=3,
@@ -198,7 +199,7 @@ def test_pragmas(setup):
 def test_pragmas_not_comment_free(setup):
     """Test the api when the pragma comment.free is not used"""
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json", stream=False),
         retries=3,
@@ -227,7 +228,7 @@ def test_unsecure_http_query(setup):
     config = ClientConfig(stream=False, response="json")
 
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address="localhost:80/anything",
         config=config,
         retries=3,
@@ -243,7 +244,7 @@ def test_stream_mode_not_supported_xls(setup):
     """Test the api stream mode is not supported for xls format"""
 
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="xls"),
     )
@@ -257,7 +258,7 @@ def test_stream_mode_not_supported_json(setup):
     """Test the api stream mode is not supported for json format"""
 
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json"),
     )
@@ -271,7 +272,7 @@ def test_stream_mode_not_supported_json_compact(setup):
     """Test the api stream mode is not supported for json/compact format"""
 
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="json/compact"),
     )
@@ -285,7 +286,7 @@ def test_stream_mode_not_supported_msgpack(setup):
     """Test the api stream mode is not supported for msgpack format"""
 
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(response="msgpack"),
     )
@@ -297,7 +298,7 @@ def test_stream_mode_not_supported_msgpack(setup):
 
 def test_xls_future_queries(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(stream=False, response="xls"),
     )
@@ -315,7 +316,7 @@ def test_xls_future_queries(setup):
 
 def test_msgpack_future_queries(setup):
     api = Client(
-        auth={"key": setup.key, "secret": setup.secret},
+        auth={"key": setup.remote_server_key, "secret": setup.remote_server_secret},
         address=setup.uri,
         config=ClientConfig(stream=False, response="msgpack"),
     )

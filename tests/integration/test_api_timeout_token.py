@@ -4,11 +4,12 @@ from unittest import mock
 from unittest.mock import MagicMock
 
 import pytest
+from requests.models import Response
+
 from devo.api import Client
 from devo.api.client import (DEFAULT_KEEPALIVE_TOKEN,
                              EMPTY_EVENT_KEEPALIVE_TOKEN, NO_KEEPALIVE_TOKEN,
                              ClientConfig)
-from requests.models import Response
 
 
 @pytest.fixture(scope="module")

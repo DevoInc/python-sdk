@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from devo.common import Configuration
 
 

@@ -86,9 +86,7 @@ class Configuration(dict):
         if path.endswith(".yaml") or path.endswith(".yml"):
             return self.load_yaml(path, section)
 
-        raise ConfigurationException(
-            "Configuration file type unknown or not supported: %s" % path
-        )
+        raise ConfigurationException(f"Configuration file type unknown or not supported: {path}")
 
     def save(self, path=None, save_bak=False):
         if path is None:
@@ -130,11 +128,11 @@ class Configuration(dict):
         return (
             "json"
             if os.path.exists(os.path.expanduser("~/.devo.json"))
-            else "yaml"
-            if os.path.exists(os.path.expanduser("~/.devo.yaml"))
-            else "yml"
-            if os.path.exists(os.path.expanduser("~/.devo.yml"))
-            else None
+            else (
+                "yaml"
+                if os.path.exists(os.path.expanduser("~/.devo.yaml"))
+                else "yml" if os.path.exists(os.path.expanduser("~/.devo.yml")) else None
+            )
         )
 
     def load_default_config(self, ext=None, section=None):
