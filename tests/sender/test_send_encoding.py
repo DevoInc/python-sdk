@@ -1,6 +1,5 @@
-from pathlib import Path
 import unittest
-from devo.sender.data import Sender, open_file
+from devo.sender.data import Sender
 
 # This test case uses the private method __encode_record to test the encoding
 # of the records and needs some name mangling to access it.
