@@ -626,7 +626,7 @@ class Sender(logging.Handler):
         :return: record encoded for PY3
         """
         if not isinstance(record, bytes):
-            return record.encode("utf-8")
+            return record.encode("utf-8", "replace")
         return record
 
     def __send_oc(self, record):
