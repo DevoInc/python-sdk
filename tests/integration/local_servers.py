@@ -4,19 +4,50 @@ import os
 import socket
 import ssl
 import threading
+import time
+
+
+def _find_available_port(address, starting_port):
+    """Find an available port to use for the test server."""
+    port = starting_port
+    while True:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind((address, port))
+                return port
+        except OSError:
+            port += 1
+
+
+def _wait_for_ready_server(address, port):
+    num_tries = 3
+
+    while num_tries > 0:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(3)
+            sock.connect((address, port))
+            sock.close()
+            break
+        except socket.error:
+            num_tries -= 1
+            time.sleep(1)
 
 
 class SSLServer:
-    ip = "127.0.0.1"
-    port = 4488
 
-    def __init__(self):
+    def __init__(self, ip="127.0.0.1", port=4488, certfile=None, keyfile=None):
+        self.ip = ip
+        self.port = port
+        self.cert = certfile
+        self.key = keyfile
         self.shutdown = False
         self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
         self.server_process = multiprocessing.Process(target=self.server, name="sslserver")
         self.server_process.start()
 
     def server(self):
+
         @asyncio.coroutine
         def handle_connection(reader, writer):
             addr = writer.get_extra_info("peername")
@@ -30,18 +61,8 @@ class SSLServer:
             except Exception:
                 writer.close()
 
-        server_cert = os.getenv(
-            "DEVO_SENDER_SERVER_CRT",
-            "{!s}local_certs/keys/server/server_cert.pem".format(self.file_path),
-        )
-
-        server_key = os.getenv(
-            "DEVO_SENDER_SERVER_KEY",
-            "{!s}local_certs/keys/server/private/server_key.pem".format(self.file_path),
-        )
-
         sc = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        sc.load_cert_chain(server_cert, server_key)
+        sc.load_cert_chain(self.cert, self.key)
 
         loop = asyncio.get_event_loop()
         coro = asyncio.start_server(handle_connection, self.ip, self.port, ssl=sc, loop=loop)
@@ -57,7 +78,10 @@ class SSLServer:
 
 
 class TCPServer:
+
     def __init__(self, ip="127.0.0.1", port=4489):
+        self.ip = ip
+        self.port = port
         self.shutdown = False
         self.server = None
         self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
@@ -65,10 +89,10 @@ class TCPServer:
         self.server.setDaemon(True)
         self.server.start()
 
-    def start_server(self, ip, port):
+    def start_server(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((ip, port))
+        s.bind((self.ip, self.port))
         s.listen(5)
         conn, addr = s.accept()
         while not self.shutdown:
