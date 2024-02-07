@@ -22,6 +22,7 @@ from tests.sender.test_cli import TestSender as SENDER_CLI
 from tests.sender.test_number_lookup import TestLookup as SENDER_NUMBER_LOOKUP
 from tests.sender.test_read_csv import TestCSVRFC as SENDER_CSV
 from tests.sender.test_send_data import TestSender as SENDER_SEND_DATA
+from tests.sender.test_send_encoding import TestEncoding as SENDER_SEND_ENCODING
 from tests.sender.test_send_lookup import TestLookup as SENDER_SEND_LOOKUP
 
 module_paths = {
@@ -38,6 +39,7 @@ module_paths = {
     "SENDER_CSV": SENDER_CSV,
     "SENDER_NUMBER_LOOKUP": SENDER_NUMBER_LOOKUP,
     "SENDER_SEND_DATA": SENDER_SEND_DATA,
+    "SENDER_SEND_ENCODING": SENDER_SEND_ENCODING,
     "SENDER_SEND_LOOKUP": SENDER_SEND_LOOKUP,
 }
 

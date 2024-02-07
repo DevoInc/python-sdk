@@ -203,7 +203,7 @@ You can contact with us at _support@devo.com_.
 
 MIT License
 
-(C) 2023 Devo, Inc.
+(C) 2024 Devo, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the 'Software'), to deal in
