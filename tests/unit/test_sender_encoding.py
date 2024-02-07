@@ -7,13 +7,19 @@ from devo.sender.data import Sender
 
 
 def test_encode_record_ascii():
-    record = "Hello"  # ASCII Normal sequence
+    record = "Hello"  # ASCII
     encoded_record = Sender._Sender__encode_record(record)
     assert encoded_record == b"Hello"
 
 
 def test_encode_record_utf8():
-    record = "Hello 🌍, こんにちは"  # UTF-8 sequence
+    record = "10 €"  # UTF-8
+    encoded_record = Sender._Sender__encode_record(record)
+    assert encoded_record == b"10 \xe2\x82\xac"
+
+
+def test_encode_record_utf8_with_emoji_and_japanese():
+    record = "Hello 🌍, こんにちは"  # UTF-8
     encoded_record = Sender._Sender__encode_record(record)
     assert (
         encoded_record
@@ -21,14 +27,8 @@ def test_encode_record_utf8():
     )
 
 
-def test_encode_record_utf8_with_byte_sequence():
-    record = "10 €"  # UTF-8 valid byte sequence
-    encoded_record = Sender._Sender__encode_record(record)
-    assert encoded_record == b"10 \xe2\x82\xac"
-
-
 def test_encode_record_utf16_surrogate():
-    record = "\uD83D Hello"  # UTF-16 sequence
+    record = "\uD83D Hello"  # UTF-16
     encoded_record = Sender._Sender__encode_record(record)
     assert encoded_record == b"? Hello"
 
