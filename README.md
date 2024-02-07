@@ -113,87 +113,51 @@ Devo account owns. Administrator users can find them in **Administration** → *
 
 ## Launch tests
 
-### run_tests script
+### Pytest
 
-You can run tests from the main folder of SDK
-To launch this script, you need either the environment variables loaded in the system, or the _environment.env_ file in the root of the SDK with the correct values, since to test all the SDK functionalities it is necessary to connect to Devo for the tests of sending and extracting data. There is an example file called _environment.env.example_
+The SDK uses Pytest for testing. This is a powerful tool for testing Python code. Pytest is a much more flexible and powerful tool than the built-in unittest module. It allows more testing functionality through the use of plugins. You can find more information in the [Pytest documentation](https://docs.pytest.org/en/stable/).
 
-Its normal, by the way, TCP tests fails in clients or not Devo developers systems.
+Install the testing requirements:
 
 ```console
-~/projects/devo-python-sdk > python setup.py test
+~/projects/devo-python-sdk > pip install -r requirements-test.txt
 ```
 
+You can run tests from the `tests` folder of SDK
+
 ```console
-~/projects/devo-python-sdk > python run_tests.py
+~/projects/devo-python-sdk/tests > pytest
 ```
 
-You can add option "Coverage" for create HTML report about tests.
+Its normal that TCP tests fails in clients or not Devo developers systems.
+
+You can add the option `--cov` to create a coverage report.
 
 ```console
-~/projects/devo-python-sdk > python run_tests.py --coverage
+~/projects/devo-python-sdk/tests > pytest --cov
+```
+
+Check the [pytest-cov documentation](https://pytest-cov.readthedocs.io/) for more details.
+
+The tests are divided into unit and integration tests. The integration tests require either a connection to Devo or to a local server that is launched when testing, so you need to have the environment variables in your system for all the tests that require connection to Devo can work.
+
+To run the unit tests only, you can use the `unit` folder:
+
+```console
+~/projects/devo-python-sdk/tests > pytest unit
+```
+
+To run the integration tests only, you can use the `integration` folder:
+
+```console
+~/projects/devo-python-sdk/tests > pytest integration
 ```
 
 You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
 
 ```console
-~/projects/devo-python-sdk > python run_tests.py -m SENDER_CLI
+~/projects/devo-python-sdk/tests > pytest unit/test_sender_encoding.py
 ```
-
-You can also exclude one or several tests with `-M` parameter:
-
-```console
-~/projects/devo-python-sdk > python run_tests.py -M SENDER_CLI,API_CLI
-```
-
-Using the --help flag prints the available modules to use:
-
-```console
-~/projects/devo-python-sdk > python run_tests.py --help
-usage: run_tests.py [-h] [--coverage [COVERAGE]] [-m [MODULE]]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --coverage [COVERAGE]
-                        Generate coverage
-  -m [MODULES], --modules [MODULES]
-                        Run tests for selected modules: API_CLI, API_QUERY, API_TASKS, API_ERRORS, API_PARSER_DATE,
-                        API_PROCESSORS, API_KEEPALIVE, COMMON_CONFIGURATION, COMMON_DATE_PARSER, SENDER_CLI, SENDER_CSV,
-                        SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
-  -M [EXCLUDE_MODULES], --exclude-modules [EXCLUDE_MODULES]
-                        Exclude tests for modules: API_CLI, API_QUERY, API_TASKS, API_ERRORS, API_PARSER_DATE,
-                        API_PROCESSORS, API_KEEPALIVE, COMMON_CONFIGURATION, COMMON_DATE_PARSER, SENDER_CLI, SENDER_CSV,
-                        SENDER_NUMBER_LOOKUP, SENDER_SEND_DATA, SENDER_SEND_LOOKUP
-```
-
-- API_CLI: API Command-line interface tests.
-- API_QUERY: Query API tests.
-- API_TASKS: Task API tests.
-- API_ERRORS: Managing of API Errors tests.
-- API_PARSER_DATE: Parsing of dates in API tests.
-- API_PROCESSORS: Response processors in API tests.
-- API_KEEPALIVE: Keep Alive functionality in API tests.
-- COMMON_CONFIGURATION: Configuration tests.
-- COMMON_DATE_PARSER: Date parser tests.
-- SENDER_CLI: Lookup command-line interface tests.
-- SENDER_CSV: Lookup uploading through CSV tests.
-- SENDER_NUMBER_LOOKUP: Numbers in lookup tests
-- SENDER_SEND_DATA: Data sending tests.
-- SENDER_SEND_LOOKUP: Lookup sending tests.
-
-### Run using Unittest command
-
-You can see references in [unittest documentation](https://docs.python.org/3/library/unittest.html)
-
-For commands like:
-
-```console
-python -m unittest discover -p "*.py"
-```
-
-If you launch this command from the root directory of the SDK, you need to have the environment variables in your
-system for all the tests that require connection to Devo can work, not being able to use the environment.env file
-as in the script.
 
 ### Contact Us
 
