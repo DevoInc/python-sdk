@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## Unreleased
 
+### Changed
+
 - Change tests to use `pytest` instead of the custom script that uses `unittest`.
+- `certifi` dependency upgraded from `certifi~=2023.11.17` to `certifi~=2024.2.2`
+- `cryptography` dependency upgraded from `cryptography~=41.0.7` to `cryptography~=42.0.2`
+- `pyopenssl` dependency upgraded from `pyopenssl~=23.3` to `pyopenssl~=24.0`
+- `pytz` dependency upgraded from `pytz~=2023.3` to `pytz~=2024.1`
+- `pipdeptree` dependency upgraded from `pipdeptree~=2.13.1` to `pipdeptree~=2.13.2`
 
 ## [5.1.9] - 2024-02-07
 
