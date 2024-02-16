@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [5.1.10] - 2024-02-16
 
 ### Changed
 
@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - `cryptography` dependency upgraded from `cryptography~=41.0.7` to `cryptography~=42.0.2`
 - `pyopenssl` dependency upgraded from `pyopenssl~=23.3` to `pyopenssl~=24.0`
 - `pytz` dependency upgraded from `pytz~=2023.3` to `pytz~=2024.1`
-- `pipdeptree` dependency upgraded from `pipdeptree~=2.13.1` to `pipdeptree~=2.13.2`
+- `pipdeptree` dependency upgraded from `pipdeptree~=2.13.1` to `pipdeptree~=2.14.0`
 
 ## [5.1.9] - 2024-02-07
 

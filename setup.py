@@ -35,7 +35,7 @@ INSTALL_REQUIRES = [
     "cryptography~=42.0.2",
 ]
 EXTRAS_REQUIRE = {
-    "dev": ["stopit==1.1.2", "msgpack~=1.0.7", "responses~=0.24", "pipdeptree~=2.13.2"]
+    "dev": ["stopit==1.1.2", "msgpack~=1.0.7", "responses~=0.24", "pipdeptree~=2.14.0"]
 }
 CLI = [
     "devo-sender=devo.sender.scripts.sender_cli:cli",
