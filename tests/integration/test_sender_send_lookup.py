@@ -11,8 +11,8 @@ from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
 from devo.sender import Lookup, Sender, SenderConfigSSL
 
-from .local_servers import (SSLServer, _find_available_port,
-                            _wait_for_ready_server)
+from .local_servers import (SSLServer, find_available_port,
+                            wait_for_ready_server)
 
 
 def _read(con, length: int):
@@ -98,12 +98,12 @@ def setup():
     setup.config_path = os.path.join(tempfile.gettempdir(), "devo_api_tests_config.json")
     setup.configuration.save(path=setup.config_path)
 
-    setup.ssl_port = _find_available_port(setup.ssl_address, setup.ssl_port)
+    setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
     local_ssl_server = SSLServer(
         setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
     )
 
-    _wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
+    wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
 
     yield setup
 

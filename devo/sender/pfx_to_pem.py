@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-""" Util function to convert .pfx and .pkcs12 certs to key+cert+chain for
+"""Util function to convert .pfx and .pkcs12 certs to key+cert+chain for
 use in Python sockets"""
+
 import tempfile
 
 import OpenSSL.crypto

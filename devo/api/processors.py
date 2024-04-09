@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Defaults proccessors of API data."""
+
 import json
 
 
