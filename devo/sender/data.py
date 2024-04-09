@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-""" File to group all the classes and functions related to the connection
-and sending of data to Devo """
+"""File to group all the classes and functions related to the connection
+and sending of data to Devo"""
+
 import errno
 import logging
 import select

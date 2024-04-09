@@ -11,8 +11,8 @@ from devo.common.loadenv.load_env import load_env_file
 from devo.sender import DevoSenderException
 from devo.sender.scripts.sender_cli import data, lookup
 
-from .local_servers import (SSLServer, _find_available_port,
-                            _wait_for_ready_server)
+from .local_servers import (SSLServer, find_available_port,
+                            wait_for_ready_server)
 
 # Load environment variables form test directory
 load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
@@ -103,12 +103,12 @@ def setup():
     setup.bad_json_config_path = setup.common_path + os.sep + "bad_json_config.json"
     setup.bad_yaml_config_path = setup.common_path + os.sep + "bad_yaml_config.yaml"
 
-    setup.ssl_port = _find_available_port(setup.ssl_address, setup.ssl_port)
+    setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
     local_ssl_server = SSLServer(
         setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
     )
 
-    _wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
+    wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
 
     yield setup
 

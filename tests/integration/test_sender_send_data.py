@@ -16,8 +16,8 @@ from devo.sender import (DevoSenderException, Sender, SenderConfigSSL,
                          SenderConfigTCP)
 from devo.sender.data import open_file
 
-from .local_servers import (SSLServer, TCPServer, _find_available_port,
-                            _wait_for_ready_server)
+from .local_servers import (SSLServer, TCPServer, find_available_port,
+                            wait_for_ready_server)
 
 TEST_FACILITY = 10
 
@@ -101,16 +101,16 @@ def setup():
 
     # Run local servers
     # ----------------------------------------
-    setup.ssl_port = _find_available_port(setup.ssl_address, setup.ssl_port)
+    setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
     local_ssl_server = SSLServer(
         setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
     )
-    _wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
+    wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
 
     if setup.test_tcp:
-        setup.tcp_port = _find_available_port(setup.tcp_address, setup.tcp_port)
+        setup.tcp_port = find_available_port(setup.tcp_address, setup.tcp_port)
         local_tcp_server = TCPServer(setup.tcp_address, setup.tcp_port)
-        _wait_for_ready_server(local_tcp_server.ip, local_tcp_server.port)
+        wait_for_ready_server(local_tcp_server.ip, local_tcp_server.port)
 
     yield setup
 

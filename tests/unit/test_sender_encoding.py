@@ -28,7 +28,7 @@ def test_encode_record_utf8_with_emoji_and_japanese():
 
 
 def test_encode_record_utf16_surrogate():
-    record = "\uD83D Hello"  # UTF-16
+    record = "\ud83d Hello"  # UTF-16
     encoded_record = Sender._Sender__encode_record(record)
     assert encoded_record == b"? Hello"
 

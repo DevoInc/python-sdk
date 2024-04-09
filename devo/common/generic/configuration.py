@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-""" Util for load generic config file in devo standars"""
+"""Util for load generic config file in devo standars"""
+
 import json
 import os
 import sys
