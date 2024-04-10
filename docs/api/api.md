@@ -147,6 +147,7 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 - limit: Max number of rows
 - offset: start of needle for query
 - comment: comment for query pragmas
+- ip_as_string: Flag to return IP as string
 - Result of the query (dict) or Iterator object
 
 ### Result returned

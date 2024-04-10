@@ -27,23 +27,23 @@ The Devo SDK for Python requires Python 3.8+
 You can install the Devo SDK by using `easy_install` or `pip`:
 
 ```console
-#option 1
+# option 1
 easy_install devo-sdk
 
-#option 2
+# option 2
 pip install devo-sdk
 ```
 
 You can use sources files, cloning the project too:
 
 ```console
-#option 3
+# option 3
 python setup.py install
 
-#option 4
+# option 4
 pip install .
 
-#option 5 - dev option
+# option 5 - dev option
 pip install -e .
 ```
 
@@ -120,13 +120,13 @@ The SDK uses Pytest for testing. This is a powerful tool for testing Python code
 Install the testing requirements:
 
 ```console
-~/projects/devo-python-sdk > pip install -r requirements-test.txt
+pip install -r requirements-test.txt
 ```
 
 You can run tests from the `tests` folder of SDK
 
 ```console
-~/projects/devo-python-sdk/tests > pytest
+pytest
 ```
 
 Its normal that TCP tests fails in clients or not Devo developers systems.
@@ -134,7 +134,7 @@ Its normal that TCP tests fails in clients or not Devo developers systems.
 You can add the option `--cov` to create a coverage report.
 
 ```console
-~/projects/devo-python-sdk/tests > pytest --cov
+pytest --cov
 ```
 
 Check the [pytest-cov documentation](https://pytest-cov.readthedocs.io/) for more details.
@@ -144,19 +144,19 @@ The tests are divided into unit and integration tests. The integration tests req
 To run the unit tests only, you can use the `unit` folder:
 
 ```console
-~/projects/devo-python-sdk/tests > pytest unit
+pytest unit
 ```
 
 To run the integration tests only, you can use the `integration` folder:
 
 ```console
-~/projects/devo-python-sdk/tests > pytest integration
+pytest integration
 ```
 
 You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
 
 ```console
-~/projects/devo-python-sdk/tests > pytest unit/test_sender_encoding.py
+pytest unit/test_sender_encoding.py
 ```
 
 ### Contact Us
