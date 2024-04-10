@@ -531,6 +531,8 @@ Options:
   --token TEXT            Secret for the api.
   --jwt TEXT              JWT auth for the api.
   -q, --query TEXT        Query.
+  --ip_as_string          Flag to return ip fields as string. If not present, 
+                          the default is false and will return an integer.
   --stream / --no-stream  Flag for make streaming query or full query with
                           start and end. Default is true
 
@@ -701,7 +703,7 @@ Json Object with the following structure:
 | msg | String | Message Description in case of error |
 | status | Integer | Numeric value  that especify the error code. <br /> 0 - OK<br /> 1 - Invalid request |
 | object | Json Object |  |
-| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> |
+| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byte integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> |
 | object.d | Json Object | Array of Arrays with the values of the response of the query. |
 
 Example
@@ -793,16 +795,47 @@ The response is a stream of Json Objects with the following structure each line 
 
 The First Line is a JSON object  map with the Metadata information, the key is the name of the field, and the value is a Object with the following information:
 
-```python
-{"m":{"eventdate":{"type":"timestamp","index":0},"domain":{"type":"str","index":1},"userEmail":{"type":"str","index":2},"country":{"type":"str","index":3},"count":{"type":"int8","index":4}}}
+```json
+{
+  "m": {
+    "eventdate": {
+      "type": "timestamp",
+      "index": 0
+    },
+    "domain": {
+      "type": "str",
+      "index": 1
+    },
+    "userEmail": {
+      "type": "str",
+      "index": 2
+    },
+    "country": {
+      "type": "str",
+      "index": 3
+    },
+    "count": {
+      "type": "int8",
+      "index": 4
+    }
+  }
+}
 ```
 
 <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul>
 
 The rest of the lines are data lines:  
 
-```python
-{"d":[1506439800000,"self","email@devo.com",null,1]}
+```json
+{
+  "d": [
+    1506439800000,
+    "self",
+    "email@devo.com",
+    null,
+    1
+  ]
+}
 ```
 
 a field with name "d", gives access to the array of values with the information.

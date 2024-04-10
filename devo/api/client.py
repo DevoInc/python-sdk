@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Main class for pull data from Devo API (Client)."""
+
 import calendar
 import hashlib
 import hmac
@@ -430,6 +431,7 @@ class Client:
         limit=None,
         offset=None,
         comment=None,
+        ip_as_string=False,
     ):
         """
         Query API by a custom query
@@ -452,6 +454,7 @@ class Client:
             "offset": offset,
             "destination": self.config.destination,
             "keepAliveToken": self.config.keepAliveToken,
+            "ip_as_string": ip_as_string,
         }
 
         if not self.stream_available(self.config.response) or not self.config.stream:
@@ -681,6 +684,9 @@ class Client:
                     "type": "token",
                     "token": opts["keepAliveToken"],
                 }
+
+        if opts["ip_as_string"]:
+            payload["ipAsString"] = opts["ip_as_string"]
 
         return json.dumps(payload)
 
