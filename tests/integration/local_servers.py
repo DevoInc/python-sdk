@@ -101,3 +101,7 @@ class TCPServer:
 
     def close_server(self):
         self.shutdown = True
+
+
+if __name__ == "__main__":
+    print("Trying to run module local_servers.py directly...")

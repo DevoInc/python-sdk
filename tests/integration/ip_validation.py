@@ -15,3 +15,7 @@ def is_valid_ip(ip_str):
         return True
     else:
         return False
+
+
+if __name__ == "__main__":
+    print("Trying to run module ip_validation.py directly...")
