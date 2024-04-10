@@ -4,8 +4,7 @@ import tempfile
 
 import pytest
 from click.testing import CliRunner
-from helpers.local_servers import (SSLServer, find_available_port,
-                                   wait_for_ready_server)
+from local_servers import SSLServer, find_available_port, wait_for_ready_server
 
 from devo.common import Configuration
 from devo.common.generic.configuration import ConfigurationException

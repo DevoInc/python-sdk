@@ -1,6 +1,6 @@
 __description__ = "Devo Python Library."
 __url__ = "http://www.devo.com"
-__version__ = "5.1.10"
+__version__ = "5.2.0"
 __author__ = "Devo"
 __author_email__ = "support@devo.com"
 __license__ = "MIT"

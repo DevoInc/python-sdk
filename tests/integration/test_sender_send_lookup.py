@@ -6,8 +6,7 @@ from ssl import CERT_NONE
 from unittest import mock
 
 import pytest
-from helpers.local_servers import (SSLServer, find_available_port,
-                                   wait_for_ready_server)
+from local_servers import SSLServer, find_available_port, wait_for_ready_server
 
 from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
@@ -99,7 +98,10 @@ def setup():
 
     setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
     local_ssl_server = SSLServer(
-        setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
+        setup.ssl_address,
+        setup.ssl_port,
+        setup.local_server_cert,
+        setup.local_server_key,
     )
 
     wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
