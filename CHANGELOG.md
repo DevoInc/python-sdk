@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.2.0] - 2024-04-10
+
+### Added
+
+- Add ip-as-string flag to the API client to return the IP address as a string instead of an integer.
+
+### Changed
+
+- `cryptography` dependency upgraded from `cryptography~=42.0.2` to `cryptography~=42.0.5`
+- `msgpack` dependency upgraded from `msgpack~=1.0.7` to `msgpack~=1.0.8`
+- `pipdeptree` dependency upgraded from `pipdeptree~=2.14.0` to `pipdeptree~=2.17.0`
+- `pyopenssl` dependency upgraded from `pyopenssl~=24.0` to `pyopenssl~=24.1.0`
+- `pytest-cov` dependency upgraded from `pytest-cov~=4.1.0` to `pytest-cov~=5.0.0`
+- `pytest` dependency upgraded from `pytest~=7.4.4` to `pytest~=8.1.1`
+- `responses` dependency upgraded from `responses~=0.24` to `responses~=0.25.0`
+
 ## [5.1.10] - 2024-02-16
 
 ### Changed
