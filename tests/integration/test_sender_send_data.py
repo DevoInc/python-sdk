@@ -8,6 +8,8 @@ from unittest import mock
 
 import pem
 import pytest
+from helpers.local_servers import (SSLServer, TCPServer, find_available_port,
+                                   wait_for_ready_server)
 from OpenSSL import SSL, crypto
 
 from devo.common import Configuration, get_log
@@ -15,9 +17,6 @@ from devo.common.loadenv.load_env import load_env_file
 from devo.sender import (DevoSenderException, Sender, SenderConfigSSL,
                          SenderConfigTCP)
 from devo.sender.data import open_file
-
-from .local_servers import (SSLServer, TCPServer, find_available_port,
-                            wait_for_ready_server)
 
 TEST_FACILITY = 10
 

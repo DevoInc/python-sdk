@@ -4,15 +4,14 @@ import tempfile
 
 import pytest
 from click.testing import CliRunner
+from helpers.local_servers import (SSLServer, find_available_port,
+                                   wait_for_ready_server)
 
 from devo.common import Configuration
 from devo.common.generic.configuration import ConfigurationException
 from devo.common.loadenv.load_env import load_env_file
 from devo.sender import DevoSenderException
 from devo.sender.scripts.sender_cli import data, lookup
-
-from .local_servers import (SSLServer, find_available_port,
-                            wait_for_ready_server)
 
 # Load environment variables form test directory
 load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
@@ -105,7 +104,10 @@ def setup():
 
     setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
     local_ssl_server = SSLServer(
-        setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
+        setup.ssl_address,
+        setup.ssl_port,
+        setup.local_server_cert,
+        setup.local_server_key,
     )
 
     wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)

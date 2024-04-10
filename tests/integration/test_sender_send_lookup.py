@@ -6,13 +6,12 @@ from ssl import CERT_NONE
 from unittest import mock
 
 import pytest
+from helpers.local_servers import (SSLServer, find_available_port,
+                                   wait_for_ready_server)
 
 from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
 from devo.sender import Lookup, Sender, SenderConfigSSL
-
-from .local_servers import (SSLServer, find_available_port,
-                            wait_for_ready_server)
 
 
 def _read(con, length: int):
