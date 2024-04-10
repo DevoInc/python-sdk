@@ -8,6 +8,7 @@ from time import gmtime, strftime
 
 import pytest
 import stopit
+from ip_validation import is_valid_ip
 
 from devo.api import Client, ClientConfig, DevoClientException
 from devo.common import Configuration
@@ -89,9 +90,8 @@ def send_test_log(sending_config: Fixture):
 def api_config(sending_config):
     """Fixture for API configuration."""
 
-    send_test_log(sending_config)
-
-    setup = Fixture()
+    setup = sending_config
+    send_test_log(setup)
 
     setup.query = os.getenv("DEVO_API_QUERY", "from test.keep.types select ip4 limit 1")
     setup.query_no_results = (
@@ -465,6 +465,10 @@ def test_query_with_ip_as_string(api_config):
     res_obj = json.loads(result)["object"]
     assert len(res_obj) > 0
     resp_data = res_obj[0]
+    ip = resp_data[api_config.field_with_ip]
+    assert isinstance(ip, str)
+    assert is_valid_ip(ip)
+
     assert isinstance(resp_data[api_config.field_with_ip], str)
 
 

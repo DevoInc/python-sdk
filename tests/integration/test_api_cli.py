@@ -6,7 +6,7 @@ from ssl import CERT_NONE
 
 import pytest
 from click.testing import CliRunner
-from helpers.ip_validation import is_valid_ip
+from ip_validation import is_valid_ip
 
 from devo.api.client import ERROR_MSGS, DevoClientException
 from devo.api.scripts.client_cli import query
@@ -44,13 +44,6 @@ def sending_config():
     )
 
     setup.hostname = "python-sdk-test-hostname"
-    # setup.test_tag_with_ip = "demo.ecommerce.data"
-    # setup.test_msg_with_ip = (
-    #     "127.0.0.1 [01/Apr/2024:13:04:36 +0000]"
-    #     "GET /product.screen?product_id=943-55PAU-0X9CV&JSESSIONID=SD10SL1FF5ADFF8 HTTP 1.1 200 2109 "
-    #     '"http://www.google.com/category.screen?category_id=SHIRTS&JSESSIONID=SD10SL1FF5ADFF8" '
-    #     '"Opera/9.20 (Windows NT 6.0; U; en)" "3djv1l0ebi7cmsai1131pf2a65:-" 753'
-    # )
     setup.test_tag_with_ip = os.getenv("DEVO_API_QUERY_TAG_WITH_IP", "test.keep.types")
     setup.test_msg_with_ip = os.getenv("DEVO_API_QUERY_MSG_WITH_IP", "ip4=127.0.0.1")
 
@@ -96,9 +89,8 @@ def send_test_log(sending_config: Fixture):
 def api_config(sending_config):
     """Fixture for API configuration."""
 
-    send_test_log(sending_config)
-
-    setup = Fixture()
+    setup = sending_config
+    send_test_log(setup)
 
     setup.query = os.getenv("DEVO_API_QUERY", "from test.keep.types select ip4 limit 1")
     setup.query_no_results = (
