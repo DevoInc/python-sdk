@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-""" File with utils for send Lookups to Devo """
+"""File with utils for send Lookups to Devo"""
+
 import csv
 import re
 import sys

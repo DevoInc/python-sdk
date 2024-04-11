@@ -39,7 +39,7 @@
     - [Response type JSON](#response-type-json)
     - [Response type json/compact](#response-type-jsoncompact)
     - [Response type json/simple](#response-type-jsonsimple)
-    - [Reponse type json/simple/compact](#reponse-type-jsonsimplecompact)
+    - [Response type json/simple/compact](#response-type-jsonsimplecompact)
     - [Response type msgpack](#response-type-msgpack)
     - [Response type csv](#response-type-csv)
     - [Response type tsv](#response-type-tsv)
@@ -147,13 +147,14 @@ api = Client(auth= {"key":"myapikey", "secret":"myapisecret"},
 - limit: Max number of rows
 - offset: start of needle for query
 - comment: comment for query pragmas
+- ip_as_string: Flag to return IP as string
 - Result of the query (dict) or Iterator object
 
 ### Result returned
 
 Client support streaming of responses
 
-* When the stream mode is enabled, the response is asynchronously available for the code using the Client, as the server is returning it. Therefore, there is no need to wait for the whole reponse to start processing it. It is also quite useful for query running online with no ending or ending expecting in the future. As the data is available we can be working with it.
+* When the stream mode is enabled, the response is asynchronously available for the code using the Client, as the server is returning it. Therefore, there is no need to wait for the whole response to start processing it. It is also quite useful for query running online with no ending or ending expecting in the future. As the data is available we can be working with it.
 * When the stream mode is not enabled, we have to wait for the query response to be completed and returned by server.  
 
 Depending on the `stream` mode enabled in `ClientConfig`:
@@ -404,60 +405,60 @@ From                                                                          To
 |Operator|Example|Description|
 | ------------- | ------------- |---------|
 |today| |Get the current day at 00:00:00. Note that the timeZone parameter affects the date settings.|
-| |`"from": "today"`|This sets the starting date to 08-10-2018, 00:00:00 UTC
-| |`"to": "today"`|This sets the ending date to 08-10-2018, 00:00:00 UTC
-| |`"from": "today", "timeZone": "GMT+2"`|This sets the starting date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
-| |`"to": "today", "timeZone": "GMT+2"`|This sets the ending date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC)
+| |`"from": "today"`|This sets the starting date to 08-10-2018, 00:00:00 UTC |
+| |`"to": "today"`|This sets the ending date to 08-10-2018, 00:00:00 UTC |
+| |`"from": "today", "timeZone": "GMT+2"`|This sets the starting date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC) |
+| |`"to": "today", "timeZone": "GMT+2"`|This sets the ending date to 08-10-2018, 00:00:00 GMT+2 (07-10-2018, 22:00:00 UTC) |
 | | | |
-|now| |Get the current day and time
-| |`"from": "now"`|This sets the starting date to 08-10-2018, 14:33:12 UTC
-| |`"to": "now"`|This sets the ending date to 08-10-2018, 14:33:12 UTC
+|now| |Get the current day and time |
+| |`"from": "now"`|This sets the starting date to 08-10-2018, 14:33:12 UTC |
+| |`"to": "now"`|This sets the ending date to 08-10-2018, 14:33:12 UTC |
 | | | |
-|endday | |If you use this in the from field you will get the current day and the last second of the day. If you use it in the to field you will get the from date and the last second of that day. Note that the timeZone parameter affects the date settings.
-| |`"from": "endday"`|This sets the starting date to 08-10-2018, 23:59:59 UTC
-| |`"from": 1515500531, "to": "endday"`|(this timestamp corresponds to 01/09/2018 12:22:11 UTC) This sets the ending date to 01-09-2018, 23:59:59 UTC.
-| |`"from": "endday", "timeZone": "GMT+2"`|This sets the ending date to 08-10-2018, 23:59:59 GMT+2 (08-10-2018, 21:59:59 UTC)
-| |`"from": 1515493331,  "to": "endday", "timeZone": "GMT+2"`|(this timestamp corresponds to 01/09/2018, 12:22:11 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
-| |`"from": 1515452400, "to": "endday", "timeZone": "GMT+2"`|(this timestamp corresponds to 01/09/2018, 01:00:00 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC)
+|endday | |If you use this in the from field you will get the current day and the last second of the day. If you use it in the to field you will get the from date and the last second of that day. Note that the timeZone parameter affects the date settings. |
+| |`"from": "endday"`|This sets the starting date to 08-10-2018, 23:59:59 UTC |
+| |`"from": 1515500531, "to": "endday"`|(this timestamp corresponds to 01/09/2018 12:22:11 UTC) This sets the ending date to 01-09-2018, 23:59:59 UTC. |
+| |`"from": "endday", "timeZone": "GMT+2"`|This sets the ending date to 08-10-2018, 23:59:59 GMT+2 (08-10-2018, 21:59:59 UTC) |
+| |`"from": 1515493331,  "to": "endday", "timeZone": "GMT+2"`|(this timestamp corresponds to 01/09/2018, 12:22:11 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC) |
+| |`"from": 1515452400, "to": "endday", "timeZone": "GMT+2"`|(this timestamp corresponds to 01/09/2018, 01:00:00 GMT+2) This sets the ending date to 01-09-2018 23:59:59 GMT+2 (01-09-2018, 21:59:59 UTC) |
 | | | |
-|endmonth| |If you use this in the from field you will get the last day of the current month and the last second of that day. If you use it in the to field, you will get last day of the month indicated in the date field and the last second of that day. Note that the timeZone parameter affects the date settings.
-| |`"from": "endmonth"`|This sets the starting date to 31-10-2018, 23:59:59 UTC
-| |`"to": "endmonth"`|This sets the ending date to 30-09-2018, 23:59:59 UTC.
-| |`"from": 1536150131, "to": "endmonth"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 30-09-2018, 23:59:59 UTC
-| |`"from": 1536142931, "to": "endmonth", "timeZone": "GMT+2"`|(this timestamp corresponds to 05/09/2018, 12:22:11 GMT+2) This sets the ending date to 30-09-2018 23:59:59 GMT+2 (30-09-2018, 21:59:59 UTC)
+|endmonth| |If you use this in the from field you will get the last day of the current month and the last second of that day. If you use it in the to field, you will get last day of the month indicated in the date field and the last second of that day. Note that the timeZone parameter affects the date settings. |
+| |`"from": "endmonth"`|This sets the starting date to 31-10-2018, 23:59:59 UTC |
+| |`"to": "endmonth"`|This sets the ending date to 30-09-2018, 23:59:59 UTC. |
+| |`"from": 1536150131, "to": "endmonth"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 30-09-2018, 23:59:59 UTC |
+| |`"from": 1536142931, "to": "endmonth", "timeZone": "GMT+2"`|(this timestamp corresponds to 05/09/2018, 12:22:11 GMT+2) This sets the ending date to 30-09-2018 23:59:59 GMT+2 (30-09-2018, 21:59:59 UTC) |
 
 ### ____***Days***
 
 |Operator|Example|Description|
 | ------------- | ------------- |------------- |
-|d | |Enter a number followed by d in the from parameter to substract N days from the current date. If you use it in the to field you will get the from date plus the indicated number of days.
-| |`"from": "2d"`|This sets the starting date to 06-10-2018, 14:33:12 UTC
-| |`"from": 1536150131, "to": "2d"`|This sets the ending date to 07-09-2018, 12:22:11 UTC
-| |`"from": "5d",  "to": "2d"`|This sets the starting date to 03-10-2018, 14:33:12 UTC and the ending date to 05-10-2018, 14:33:12 UTC
+|d | |Enter a number followed by d in the from parameter to substract N days from the current date. If you use it in the to field you will get the from date plus the indicated number of days. |
+| |`"from": "2d"`|This sets the starting date to 06-10-2018, 14:33:12 UTC |
+| |`"from": 1536150131, "to": "2d"`|This sets the ending date to 07-09-2018, 12:22:11 UTC |
+| |`"from": "5d",  "to": "2d"`|This sets the starting date to 03-10-2018, 14:33:12 UTC and the ending date to 05-10-2018, 14:33:12 UTC |
 | | | |
-|ad| |Enter a number followed by ad in the from parameter to subtract N days from the current date and set time to 00:00:00. If you use it in the to field you will get the from date plus the indicated number of days and set time to 00:00:00. Note that the timeZone parameter affects the date settings.
-| |`"from": "2ad"`|This sets the starting date to 06-10-2018, 00:00:00 UTC
-| |`"from": 1536150131, "to": "2ad"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 UTC
-| |`"from":"5ad", "to": "2ad"`|This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC
-| |`"from": "5ad", "to": "2ad"`|This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC
-| |`"from": 1536142931, "to": "2ad", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 GMT+2 (06-09-2018, 22:00:00 UTC)
-| |`"from": "5ad", "to": "2ad", "timeZone": "GMT+2"`|This sets the starting date to 03-10-2018, 00:00:00 GMT+2 (02-10-2018, 22:00:00 UTC), and the ending date to 05-10-2018, 00:00:00 GMT+2 (04-10-2018, 22:00:00 UTC)
+|ad| |Enter a number followed by ad in the from parameter to subtract N days from the current date and set time to 00:00:00. If you use it in the to field you will get the from date plus the indicated number of days and set time to 00:00:00. Note that the timeZone parameter affects the date settings. |
+| |`"from": "2ad"`|This sets the starting date to 06-10-2018, 00:00:00 UTC |
+| |`"from": 1536150131, "to": "2ad"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 UTC |
+| |`"from":"5ad", "to": "2ad"`|This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC |
+| |`"from": "5ad", "to": "2ad"`|This sets the starting date to 03-10-2018, 00:00:00 UTC and the ending date to 05-10-2018, 00:00:00 UTC |
+| |`"from": 1536142931, "to": "2ad", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 UTC) This sets the ending date to 07-09-2018, 00:00:00 GMT+2 (06-09-2018, 22:00:00 UTC) |
+| |`"from": "5ad", "to": "2ad", "timeZone": "GMT+2"`|This sets the starting date to 03-10-2018, 00:00:00 GMT+2 (02-10-2018, 22:00:00 UTC), and the ending date to 05-10-2018, 00:00:00 GMT+2 (04-10-2018, 22:00:00 UTC) |
 
 ### ____***Hours***
 
 |Operator|Example|Description|
 | ------------- | ------------- |------------- |
-|h| |Enter a number followed by h in the from parameter to subtract N hours from the current time. If you use it in the to field you will get the from time plus the indicated number of hours.
-| |`"from": "2h"`|This sets the starting date to 08-10-2018, 12:33:12 UTC
-| |`"from": "16h"`|This sets the starting date to 07-10-2018, 22:33:12 UTC
-| |`"from": 1536150131, "to": "2h"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 05-09-2018, 14:22:11 UTC
-| |`"from": "5h", "to": "2h"`|This sets the starting date to 08-10-2018, 09:33:12 UTC and the ending date to 08-10-2018, 11:33:12 UTC
-|ah| |Enter a number followed by ah in the from parameter to subtract N hours from the current date at 00:00:00. If you use it in the to field you will add the indicated number of hours to the from date at 00:00:00. Note that the timeZone parameter affects the date settings.
-| |`"from": "2ah"`|This sets the starting date to 07-10-2018, 22:00:00 UTC
-| |`"from": "2ah", "timeZone": "GMT+2"`|This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC)
-| |`"from": 1536114131, "to": "12ah"`|(this timestamp corresponds to 05-09-2018, 02:22:11 UTC) This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC)
-| |`"from": 1536106931, "to": "12aH", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 GMT+2) This sets the ending date to 05-09-2018, 12:00:00 GMT+2 (05-09-2018, 10:00:00 UTC)
-| |`"from": "5ah", "to": "21ah"`|This sets the starting date to 07-10-2018, 19:00:00 UTC and the ending date to 07-10-2018, 21:00:00 UTC
+|h| |Enter a number followed by h in the from parameter to subtract N hours from the current time. If you use it in the to field you will get the from time plus the indicated number of hours |
+| |`"from": "2h"`|This sets the starting date to 08-10-2018, 12:33:12 UTC |
+| |`"from": "16h"`|This sets the starting date to 07-10-2018, 22:33:12 UTC |
+| |`"from": 1536150131, "to": "2h"`|(this timestamp corresponds to 05/09/2018, 12:22:11 UTC) This sets the ending date to 05-09-2018, 14:22:11 UTC |
+| |`"from": "5h", "to": "2h"`|This sets the starting date to 08-10-2018, 09:33:12 UTC and the ending date to 08-10-2018, 11:33:12 UTC |
+|ah| |Enter a number followed by ah in the from parameter to subtract N hours from the current date at 00:00:00. If you use it in the to field you will add the indicated number of hours to the from date at 00:00:00. Note that the timeZone parameter affects the date settings. |
+| |`"from": "2ah"`|This sets the starting date to 07-10-2018, 22:00:00 UTC |
+| |`"from": "2ah", "timeZone": "GMT+2"`|This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC) |
+| |`"from": 1536114131, "to": "12ah"`|(this timestamp corresponds to 05-09-2018, 02:22:11 UTC) This sets the starting date to 07-10-2018, 22:00:00 GMT+2 (07-10-2018, 20:00:00 UTC) |
+| |`"from": 1536106931, "to": "12aH", "timeZone": "GMT+2"`|(this timestamp corresponds to 05-09-2018, 12:22:11 GMT+2) This sets the ending date to 05-09-2018, 12:00:00 GMT+2 (05-09-2018, 10:00:00 UTC) |
+| |`"from": "5ah", "to": "21ah"`|This sets the starting date to 07-10-2018, 19:00:00 UTC and the ending date to 07-10-2018, 21:00:00 UTC |
 
 ### Retries
 
@@ -531,6 +532,8 @@ Options:
   --token TEXT            Secret for the api.
   --jwt TEXT              JWT auth for the api.
   -q, --query TEXT        Query.
+  --ip_as_string          Flag to return ip fields as string. If not present, 
+                          the default is false and will return an integer.
   --stream / --no-stream  Flag for make streaming query or full query with
                           start and end. Default is true
 
@@ -701,7 +704,7 @@ Json Object with the following structure:
 | msg | String | Message Description in case of error |
 | status | Integer | Numeric value  that especify the error code. <br /> 0 - OK<br /> 1 - Invalid request |
 | object | Json Object |  |
-| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> |
+| object.m | Json Object | Json Object with Metadata information, the key is the name of the field, and the value is an Object with the following information:. <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byte integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul> |
 | object.d | Json Object | Array of Arrays with the values of the response of the query. |
 
 Example
@@ -786,23 +789,54 @@ Example
 ...
 ```
 
-### Reponse type json/simple/compact
+### Response type json/simple/compact
 
 When `response` is set to `json/simple/compact`  
 The response is a stream of Json Objects with the following structure each line is  separated by  CRLF:
 
 The First Line is a JSON object  map with the Metadata information, the key is the name of the field, and the value is a Object with the following information:
 
-```python
-{"m":{"eventdate":{"type":"timestamp","index":0},"domain":{"type":"str","index":1},"userEmail":{"type":"str","index":2},"country":{"type":"str","index":3},"count":{"type":"int8","index":4}}}
+```json
+{
+  "m": {
+    "eventdate": {
+      "type": "timestamp",
+      "index": 0
+    },
+    "domain": {
+      "type": "str",
+      "index": 1
+    },
+    "userEmail": {
+      "type": "str",
+      "index": 2
+    },
+    "country": {
+      "type": "str",
+      "index": 3
+    },
+    "count": {
+      "type": "int8",
+      "index": 4
+    }
+  }
+}
 ```
 
 <ul><li><b>type:</b> type of the value returned:  <ul><li>timestamp: epoch value in seconds   </li><li>str: string   </li><li>int8: 8 byte integer </li><li>int4: 4 byt integer   </li><li>bool: boolean   </li><li>float8: 8 byte floating point.    </li></ul></li><li><b>index:</b> integer value, that points to where in the array of values is the value of this field </li></ul>
 
 The rest of the lines are data lines:  
 
-```python
-{"d":[1506439800000,"self","email@devo.com",null,1]}
+```json
+{
+  "d": [
+    1506439800000,
+    "self",
+    "email@devo.com",
+    null,
+    1
+  ]
+}
 ```
 
 a field with name "d", gives access to the array of values with the information.

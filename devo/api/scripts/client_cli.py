@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """CLI for use Devo API from shell command line."""
+
 import os
 import sys
 
@@ -84,6 +85,7 @@ def cli(version):
 @click.option("--timeZone", help="Timezone info. For valid formats see API README")
 @click.option("--verify", type=bool, help="Verify certificates")
 @click.option("--debug/--no-debug", help="For testing purposes", default=False)
+@click.option("--ip-as-string", is_flag=True, help="Return IPs as strings", default=False)
 def query(**kwargs):
     """Perform query by query string"""
     api, config = configure(kwargs)
@@ -121,9 +123,9 @@ def query(**kwargs):
                 print_error(ERROR_MSGS["binary_format_requires_output"], show_help=True)
                 exit()
 
-    reponse = api.query(query=config["query"], dates=dates)
+    response = api.query(query=config["query"], dates=dates, ip_as_string=config["ip_as_string"])
 
-    process_response(reponse, config)
+    process_response(response, config)
 
 
 def process_response(response, config):

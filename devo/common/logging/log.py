@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-""" Generic function to logging events in Devo SDK """
+"""Generic function to logging events in Devo SDK"""
+
 import logging
 import os
 import sys

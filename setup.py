@@ -29,13 +29,20 @@ INSTALL_REQUIRES = [
     "click==8.1.7",
     "PyYAML==6.0.1",
     "pem~=21.2.0",
-    "pyopenssl~=24.0",
+    "pyopenssl~=24.1.0",
     "pytz~=2024.1",
     "certifi~=2024.2.2",
-    "cryptography~=42.0.2",
+    "cryptography~=42.0.5",
 ]
 EXTRAS_REQUIRE = {
-    "dev": ["stopit==1.1.2", "msgpack~=1.0.7", "responses~=0.24", "pipdeptree~=2.14.0"]
+    "dev": [
+        "stopit==1.1.2",
+        "msgpack~=1.0.8",
+        "responses~=0.25.0",
+        "pipdeptree~=2.17.0",
+        "pytest~=8.1.1",
+        "pytest-cov~=5.0.0",
+    ]
 }
 CLI = [
     "devo-sender=devo.sender.scripts.sender_cli:cli",

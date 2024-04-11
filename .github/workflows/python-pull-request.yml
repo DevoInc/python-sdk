@@ -30,16 +30,16 @@ jobs:
         version: ["3.8", "3.9"]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
           pip install -r requirements-test.txt
+          pip install -e .
       - name: Install certificates
         run: |
           mkdir -p certs/us

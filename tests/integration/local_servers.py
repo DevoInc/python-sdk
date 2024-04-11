@@ -7,7 +7,7 @@ import threading
 import time
 
 
-def _find_available_port(address, starting_port):
+def find_available_port(address, starting_port):
     """Find an available port to use for the test server."""
     port = starting_port
     while True:
@@ -19,7 +19,7 @@ def _find_available_port(address, starting_port):
             port += 1
 
 
-def _wait_for_ready_server(address, port):
+def wait_for_ready_server(address, port):
     num_tries = 3
 
     while num_tries > 0:
@@ -101,3 +101,7 @@ class TCPServer:
 
     def close_server(self):
         self.shutdown = True
+
+
+if __name__ == "__main__":
+    print("Trying to run module local_servers.py directly...")
