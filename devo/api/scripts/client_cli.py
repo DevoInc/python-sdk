@@ -117,15 +117,13 @@ def query(**kwargs):
         else:
             dates = None
 
-    ip_as_string = True if config["ip_as_string"] else False
-
     if "response" in config.keys():
         if config["response"] in ["msgpack", "xls"]:
             if "output" not in config.keys():
                 print_error(ERROR_MSGS["binary_format_requires_output"], show_help=True)
                 exit()
 
-    response = api.query(query=config["query"], dates=dates, ip_as_string=ip_as_string)
+    response = api.query(query=config["query"], dates=dates, ip_as_string=config["ip_as_string"])
 
     process_response(response, config)
 
