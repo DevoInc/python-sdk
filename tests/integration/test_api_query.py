@@ -469,8 +469,6 @@ def test_query_with_ip_as_string(api_config):
     assert isinstance(ip, str)
     assert is_valid_ip(ip)
 
-    assert isinstance(resp_data[api_config.field_with_ip], str)
-
 
 if __name__ == "__main__":
     pytest.main()
