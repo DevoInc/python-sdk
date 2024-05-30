@@ -85,9 +85,14 @@ class DevoSenderException(Exception):
         :param message: Message describing the exception. It will be also
          used as `args` attribute in `Exception` class
         """
+        if isinstance(message, str) is False:
+            raise TypeError(f'must be str, not {type(message).__name__}')
         self.message: str = message
         """Message describing exception"""
         super().__init__(self.message)
+
+    def __str__(self):
+        return self.message
 
 
 class SenderConfigSSL:
