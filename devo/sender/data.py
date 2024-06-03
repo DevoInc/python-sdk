@@ -13,6 +13,8 @@ import zlib
 from enum import Enum
 from pathlib import Path
 from ssl import SSLWantReadError, SSLWantWriteError
+from threading import Thread, Lock, Event
+from typing import Optional
 
 import pem
 from _socket import SHUT_WR
@@ -320,6 +322,49 @@ class SenderConfigTCP:
             raise DevoSenderException(ERROR_MSGS.CANT_CREATE_TCP_CONFIG % str(error)) from error
 
 
+class SenderBufferFlusher(Thread):
+    def __init__(self):
+        super().__init__()
+        self.buffer_timeout = 10
+        self.flush_buffer_func = None
+        self.first_data_timestamp: Optional[float] = None
+        self.running = True
+        self.wait_object: Event = Event()
+        self.__loop_wait_default = 1
+        self.__loop_wait = self.__loop_wait_default
+
+    def start(self) -> None:
+        if not self.flush_buffer_func:
+            raise Exception(f'"flush_buffer_func" is required')
+        super().start()
+
+    def run(self):
+        while self.running:
+            if self.first_data_timestamp is not None and ((time.time() - self.first_data_timestamp) >= self.buffer_timeout):
+                self.flush_buffer_func()
+                self.first_data_timestamp = None
+            called = self.wait_object.wait(timeout=self.__loop_wait)
+            if called:
+                self.wait_object.clear()
+
+    def initialize_timestamp(self):
+        self.__loop_wait = self.__loop_wait_default
+        self.first_data_timestamp = time.time()
+        if not self.wait_object.is_set():
+            self.wait_object.set()
+
+    def stop(self):
+        self.running = False
+        if not self.wait_object.is_set():
+            self.wait_object.set()
+
+    def wait(self):
+        self.__loop_wait = None
+        self.first_data_timestamp = None
+        if not self.wait_object.is_set():
+            self.wait_object.set()
+
+
 class SenderBuffer:
     """Micro class for buffer values"""
 
@@ -327,7 +372,49 @@ class SenderBuffer:
         self.length = 19500
         self.compression_level = -1
         self.text_buffer = b""
-        self.events = 0
+        self.__events: int = 0
+        self.__buffer_flusher_func = None
+        self.__buffer_flusher = SenderBufferFlusher()
+        self.__buffer_flusher_is_started: bool = False
+        self.use_buffer_flusher = False
+
+    @property
+    def events(self) -> int:
+        return self.__events
+
+    @events.setter
+    def events(self, number_of_events):
+        if self.use_buffer_flusher:
+            if not self.__buffer_flusher_is_started:
+                self.__buffer_flusher_is_started = True
+                self.__buffer_flusher.start()
+
+            if self.__events == 0 and number_of_events > 0:
+                self.__buffer_flusher.initialize_timestamp()
+
+            elif number_of_events == 0:
+                self.__buffer_flusher.wait()
+
+        self.__events = number_of_events
+
+    @property
+    def buffer_flusher_func(self) -> int:
+        return self.__buffer_flusher_func
+
+    @buffer_flusher_func.setter
+    def buffer_flusher_func(self, flusher_func):
+        self.__buffer_flusher.flush_buffer_func = flusher_func
+
+    @property
+    def buffer_timeout(self) -> int:
+        return self.__buffer_flusher.buffer_timeout
+
+    @buffer_timeout.setter
+    def buffer_timeout(self, timeout):
+        self.__buffer_flusher.buffer_timeout = timeout
+
+    def close(self):
+        self.__buffer_flusher.stop()
 
 
 class Sender(logging.Handler):
@@ -352,6 +439,8 @@ class Sender(logging.Handler):
         timeout=30,
         debug=False,
         logger=None,
+        buffer_timeout=10,
+        use_buffer_flusher=False
     ):
         if config is None:
             raise DevoSenderException(ERROR_MSGS.PROBLEMS_WITH_SENDER_ARGS)
@@ -364,7 +453,11 @@ class Sender(logging.Handler):
         self.socket_max_connection = 3600 * 1000
         self.last_message = int(time.time())
         self.buffer = SenderBuffer()
+        self.buffer.buffer_timeout = buffer_timeout
+        self.buffer.buffer_flusher_func = self.flush_buffer
+        self.buffer.use_buffer_flusher = use_buffer_flusher
         self.logging = {}
+        self.buffer_lock = Lock()
 
         self.timestart = time.time()
         if isinstance(config, (dict, Configuration)):
@@ -467,7 +560,6 @@ class Sender(logging.Handler):
 
                 if self._sender_config.verify_mode is not None:
                     context.verify_mode = self._sender_config.verify_mode
-
                 context.load_cert_chain(
                     keyfile=self._sender_config.key, certfile=self._sender_config.cert
                 )
@@ -606,6 +698,7 @@ class Sender(logging.Handler):
         """
         Forces socket closure
         """
+        # self.buffer_flusher.stop()
         if self.socket is not None:
             try:
                 self.socket.shutdown(SHUT_WR)
@@ -905,19 +998,20 @@ class Sender(logging.Handler):
         Method for flush-send buffer, its zipped and sent now
         :return: None
         """
-        if self.buffer.text_buffer:
-            try:
-                compressor = zlib.compressobj(self.buffer.compression_level, zlib.DEFLATED, 31)
-                record = compressor.compress(self.buffer.text_buffer) + compressor.flush()
-                if self.send_raw(record, zip=True):
-                    return self.buffer.events
-                return 0
-            except Exception as error:
-                raise DevoSenderException(ERROR_MSGS.FLUSHING_BUFFER_ERROR) from error
-            finally:
-                self.buffer.text_buffer = b""
-                self.buffer.events = 0
-        return 0
+        with self.buffer_lock:
+            if self.buffer.text_buffer:
+                try:
+                    compressor = zlib.compressobj(self.buffer.compression_level, zlib.DEFLATED, 31)
+                    record = compressor.compress(self.buffer.text_buffer) + compressor.flush()
+                    if self.send_raw(record, zip=True):
+                        return self.buffer.events
+                    return 0
+                except Exception as error:
+                    raise DevoSenderException(ERROR_MSGS.FLUSHING_BUFFER_ERROR) from error
+                finally:
+                    self.buffer.text_buffer = b""
+                    self.buffer.events = 0
+            return 0
 
     @staticmethod
     def for_logging(config=None, con_type=None, tag=None, level=None):
