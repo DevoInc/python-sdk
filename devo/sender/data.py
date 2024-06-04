@@ -14,7 +14,7 @@ from enum import Enum
 from pathlib import Path
 from ssl import SSLWantReadError, SSLWantWriteError
 from threading import Thread, Lock, Event
-from typing import Optional
+from typing import Optional, Callable
 
 import pem
 from _socket import SHUT_WR
@@ -325,12 +325,12 @@ class SenderConfigTCP:
 class SenderBufferFlusher(Thread):
     def __init__(self):
         super().__init__()
-        self.buffer_timeout = 10
+        self.buffer_timeout: float = 10.0
         self.flush_buffer_func = None
         self.first_data_timestamp: Optional[float] = None
         self.running = True
         self.wait_object: Event = Event()
-        self.__loop_wait_default = 1
+        self.__loop_wait_default: float = 1.0
         self.__loop_wait = self.__loop_wait_default
 
     def start(self) -> None:
@@ -369,14 +369,13 @@ class SenderBuffer:
     """Micro class for buffer values"""
 
     def __init__(self):
-        self.length = 19500
-        self.compression_level = -1
+        self.length: int = 19500
+        self.compression_level: int = -1
         self.text_buffer = b""
         self.__events: int = 0
-        self.__buffer_flusher_func = None
         self.__buffer_flusher = SenderBufferFlusher()
         self.__buffer_flusher_is_started: bool = False
-        self.use_buffer_flusher = False
+        self.use_buffer_flusher: bool = False
 
     @property
     def events(self) -> int:
@@ -398,19 +397,19 @@ class SenderBuffer:
         self.__events = number_of_events
 
     @property
-    def buffer_flusher_func(self) -> int:
-        return self.__buffer_flusher_func
+    def buffer_flusher_func(self) -> Callable:
+        return self.__buffer_flusher.flush_buffer_func
 
     @buffer_flusher_func.setter
-    def buffer_flusher_func(self, flusher_func):
+    def buffer_flusher_func(self, flusher_func: Callable):
         self.__buffer_flusher.flush_buffer_func = flusher_func
 
     @property
-    def buffer_timeout(self) -> int:
+    def buffer_timeout(self) -> float:
         return self.__buffer_flusher.buffer_timeout
 
     @buffer_timeout.setter
-    def buffer_timeout(self, timeout):
+    def buffer_timeout(self, timeout: float):
         self.__buffer_flusher.buffer_timeout = timeout
 
     def close(self):
@@ -439,8 +438,8 @@ class Sender(logging.Handler):
         timeout=30,
         debug=False,
         logger=None,
-        buffer_timeout=10,
-        use_buffer_flusher=False
+        buffer_timeout: float = 10.0,
+        use_buffer_flusher: bool = False
     ):
         if config is None:
             raise DevoSenderException(ERROR_MSGS.PROBLEMS_WITH_SENDER_ARGS)
@@ -704,7 +703,7 @@ class Sender(logging.Handler):
         """
         Forces socket closure
         """
-        # self.buffer_flusher.stop()
+        self.buffer.close()
         if self.socket is not None:
             try:
                 self.socket.shutdown(SHUT_WR)
