@@ -550,6 +550,12 @@ class Sender(logging.Handler):
                 and self._sender_config.cert is not None
             ):
                 context = ssl.create_default_context(cafile=self._sender_config.chain)
+                context.options |= ssl.OP_NO_SSLv2
+                context.options |= ssl.OP_NO_SSLv3
+                context.options |= ssl.OP_NO_TLSv1
+                context.options |= ssl.OP_NO_TLSv1_1
+                context.minimum_version = ssl.TLSVersion.TLSv1_2
+                context.maximum_version = ssl.TLSVersion.TLSv1_3
 
                 if self._sender_config.sec_level is not None:
                     context.set_ciphers(
