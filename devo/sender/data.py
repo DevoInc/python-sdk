@@ -323,46 +323,80 @@ class SenderConfigTCP:
 
 
 class SenderBufferFlusher(Thread):
+    """ Thread class for flushing buffer if the timeout is reached.
+
+    When the "events" value from the SenderBuffer is set to 0, the wait will be set to "None" that means
+    that the "wait_object" will wait forever (until it will be "wake up").
+
+    When the "events" value from the SenderBuffer is set to greater than 0, the wait it will be set
+    to "1.0" that means that the "wait_object" will wait only 1 second.
+    This will check every second to see if the timeout has been reached.
+
+    """
+
+    DEFAULT_INTERNAL_WAIT_VALUE = 1.0
+
     def __init__(self):
         super().__init__()
         self.buffer_timeout: float = 10.0
         self.flush_buffer_func = None
-        self.first_data_timestamp: Optional[float] = None
-        self.running = True
-        self.wait_object: Event = Event()
-        self.__loop_wait_default: float = 1.0
-        self.__loop_wait = self.__loop_wait_default
+        self.__first_data_timestamp: Optional[float] = None
+        self.__running_flag = True
+        self.__wait_object: Event = Event()
+        self.__loop_wait = SenderBufferFlusher.DEFAULT_INTERNAL_WAIT_VALUE
 
     def start(self) -> None:
+
+        # "buffer_timeout" and "flush_buffer_func" must have valid values
+        if not self.buffer_timeout or self.buffer_timeout <= 0.0:
+            raise Exception(f'"buffer_timeout" is required and must have a value grater than 0.0')
         if not self.flush_buffer_func:
             raise Exception(f'"flush_buffer_func" is required')
         super().start()
 
     def run(self):
-        while self.running:
-            if self.first_data_timestamp is not None and ((time.time() - self.first_data_timestamp) >= self.buffer_timeout):
+        while self.__running_flag:
+            if (self.__first_data_timestamp is not None
+                    and ((time.time() - self.__first_data_timestamp) >= self.buffer_timeout)):
                 self.flush_buffer_func()
-                self.first_data_timestamp = None
-            called = self.wait_object.wait(timeout=self.__loop_wait)
-            if called:
-                self.wait_object.clear()
+                self.__first_data_timestamp = None
 
-    def initialize_timestamp(self):
-        self.__loop_wait = self.__loop_wait_default
-        self.first_data_timestamp = time.time()
-        if not self.wait_object.is_set():
-            self.wait_object.set()
+            # This "wait_object" can be interrupted is "set()" method is called
+            called = self.__wait_object.wait(timeout=self.__loop_wait)
+            if called:
+                self.__wait_object.clear()
+
+    def initialize_timestamp(self) -> float:
+        """ This method should be called every time the buffer transits from "0" to "greater than 0"
+
+        :return: Time mark that will be used as reference for flushing the buffer (most of the time it will not be used)
+        """
+        self.__loop_wait = SenderBufferFlusher.DEFAULT_INTERNAL_WAIT_VALUE
+        self.__first_data_timestamp = time.time()
+        if not self.__wait_object.is_set():
+            self.__wait_object.set()
+
+        return self.__first_data_timestamp
 
     def stop(self):
-        self.running = False
-        if not self.wait_object.is_set():
-            self.wait_object.set()
+        """ Interrupts completely the Thread execution.
 
-    def wait(self):
+        :return:
+        """
+        self.__running_flag = False
+        if not self.__wait_object.is_set():
+            self.__wait_object.set()
+
+    def wait(self) -> None:
+        """ Sets the thread in a "forever" wait status.
+
+        :return:
+        """
+
         self.__loop_wait = None
-        self.first_data_timestamp = None
-        if not self.wait_object.is_set():
-            self.wait_object.set()
+        self.__first_data_timestamp = None
+        if not self.__wait_object.is_set():
+            self.__wait_object.set()
 
 
 class SenderBuffer:
@@ -371,7 +405,7 @@ class SenderBuffer:
     def __init__(self):
         self.length: int = 19500
         self.compression_level: int = -1
-        self.text_buffer = b""
+        self.text_buffer: bytes = b""
         self.__events: int = 0
         self.__buffer_flusher = SenderBufferFlusher()
         self.__buffer_flusher_is_started: bool = False
@@ -383,6 +417,14 @@ class SenderBuffer:
 
     @events.setter
     def events(self, number_of_events):
+        """ Setter method for events
+
+        This method allows to intercept the values of the "events" attribute for being able
+        to "trigger" or "pause" the thread, this way the processing time would be optimal.
+
+        :param number_of_events:
+        :return:
+        """
         if self.use_buffer_flusher:
             if not self.__buffer_flusher_is_started:
                 self.__buffer_flusher_is_started = True
@@ -412,7 +454,7 @@ class SenderBuffer:
     def buffer_timeout(self, timeout: float):
         self.__buffer_flusher.buffer_timeout = timeout
 
-    def close(self):
+    def close(self) -> None:
         self.__buffer_flusher.stop()
 
 
