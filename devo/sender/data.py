@@ -1034,8 +1034,9 @@ class Sender(logging.Handler):
         if msg[-1:] != b"\n":
             msg += b"\n"
 
-        self.buffer.text_buffer += msg
-        self.buffer.events += 1
+        with self.buffer_lock:
+            self.buffer.text_buffer += msg
+            self.buffer.events += 1
         if len(self.buffer.text_buffer) > self.buffer.length:
             return self.flush_buffer()
         return 0
@@ -1059,6 +1060,19 @@ class Sender(logging.Handler):
                     self.buffer.text_buffer = b""
                     self.buffer.events = 0
             return 0
+
+    def get_buffer(self) -> dict:
+        """
+        Getter mewthod for the buffer.
+        Useful for emergency situations when we can't send
+        :return: dict with "events" and "text_buffer" values
+        """
+        with self.buffer_lock:
+            if self.buffer.text_buffer:
+                return {
+                    "events": self.buffer.events,
+                    "text_buffer": self.buffer.text_buffer,
+                }
 
     @staticmethod
     def for_logging(config=None, con_type=None, tag=None, level=None):
