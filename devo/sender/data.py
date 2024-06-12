@@ -1061,9 +1061,9 @@ class Sender(logging.Handler):
                     self.buffer.events = 0
             return 0
 
-    def get_buffer(self) -> dict:
+    def get_buffer_info(self) -> dict:
         """
-        Getter mewthod for the buffer.
+        Getter method for the buffer.
         Useful for emergency situations when we can't send
         :return: dict with "events" and "text_buffer" values
         """
@@ -1073,6 +1073,18 @@ class Sender(logging.Handler):
                     "events": self.buffer.events,
                     "text_buffer": self.buffer.text_buffer,
                 }
+
+    def set_buffer_info(self, text_buffer: bytes, num_events: int) -> None:
+        """
+        Setter method for the buffer.
+        Useful for emergency situations when we can't send
+        :param: text_buffer (bytes)
+        :param: num_events (int)
+        :return:
+        """
+        with self.buffer_lock:
+            self.buffer.text_buffer = text_buffer
+            self.buffer.events = num_events
 
     @staticmethod
     def for_logging(config=None, con_type=None, tag=None, level=None):
