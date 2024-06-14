@@ -1068,11 +1068,10 @@ class Sender(logging.Handler):
         :return: dict with "events" and "text_buffer" values
         """
         with self.buffer_lock:
-            if self.buffer.text_buffer:
-                return {
-                    "events": self.buffer.events,
-                    "text_buffer": self.buffer.text_buffer,
-                }
+            return {
+                "events": self.buffer.events,
+                "text_buffer": self.buffer.text_buffer,
+            }
 
     def set_buffer_info(self, text_buffer: bytes, num_events: int) -> None:
         """
