@@ -87,7 +87,7 @@ class DevoSenderException(Exception):
         :param message: Message describing the exception. It will be also
          used as `args` attribute in `Exception` class
         """
-        if isinstance(message, str) is False:
+        if not isinstance(message, str):
             raise TypeError(f'must be str, not {type(message).__name__}')
         self.message: str = message
         """Message describing exception"""
@@ -349,9 +349,9 @@ class SenderBufferFlusher(Thread):
 
         # "buffer_timeout" and "flush_buffer_func" must have valid values
         if not self.buffer_timeout or self.buffer_timeout <= 0.0:
-            raise Exception(f'"buffer_timeout" is required and must have a value grater than 0.0')
+            raise DevoSenderException('"buffer_timeout" is required and must have a value grater than 0.0')
         if not self.flush_buffer_func:
-            raise Exception(f'"flush_buffer_func" is required')
+            raise DevoSenderException('"flush_buffer_func" is required')
         super().start()
 
     def run(self):
