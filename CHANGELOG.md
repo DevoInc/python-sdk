@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.3.0] - 2024-06-18
+
+### Added
+
+- Force flush in Sender buffer to send incomplete buffers after a timeout
+- `mock` dependency added to testing requirements
+
+### Changed
+
+- `requests` dependency upgraded from `requests~=2.31` to `requests~=2.32`
+- `certifi` dependency upgraded from `certifi~=2024.2.2` to `certifi~=2024.6.2`
+- `cryptography` dependency upgraded from `cryptography~=42.0.5` to `cryptography~=42.0.8`
+- `pipdeptree` dependency upgraded from `pipdeptree~=2.17.0` to `pipdeptree~=2.23.0`
+- `pytest` dependency upgraded from `pytest~=8.1.1` to `pytest~=8.2.2`
+
 ## [5.2.0] - 2024-04-10
 
 ### Added

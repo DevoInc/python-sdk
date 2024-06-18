@@ -25,22 +25,22 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = [
-    "requests~=2.31",
+    "requests~=2.32",
     "click==8.1.7",
     "PyYAML==6.0.1",
     "pem~=21.2.0",
     "pyopenssl~=24.1.0",
     "pytz~=2024.1",
-    "certifi~=2024.2.2",
-    "cryptography~=42.0.5",
+    "certifi~=2024.6.2",
+    "cryptography~=42.0.8",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
         "stopit==1.1.2",
         "msgpack~=1.0.8",
         "responses~=0.25.0",
-        "pipdeptree~=2.17.0",
-        "pytest~=8.1.1",
+        "pipdeptree~=2.23.0",
+        "pytest~=8.2.2",
         "pytest-cov~=5.0.0",
     ]
 }
@@ -66,7 +66,9 @@ def find_meta(meta):
     """
     Extract __*meta*__ from META_FILE.
     """
-    meta_match = re.search(r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta), META_FILE, re.M)
+    meta_match = re.search(
+        r"^__{meta}__ = ['\"]([^'\"]*)['\"]".format(meta=meta), META_FILE, re.M
+    )
     if meta_match:
         return meta_match.group(1)
     raise RuntimeError("Unable to find __{meta}__ string.".format(meta=meta))
