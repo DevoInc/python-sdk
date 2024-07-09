@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [5.4.0] - 2024-07-09
+
+### Changed
+
+- `responses` dependency upgraded from `responses~=0.25.0` to `responses~=0.25.3`
+- `certifi` dependency upgraded from `certifi~=2024.6.2` to `certifi~=2024.7.4`
+
 ## [5.3.0] - 2024-06-18
 
 ### Added
