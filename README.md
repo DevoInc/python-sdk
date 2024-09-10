@@ -18,7 +18,7 @@ The Devo SDK for Python requires Python 3.8+
 
 ## Compatibility
 
-- Tested compatibility for python 3.8 and 3.9
+- Tested compatibility for python 3.8, 3.9, 3.10, 3.11 and 3.12
 
 ## Quick Start
 
