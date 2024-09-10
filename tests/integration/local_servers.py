@@ -32,75 +32,62 @@ def wait_for_ready_server(address, port):
         except socket.error:
             num_tries -= 1
             time.sleep(1)
+        if num_tries == 0:
+            raise Exception("Connection to address %s at port %d could not be established" % (address, port))
 
 
-class SSLServer:
+class EchoServer:
 
-    def __init__(self, ip="127.0.0.1", port=4488, certfile=None, keyfile=None):
+    def __init__(self, ip="127.0.0.1", port=4488, certfile=None, keyfile=None, ssl=True):
         self.ip = ip
         self.port = port
         self.cert = certfile
         self.key = keyfile
         self.shutdown = False
+        self.ssl = ssl
         self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
-        self.server_process = multiprocessing.Process(target=self.server, name="sslserver")
+        self.server_process = multiprocessing.Process(target=self.server, name="sslserver" if ssl else "tcpserver")
         self.server_process.start()
 
     def server(self):
+        asyncio.run(self.run_server())
 
-        @asyncio.coroutine
-        def handle_connection(reader, writer):
+    async def run_server(self):
+
+        async def handle_connection(reader, writer):
             addr = writer.get_extra_info("peername")
             try:
-                while True:
-                    data = yield from reader.read(500)
-                    print("Server received {!r} from {}".format(data, addr))
+                while not self.shutdown:
+                    data = await reader.read(500)
                     assert len(data) > 0, repr(data)
+                    print("Server received {!r} from {}".format(data, addr))
                     writer.write(data)
-                    yield from writer.drain()
-            except Exception:
+                    await writer.drain()
+            except Exception as e:
+                print(f"Error: {e}")
+            finally:
                 writer.close()
+                await writer.wait_closed()
 
-        sc = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-        sc.load_cert_chain(self.cert, self.key)
+        # Create SSL context
+        sc = None
+        if self.ssl:
+            sc = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            sc.load_cert_chain(self.cert, self.key)
 
-        loop = asyncio.get_event_loop()
-        coro = asyncio.start_server(handle_connection, self.ip, self.port, ssl=sc, loop=loop)
-        server = loop.run_until_complete(coro)
+        # Run server
+        server = await asyncio.start_server(handle_connection, self.ip, self.port, ssl=sc)
 
-        print("Serving on {}".format(server.sockets[0].getsockname()))
-        loop.run_forever()
+        print("Serving SSL on {}".format(server.sockets[0].getsockname()))
+
+        async with server:
+            # Server runs forever (until closed)
+            await server.serve_forever()
 
     def close_server(self):
         self.shutdown = True
         self.server_process.terminate()
         self.server_process.join()
-
-
-class TCPServer:
-
-    def __init__(self, ip="127.0.0.1", port=4489):
-        self.ip = ip
-        self.port = port
-        self.shutdown = False
-        self.server = None
-        self.file_path = "".join((os.path.dirname(os.path.abspath(__file__)), os.sep))
-        self.server = threading.Thread(target=self.start_server, kwargs={"ip": ip, "port": port})
-        self.server.setDaemon(True)
-        self.server.start()
-
-    def start_server(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind((self.ip, self.port))
-        s.listen(5)
-        conn, addr = s.accept()
-        while not self.shutdown:
-            data = conn.recv(8000)
-            conn.send(data)
-
-    def close_server(self):
-        self.shutdown = True
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ from unittest import mock
 
 import pem
 import pytest
-from local_servers import (SSLServer, TCPServer, find_available_port,
+from local_servers import (EchoServer, find_available_port,
                            wait_for_ready_server)
 from OpenSSL import SSL, crypto
 
@@ -66,7 +66,7 @@ def setup():
     setup.local_server_chain = os.getenv(
         "DEVO_SENDER_SERVER_CHAIN", f"{setup.certs_path}/ca/ca_cert.pem"
     )
-    setup.test_tcp = os.getenv("DEVO_TEST_TCP", False)
+    setup.test_tcp = (os.getenv("DEVO_TEST_TCP", False) == 'True')
     setup.configuration = Configuration()
     setup.configuration.set(
         "sender",
@@ -101,14 +101,14 @@ def setup():
     # Run local servers
     # ----------------------------------------
     setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
-    local_ssl_server = SSLServer(
-        setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key
+    local_ssl_server = EchoServer(
+        setup.ssl_address, setup.ssl_port, setup.local_server_cert, setup.local_server_key, ssl=True
     )
     wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)
 
     if setup.test_tcp:
         setup.tcp_port = find_available_port(setup.tcp_address, setup.tcp_port)
-        local_tcp_server = TCPServer(setup.tcp_address, setup.tcp_port)
+        local_tcp_server = EchoServer(setup.tcp_address, setup.tcp_port, ssl=False)
         wait_for_ready_server(local_tcp_server.ip, local_tcp_server.port)
 
     yield setup
@@ -262,19 +262,15 @@ def test_rt_send_no_certs(setup):
     """
     if not setup.test_tcp:
         pytest.skip("Not testing TCP")
-    try:
-        engine_config = SenderConfigSSL(
-            address=(setup.ssl_address, setup.ssl_port),
-            check_hostname=False,
-            verify_mode=CERT_NONE,
-        )
-        con = Sender(engine_config)
-        for i in range(setup.default_numbers_sendings):
-            con.send(tag=setup.my_app, msg=setup.test_msg)
-        con.close()
-        return True
-    except Exception:
-        return False
+    engine_config = SenderConfigSSL(
+        address=(setup.ssl_address, setup.ssl_port),
+        check_hostname=False,
+        verify_mode=CERT_NONE,
+    )
+    con = Sender(engine_config)
+    for i in range(setup.default_numbers_sendings):
+        con.send(tag=setup.my_app, msg=setup.test_msg)
+    con.close()
 
 
 def test_sender_as_handler(setup):
