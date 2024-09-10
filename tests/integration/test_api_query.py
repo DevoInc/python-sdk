@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 import types
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from ssl import CERT_NONE
 from time import gmtime, strftime
 
@@ -226,8 +226,8 @@ def test_query_from_fixed_dates(api_config):
     result = api.query(
         query=api_config.query,
         dates={
-            "from": strftime("%Y-%m-%d", gmtime()),
-            "to": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+            "from": datetime.now(UTC).strftime("%Y-%m-%d"),
+            "to": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S"),
         },
     )
     assert result is not None

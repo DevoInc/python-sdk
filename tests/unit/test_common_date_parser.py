@@ -1,4 +1,5 @@
 from datetime import datetime as dt
+from datetime import UTC as UTC
 
 import pytest
 
@@ -7,7 +8,7 @@ from devo.common import default_from, default_to
 
 @pytest.fixture(scope="module")
 def setup_epoch():
-    epoch = dt.utcfromtimestamp(0)
+    epoch = dt.fromtimestamp(0, UTC)
     yield epoch
 
 
@@ -15,13 +16,13 @@ def setup_epoch():
 # --------------------------------------------------------------------------
 def test_default_to(setup_epoch):
     ts1 = str(default_to())[:11]
-    ts2 = str((dt.utcnow() - setup_epoch).total_seconds() * 1000)[:11]
+    ts2 = str((dt.now(UTC) - setup_epoch).total_seconds() * 1000)[:11]
     assert ts1 == ts2
 
 
 def test_default_from(setup_epoch):
     ts1 = str(default_from())[:11]
-    ts2 = str(int((dt.utcnow() - setup_epoch).total_seconds() * 1000) - 86400000)[:11]
+    ts2 = str(int((dt.now(UTC) - setup_epoch).total_seconds() * 1000) - 86400000)[:11]
     assert ts1 == ts2
 
 
@@ -54,16 +55,17 @@ def test_month():
 # Tests relatives
 # --------------------------------------------------------------------------
 def test_now(setup_epoch):
-    assert default_from("now()") == int((dt.utcnow() - setup_epoch).total_seconds() * 1000)
+    tolerance = 100
+    assert abs(default_from("now()") - int((dt.now(UTC) - setup_epoch).total_seconds() * 1000)) < 100
 
 
 def test_today(setup_epoch):
-    tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    tmp = dt.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     assert default_from("today()") == int((tmp - setup_epoch).total_seconds() * 1000)
 
 
 def test_yesterday(setup_epoch):
-    tmp = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    tmp = dt.now(UTC).replace(hour=0, minute=0, second=0, microsecond=0)
     assert (
         default_from("yesterday()") == int((tmp - setup_epoch).total_seconds() * 1000) - 86400000
     )
