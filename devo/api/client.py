@@ -441,6 +441,7 @@ class Client:
         :param limit: Max number of rows
         :param offset: start of needle for query
         :param comment: comment for query
+        :param ip_as_string: whether to recive IP types as strings
         :return: Result of the query (dict) or Iterator object
         """
         dates = self._generate_dates(dates)

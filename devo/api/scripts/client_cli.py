@@ -161,7 +161,7 @@ def configure(args):
     """
     Load CLI configuration
     :param args: args from files, launch vars, etc
-    :return: Clien  t API Object and Config values in array
+    :return: Client API Object and Config values in array
     """
     config = Configuration()
     try:
