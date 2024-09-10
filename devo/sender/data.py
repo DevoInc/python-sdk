@@ -593,8 +593,6 @@ class Sender(logging.Handler):
                 context = ssl.create_default_context(cafile=self._sender_config.chain)
                 context.options |= ssl.OP_NO_SSLv2
                 context.options |= ssl.OP_NO_SSLv3
-                context.options |= ssl.OP_NO_TLSv1
-                context.options |= ssl.OP_NO_TLSv1_1
                 context.minimum_version = ssl.TLSVersion.TLSv1_2
                 context.maximum_version = ssl.TLSVersion.TLSv1_3
 
@@ -614,9 +612,16 @@ class Sender(logging.Handler):
                     self.socket, server_hostname=self._sender_config.address[0]
                 )
             else:
-                self.socket = ssl.wrap_socket(
-                    self.socket, ssl_version=ssl.PROTOCOL_TLS, cert_reqs=ssl.CERT_NONE
-                )
+                context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                context.options |= ssl.OP_NO_SSLv2
+                context.options |= ssl.OP_NO_SSLv3
+                context.minimum_version = ssl.TLSVersion.TLSv1_2
+                context.maximum_version = ssl.TLSVersion.TLSv1_3
+                self.logger.warning("One or more of CA certificate, private or public certificate is not provided"
+                                    " and TLS unsecure connection is established")
+                self.socket = context.wrap_socket(self.socket)
 
             self.socket.connect(self._sender_config.address)
             self.last_message = int(time.time())
@@ -1093,7 +1098,6 @@ class Sender(logging.Handler):
         :param con_type: type of connection
         :param tag: tag for the table
         :param level: level of logger
-        :param formatter: log formatter
         :return: Sender object
         """
         con = Sender(config=config, con_type=con_type)
