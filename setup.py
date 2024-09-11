@@ -36,12 +36,13 @@ INSTALL_REQUIRES = [
 ]
 EXTRAS_REQUIRE = {
     "dev": [
-        "stopit==1.1.2",
         "msgpack~=1.0.8",
         "responses~=0.25.3",
         "pipdeptree~=2.23.0",
         "pytest~=8.2.2",
         "pytest-cov~=5.0.0",
+        "mock~=5.1.0",
+        "pebble~=5.0.7"
     ]
 }
 CLI = [

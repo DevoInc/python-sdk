@@ -7,11 +7,10 @@ import zoneinfo
 UTC = zoneinfo.ZoneInfo("UTC")
 
 from ssl import CERT_NONE
-
 import pytest
-import stopit
 from ip_validation import is_valid_ip
-
+from pebble import concurrent
+from pebble import ProcessExpired
 from devo.api import Client, ClientConfig, DevoClientException
 from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
@@ -272,15 +271,18 @@ def test_stream_query_no_results_unbounded_dates(api_config):
     result = api.query(query=api_config.query_no_results)
     assert isinstance(result, types.GeneratorType)
 
+    @concurrent.process(timeout=3)
+    def fetch_result(result):
+        return list(result)
+
+    future = fetch_result(result)
+
     try:
-        with stopit.ThreadingTimeout(3) as to_ctx_mgr:
-            result = list(result)
-    except DevoClientException:
-        # This exception is sent because
-        # devo.api.client.Client._make_request catches the
-        # stopit.TimeoutException, but the latter is not
-        # wrapped, so we cannot obtain it from here.
-        assert to_ctx_mgr.state == to_ctx_mgr.TIMED_OUT
+        results = future.result()
+    except TimeoutError as error:
+        assert True
+    except DevoClientException as error:
+        assert False, "DevoClientException raised: %s" % (error)
 
 
 def test_pragmas(api_config):
