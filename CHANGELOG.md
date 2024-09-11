@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [5.4.1] - 2024-07-09
+## [6.0.0] - 2024-XX-XX
 
 ### Changed
  - Extended supported Python versions to 10, 11 and 12
@@ -14,6 +14,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
  - SSL wrapping of the TCP connection when no certificates are used
  - Fix auxiliary Echo serving for unit testing in order to run with new async paradigm
  - Some parameters missing or non existent in docstring
+ - Fix for a unit test about concurrency support of the case (from stopit to pebble)
+
+### Removed
+ - Python 3.8 support discontinued
 
 ## [5.4.0] - 2024-07-09
 

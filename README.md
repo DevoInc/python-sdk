@@ -14,7 +14,7 @@ This is the SDK to access Devo directly from Python. It can be used to:
 
 ## Requirements
 
-The Devo SDK for Python requires Python 3.8+
+The Devo SDK for Python requires Python 3.9+
 
 ## Compatibility
 
