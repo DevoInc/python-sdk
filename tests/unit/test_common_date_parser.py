@@ -1,5 +1,6 @@
 from datetime import datetime as dt
-from datetime import UTC as UTC
+import zoneinfo
+UTC = zoneinfo.ZoneInfo("UTC")
 
 import pytest
 

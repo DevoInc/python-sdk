@@ -2,7 +2,8 @@
 """Utils for format and trunc dates."""
 
 from datetime import datetime as dt
-from datetime import UTC as UTC
+import zoneinfo
+UTC = zoneinfo.ZoneInfo("UTC")
 
 
 def to_millis(date):

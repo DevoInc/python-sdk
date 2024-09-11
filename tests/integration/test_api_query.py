@@ -2,9 +2,11 @@ import json
 import os
 import tempfile
 import types
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, timedelta
+import zoneinfo
+UTC = zoneinfo.ZoneInfo("UTC")
+
 from ssl import CERT_NONE
-from time import gmtime, strftime
 
 import pytest
 import stopit

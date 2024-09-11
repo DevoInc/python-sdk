@@ -2,7 +2,9 @@
 """A collection of allowed operations on date parsing"""
 
 from datetime import datetime as dt
-from datetime import UTC as UTC
+import zoneinfo
+UTC = zoneinfo.ZoneInfo("UTC")
+
 from datetime import timedelta
 
 from .dateutils import to_millis, trunc_time, trunc_time_minute
