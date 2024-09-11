@@ -10,7 +10,7 @@ from ssl import CERT_NONE
 import pytest
 from ip_validation import is_valid_ip
 from pebble import concurrent
-from pebble import ProcessExpired
+from concurrent.futures import TimeoutError
 from devo.api import Client, ClientConfig, DevoClientException
 from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
@@ -279,7 +279,7 @@ def test_stream_query_no_results_unbounded_dates(api_config):
 
     try:
         results = future.result()
-    except TimeoutError as error:
+    except TimeoutError:
         assert True
     except DevoClientException as error:
         assert False, "DevoClientException raised: %s" % (error)
