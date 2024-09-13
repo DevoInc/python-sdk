@@ -32,7 +32,7 @@ INSTALL_REQUIRES = [
     "pyopenssl~=24.1.0",
     "pytz~=2024.1",
     "certifi~=2024.7.4",
-    "cryptography~=42.0.8",
+    "cryptography~=43.0.1",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
