@@ -29,10 +29,10 @@ INSTALL_REQUIRES = [
     "click==8.1.7",
     "PyYAML==6.0.1",
     "pem~=21.2.0",
-    "pyopenssl~=24.1.0",
+    "pyopenssl~=24.2.1",
     "pytz~=2024.1",
     "certifi~=2024.7.4",
-    "cryptography~=42.0.8",
+    "cryptography~=43.0.1",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
