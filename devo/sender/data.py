@@ -15,6 +15,7 @@ from pathlib import Path
 from ssl import SSLWantReadError, SSLWantWriteError
 from threading import Thread, Lock, Event
 from typing import Optional, Callable
+import warnings
 
 import pem
 from _socket import SHUT_WR
@@ -648,7 +649,7 @@ class Sender(logging.Handler):
         """
         self.send(tag=self.logging.get("tag"), msg=msg)
 
-    # TODO: Deprecated
+    # TODO: Deprecated, to remove in next mayor version
     def set_sec_level(self, sec_level=None):
         """
         Set sec_level of SSL Context:
@@ -656,9 +657,11 @@ class Sender(logging.Handler):
         :param sec_level: sec_level value
         :return
         """
+        warnings.warn("This function is deprecated and it will be removed in future versions",
+                      DeprecationWarning, stacklevel=2)
         self._sender_config.sec_level = sec_level
 
-    # TODO: Deprecated
+    # TODO: Deprecated, to remove in next mayor version
     def set_verify_mode(self, verify_mode=None):
         """
         Set verify_mode of SSL Context:
@@ -670,9 +673,11 @@ class Sender(logging.Handler):
         :param verify_mode: verify mode value
         :return
         """
+        warnings.warn("This function is deprecated and it will be removed in future versions",
+                      DeprecationWarning, stacklevel=2)
         self._sender_config.verify_mode = verify_mode
 
-    # TODO: Deprecated
+    # TODO: Deprecated, to remove in next mayor version
     def set_check_hostname(self, check_hostname=True):
         """
         Set check_hostname of SSL Context:
@@ -680,6 +685,8 @@ class Sender(logging.Handler):
         :param check_hostname: check_hostname value. Default True
         :return
         """
+        warnings.warn("This function is deprecated and it will be removed in future versions",
+                      DeprecationWarning, stacklevel=2)
         self._sender_config.check_hostname = check_hostname
 
     def buffer_size(self, size=19500):
