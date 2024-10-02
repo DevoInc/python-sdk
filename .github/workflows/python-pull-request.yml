@@ -61,4 +61,4 @@ jobs:
           export DEVO_SENDER_CHAIN=$(realpath certs/us/ca.crt)
           export TMPDIR=${PWD}
           cd tests
-          python -m pytest
+          python -m pytest -vvv
