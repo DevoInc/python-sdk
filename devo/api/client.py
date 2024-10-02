@@ -173,6 +173,7 @@ class ClientConfig:
         self.processor = None
         self.set_processor(processor)
         self.keepAliveToken = None
+
         self.set_keepalive_token(keepAliveToken)
 
         if pragmas:
@@ -235,7 +236,9 @@ class ClientConfig:
         # keepalive (cannot be modified), but implementation uses
         # NO_KEEP_ALIVE value as it does not change the query msgpack and
         # xls does not support keepalive
-        if self.response in [
+        if self.destination is not None:
+            self.keepAliveToken = NO_KEEPALIVE_TOKEN
+        elif self.response in [
             "json",
             "json/compact",
             "json/simple",
@@ -253,7 +256,6 @@ class ClientConfig:
                 logging.warning(ERROR_MSGS["keepalive_not_supported"])
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
-
 
 class Client:
     """

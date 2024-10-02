@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
  - Added time zones in date operations
 
 ### Fixed
+ - `destination` parameter its not working, forcing NO_KEEPALIVE_TOKEN to avoid problems in client jobs creation
  - SSL wrapping of the TCP connection when no certificates are used
  - Fix auxiliary Echo serving for unit testing in order to run with new async paradigm
  - Some parameters missing or non existent in docstring
