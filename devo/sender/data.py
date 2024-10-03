@@ -75,6 +75,7 @@ class ERROR_MSGS(str, Enum):
     RAW_SENDING_ERROR = ("Error sending raw event: %s",)
     CLOSING_ERROR = "Error closing connection"
     FLUSHING_BUFFER_ERROR = "Error flushing buffer"
+    ERROR_AFTER_TIMEOUT = "Timeout reached"
 
 
 class DevoSenderException(Exception):
