@@ -758,18 +758,10 @@ class Client:
 
         return str_pragmas
 
-    def get_jobs(self, job_type=None, name=None):
+    def get_jobs(self):
         """Get list of jobs by type and name, default All
-        :param job_type: category of jobs
-        :param name: name of jobs
         :return: json"""
-        plus = (
-            ""
-            if not job_type
-            else "/{}".format(job_type if not name else "{}/{}".format(job_type, name))
-        )
-
-        return self._call_jobs("{}{}{}".format(self.address[0], "/search/jobs", plus))
+        return self._call_jobs("{}{}".format(self.address[0], "/search/jobs"))
 
     def get_job(self, job_id):
         """Get all info of job
