@@ -9,18 +9,27 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Changed
  - Extended supported Python versions to 10, 11 and 12
  - Added time zones in date operations
- - Jobs API reviewed and fixed
- - Added timeout to unit test of queries to API
+ - Jobs API reviewed and fixed. Jobs searching by type and friendlyName discontinued as it is not supported by API.
+   Jobs API unit test checked and enabled
+ - Added timeout to unit tests of API queries. They may run forever when faulty
 
 ### Fixed
- - `destination` parameter its not working, forcing NO_KEEPALIVE_TOKEN to avoid problems in client jobs creation
- - SSL wrapping of the TCP connection when no certificates are used
+ - Keep-alive mechanism not working for queries with `destination`. Forcing NO_KEEPALIVE_TOKEN in queries with
+   `destination`. 
+ - SSL wrapping of the TCP connection when no certificates are used improved
  - Fix auxiliary Echo serving for unit testing in order to run with new async paradigm
- - Some parameters missing or non existent in docstring
- - Fix for a unit test about concurrency support of the case (from stopit to pebble)
+ - Documentation fixes. Some parameters missing or non-existent in docstring
+ - Fix for a unit test when using concurrency (from library `stopit` to `pebble`)
 
 ### Removed
  - Python 3.8 support discontinued
+
+### Incompatibilities with 5.x.x that caused mayor version bump
+ - Python 3.8 not supported anymore
+ - Jobs searching by type and friendlyName discontinued in Jobs API. Only search by id filtering is supported.
+ - Date requires time zone
+ - Query with `destination` are forced to NO_KEEPALIVE_TOKEN mode for Keep-alive mechanism (instead of
+   DEFAULT_KEEPALIVE_TOKEN)
 
 ## [5.4.1] - 2024-09-13
 
