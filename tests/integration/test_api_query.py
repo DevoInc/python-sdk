@@ -4,8 +4,6 @@ import tempfile
 import types
 from datetime import datetime, timedelta
 import zoneinfo
-UTC = zoneinfo.ZoneInfo("UTC")
-
 from ssl import CERT_NONE
 import pytest
 from ip_validation import is_valid_ip
@@ -15,6 +13,8 @@ from devo.api import Client, ClientConfig, DevoClientException
 from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
 from devo.sender.data import Sender, SenderConfigSSL
+
+UTC = zoneinfo.ZoneInfo("UTC")
 
 # Load environment variables form test directory
 load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
