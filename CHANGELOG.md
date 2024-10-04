@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
  - Extended supported Python versions to 10, 11 and 12
  - Added time zones in date operations
  - Jobs API reviewed and fixed
+ - Added timeout to unit test of queries to API
 
 ### Fixed
  - `destination` parameter its not working, forcing NO_KEEPALIVE_TOKEN to avoid problems in client jobs creation
