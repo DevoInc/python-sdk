@@ -4,17 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [6.0.0] - 2024-XX-XX
+## [6.0.0] - 2024-10-07
 
 ### Changed
- - Extended supported Python versions to 10, 11 and 12
+ - Supported Python versions extended to 10, 11 and 12
  - Added time zones in date operations
  - Jobs API reviewed and fixed. Jobs searching by type and friendlyName discontinued as it is not supported by API.
    Jobs API unit test checked and enabled
  - Added timeout to unit tests of API queries. They may run forever when faulty
 
 ### Fixed
- - Keep-alive mechanism not working for queries with `destination`. Forcing NO_KEEPALIVE_TOKEN in queries with
+ - Keep-alive mechanism not working for queries with `destination`. Forcing NO_KEEP_ALIVE in queries with
    `destination`. 
  - SSL wrapping of the TCP connection when no certificates are used improved
  - Fix auxiliary Echo serving for unit testing in order to run with new async paradigm
@@ -26,9 +26,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Incompatibilities with 5.x.x that caused mayor version bump
  - Python 3.8 not supported anymore
- - Jobs searching by type and friendlyName discontinued in Jobs API. Only search by id filtering is supported.
+ - Jobs searching by type and friendlyName discontinued in Jobs API. Only search by job id is supported.
  - Date requires time zone
- - Query with `destination` are forced to NO_KEEPALIVE_TOKEN mode for Keep-alive mechanism (instead of
+ - Query with `destination` are forced to NO_KEEP_ALIVE mode for Keep-alive mechanism (instead of
    DEFAULT_KEEPALIVE_TOKEN)
 
 ## [5.4.1] - 2024-09-13
