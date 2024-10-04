@@ -22,6 +22,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ### Removed
  - Python 3.8 support discontinued
 
+## [5.4.1] - 2024-09-13
+
+### Security
+- `cryptography` dependency upgraded from `cryptography~=42.0.5` to `cryptography~=43.0.1`
+
 ## [5.4.0] - 2024-07-09
 
 ### Changed
