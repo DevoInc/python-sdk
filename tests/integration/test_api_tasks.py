@@ -46,7 +46,7 @@ def test_jobs_cycle(setup_client, setup_query, job_name):
 
     # Get all jobs
     result = setup_client.get_jobs()
-    assert len(result["object"]) >  0
+    assert len(result["object"]) > 0
 
     # Get job by job id
     result = setup_client.get_job(job_id=job_id)
