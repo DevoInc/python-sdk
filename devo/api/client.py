@@ -55,6 +55,8 @@ ERROR_MSGS = {
     "connection_error": "Failed to establish a new connection",
     "other_errors": "Error while invoking query",
     "error_no_detail": "Error code %d while invoking query",
+    "no_keepalive_for_destination": "Queries with destination functionality only support No Keepalive mode. Forced to"
+    " NO_KEEP_ALIVE"
 }
 
 DEFAULT_KEEPALIVE_TOKEN = "\n"
@@ -236,8 +238,11 @@ class ClientConfig:
         # keepalive (cannot be modified), but implementation uses
         # NO_KEEP_ALIVE value as it does not change the query msgpack and
         # xls does not support keepalive
+        # Queries with destination only supports NO_KEEP_ALIVE
         if self.destination is not None:
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(ERROR_MSGS["no_keepalive_for_destination"])
         elif self.response in [
             "json",
             "json/compact",
