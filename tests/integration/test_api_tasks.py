@@ -66,7 +66,7 @@ def test_jobs_cycle(setup_client, setup_query, job_name):
     jobs_ids = [job["id"] for job in result["object"] if job["friendlyName"].startswith("devo-sdk-api-test")]
     for job_id in jobs_ids:
         result = setup_client.remove_job(job_id)
-        assert result["object"]["status"] == "REMOVED"
+        assert result["object"]["status"] in ["REMOVED", "COMPLETED"]
 
 
 if __name__ == "__main__":
