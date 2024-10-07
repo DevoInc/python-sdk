@@ -15,6 +15,7 @@ from pathlib import Path
 from ssl import SSLWantReadError, SSLWantWriteError
 from threading import Thread, Lock, Event
 from typing import Optional, Callable
+import warnings
 
 import pem
 from _socket import SHUT_WR
@@ -74,6 +75,7 @@ class ERROR_MSGS(str, Enum):
     RAW_SENDING_ERROR = ("Error sending raw event: %s",)
     CLOSING_ERROR = "Error closing connection"
     FLUSHING_BUFFER_ERROR = "Error flushing buffer"
+    ERROR_AFTER_TIMEOUT = "Timeout reached"
 
 
 class DevoSenderException(Exception):
@@ -593,8 +595,6 @@ class Sender(logging.Handler):
                 context = ssl.create_default_context(cafile=self._sender_config.chain)
                 context.options |= ssl.OP_NO_SSLv2
                 context.options |= ssl.OP_NO_SSLv3
-                context.options |= ssl.OP_NO_TLSv1
-                context.options |= ssl.OP_NO_TLSv1_1
                 context.minimum_version = ssl.TLSVersion.TLSv1_2
                 context.maximum_version = ssl.TLSVersion.TLSv1_3
 
@@ -614,9 +614,16 @@ class Sender(logging.Handler):
                     self.socket, server_hostname=self._sender_config.address[0]
                 )
             else:
-                self.socket = ssl.wrap_socket(
-                    self.socket, ssl_version=ssl.PROTOCOL_TLS, cert_reqs=ssl.CERT_NONE
-                )
+                context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                context.options |= ssl.OP_NO_SSLv2
+                context.options |= ssl.OP_NO_SSLv3
+                context.minimum_version = ssl.TLSVersion.TLSv1_2
+                context.maximum_version = ssl.TLSVersion.TLSv1_3
+                self.logger.warning("One or more of CA certificate, private or public certificate is not provided"
+                                    " and TLS unsecure connection is established")
+                self.socket = context.wrap_socket(self.socket)
 
             self.socket.connect(self._sender_config.address)
             self.last_message = int(time.time())
@@ -643,7 +650,7 @@ class Sender(logging.Handler):
         """
         self.send(tag=self.logging.get("tag"), msg=msg)
 
-    # TODO: Deprecated
+    # TODO: Deprecated, to remove in next mayor version
     def set_sec_level(self, sec_level=None):
         """
         Set sec_level of SSL Context:
@@ -651,9 +658,11 @@ class Sender(logging.Handler):
         :param sec_level: sec_level value
         :return
         """
+        warnings.warn("This function is deprecated and it will be removed in future versions",
+                      DeprecationWarning, stacklevel=2)
         self._sender_config.sec_level = sec_level
 
-    # TODO: Deprecated
+    # TODO: Deprecated, to remove in next mayor version
     def set_verify_mode(self, verify_mode=None):
         """
         Set verify_mode of SSL Context:
@@ -665,9 +674,11 @@ class Sender(logging.Handler):
         :param verify_mode: verify mode value
         :return
         """
+        warnings.warn("This function is deprecated and it will be removed in future versions",
+                      DeprecationWarning, stacklevel=2)
         self._sender_config.verify_mode = verify_mode
 
-    # TODO: Deprecated
+    # TODO: Deprecated, to remove in next mayor version
     def set_check_hostname(self, check_hostname=True):
         """
         Set check_hostname of SSL Context:
@@ -675,6 +686,8 @@ class Sender(logging.Handler):
         :param check_hostname: check_hostname value. Default True
         :return
         """
+        warnings.warn("This function is deprecated and it will be removed in future versions",
+                      DeprecationWarning, stacklevel=2)
         self._sender_config.check_hostname = check_hostname
 
     def buffer_size(self, size=19500):
@@ -1093,7 +1106,6 @@ class Sender(logging.Handler):
         :param con_type: type of connection
         :param tag: tag for the table
         :param level: level of logger
-        :param formatter: log formatter
         :return: Sender object
         """
         con = Sender(config=config, con_type=con_type)

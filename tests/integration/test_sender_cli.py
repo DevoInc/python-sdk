@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 from click.testing import CliRunner
-from local_servers import SSLServer, find_available_port, wait_for_ready_server
+from local_servers import EchoServer, find_available_port, wait_for_ready_server
 
 from devo.common import Configuration
 from devo.common.generic.configuration import ConfigurationException
@@ -102,11 +102,12 @@ def setup():
     setup.bad_yaml_config_path = setup.common_path + os.sep + "bad_yaml_config.yaml"
 
     setup.ssl_port = find_available_port(setup.ssl_address, setup.ssl_port)
-    local_ssl_server = SSLServer(
+    local_ssl_server = EchoServer(
         setup.ssl_address,
         setup.ssl_port,
         setup.local_server_cert,
         setup.local_server_key,
+        ssl=True
     )
 
     wait_for_ready_server(local_ssl_server.ip, local_ssl_server.port)

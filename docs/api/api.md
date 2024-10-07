@@ -496,6 +496,7 @@ Client support several modes for supporting this mechanism. The mode is set up i
   * `json`, `json/compact`, `json/simple` and `json/simple/compact` token is always `b'    '` (four utf-8 spaces chars)
   * For `csv` and `tsv` token is the custom `str` set as parameter
   * `msgpack` and `xls` do not support this mode
+* Queries using `destination` functionality does not support keep alive. NO_KEEP_ALIVE is forced
 
 | Response mode       | default mode              | `NO_KEEPALIVE_TOKEN` | `DEFAULT_KEEPALIVE_TOKEN` | `EMPTY_EVENT_KEEPALIVE_TOKEN` | Custom keep alive token      |
 |---------------------|---------------------------|----------------------|---------------------------|-------------------------------|------------------------------|

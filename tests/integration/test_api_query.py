@@ -3,17 +3,18 @@ import os
 import tempfile
 import types
 from datetime import datetime, timedelta
+import zoneinfo
 from ssl import CERT_NONE
-from time import gmtime, strftime
-
 import pytest
-import stopit
 from ip_validation import is_valid_ip
-
+from pebble import concurrent
+from concurrent.futures import TimeoutError
 from devo.api import Client, ClientConfig, DevoClientException
 from devo.common import Configuration
 from devo.common.loadenv.load_env import load_env_file
 from devo.sender.data import Sender, SenderConfigSSL
+
+UTC = zoneinfo.ZoneInfo("UTC")
 
 # Load environment variables form test directory
 load_env_file(os.path.abspath(os.getcwd()) + os.sep + "environment.env")
@@ -150,6 +151,7 @@ def test_from_dict(api_config):
     assert isinstance(api, Client)
 
 
+@pytest.mark.timeout(180)
 def test_simple_query(api_config):
     config = ClientConfig(stream=False, response="json")
 
@@ -165,6 +167,7 @@ def test_simple_query(api_config):
     assert len(json.loads(result)["object"]) > 0
 
 
+@pytest.mark.timeout(180)
 def test_token(api_config):
     api = Client(
         auth={"token": api_config.api_token},
@@ -177,6 +180,7 @@ def test_token(api_config):
     assert len(json.loads(result)["object"]) > 0
 
 
+@pytest.mark.timeout(180)
 def test_query_id(api_config):
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
@@ -190,6 +194,7 @@ def test_query_id(api_config):
     assert isinstance(len(json.loads(result)["object"]), int)
 
 
+@pytest.mark.timeout(180)
 def test_query_yesterday_to_today(api_config):
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
@@ -204,6 +209,7 @@ def test_query_yesterday_to_today(api_config):
     assert len(json.loads(result)["object"]) == 1
 
 
+@pytest.mark.timeout(180)
 def test_query_from_seven_days(api_config):
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
@@ -216,6 +222,7 @@ def test_query_from_seven_days(api_config):
     assert len(json.loads(result)["object"]) == 1
 
 
+@pytest.mark.timeout(180)
 def test_query_from_fixed_dates(api_config):
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
@@ -226,14 +233,15 @@ def test_query_from_fixed_dates(api_config):
     result = api.query(
         query=api_config.query,
         dates={
-            "from": strftime("%Y-%m-%d", gmtime()),
-            "to": strftime("%Y-%m-%d %H:%M:%S", gmtime()),
+            "from": datetime.now(UTC).strftime("%Y-%m-%d"),
+            "to": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S"),
         },
     )
     assert result is not None
     assert len(json.loads(result)["object"]) == 1
 
 
+@pytest.mark.timeout(180)
 def test_stream_query(api_config):
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
@@ -247,6 +255,7 @@ def test_stream_query(api_config):
     assert len(result) == 1
 
 
+@pytest.mark.timeout(180)
 def test_stream_query_no_results_bounded_dates(api_config):
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
@@ -270,17 +279,21 @@ def test_stream_query_no_results_unbounded_dates(api_config):
     result = api.query(query=api_config.query_no_results)
     assert isinstance(result, types.GeneratorType)
 
+    @concurrent.process(timeout=3)
+    def fetch_result(result):
+        return list(result)
+
+    future = fetch_result(result)
+
     try:
-        with stopit.ThreadingTimeout(3) as to_ctx_mgr:
-            result = list(result)
-    except DevoClientException:
-        # This exception is sent because
-        # devo.api.client.Client._make_request catches the
-        # stopit.TimeoutException, but the latter is not
-        # wrapped, so we cannot obtain it from here.
-        assert to_ctx_mgr.state == to_ctx_mgr.TIMED_OUT
+        results = future.result()
+    except TimeoutError:
+        assert True
+    except DevoClientException as error:
+        assert False, "DevoClientException raised: %s" % (error)
 
 
+@pytest.mark.timeout(180)
 def test_pragmas(api_config):
     """Test the api when the pragma comment.free is used"""
     api = Client(
@@ -296,6 +309,7 @@ def test_pragmas(api_config):
     assert len(json.loads(result)["object"]) == 1
 
 
+@pytest.mark.timeout(180)
 def test_pragmas_not_comment_free(api_config):
     """Test the api when the pragma comment.free is not used"""
     api = Client(
@@ -312,6 +326,7 @@ def test_pragmas_not_comment_free(api_config):
 
 
 @pytest.mark.skip(reason="This is an internal functionality, not intended for external use")
+@pytest.mark.timeout(180)
 def test_unsecure_http_query(api_config):
     """
     This test is intended for checking unsecure HTTP requests. Devo will
@@ -432,6 +447,7 @@ def test_msgpack_future_queries(api_config):
     )
 
 
+@pytest.mark.timeout(180)
 def test_query_with_ip_as_int(api_config):
     config = ClientConfig(stream=False, response="json")
 
@@ -450,6 +466,7 @@ def test_query_with_ip_as_int(api_config):
     assert isinstance(resp_data[api_config.field_with_ip], int)
 
 
+@pytest.mark.timeout(180)
 def test_query_with_ip_as_string(api_config):
     config = ClientConfig(stream=False, response="json")
 

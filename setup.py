@@ -18,8 +18,10 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -27,7 +29,7 @@ CLASSIFIERS = [
 INSTALL_REQUIRES = [
     "requests~=2.32",
     "click==8.1.7",
-    "PyYAML==6.0.1",
+    "PyYAML~=6.0.1",
     "pem~=21.2.0",
     "pyopenssl~=24.2.1",
     "pytz~=2024.1",
@@ -36,12 +38,13 @@ INSTALL_REQUIRES = [
 ]
 EXTRAS_REQUIRE = {
     "dev": [
-        "stopit==1.1.2",
         "msgpack~=1.0.8",
         "responses~=0.25.3",
         "pipdeptree~=2.23.0",
         "pytest~=8.2.2",
         "pytest-cov~=5.0.0",
+        "mock~=5.1.0",
+        "pebble~=5.0.7"
     ]
 }
 CLI = [

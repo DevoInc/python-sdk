@@ -2,6 +2,8 @@
 """Utils for format and trunc dates."""
 
 from datetime import datetime as dt
+import zoneinfo
+UTC = zoneinfo.ZoneInfo("UTC")
 
 
 def to_millis(date):
@@ -10,7 +12,10 @@ def to_millis(date):
     :param date: Date for parse to millis
     :return: Millis from the date
     """
-    return int((date - dt.utcfromtimestamp(0)).total_seconds() * 1000)
+    # Verify whether param has timezone, if not set the default UTC one
+    if date.tzinfo is None:
+        date = date.replace(tzinfo=UTC)
+    return int((date - dt.fromtimestamp(0, UTC)).total_seconds() * 1000)
 
 
 def trunc_time(date):
@@ -50,4 +55,4 @@ def get_timestamp():
     Generate current timestamp
     :return:
     """
-    return to_millis(dt.utcnow())
+    return to_millis(dt.now(UTC))

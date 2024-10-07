@@ -204,6 +204,7 @@ def test_bad_credentials(api_config):
     assert result.exception.code == 12
 
 
+@pytest.mark.timeout(180)
 def test_normal_query(api_config):
     runner = CliRunner()
     result = runner.invoke(
@@ -228,6 +229,7 @@ def test_normal_query(api_config):
     assert '{"m":{"eventdate":{"type":"timestamp","index":0' in result.output
 
 
+@pytest.mark.timeout(180)
 def test_with_config_file(api_config):
     if api_config.config_path:
         runner = CliRunner()
@@ -249,6 +251,7 @@ def test_with_config_file(api_config):
         assert '{"m":{"eventdate":{"type":"timestamp","index":0' in result.output
 
 
+@pytest.mark.timeout(180)
 def test_query_with_ip_as_int(api_config):
     runner = CliRunner()
     result = runner.invoke(
@@ -278,6 +281,7 @@ def test_query_with_ip_as_int(api_config):
     assert isinstance(resp_data["d"][0], int)
 
 
+@pytest.mark.timeout(180)
 def test_query_with_ip_as_str(api_config):
     runner = CliRunner()
     result = runner.invoke(

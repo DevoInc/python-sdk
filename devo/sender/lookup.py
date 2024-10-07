@@ -392,6 +392,7 @@ class Lookup:
         """
         Convert one value to STR, cleaning it
         :param field: field to clean
+        :param escape_quotes: whether to escape quotes in response
         :return:
         """
         return ",%s" % Lookup.clean_field(field, escape_quotes)
@@ -402,6 +403,7 @@ class Lookup:
         Method to convert list with one row/fields to STR to send
         :param fields: fields list
         :param key_index: index of key in fields
+        :param escape_quotes: whether to escape quotes in response
         :return:
         """
         # First the key
@@ -417,6 +419,7 @@ class Lookup:
         """
         Strip and quotechar the fields
         :param str field: field for clean
+        :param escape_quotes: whether to escape quotes in response
         :return str: cleaned field
         """
         if not isinstance(field, (str, bytes)):

@@ -55,6 +55,8 @@ ERROR_MSGS = {
     "connection_error": "Failed to establish a new connection",
     "other_errors": "Error while invoking query",
     "error_no_detail": "Error code %d while invoking query",
+    "no_keepalive_for_destination": "Queries with destination functionality only support No Keepalive mode. Forced to"
+    " NO_KEEP_ALIVE"
 }
 
 DEFAULT_KEEPALIVE_TOKEN = "\n"
@@ -173,6 +175,7 @@ class ClientConfig:
         self.processor = None
         self.set_processor(processor)
         self.keepAliveToken = None
+
         self.set_keepalive_token(keepAliveToken)
 
         if pragmas:
@@ -235,7 +238,12 @@ class ClientConfig:
         # keepalive (cannot be modified), but implementation uses
         # NO_KEEP_ALIVE value as it does not change the query msgpack and
         # xls does not support keepalive
-        if self.response in [
+        # Queries with destination only supports NO_KEEP_ALIVE
+        if self.destination is not None:
+            self.keepAliveToken = NO_KEEPALIVE_TOKEN
+            if keepAliveToken not in [NO_KEEPALIVE_TOKEN, DEFAULT_KEEPALIVE_TOKEN]:
+                logging.warning(ERROR_MSGS["no_keepalive_for_destination"])
+        elif self.response in [
             "json",
             "json/compact",
             "json/simple",
@@ -253,7 +261,6 @@ class ClientConfig:
                 logging.warning(ERROR_MSGS["keepalive_not_supported"])
             self.keepAliveToken = NO_KEEPALIVE_TOKEN
         return True
-
 
 class Client:
     """
@@ -441,6 +448,7 @@ class Client:
         :param limit: Max number of rows
         :param offset: start of needle for query
         :param comment: comment for query
+        :param ip_as_string: whether to recive IP types as strings
         :return: Result of the query (dict) or Iterator object
         """
         dates = self._generate_dates(dates)
@@ -755,18 +763,10 @@ class Client:
 
         return str_pragmas
 
-    def get_jobs(self, job_type=None, name=None):
+    def get_jobs(self):
         """Get list of jobs by type and name, default All
-        :param job_type: category of jobs
-        :param name: name of jobs
         :return: json"""
-        plus = (
-            ""
-            if not job_type
-            else "/{}".format(job_type if not name else "{}/{}".format(job_type, name))
-        )
-
-        return self._call_jobs("{}{}{}".format(self.address[0], "/search/jobs", plus))
+        return self._call_jobs("{}{}".format(self.address[0], "/search/jobs"))
 
     def get_job(self, job_id):
         """Get all info of job
