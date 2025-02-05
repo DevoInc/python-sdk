@@ -22,19 +22,20 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = [
     "requests~=2.32",
-    "click==8.1.7",
+    "click==8.1.8",
     "PyYAML~=6.0.1",
     "pem~=21.2.0",
-    "pyopenssl~=24.2.1",
+    "pyopenssl~=25.0.0",
     "pytz~=2024.1",
-    "certifi~=2024.7.4",
-    "cryptography~=43.0.1",
+    "certifi~=2025.1.31",
+    "cryptography~=44.0.0",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
