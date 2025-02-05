@@ -25,7 +25,7 @@ jobs:
           args: --sarif-file-output=snyk.sarif
           command: test
       - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: snyk.sarif
   code:
@@ -42,6 +42,6 @@ jobs:
           args: --sarif-file-output=static-snyk.sarif
           command: code test
       - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: static-snyk.sarif
