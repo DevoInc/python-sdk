@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [6.0.1] - 2025-02-05
+
+### Added
+ - Added Python 3.13 support 
+
+### Changed
+ - Change logger name in `common/sender/data.py` so it logs to `devo.data` instead to ROOT
+
+### Fixed
+ - Bump security libraries to updated versions
+ - `test_api_cli` corrected as error code changed nomenclature
+
+
 ## [6.0.0] - 2024-10-07
 
 ### Changed
