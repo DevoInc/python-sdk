@@ -28,6 +28,8 @@ from .transformsyslog import (COMPOSE, COMPOSE_BYTES, FACILITY_USER, FORMAT_MY,
 
 PYPY = hasattr(sys, "pypy_version_info")
 
+log = logging.getLogger(__name__)
+
 
 class ERROR_MSGS(str, Enum):
 
@@ -764,7 +766,7 @@ class Sender(logging.Handler):
                 self.socket.shutdown(SHUT_WR)
                 self.__wait_for_EOF()
             except Exception:  # Try else continue
-                logging.warning(ERROR_MSGS.CLOSING_ERROR)
+                log.warning(ERROR_MSGS.CLOSING_ERROR)
             finally:
                 self.socket.close()
                 self.socket = None

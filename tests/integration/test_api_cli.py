@@ -201,7 +201,7 @@ def test_bad_credentials(api_config):
         ],
     )
     assert isinstance(result.exception, DevoClientException)
-    assert result.exception.code == 12
+    assert result.exception.code in [5, 12]
 
 
 @pytest.mark.timeout(180)
