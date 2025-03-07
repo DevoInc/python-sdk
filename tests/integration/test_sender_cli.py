@@ -386,6 +386,7 @@ def test_cli_escape_quotes(setup):
             "-lk",
             "KEY",
             "-eq",
+            "-enl",
             "--no-verify-certificates",
         ],
     )

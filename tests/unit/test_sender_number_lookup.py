@@ -23,6 +23,13 @@ def test_process_fields_does_not_modify_arguments():
     assert fields == ["a", "b", "c"]
     assert processed_fields == '"b","a","c"'
 
+def test_process_fields_does_modify_newline():
+    fields = ["a\ns", "b", "c"]
+    processed_fields = Lookup.process_fields(fields, key_index=1, escape_newline=True)
+
+    assert fields == ["a\ns", "b", "c"]
+    assert processed_fields == '"b","a\\ns","c"'
+
 
 # Clean field
 @pytest.mark.parametrize(
