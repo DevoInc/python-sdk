@@ -179,7 +179,7 @@ def test_create_lookup_key_index_preserves_structure(setup):
     fields = ["a", "b", "c"]
 
     expected_headers = (
-        '[{"col1":{"type":"str","key":true}},' + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+            '[{"col1":{"type":"str","key":true}},' + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
     )
     with mock.patch.object(lookup, "send_control", wraps=lookup.send_control) as lookup_spy:
         lookup.send_headers(headers=headers, key_index=0, event="START", action="FULL")
@@ -204,8 +204,8 @@ def test_send_headers_with_type_of_key(setup):
     headers = ["col1", "col2", "col3"]
 
     expected_headers = (
-        '[{"col1":{"type":"int4","key":true}},'
-        + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
+            '[{"col1":{"type":"int4","key":true}},'
+            + '{"col2":{"type":"str"}},{"col3":{"type":"str"}}]'
     )
     with mock.patch.object(lookup, "send_control", wraps=lookup.send_control) as lookup_spy:
         lookup.send_headers(
@@ -309,7 +309,7 @@ def test_escape_quotes_in_send_data_line_key(setup):
 
     with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
         lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
-        clean_field.assert_called_with('Double quotes"', True)
+        clean_field.assert_called_with('Double quotes"', True, False)
 
 
 # Test to make sure escape_quotes is propagated correctly
@@ -325,7 +325,7 @@ def test_escape_quotes_in_send_data_line(setup):
 
     with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
         lookup.send_data_line(key_index=0, fields=["11", 'Double quotes"'])
-        clean_field.assert_called_with('Double quotes"', True)
+        clean_field.assert_called_with('Double quotes"', True, False)
 
         # Test to make sure escape_quotes is propagated correctly
 
@@ -342,7 +342,7 @@ def test_escape_quotes_in_send_csv(setup):
 
     with mock.patch.object(Lookup, "clean_field", wraps=Lookup.clean_field) as clean_field:
         lookup.send_csv(path=setup.lookup_file, has_header=True, key=setup.lookup_key)
-        clean_field.assert_called_with("ffffff", True)
+        clean_field.assert_called_with("ffffff", True, False)
 
         # Test to make sure escape_quotes is propagated correctly
 
@@ -364,7 +364,7 @@ def test_escape_quotes_in_send_csv_delete_index(setup):
             key=setup.lookup_key,
             delete_field="Green",
         )
-        clean_field.assert_called_with("ffffff", True)
+        clean_field.assert_called_with("ffffff", True, False)
 
 
 if __name__ == "__main__":
