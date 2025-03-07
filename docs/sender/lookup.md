@@ -257,3 +257,24 @@ To see an example for the lookup configuration please refer to the one shown at 
 This will escape ALL double quotes in the field value by adding a second double quote to it.
 
 The default behavior is to NOT escape any double quotes.
+
+#### New line chars in the field value
+
+Any new line char inside the field value can cause trouble when creating the lookup if this is not escaped.
+An example of this case can be seen below:
+
+```python
+lookup.send_data_line(key_index=0, fields=["11", 'new lines\n must be escaped'])
+```
+
+That lookup creation will fail because that new line char quote may create null fields. To avoid this, add `"escape_newline": true` to the lookup configuration file and `escape_newline=True` to the `Lookup` constructor. Below, an example for the constructor is shown:
+
+```python
+lookup = Lookup(name=self.lookup_name, historic_tag=None, con=con, escape_newline=True)
+```
+
+To see an example for the lookup configuration please refer to the one shown at the start of the document.
+
+This will escape ALL new line chars in the field value by adding a second backslash to it.
+
+The default behavior is to NOT escape any new line chars.

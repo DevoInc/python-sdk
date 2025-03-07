@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [6.0.2] - 2025-03-07
+
+### Added
+ - Added new --escapenewline or -enl option in lookup creation, edition and deletion. It will escape with
+double backslash any new line char found inside a csv field.
+
 ## [6.0.1] - 2025-02-05
 
 ### Added

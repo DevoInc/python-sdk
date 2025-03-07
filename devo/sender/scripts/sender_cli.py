@@ -255,6 +255,13 @@ def data(**kwargs):
     default=False,
 )
 @click.option(
+    "--escapenewline",
+    "-enl",
+    is_flag=True,
+    help="Escape New Line char. Default: False",
+    default=False,
+)
+@click.option(
     "--no-verify-certificates",
     help="Do not Verify certificates credentials before connection",
     type=bool,
@@ -279,6 +286,7 @@ def lookup(**kwargs):
         historic_tag=None,
         con=con,
         escape_quotes=config["escapequotes"],
+        escape_newline=config["escapenewline"]
     )
 
     if lookup.check_quotes(config["file"]):

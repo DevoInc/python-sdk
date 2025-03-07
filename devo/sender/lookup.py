@@ -46,7 +46,7 @@ class Lookup:
     DATA_TABLE = "my.lookup.data"
     CONTROL_TABLE = "my.lookup.control"
 
-    def __init__(self, name="example", historic_tag=None, con=None, delay=5, escape_quotes=False):
+    def __init__(self, name="example", historic_tag=None, con=None, delay=5, escape_quotes=False, escape_newline=False):
         if not re.match(r"^[A-Za-z0-9_]+$", name):
             raise Exception(
                 "Devo Lookup: The name of the lookup is incorrect,"
@@ -63,6 +63,7 @@ class Lookup:
         self.name = name.replace(" ", "_")
         self.delay = delay
         self.escape_quotes = escape_quotes
+        self.escape_newline = escape_newline
 
     # Helper methods
     # --------------------------------------------------------------------------
@@ -106,7 +107,7 @@ class Lookup:
         :return:
         """
         p_fields = Lookup.process_fields(
-            fields=fields, key_index=key_index, escape_quotes=self.escape_quotes
+            fields=fields, key_index=key_index, escape_quotes=self.escape_quotes, escape_newline=self.escape_newline
         )
         self.send_data(row=p_fields, delete=delete)
 
@@ -242,6 +243,7 @@ class Lookup:
                             fields=fields,
                             key_index=key_index,
                             escape_quotes=self.escape_quotes,
+                            escape_newline=self.escape_newline
                         )
                         self.send_data(
                             row=p_fields,
@@ -258,6 +260,7 @@ class Lookup:
                             fields=fields,
                             key_index=key_index,
                             escape_quotes=self.escape_quotes,
+                            escape_newline=self.escape_newline
                         )
                         self.send_data(row=p_fields)
 
@@ -388,38 +391,41 @@ class Lookup:
         return out
 
     @staticmethod
-    def field_to_str(field, escape_quotes=False):
+    def field_to_str(field, escape_quotes=False, escape_newline=False):
         """
         Convert one value to STR, cleaning it
         :param field: field to clean
         :param escape_quotes: whether to escape quotes in response
+        :param escape_newline: whether to escape new line char in response
         :return:
         """
-        return ",%s" % Lookup.clean_field(field, escape_quotes)
+        return ",%s" % Lookup.clean_field(field, escape_quotes, escape_newline)
 
     @staticmethod
-    def process_fields(fields=None, key_index=None, escape_quotes=False):
+    def process_fields(fields=None, key_index=None, escape_quotes=False, escape_newline=False):
         """
         Method to convert list with one row/fields to STR to send
         :param fields: fields list
         :param key_index: index of key in fields
         :param escape_quotes: whether to escape quotes in response
+        :param escape_newline: whether to escape new line char in response
         :return:
         """
         # First the key
-        out = "%s" % Lookup.clean_field(fields[key_index], escape_quotes)
+        out = "%s" % Lookup.clean_field(fields[key_index], escape_quotes, escape_newline)
 
         # The rest of the fields
         for item in fields[:key_index] + fields[key_index + 1 :]:
-            out += Lookup.field_to_str(item, escape_quotes)
+            out += Lookup.field_to_str(item, escape_quotes, escape_newline)
         return out
 
     @staticmethod
-    def clean_field(field=None, escape_quotes=False):
+    def clean_field(field=None, escape_quotes=False, escape_newline=False):
         """
         Strip and quotechar the fields
         :param str field: field for clean
         :param escape_quotes: whether to escape quotes in response
+        :param escape_newline: whether to escape new line char in response
         :return str: cleaned field
         """
         if not isinstance(field, (str, bytes)):
@@ -431,6 +437,9 @@ class Lookup:
 
         if escape_quotes:
             field = field.replace('"', '""')
+
+        if escape_newline:
+            field = field.replace('\n', '\\n')
 
         return '"%s"' % field
 
