@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [6.0.3] - 2025-03-07
+
+### Deprecated
+ - Right now the upload of lookups is based on the `my.lookup.data` and `my.lookup.control` tables.
+This method will soon be deprecated on the Devo backend.
+As an alternative, you can use the Lookups API: [Lookups API Documentation](https://docs.devo.com/space/latest/127500289/Lookups+API).
+The Python SDK will support the Lookups API in future versions.
+
 ## [6.0.2] - 2025-03-07
 
 ### Added

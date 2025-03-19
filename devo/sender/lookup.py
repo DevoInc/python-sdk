@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-"""File with utils for send Lookups to Devo"""
+"""File with utils for send Lookups to Devo
+
+This method, based on the `my.lookup.data` and `my.lookup.control` tables, will soon be deprecated on the Devo backend.
+As an alternative, you can use the Lookups API: [https://docs.devo.com/space/latest/127500289/Lookups+API].
+The Python SDK will support the Lookups API in future versions.
+"""
+
 
 import csv
 import re
 import sys
 import time
+import warnings
 
 from devo.sender.data import open_file
 
@@ -291,6 +298,15 @@ class Lookup:
         :param action: action, can be START or END
         :return:
         """
+        if event == self.EVENT_START:
+            warnings.warn(
+                "The lookup upload functionality based on the `my.lookup.data` and `my.lookup.control` tables "
+                "will be deprecated in the future. Instead, you can use the Lookups API: "
+                "https://docs.devo.com/space/latest/127500289/Lookups+API. The next version of the Python SDK will be "
+                "based on this API.",
+                DeprecationWarning,
+                stacklevel=2
+            )
         if event == self.EVENT_END:
             time.sleep(self.delay)
         line = "%s_%s|%s|%s" % (self.lookup_id, self.name, event, headers)

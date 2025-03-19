@@ -366,6 +366,37 @@ def test_escape_quotes_in_send_csv_delete_index(setup):
         )
         clean_field.assert_called_with("ffffff", True, False)
 
+def test_deprecated_warning(setup):
+    engine_config = SenderConfigSSL(
+        address=(setup.ssl_address, setup.ssl_port),
+        key=setup.local_server_key,
+        cert=setup.local_server_cert,
+        chain=setup.local_server_chain,
+        check_hostname=False,
+        verify_mode=CERT_NONE,
+    )
+    con = Sender(engine_config)
+    with pytest.warns(DeprecationWarning) as record:
+        lookup = Lookup(name=setup.lookup_name, historic_tag=None, con=con)
+
+        with open(setup.lookup_file) as f:
+            line = f.readline()
+
+        lookup.send_csv(
+            setup.lookup_file,
+            headers=line.rstrip().split(","),
+            key=setup.lookup_key,
+        )
+
+    con.socket.shutdown(0)
+
+    assert len(record) == 1
+    warning = record[0]
+    expected_message = ("The lookup upload functionality based on the `my.lookup.data` and `my.lookup.control` tables "
+                        "will be deprecated in the future. Instead, you can use the Lookups API: "
+                        "https://docs.devo.com/space/latest/127500289/Lookups+API. The next version of the Python SDK "
+                        "will be based on this API.")
+    assert expected_message in str(warning.message)
 
 if __name__ == "__main__":
     pytest.main()
