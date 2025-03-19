@@ -13,12 +13,11 @@
 
 <!-- /code_chunk_output -->
 
-::: warning
-:warning: **Warning:** Right now the upload of lookups is based on the `my.lookup.data` and `my.lookup.control` tables. 
-This method will soon be deprecated on the Devo backend.
-As an alternative, you can use the Lookups API: [Lookups API Documentation](https://docs.devo.com/space/latest/127500289/Lookups+API).
-The Python SDK will support the Lookups API in future versions.
-:::
+> [!WARNING]  
+>  Right now the upload of lookups is based on the `my.lookup.data` and `my.lookup.control` tables. 
+> This method will soon be deprecated on the Devo backend.
+> As an alternative, you can use the Lookups API: [Lookups API Documentation](https://docs.devo.com/space/latest/127500289/Lookups+API).
+> The Python SDK will support the Lookups API in future versions.
 
 
 ## Overview
