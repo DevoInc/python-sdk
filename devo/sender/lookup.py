@@ -301,9 +301,8 @@ class Lookup:
         if event == self.EVENT_START:
             warnings.warn(
                 "The lookup upload functionality based on the `my.lookup.data` and `my.lookup.control` tables "
-                "will be deprecated in the future. Instead, you can use the Lookups API: "
-                "https://docs.devo.com/space/latest/127500289/Lookups+API. The next version of the Python SDK will be "
-                "based on this API.",
+                "is deprecated on the Devo backend, and it will be discontinued on 1st January 2026. Instead, you can "
+                "use the Lookups API: https://docs.devo.com/space/latest/127500289/Lookups+API.",
                 DeprecationWarning,
                 stacklevel=2
             )
