@@ -16,7 +16,7 @@ This is the SDK to access Devo directly from Python. It can be used to:
 > Right now the upload of lookups functionality is based on the `my.lookup.data` and `my.lookup.control` tables. 
 > This method is deprecated on the Devo backend, and it will be discontinued on 1st January 2026.
 > As an alternative, you can use the Lookups API: [Lookups API Documentation](https://docs.devo.com/space/latest/127500289/Lookups+API).
-
+> There is a [developer guide](docs/sender/api_lookup_guide.md) in documentation.
 
 ## Requirements
 
