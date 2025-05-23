@@ -302,7 +302,8 @@ class Lookup:
             warnings.warn(
                 "The lookup upload functionality based on the `my.lookup.data` and `my.lookup.control` tables "
                 "is deprecated on the Devo backend, and it will be discontinued on 1st January 2026. Instead, you can "
-                "use the Lookups API: https://docs.devo.com/space/latest/127500289/Lookups+API.",
+                "use the Lookups API: https://docs.devo.com/space/latest/127500289/Lookups+API. You can also find a "
+                "developers guide at https://github.com/DevoInc/python-sdk/blob/master/docs/sender/api_lookup_guide.md",
                 DeprecationWarning,
                 stacklevel=2
             )

@@ -4,8 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [6.0.5] - 2025-05-23
+
+### Added
+ - API Lookup developer guide in documentation
+
+### Deprecated
+ - Deprecation message in lookup upload functionality modified
+
+
 ## [6.0.4] - 2025-05-12
 
+### Deprecated
  - Deprecation message in lookup upload functionality modified
 
 ## [6.0.3] - 2025-03-20
