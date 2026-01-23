@@ -29,23 +29,24 @@ CLASSIFIERS = [
 ]
 INSTALL_REQUIRES = [
     "requests~=2.32",
-    "click==8.1.8",
-    "PyYAML~=6.0.1",
+    "click==8.3.1",
+    "PyYAML~=6.0.3",
     "pem~=21.2.0",
-    "pyopenssl~=25.0.0",
-    "pytz~=2024.1",
-    "certifi~=2025.1.31",
-    "cryptography~=44.0.0",
+    "pyopenssl~=25.3.0",
+    "pytz~=2025.2",
+    "certifi~=2026.1.4",
+    "cryptography~=44.0.3",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
-        "msgpack~=1.0.8",
-        "responses~=0.25.3",
-        "pipdeptree~=2.23.0",
-        "pytest~=8.2.2",
+        "msgpack~=1.1.2",
+        "responses~=0.25.8",
+        "pipdeptree~=2.30.0",
+        "pytest~=8.4.2",
         "pytest-cov~=5.0.0",
-        "mock~=5.1.0",
-        "pebble~=5.0.7"
+        "mock~=5.2.0",
+        "pebble~=5.1.3",
+        "pytest-timeout~=2.4.0"
     ]
 }
 CLI = [
