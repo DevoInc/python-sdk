@@ -245,7 +245,7 @@ def data(**kwargs):
     help="Detect types of fields. Default: False",
     default=False,
 )
-@click.option("--delimiter", "-d", help="CSV Delimiter char.", default=",")
+@click.option("--delimiter", help="CSV Delimiter char.", default=",")
 @click.option("--quotechar", "-qc", help="CSV Quote char.", default='"')
 @click.option(
     "--escapequotes",

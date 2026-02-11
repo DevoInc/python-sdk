@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [6.0.7] - 2026-02-11
+
+### Changed
+ - Changed some dependencies:
+
+| Dependency   | From        | To                          |
+| ------------ | ----------- | --------------------------- |
+| click        | ==8.3.1     | ~=8.3.1                     |
+| pem          | ~=21.2.0    | ~=23.1.0                    |
+| cryptography | ~=44.0.3    | Removed (transitive via pyOpenSSL) |
+| certifi      | ~=2026.1.4  | Removed (transitive via requests)  |
+
 ## [6.0.6] - 2025-05-26
 
 ### Fix

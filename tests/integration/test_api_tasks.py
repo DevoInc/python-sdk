@@ -37,6 +37,9 @@ def job_name():
 
 
 def test_jobs_cycle(setup_client, setup_query, job_name):
+    if not os.getenv("DEVO_API_KEY") or not os.getenv("DEVO_API_SECRET"):
+        if not os.getenv("DEVO_API_TOKEN"):
+            pytest.skip("DEVO_API_KEY and DEVO_API_SECRET (or DEVO_API_TOKEN) required for Jobs API test")
     result = setup_client.query(query=setup_query, dates={"from": "1d", "to": "endday"})
     result = json.loads(result)
     assert result["status"] == 0

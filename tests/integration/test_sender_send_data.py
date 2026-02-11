@@ -66,6 +66,7 @@ def setup():
     setup.local_server_chain = os.getenv(
         "DEVO_SENDER_SERVER_CHAIN", f"{setup.certs_path}/ca/ca_cert.pem"
     )
+    setup.local_client_cert = f"{setup.certs_path}/client/client_cert.pem"
     setup.test_tcp = (os.getenv("DEVO_TEST_TCP", False) == 'True')
     setup.configuration = Configuration()
     setup.configuration.set(
@@ -538,11 +539,11 @@ def test_config_cert_key_incompatible_case(setup):
     Test that verifies that an incompatible
     certificate with a key raises an exception.
     """
-
+    # Use client cert with server key: key/cert mismatch (both local, no remote certs needed)
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
         key=setup.local_server_key,
-        cert=setup.remote_server_cert,
+        cert=setup.local_client_cert,
         chain=setup.local_server_chain,
         check_hostname=False,
         verify_mode=CERT_NONE,
@@ -586,15 +587,12 @@ def test_config_cert_chain_incompatible_case(setup):
     Test that verifies that an incompatible
     certificate with a chain raises an exception.
     """
-
+    # Use server cert with client cert as chain: cert/chain mismatch (both local)
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
         key=setup.local_server_key,
         cert=setup.local_server_cert,
-        chain=setup.remote_server_cert,
-        # chain="{!s}/local_certs/keys/server/server_cert.pem".format(
-        #     os.path.dirname(os.path.abspath(__file__))
-        # ),
+        chain=setup.local_client_cert,
         check_hostname=False,
         verify_mode=CERT_NONE,
         verify_config=False,
@@ -639,6 +637,8 @@ def test_config_cert_address_incompatible_address(setup):
     Test that verifies that an incompatible certificate
     and address raises an exception.
     """
+    if not os.path.isfile(setup.remote_server_chain):
+        pytest.skip("Remote Devo certs (resources/certs/us/) required")
     engine_config = SenderConfigSSL(
         address=(setup.ssl_address, setup.ssl_port),
         key=setup.remote_server_key,

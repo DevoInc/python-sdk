@@ -121,49 +121,46 @@ Devo account owns. Administrator users can find them in **Administration** → *
 
 ### Pytest
 
-The SDK uses Pytest for testing. This is a powerful tool for testing Python code. Pytest is a much more flexible and powerful tool than the built-in unittest module. It allows more testing functionality through the use of plugins. You can find more information in the [Pytest documentation](https://docs.pytest.org/en/stable/).
-
-Install the testing requirements:
+The SDK uses [Pytest](https://docs.pytest.org/en/stable/) for testing. Install the package and testing requirements, then run tests from the **project root**:
 
 ```console
+pip install -e .
 pip install -r requirements-test.txt
 ```
 
-You can run tests from the `tests` folder of SDK
+**Run all tests:**
 
 ```console
-pytest
+python -m pytest tests/
 ```
 
-Its normal that TCP tests fails in clients or not Devo developers systems.
-
-You can add the option `--cov` to create a coverage report.
+**Run only unit tests:**
 
 ```console
-pytest --cov
+python -m pytest tests/unit/
 ```
 
-Check the [pytest-cov documentation](https://pytest-cov.readthedocs.io/) for more details.
-
-The tests are divided into unit and integration tests. The integration tests require either a connection to Devo or to a local server that is launched when testing, so you need to have the environment variables in your system for all the tests that require connection to Devo can work.
-
-To run the unit tests only, you can use the `unit` folder:
+**Run only integration tests:**
 
 ```console
-pytest unit
+python -m pytest tests/integration/
 ```
 
-To run the integration tests only, you can use the `integration` folder:
+**Run a single test file:**
 
 ```console
-pytest integration
+python -m pytest tests/unit/test_sender_encoding.py
 ```
 
-You can also run the test for just one module. This is a useful feature if you are developing functionality in just one module.
+**Run with coverage report:**
 
 ```console
-pytest unit/test_sender_encoding.py
+python -m pytest tests/ --cov
 ```
+
+See the [pytest-cov documentation](https://pytest-cov.readthedocs.io/) for coverage options.
+
+Integration tests need either a connection to Devo or a local server started by the test run; some tests also require environment variables (e.g. `DEVO_API_KEY`, `DEVO_API_SECRET`) or certificate paths. It is normal for integration tests that require Devo credentials or remote certs to be skipped or fail when those are not configured.
 
 ### Contact Us
 
