@@ -28,7 +28,7 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = [
-    "click~=8.1.0",
+    "click~=8.3.1",
     "pem~=23.1.0",
     "pyopenssl~=25.3.0",
     "pytz~=2025.2",
