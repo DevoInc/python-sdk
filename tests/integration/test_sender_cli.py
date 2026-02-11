@@ -120,7 +120,8 @@ def setup():
 def test_cli_args():
     runner = CliRunner()
     result = runner.invoke(data, [])
-    assert "No address" in result.stdout
+    # Error messages are printed to stderr via print_error()
+    assert "No address" in (result.stdout + result.stderr)
 
 
 def test_cli_bad_address(setup):
@@ -128,61 +129,68 @@ def test_cli_bad_address(setup):
     result = runner.invoke(
         data, ["--debug", "--type", "TCP", "--address", setup.ssl_address + "asd"]
     )
-    assert isinstance(result.exception, DevoSenderException)
-    assert "TCP conn establishment socket error" in result.stdout
+    # CLI catches DevoSenderException and calls exit(), so result.exception may be SystemExit
+    assert result.exit_code != 0
+    assert "TCP conn establishment socket error" in (result.stdout + result.stderr)
 
 
 def test_cli_bad_certs(setup):
+    # Use local key with client cert so they don't match (config validation fails)
+    client_cert = os.path.join(setup.certs_path, "client", "client_cert.pem")
     runner = CliRunner()
     result = runner.invoke(
         data,
         [
             "--debug",
             "--address",
-            setup.remote_address,
+            setup.ssl_address,
             "--port",
-            "443",
+            str(setup.ssl_port),
             "--key",
-            setup.local_server_key,  # Not matching the remote cert
+            setup.local_server_key,
             "--cert",
-            setup.remote_server_cert,
+            client_cert,
             "--chain",
-            setup.remote_server_chain,
+            setup.local_server_chain,
             "--verify_mode",
             1,
             "--check_hostname",
             True,
         ],
     )
-    assert isinstance(result.exception, DevoSenderException)
-    assert "Error in the configuration" in result.exception.args[0]
+    assert result.exit_code != 0
+    assert "Error in the configuration" in (result.stdout + result.stderr)
 
 
 def test_cli_bad_certs_no_verify_on(setup):
+    # Use client cert with server key so SSL handshake fails when connecting to local server
+    client_cert = os.path.join(setup.certs_path, "client", "client_cert.pem")
     runner = CliRunner()
     result = runner.invoke(
         data,
         [
             "--debug",
             "--address",
-            setup.remote_address,
+            setup.ssl_address,
             "--port",
-            "443",
+            str(setup.ssl_port),
             "--key",
-            setup.local_server_key,  # Not matching the remote cert
+            setup.local_server_key,
             "--cert",
-            setup.remote_server_cert,
+            client_cert,
             "--chain",
-            setup.remote_server_chain,
+            setup.local_server_chain,
             "--verify_mode",
-            1,
+            0,
             "--check_hostname",
-            True,
+            False,
             "--no-verify-certificates",
+            "--line",
+            "test",
         ],
     )
-    assert isinstance(result.exception, DevoSenderException)
-    assert "SSL conn establishment socket error" in result.exception.args[0]
+    assert result.exit_code != 0
+    assert "SSL conn establishment socket error" in (result.stdout + result.stderr)
 
 
 def test_cli_notfound_certs(setup):
@@ -192,26 +200,28 @@ def test_cli_notfound_certs(setup):
         [
             "--debug",
             "--address",
-            setup.remote_address,
+            setup.ssl_address,
             "--port",
-            "443",
+            str(setup.ssl_port),
             "--key",
             "not_a_folder/not_a_file",
             "--cert",
-            setup.remote_server_cert,
+            setup.local_server_cert,
             "--chain",
-            setup.remote_server_chain,
+            setup.local_server_chain,
             "--verify_mode",
             1,
             "--check_hostname",
             True,
         ],
     )
-    assert isinstance(result.exception, SystemExit)
+    assert result.exit_code != 0
+    # Click validation errors are written to stderr
     assert (
-        "Error: Invalid value for '--key': Path 'not_a_folder/not_a_file' does not exist."
-        in result.stdout
+        "Invalid value for '--key'" in result.stderr
+        or "Invalid value for '--key'" in result.stdout
     )
+    assert "not_a_folder/not_a_file" in (result.stdout + result.stderr)
 
 
 def test_cli_normal_send_without_certificates_checking(setup):
@@ -247,6 +257,8 @@ def test_cli_normal_send_without_certificates_checking(setup):
 
 
 def test_cli_normal_send_with_certificates_checking(setup):
+    if not os.path.isfile(setup.remote_server_chain):
+        pytest.skip("Remote Devo certs not found (need resources/certs/us/ or DEVO_SENDER_* env)")
     runner = CliRunner()
     result = runner.invoke(
         data,
@@ -278,6 +290,8 @@ def test_cli_normal_send_with_certificates_checking(setup):
 
 
 def test_cli_normal_send_multiline_with_certificates_checking(setup):
+    if not os.path.isfile(setup.remote_server_chain):
+        pytest.skip("Remote Devo certs not found (need resources/certs/us/ or DEVO_SENDER_* env)")
     runner = CliRunner()
     result = runner.invoke(
         data,

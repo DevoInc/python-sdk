@@ -44,6 +44,7 @@ def sending_config():
     setup.remote_server_chain = os.getenv(
         "DEVO_SENDER_CHAIN", f"{setup.res_path}/certs/us/chain.crt"
     )
+    setup.remote_certs_available = os.path.isfile(setup.remote_server_chain)
 
     setup.hostname = "python-sdk-test-hostname"
     setup.test_tag_with_ip = os.getenv("DEVO_API_QUERY_TAG_WITH_IP", "test.keep.types")
@@ -92,7 +93,8 @@ def api_config(sending_config):
     """Fixture for API configuration."""
 
     setup = sending_config
-    send_test_log(setup)
+    if sending_config.remote_certs_available:
+        send_test_log(setup)
 
     setup.query = os.getenv("DEVO_API_QUERY", "from test.keep.types select ip4 limit 1")
     setup.query_no_results = (
@@ -111,6 +113,9 @@ def api_config(sending_config):
     setup.user = os.getenv("DEVO_API_USER", "python-sdk-user")
     setup.comment = os.getenv("DEVO_API_COMMENT", None)
     setup.app_name = "testing-app_name"
+    setup.api_credentials_available = bool(
+        (setup.api_key and setup.api_secret) or setup.api_token
+    )
 
     configuration = Configuration()
     configuration.set(
@@ -137,6 +142,11 @@ def api_config(sending_config):
         os.remove(setup.config_path)
 
 
+def _skip_if_no_api_credentials(api_config):
+    if not api_config.api_credentials_available:
+        pytest.skip("DEVO_API_KEY/SECRET or DEVO_API_TOKEN required")
+
+
 def test_from_dict(api_config):
     api = Client(
         config={
@@ -153,6 +163,7 @@ def test_from_dict(api_config):
 
 @pytest.mark.timeout(180)
 def test_simple_query(api_config):
+    _skip_if_no_api_credentials(api_config)
     config = ClientConfig(stream=False, response="json")
 
     api = Client(
@@ -169,6 +180,7 @@ def test_simple_query(api_config):
 
 @pytest.mark.timeout(180)
 def test_token(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"token": api_config.api_token},
         address=api_config.api_address,
@@ -182,6 +194,7 @@ def test_token(api_config):
 
 @pytest.mark.timeout(180)
 def test_query_id(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -196,6 +209,7 @@ def test_query_id(api_config):
 
 @pytest.mark.timeout(180)
 def test_query_yesterday_to_today(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -211,6 +225,7 @@ def test_query_yesterday_to_today(api_config):
 
 @pytest.mark.timeout(180)
 def test_query_from_seven_days(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -224,6 +239,7 @@ def test_query_from_seven_days(api_config):
 
 @pytest.mark.timeout(180)
 def test_query_from_fixed_dates(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -243,6 +259,7 @@ def test_query_from_fixed_dates(api_config):
 
 @pytest.mark.timeout(180)
 def test_stream_query(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -257,6 +274,7 @@ def test_stream_query(api_config):
 
 @pytest.mark.timeout(180)
 def test_stream_query_no_results_bounded_dates(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -270,6 +288,7 @@ def test_stream_query_no_results_bounded_dates(api_config):
 
 
 def test_stream_query_no_results_unbounded_dates(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -296,6 +315,7 @@ def test_stream_query_no_results_unbounded_dates(api_config):
 @pytest.mark.timeout(180)
 def test_pragmas(api_config):
     """Test the api when the pragma comment.free is used"""
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -312,6 +332,7 @@ def test_pragmas(api_config):
 @pytest.mark.timeout(180)
 def test_pragmas_not_comment_free(api_config):
     """Test the api when the pragma comment.free is not used"""
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -357,7 +378,7 @@ def test_unsecure_http_query(api_config):
 
 def test_stream_mode_not_supported_xls(api_config):
     """Test the api stream mode is not supported for xls format"""
-
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -371,7 +392,7 @@ def test_stream_mode_not_supported_xls(api_config):
 
 def test_stream_mode_not_supported_json(api_config):
     """Test the api stream mode is not supported for json format"""
-
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -385,7 +406,7 @@ def test_stream_mode_not_supported_json(api_config):
 
 def test_stream_mode_not_supported_json_compact(api_config):
     """Test the api stream mode is not supported for json/compact format"""
-
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -399,7 +420,7 @@ def test_stream_mode_not_supported_json_compact(api_config):
 
 def test_stream_mode_not_supported_msgpack(api_config):
     """Test the api stream mode is not supported for msgpack format"""
-
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -412,6 +433,7 @@ def test_stream_mode_not_supported_msgpack(api_config):
 
 
 def test_xls_future_queries(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -430,6 +452,7 @@ def test_xls_future_queries(api_config):
 
 
 def test_msgpack_future_queries(api_config):
+    _skip_if_no_api_credentials(api_config)
     api = Client(
         auth={"key": api_config.api_key, "secret": api_config.api_secret},
         address=api_config.api_address,
@@ -449,6 +472,7 @@ def test_msgpack_future_queries(api_config):
 
 @pytest.mark.timeout(180)
 def test_query_with_ip_as_int(api_config):
+    _skip_if_no_api_credentials(api_config)
     config = ClientConfig(stream=False, response="json")
 
     api = Client(
@@ -468,6 +492,7 @@ def test_query_with_ip_as_int(api_config):
 
 @pytest.mark.timeout(180)
 def test_query_with_ip_as_string(api_config):
+    _skip_if_no_api_credentials(api_config)
     config = ClientConfig(stream=False, response="json")
 
     api = Client(
