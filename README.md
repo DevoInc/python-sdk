@@ -82,7 +82,6 @@ To send data with Devo SDK, first choose the required endpoint depending on the 
 | Region | Endpoint             | Port |
 |--------|----------------------|------|
 | USA    | collector-us.devo.io | 443  |
-| Canada | collector-ca.devo.io | 443  |
 | Europe | collector-eu.devo.io | 443  |
 | APAC   | collector-ap.devo.io | 443  |
 
@@ -95,7 +94,6 @@ To perform a request with API, first choose the required endpoint depending on t
 | Region | Endpoint                               |
 |--------|----------------------------------------|
 | USA    | <https://apiv2-us.devo.com/search/query> |
-| Canada | <https://apiv2-ca.devo.com/search/query> |
 | Europe | <https://apiv2-eu.devo.com/search/query> |
 | APAC   | <https://api-apac.devo.com/search/query> |
 
