@@ -18,7 +18,6 @@ CLASSIFIERS = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -30,8 +29,8 @@ CLASSIFIERS = [
 INSTALL_REQUIRES = [
     "click~=8.3.1",
     "pem~=23.1.0",
-    "pyopenssl~=25.3.0",
-    "pytz~=2025.2",
+    "pyopenssl~=26.0.0",
+    "pytz~=2026.1",
     "pyyaml~=6.0.3",
     "requests~=2.32",
 ]
@@ -39,12 +38,12 @@ EXTRAS_REQUIRE = {
     "dev": [
         "mock~=5.2.0",
         "msgpack~=1.1.2",
-        "pebble~=5.1.3",
+        "pebble~=5.2.0",
         "pipdeptree~=2.30.0",
-        "pytest~=8.4.2",
-        "pytest-cov~=5.0.0",
+        "pytest~=9.0.0",
+        "pytest-cov~=6.0.0",
         "pytest-timeout~=2.4.0",
-        "responses~=0.25.8",
+        "responses~=0.26.0",
     ]
 }
 CLI = [
@@ -84,6 +83,7 @@ with open("README.md", "r") as fh:
     long_description = re.sub(pattern, replace, fh.read(), flags=re.MULTILINE)
 
 setup(
+    python_requires=">=3.10",
     author="Devo, Inc.",
     author_email="support@devo.com",
     description="Devo Software Development Kit for Python.",
