@@ -376,7 +376,7 @@ def test_deprecated_warning(setup):
         verify_mode=CERT_NONE,
     )
     con = Sender(engine_config)
-    with pytest.warns(DeprecationWarning) as record:
+    with pytest.warns(DeprecationWarning, match="lookup upload functionality") as record:
         lookup = Lookup(name=setup.lookup_name, historic_tag=None, con=con)
 
         with open(setup.lookup_file) as f:

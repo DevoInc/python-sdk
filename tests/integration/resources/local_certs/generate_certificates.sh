@@ -14,7 +14,7 @@ openssl req \
     -newkey rsa:4096 \
     -keyout ca/private/ca_key.pem \
     -out ca/ca_cert.pem \
-    -subj "/C=US/ST=Acme State/L=Acme City/O=Acme Inc./CN=0.0.0.0"
+    -subj "/C=US/ST=Acme State/L=Acme City/O=Acme Inc./CN=Devo Test CA"
 
 # Create server private key and certificate request
 mkdir -p server/private
