@@ -1,5 +1,5 @@
 __description__ = "Devo Python Library."
-__url__ = "http://www.devo.com"
+__url__ = "https://www.devo.com"
 __version__ = "7.0.1"
 __author__ = "Devo"
 __author_email__ = "support@devo.com"
