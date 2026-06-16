@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [7.0.1] - 2026-06-16
+
+### Changed
+ - Changed some dependencies:
+
+| Dependency       | From     | To       |
+|------------------|----------|----------|
+| click            | ~=8.3.1  | ~=8.4.1  |
+| pyopenssl        | ~=26.0.0 | ~=26.3.0 |
+| pytz             | ~=2026.1 | ~=2026.2 |
+| requests         | ~=2.32   | ~=2.34.2 |
+| msgpack (dev)    | ~=1.1.2  | ~=1.2.0  |
+| pipdeptree (dev) | ~=2.30.0 | ~=3.1.0  |
+| pytest (dev)     | ~=9.0.0  | ~=9.1.0  |
+| pytest-cov (dev) | ~=6.0.0  | ~=7.1.0  |
+| responses (dev)  | ~=0.26.0 | ~=0.26.1 |
+
+
 ## [7.0.0] - 2026-02-11
 
 ### Removed

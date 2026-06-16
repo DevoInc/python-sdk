@@ -732,7 +732,7 @@ def test_fake_get_peer_cert_chain(setup):
             chain_certs.append(crypto.load_certificate(crypto.FILETYPE_PEM, str(_ca)))
 
     for a, b in zip(fake_chain_cert, chain_certs):
-        assert a.get_subject() == b.get_subject()
+        assert a.to_cryptography() == b.to_cryptography()
 
 
 def test_open_file(setup):
