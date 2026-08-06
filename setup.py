@@ -27,23 +27,23 @@ CLASSIFIERS = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 INSTALL_REQUIRES = [
-    "click~=8.4.1",
-    "pem~=23.1.0",
-    "pyopenssl~=26.3.0",
-    "pytz~=2026.1",
-    "pyyaml~=6.0.3",
-    "requests~=2.34.2",
+    "click~=8.0",
+    "pem~=23.0",
+    "pyopenssl~=26.0",
+    "pytz~=2026.0",
+    "pyyaml~=6.0",
+    "requests~=2.0",
 ]
 EXTRAS_REQUIRE = {
     "dev": [
-        "mock~=5.2.0",
-        "msgpack~=1.2.0",
-        "pebble~=5.2.0",
-        "pipdeptree~=3.1.0",
-        "pytest~=9.1.0",
-        "pytest-cov~=7.1.0",
-        "pytest-timeout~=2.4.0",
-        "responses~=0.26.1",
+        "mock~=5.0",
+        "msgpack~=1.0",
+        "pebble~=5.0",
+        "pipdeptree~=3.0",
+        "pytest~=9.0",
+        "pytest-cov~=7.0",
+        "pytest-timeout~=2.0",
+        "responses~=0.0",
     ]
 }
 CLI = [
