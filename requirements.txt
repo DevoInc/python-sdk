@@ -1,6 +1,6 @@
-click~=8.4.1
-pem~=23.1.0
-pyopenssl~=26.3.0
-pyyaml~=6.0.3
-pytz~=2026.2
-requests~=2.34.2
+click~=8.0
+pem~=23.0
+pyopenssl~=26.0
+pyyaml~=6.0
+pytz~=2026.0
+requests~=2.0

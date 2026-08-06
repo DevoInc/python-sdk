@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [7.0.2] - 2026-08-06
+
+### Changed
+ - Changed some dependencies (this way will allow to use the latest minor version of these fixed major versions):
+
+| Dependency | From     | To       |
+|------------|----------|----------|
+| click      | ~=8.4.1  | ~=8.0    |
+| pem        | ~=23.1.0 | ~=23.0   |
+| pyopenssl  | ~=26.3.0 | ~=26.0   |
+| pyyaml     | ~=6.0.3  | ~=6.0    |
+| pytz       | ~=2026.2 | ~=2026.0 |
+| requests   | ~=2.34.2 | ~=2.0    |
+
 ## [7.0.1] - 2026-06-16
 
 ### Changed
